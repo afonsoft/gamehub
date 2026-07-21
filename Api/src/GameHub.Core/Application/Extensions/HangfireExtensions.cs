@@ -9,7 +9,7 @@ namespace GameHub.Application.Extensions
     {
         public static void ScheduleRecurringJobs(this IApplicationBuilder app)
         {
-            RecurringJob.AddOrUpdate<IAirplaneManager>("DateUpdateProcess", x => x.DateUpdate(null), Cron.Minutely, TimeZoneInfo.Local);
+            RecurringJob.AddOrUpdate<IAirplaneManager>("DateUpdateProcess", x => x.DateUpdate(null), Cron.Minutely, new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
         }
     }
 }

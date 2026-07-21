@@ -6,10 +6,7 @@ namespace GameHub.Tests
     {
         public MultiTenantFactAttribute()
         {
-            if (!ProjectNameConsts.MultiTenancyEnabled)
-            {
-                Skip = "MultiTenancy is disabled.";
-            }
+            Skip = ProjectNameConsts.MultiTenancyEnabled ? null : "MultiTenancy is disabled.";
         }
     }
 }

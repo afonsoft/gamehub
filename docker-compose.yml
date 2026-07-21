@@ -1,61 +1,59 @@
 services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-gamehub}
-      POSTGRES_USER: ${POSTGRES_USER:-gamehub}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-
-  minio:
-    image: minio/minio
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-change-me}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-change-me}
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-
   backend:
     build:
       context: ./Api
       dockerfile: Dockerfile
+    container_name: gamehub-backend
+    restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      Database__Provider: PostgreSQL
       ConnectionStrings__Default: Host=postgres;Database=${POSTGRES_DB:-gamehub};Username=${POSTGRES_USER:-gamehub};Password=${POSTGRES_PASSWORD:-change-me}
-      Redis__Configuration: redis:6379
+      RedisCache__IsEnabled: "true"
+      RedisCache__ConnectionString: redis:6379
+      RedisCache__DatabaseId: "0"
+      Hangfire__IsEnabled: "false"
+      App__ServerRootAddress: http://localhost:5000/
+      App__CorsOrigins: "http://localhost:4200,http://localhost:4201"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "5000:80"
+    networks:
+      - gamehub
 
   angular-hub:
     build:
       context: ./angular
       dockerfile: Dockerfile
-    ports:
-      - "4200:80"
+    container_name: gamehub-angular-hub
+    restart: unless-stopped
     depends_on:
       - backend
+    ports:
+      - "4200:80"
+    networks:
+      - gamehub
 
   angular-admin:
     build:
       context: ./angular-admin/GameHub.UI
       dockerfile: dockerfile
-    ports:
-      - "4201:80"
+    container_name: gamehub-angular-admin
+    restart: unless-stopped
+    environment:
+      REMOTE_SERVICE_BASE_URL: http://localhost:5000
+      APP_BASE_URL: http://localhost:4201
     depends_on:
       - backend
+    ports:
+      - "4201:80"
+    networks:
+      - gamehub
 
-volumes:
-  pgdata:
+networks:
+  gamehub:
+    driver: bridge

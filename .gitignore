@@ -44,6 +44,14 @@ ScaffoldingReadMe.txt
 *~
 CodeCoverage/
 
+# Agent harness local overrides
+CLAUDE.local.md
+.claude/settings.local.json
+.devin/config.local.json
+
+# Test coverage output
+**/TestResults/
+
 # MSBuild Binary and Structured Log
 *.binlog
 

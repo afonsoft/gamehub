@@ -1,9 +1,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
-EXPOSE 8001
+EXPOSE 80
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:8001
+ENV ASPNETCORE_URLS=http://+:80
 ENV DOTNET_gcServer=true
 ENV DOTNET_TieredCompilation=1
 ENV DOTNET_ReadyToRun=true
@@ -18,11 +18,11 @@ ENV DOTNET_PROCESSOR_COUNT=2
 ENV CORECLR_ENABLE_PROFILING=1
 ENV CORECLR_PROFILER={846F5F1C-F9AE-4B07-969E-05C26BC060D8}
 ENV ConnectionStrings__Default=""
-ENV Database__Provider=SqlServer
+ENV Database__Provider=PostgreSQL
 ENV Hangfire__IsEnabled=false
 ENV SqlServerCache__IsEnabled=false
 ENV RedisCache__IsEnabled=false
-ENV RedisCache__ConnectionString="redis:6379"
+ENV RedisCache__ConnectionString=redis:6379
 ENV RedisCache__DatabaseId=0
 ENV App__ServerRootAddress=http://localhost:8001/
 ENV App__ClientRootAddress=http://localhost:8000/
@@ -31,9 +31,8 @@ ENV App__CorsOrigins=*
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY . .
-WORKDIR "/src/Templates/Api/src/Eaf.ProjectName.Web.Host"
-RUN dotnet restore "Eaf.ProjectName.Web.Host.csproj"
-RUN dotnet publish "Eaf.ProjectName.Web.Host.csproj" \
+RUN dotnet restore "src/GameHub.Web.Host/GameHub.Web.Host.csproj"
+RUN dotnet publish "src/GameHub.Web.Host/GameHub.Web.Host.csproj" \
     -c Release \
     -o /app/publish \
     --no-restore \
@@ -64,4 +63,4 @@ RUN apt-get update && \
 
 USER app
 
-ENTRYPOINT ["dotnet", "Eaf.ProjectName.Web.Host.dll"]
+ENTRYPOINT ["dotnet", "GameHub.Web.Host.dll"]
