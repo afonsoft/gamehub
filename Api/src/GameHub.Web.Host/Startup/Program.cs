@@ -2,6 +2,7 @@ using Abp.AspNetCore.Dependency;
 using Abp.Dependency;
 using Eaf.Configuration;
 using Eaf.Middleware.Configuration;
+using Eaf.KeyVault;
 using Eaf.Middleware.Web.Serilog;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -41,7 +42,7 @@ namespace GameHub.Web.Startup
                 .UseEafSerilog(Serilog.Events.LogEventLevel.Information)
 #endif
                 .UseEafConfiguration(prefix: "ProjectName_")
-                .UseEafKeyVault(opt => opt.Provider = KeyVault.EnumKeyVault.None)
+                .UseEafKeyVault(opt => opt.Provider = EnumKeyVault.None)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseContentRoot(Directory.GetCurrentDirectory());

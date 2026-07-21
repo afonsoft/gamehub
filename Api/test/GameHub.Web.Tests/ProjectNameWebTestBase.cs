@@ -7,6 +7,7 @@ using Abp.Web.Models;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using Eaf.Middleware.Web.Models.TokenAuth;
+using Eaf.KeyVault;
 using Eaf.Middleware.Web.Serilog;
 using GameHub.EntityFrameworkCore;
 using GameHub.Web.Startup;
@@ -34,7 +35,7 @@ namespace GameHub.Web.Tests
                 .CreateWebHostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 //.UseEafConfiguration(prefix: "ProjectName_")
-                .UseEafKeyVault(opt => opt.Provider = KeyVault.EnumKeyVault.None)
+                .UseEafKeyVault(opt => opt.Provider = EnumKeyVault.None)
                 .UseSetting(WebHostDefaults.ApplicationKey, typeof(WebHostModule).Assembly.FullName);
         }
 

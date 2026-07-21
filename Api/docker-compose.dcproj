@@ -6,7 +6,7 @@
     <ProjectGuid>2bba5a52-4709-4ca3-aabc-2ab7fa769892</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/</DockerServiceUrl>
-    <DockerServiceName>eaf.projectname.web.host</DockerServiceName>
+    <DockerServiceName>gamehub.web.host</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

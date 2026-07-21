@@ -49,9 +49,10 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<!--<PackageReference Include="Eaf.Castle.Serilog" Version="9.2.0" />
+		<PackageReference Include="Eaf.Castle.Serilog" Version="9.2.0" />
 		<PackageReference Include="Eaf.Middleware.Web.Core" Version="9.2.0" />
-		<PackageReference Include="Eaf.OpenTelemetry" Version="9.2.0" />-->
+		<PackageReference Include="Eaf.OpenTelemetry" Version="9.2.0" />
+		<PackageReference Include="Eaf.KeyVault.AspNetCore" Version="9.2.0" />
 		<PackageReference Include="Microsoft.Build" Version="18.3.3" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
@@ -70,10 +71,6 @@
 		<EmbeddedResource Include="wwwroot\swagger\ui\index.html" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\src\Eaf.Castle.Serilog\Eaf.Castle.Serilog.csproj" />
-		<ProjectReference Include="..\..\..\..\src\Eaf.KeyVault.AspNetCore\Eaf.KeyVault.AspNetCore.csproj" />
-		<ProjectReference Include="..\..\..\..\src\Eaf.Middleware.Web.Core\Eaf.Middleware.Web.Core.csproj" />
-		<ProjectReference Include="..\..\..\..\src\Eaf.OpenTelemetry\Eaf.OpenTelemetry.csproj" />
 		<ProjectReference Include="..\GameHub.Application\GameHub.Application.csproj" />
 	</ItemGroup>
 	<ItemGroup>

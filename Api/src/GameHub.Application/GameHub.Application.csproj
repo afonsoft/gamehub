@@ -12,10 +12,7 @@
 		<DocumentationFile></DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\src\Eaf.Middleware.Application\Eaf.Middleware.Application.csproj" />
 		<ProjectReference Include="..\GameHub.EntityFrameworkCore\GameHub.EntityFrameworkCore.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<!--<PackageReference Include="Eaf.Middleware.Application" Version="9.2.0" />-->
+		<PackageReference Include="Eaf.Middleware.Application" Version="9.2.0" />
 	</ItemGroup>
 </Project>
