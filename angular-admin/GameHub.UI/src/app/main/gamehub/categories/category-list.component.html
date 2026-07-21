@@ -1,0 +1,25 @@
+<div class="gamehub-category-list">
+  <h1>Categories</h1>
+  <p-table [value]="categories" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Sort Order</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-category>
+      <tr>
+        <td>{{ category.name }}</td>
+        <td>{{ category.slug }}</td>
+        <td>{{ category.sortOrder }}</td>
+        <td>{{ category.isActive }}</td>
+        <td>
+          <button class="btn btn-sm btn-danger" (click)="delete(category)">Delete</button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

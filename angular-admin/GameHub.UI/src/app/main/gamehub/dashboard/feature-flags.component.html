@@ -1,0 +1,23 @@
+<div class="gamehub-feature-flags">
+  <h1>Feature Flags</h1>
+  <p-table [value]="flags" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Enabled</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-flag>
+      <tr>
+        <td>{{ flag.name }}</td>
+        <td>{{ flag.description }}</td>
+        <td>{{ flag.isEnabled }}</td>
+        <td>
+          <button class="btn btn-sm btn-primary" (click)="toggle(flag)">Toggle</button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

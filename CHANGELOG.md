@@ -9,18 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Local `docker-compose.infra.yml` (PostgreSQL, Redis, MinIO) and `docker-compose.yml` (API + two frontends) split for flexible local development.
-- PostgreSQL initial EF Core migration covering ABP Zero and GameHub entities.
-- `ProjectNameDbContextFactory` design-time guard to avoid running `MigrateDatabase` during `dotnet ef` commands.
+- `FeatureFlag` domain entity, EF Core configuration, and `AddFeatureFlag` PostgreSQL migration.
+- Admin application services: `AdminDashboardAppService`, `FeatureFlagAppService`, `AuditLogAppService`, `AdminReportAppService`.
+- Developer and moderation services: `DeveloperProfileAppService`, `UserReportAppService`.
+- `GameBuildsController` for multipart game build uploads (`POST /api/game-builds/{gameId}/upload`).
+- GameHub permission hierarchy (`GameHubPermissions`) registered under the existing `Pages` permission.
+- `GameHubAdminModule` in Angular Admin with lazy-loaded routes for dashboard, games, moderation, categories, tags, feature flags, and audit log.
+- `GameHubAdminService` HTTP proxy service for the new admin endpoints.
 
 ### Changed
 
 - `Api/Dockerfile` updated to build `GameHub.Web.Host.csproj` and run `GameHub.Web.Host.dll`.
 - `scripts/run-local.sh` updated to start infrastructure and application compose files together.
+- Dashboard permission renamed from `Pages.Dashboard` to `Pages.GameHubDashboard` to avoid conflict with EAF's built-in dashboard permission.
+- `AdminGameAppService.GetAllAsync` and `AuditLogAppService.GetAllAsync` queries typed as `IQueryable<T>` to prevent EF Core include-type mismatches.
 
 ### Fixed
 
 - API Dockerfile no longer references the old `Eaf.ProjectName.Web.Host` template paths.
+- `AuditLogAppService` now resolves `UserName` from `IRepository<User, long>` because `Abp.Auditing.AuditLog` only stores `UserId`.
 
 ## [0.9.0] - 2026-07-21
 

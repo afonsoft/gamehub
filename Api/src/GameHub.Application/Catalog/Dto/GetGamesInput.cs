@@ -37,4 +37,7 @@ public class GetGamesInput
 
     /// <summary>Filter by orientation: "Portrait", "Landscape".</summary>
     public string Orientation { get; set; }
+
+    /// <summary>Filter by game status: "Draft", "InReview", "Published", "Rejected", "Suspended".</summary>
+    public string Status { get; set; }
 }

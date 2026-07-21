@@ -12,6 +12,7 @@ using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
+using GameHub.Configuration;
 using GameHub.Moderation;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<LeaderboardEntry> LeaderboardEntries { get; set; }
         public virtual DbSet<ModerationReview> ModerationReviews { get; set; }
         public virtual DbSet<UserReport> UserReports { get; set; }
+        public virtual DbSet<FeatureFlag> FeatureFlags { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

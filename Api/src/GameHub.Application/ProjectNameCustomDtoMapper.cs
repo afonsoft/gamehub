@@ -7,12 +7,14 @@ using GameHub.Airplanes.Dtos;
 using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Catalog.Dto;
+using GameHub.Configuration;
 using GameHub.Developer.Dto;
 using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
 using GameHub.Moderation;
 using GameHub.Admin.Dto;
+using Abp.Auditing;
 
 namespace GameHub
 {
@@ -115,6 +117,24 @@ namespace GameHub
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime))
                 .ForMember(dest => dest.GameTitle, opt => opt.MapFrom(src => src.Game != null ? src.Game.Title : string.Empty));
+
+            // Configuration / Audit
+            configuration.CreateMap<FeatureFlag, FeatureFlagDto>();
+
+            configuration.CreateMap<Abp.Auditing.AuditLog, AuditLogDto>()
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => $"{src.ServiceName}.{src.MethodName}"))
+                .ForMember(dest => dest.Details, opt => opt.MapFrom(src => TruncateAuditDetails(src.Parameters)));
+        }
+
+        private static string TruncateAuditDetails(string parameters)
+        {
+            if (string.IsNullOrEmpty(parameters))
+            {
+                return string.Empty;
+            }
+
+            const int maxLength = 4000;
+            return parameters.Length > maxLength ? parameters.Substring(0, maxLength) : parameters;
         }
 
         private static string BuildUrl(GameBuild build)

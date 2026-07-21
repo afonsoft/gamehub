@@ -1,0 +1,23 @@
+<div class="gamehub-review-queue">
+  <h1>Moderation Queue</h1>
+  <p-table [value]="reviews" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Game</th>
+        <th>Build</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-review>
+      <tr>
+        <td>{{ review.gameTitle }}</td>
+        <td>{{ review.gameBuildId }}</td>
+        <td>{{ review.status }}</td>
+        <td>
+          <button class="btn btn-sm btn-primary">Review</button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,0 +1,21 @@
+<div class="gamehub-audit-log">
+  <h1>Audit Log</h1>
+  <p-table [value]="logs" [paginator]="true" [rows]="25" [totalRecords]="totalRecords" (onLazyLoad)="loadLogs($event)">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Timestamp</th>
+        <th>User</th>
+        <th>Action</th>
+        <th>Duration</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-log>
+      <tr>
+        <td>{{ log.executionTime | date:'medium' }}</td>
+        <td>{{ log.userName }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.executionDuration }} ms</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

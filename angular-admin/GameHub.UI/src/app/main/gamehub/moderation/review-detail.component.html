@@ -1,0 +1,10 @@
+<div class="gamehub-review-detail" *ngIf="review">
+  <h1>Review: {{ review.gameTitle }}</h1>
+  <p>Build: {{ review.gameBuildId }}</p>
+  <p>Status: {{ review.status }}</p>
+  <div class="btn-group">
+    <button class="btn btn-success" (click)="complete('Approved')">Approve</button>
+    <button class="btn btn-danger" (click)="complete('Rejected')">Reject</button>
+    <button class="btn btn-warning" (click)="complete('RequiresChanges')">Require Changes</button>
+  </div>
+</div>
