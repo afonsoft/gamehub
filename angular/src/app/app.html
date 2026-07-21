@@ -1,7 +1,25 @@
-<main class="main">
-  <nav>
-    <a routerLink="/">Home</a>
-    <a routerLink="/games">Games</a>
-  </nav>
-  <router-outlet></router-outlet>
-</main>
+<div class="hub-layout">
+  <header class="hub-header">
+    <div class="header-inner">
+      <a class="logo" routerLink="/">GameHub</a>
+      <nav class="header-nav">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+        <a routerLink="/games" routerLinkActive="active">All Games</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hub-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="hub-footer">
+    <div class="footer-inner">
+      <p>GameHub — free browser games. No login required.</p>
+      <nav>
+        <a routerLink="/">Home</a>
+        <a routerLink="/games">Games</a>
+      </nav>
+    </div>
+  </footer>
+</div>

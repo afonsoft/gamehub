@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GameHub permission hierarchy (`GameHubPermissions`) registered under the existing `Pages` permission.
 - `GameHubAdminModule` in Angular Admin with lazy-loaded routes for dashboard, games, moderation, categories, tags, feature flags, and audit log.
 - `GameHubAdminService` HTTP proxy service for the new admin endpoints.
+- Public Game Hub (`angular/`): Poki-like catalog with hero, search, category chips, large game card grids, game detail page, and fullscreen play frame. No login required.
 
 ### Changed
 

@@ -1,27 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { GameCatalogService } from '../../core/services/game-catalog.service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { GameCatalogService, GameDetail, GameCard } from '../../core/services/game-catalog.service';
 
 @Component({
   selector: 'app-game-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
-    <div *ngIf="game">
-      <h1>{{ game.title }}</h1>
-      <p>{{ game.description }}</p>
-      <a [routerLink]="['/play', game.slug]">Play</a>
-    </div>
-  `
+  imports: [CommonModule, RouterLink],
+  templateUrl: './game-detail.component.html',
+  styleUrl: './game-detail.component.css',
 })
 export class GameDetailComponent implements OnInit {
-  game: any;
+  game: GameDetail | null = null;
+  loaded = false;
 
-  constructor(private route: ActivatedRoute, private catalog: GameCatalogService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private catalog: GameCatalogService,
+  ) {}
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
-    this.catalog.getBySlug(slug).subscribe(g => this.game = g);
+    this.catalog.getBySlug(slug).subscribe({
+      next: g => {
+        this.game = g;
+        this.loaded = true;
+        if (!g) {
+          this.router.navigate(['/games']);
+        }
+      },
+      error: () => {
+        this.loaded = true;
+        this.router.navigate(['/games']);
+      },
+    });
+  }
+
+  trackGame(_index: number, game: GameCard): string {
+    return game.id;
   }
 }

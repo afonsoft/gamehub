@@ -1,1 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
+/* GameHub global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #f6f7fb;
+  color: #111;
+}

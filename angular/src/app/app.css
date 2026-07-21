@@ -1,0 +1,105 @@
+/* GameHub public hub layout */
+.hub-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hub-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #1a1b2e;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ff5e57;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.header-nav a {
+  color: #c7c9d3;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.header-nav a:hover,
+.header-nav a.active {
+  color: #fff;
+  border-color: #ff5e57;
+}
+
+.hub-main {
+  flex: 1;
+  width: 100%;
+}
+
+.hub-footer {
+  background: #1a1b2e;
+  color: #c7c9d3;
+  padding: 2rem 1rem;
+  margin-top: auto;
+}
+
+.footer-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footer-inner nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-inner a {
+  color: #c7c9d3;
+  text-decoration: none;
+}
+
+.footer-inner a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .header-inner {
+    padding: 0.75rem 1rem;
+    gap: 1rem;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  .header-nav a {
+    font-size: 0.85rem;
+  }
+}

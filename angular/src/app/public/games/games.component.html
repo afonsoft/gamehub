@@ -1,0 +1,46 @@
+<div class="games-page">
+  <div class="page-header">
+    <h1>{{ title }}</h1>
+    <div class="search-row">
+      <input
+        type="text"
+        [(ngModel)]="query"
+        (keyup.enter)="reload()"
+        placeholder="Search games..."
+        aria-label="Search games" />
+      <button class="btn-primary" (click)="reload()">Search</button>
+      <button class="btn-secondary" (click)="clear()" *ngIf="query || category">Clear</button>
+    </div>
+    <div class="filters" *ngIf="categories?.length">
+      <span class="filter-label">Category:</span>
+      <select [(ngModel)]="category" (change)="reload()">
+        <option value="">All categories</option>
+        <option *ngFor="let c of categories" [value]="c.slug">{{ c.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="game-grid" *ngIf="games?.length">
+    <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
+      <div class="thumb">
+        <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+      </div>
+      <div class="meta">
+        <h3>{{ game.title }}</h3>
+        <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
+        <span class="plays">{{ game.totalPlays | number }} plays</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="load-more" *ngIf="games?.length && totalCount > games.length">
+    <button class="btn-primary" (click)="loadMore()">Load more</button>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !games?.length">
+    <p *ngIf="query || category; else noGames">No games found for your filters.</p>
+    <ng-template #noGames>
+      <p>No games published yet. Check back soon!</p>
+    </ng-template>
+  </div>
+</div>
