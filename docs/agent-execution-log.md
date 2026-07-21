@@ -1,5 +1,35 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-21 13:05 UTC
+
+### Tarefa
+Continuar a implementação dos specs pendentes para API .NET e Angular Admin, deixando o Game Hub público para depois. Foi adicionada a entidade `FeatureFlag`, migrations, application services administrativos (dashboard, feature flags, audit log, reports), serviços de developer profile e user reports, controller de upload de builds e o módulo Angular Admin lazy-loaded.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Configuration/FeatureFlag.cs` — entidade de feature flag.
+- `Api/src/GameHub.Core/Application/Authorization/GameHubPermissions.cs` — permissões GameHub.
+- `Api/src/GameHub.Core/Application/Authorization/ProjectNameAuthorizationProvider.cs` — registro das permissões.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/*` — configuração `FeatureFlag` e migration `AddFeatureFlag` PostgreSQL.
+- `Api/src/GameHub.Application/Admin/**/*` — DTOs, interfaces e app services de dashboard, feature flags, audit log e reports.
+- `Api/src/GameHub.Application/Moderation/UserReportAppService.cs` — submissão de denúncias.
+- `Api/src/GameHub.Application/Developer/DeveloperProfileAppService.cs` — perfil de desenvolvedor.
+- `Api/src/GameHub.Web.Host/Controllers/GameBuildsController.cs` — upload multipart de builds.
+- `Api/src/GameHub.Application/ProjectNameCustomDtoMapper.cs` — mapeamentos `FeatureFlag` e `AuditLog`.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs` — filtro por `Status`.
+- `Api/src/GameHub.Application/Catalog/Dto/GetGamesInput.cs` — propriedade `Status`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/**/*` — módulo, rotas, componentes e serviço do painel administrativo.
+- `angular-admin/GameHub.UI/src/app/main/main-routing.module.ts` — lazy load do `GameHubAdminModule`.
+- `docs/agent-execution-log.md` e `CHANGELOG.md` — atualização de execução.
+
+### Motivação
+A API e o Angular Admin precisavam dos endpoints e telas restantes descritos nos specs (dashboard, moderação, categorias, tags, feature flags, audit log, upload de builds). A entidade `FeatureFlag` exigiu migration para PostgreSQL. A permissão `Pages.Dashboard` conflitava com a do EAF, então foi renomeada para `Pages.GameHubDashboard`.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` passa com 0 warnings e 0 erros.
+- `dotnet test Api/GameHub.sln` passa (224 passed, 1 skipped).
+- `npm run build` passa para `angular-admin/GameHub.UI`.
+- Migration `AddFeatureFlag` gerada corretamente para PostgreSQL.
+
 ## 2026-07-21 01:40 UTC
 
 ### Tarefa

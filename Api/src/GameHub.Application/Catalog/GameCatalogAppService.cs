@@ -141,6 +141,8 @@ namespace GameHub.Catalog
                 .Where(g => g.Status == GameStatus.Published && !g.IsDeleted)
                 .Include(g => g.GameCategories)
                     .ThenInclude(gc => gc.Category)
+                .Include(g => g.GameTags)
+                    .ThenInclude(gt => gt.Tag)
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild);
 
@@ -148,6 +150,43 @@ namespace GameHub.Catalog
             {
                 var q = input.Query.ToLowerInvariant();
                 query = query.Where(g => g.Title.ToLower().Contains(q) || g.ShortDescription.ToLower().Contains(q));
+            }
+
+            if (input.Categories != null && input.Categories.Any())
+            {
+                var categories = input.Categories.Select(c => c.ToLowerInvariant()).ToList();
+                query = query.Where(g => g.GameCategories.Any(gc => categories.Contains(gc.Category.Slug.ToLower())));
+            }
+
+            if (input.Tags != null && input.Tags.Any())
+            {
+                var tags = input.Tags.Select(t => t.ToLowerInvariant()).ToList();
+                query = query.Where(g => g.GameTags.Any(gt => tags.Contains(gt.Tag.Slug.ToLower())));
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.Device))
+            {
+                var device = input.Device.ToLowerInvariant();
+                if (device == "desktop")
+                {
+                    query = query.Where(g => g.SupportsDesktop);
+                }
+                else if (device == "mobile")
+                {
+                    query = query.Where(g => g.SupportsMobile);
+                }
+                else if (device == "tablet")
+                {
+                    query = query.Where(g => g.SupportsTablet);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.Orientation))
+            {
+                if (Enum.TryParse<GameOrientation>(input.Orientation, true, out var orientation))
+                {
+                    query = query.Where(g => g.Orientation == orientation || g.Orientation == GameOrientation.Both);
+                }
             }
 
             var total = await query.CountAsync();

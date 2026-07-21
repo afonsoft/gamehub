@@ -33,9 +33,14 @@ namespace GameHub.Admin
 
         public async Task<PagedResultDto<AdminGameListItemDto>> GetAllAsync(GetGamesInput input)
         {
-            var query = _gameRepository.GetAll()
+            IQueryable<Game> query = _gameRepository.GetAll()
                 .Where(g => !g.IsDeleted)
                 .Include(g => g.DeveloperProfile);
+
+            if (!string.IsNullOrWhiteSpace(input.Status) && Enum.TryParse<GameStatus>(input.Status, true, out var status))
+            {
+                query = query.Where(g => g.Status == status);
+            }
 
             var total = await query.CountAsync();
             var items = await query

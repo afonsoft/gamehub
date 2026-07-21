@@ -3,6 +3,7 @@ using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
+using GameHub.Configuration;
 using GameHub.Moderation;
 using Microsoft.EntityFrameworkCore;
 
@@ -304,6 +305,17 @@ namespace GameHub.EntityFrameworkCore
                     .WithMany()
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<FeatureFlag>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "FeatureFlags", GameHubConsts.DbSchema);
+
+                b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+                b.Property(x => x.Description).HasMaxLength(512);
+                b.Property(x => x.IsEnabled).IsRequired();
+
+                b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
             });
         }
     }

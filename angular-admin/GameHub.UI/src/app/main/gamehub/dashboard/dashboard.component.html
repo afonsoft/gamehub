@@ -1,0 +1,42 @@
+<div class="gamehub-dashboard">
+  <h1>Dashboard</h1>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Total Games</h5>
+          <p>{{ summary.totalGames }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Pending Reviews</h5>
+          <p>{{ summary.pendingReviews }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Total Plays</h5>
+          <p>{{ summary.totalPlays }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Active Users (7d)</h5>
+          <p>{{ summary.activeUsers7d }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h3>Plays over time</h3>
+  <p *ngIf="!playsOverTime?.length">No data available.</p>
+  <ul>
+    <li *ngFor="let item of playsOverTime">{{ item.date | date }} - {{ item.plays }}</li>
+  </ul>
+</div>
