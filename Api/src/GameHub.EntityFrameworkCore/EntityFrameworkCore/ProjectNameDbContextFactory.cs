@@ -25,6 +25,9 @@ namespace GameHub.EntityFrameworkCore
                 configuration.GetConnectionString(ProjectNameConsts.ConnectionStringName),
                 databaseProvider);
 
+            // Design-time factory must not try to migrate/connect to a real database.
+            ProjectNameDbContext.SkipMigrate = true;
+
             return new ProjectNameDbContext(builder.Options);
         }
 

@@ -53,3 +53,25 @@ A plataforma GameHub precisava de um domínio próprio além do template EAF bas
 - `npm run build` passa para `angular/` e `angular-admin/GameHub.UI`.
 - `docker compose config` valida a configuração local.
 - Pendências documentadas em `docs/known-issues.md`.
+
+## 2026-07-21 12:15 UTC
+
+### Tarefa
+Corrigir o Dockerfile da API, separar o Docker Compose em infraestrutura (`docker-compose.infra.yml`) e aplicação (`docker-compose.yml`), e gerar a migration inicial do PostgreSQL para que a API consiga subir no container.
+
+### Arquivos alterados
+- `Api/Dockerfile` — corrigido build para `GameHub.Web.Host.csproj` e `GameHub.Web.Host.dll`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/ProjectNameDbContextFactory.cs` — evita que o design-time factory execute `MigrateDatabase`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/*` — removida migration SQL Server e gerada migration `Initial` para PostgreSQL.
+- `docker-compose.yml` — API + Angular Hub + Angular Admin.
+- `docker-compose.infra.yml` — PostgreSQL, Redis e MinIO.
+- `docs/known-issues.md` e `docs/agent-execution-log.md` — atualização das pendências.
+
+### Motivação
+O Dockerfile ainda apontava para o template antigo (`Eaf.ProjectName.Web.Host`) e a migration existente era SQL Server, impossibilitando a API de subir no PostgreSQL definido no Docker Compose. O Docker Compose anterior misturava infra e aplicação, então foi dividido para facilitar execução local.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` executa com sucesso.
+- `dotnet test Api/GameHub.sln` passa (224 passed, 1 skipped).
+- `docker compose -f docker-compose.infra.yml -f docker-compose.yml config` é validado.
+- `docker compose -f docker-compose.infra.yml up -d` e `docker compose -f docker-compose.yml up -d` estão prontos para uso (infra antes da aplicação).

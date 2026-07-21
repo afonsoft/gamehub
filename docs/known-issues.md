@@ -2,9 +2,9 @@
 
 ## EF Core Migrations
 
-- `dotnet-ef` tooling is not installed in the build environment, so an EF Core migration for the GameHub entities has not been generated yet.
-- The test suite uses the in-memory database, which does not require migrations.
-- Before deploying, run `dotnet ef migrations add GameHub_Initial -p src/GameHub.EntityFrameworkCore -s src/GameHub.Web.Host` after installing the tooling.
+- The PostgreSQL initial migration (`Migrations/20260721121054_Initial`) was generated and replaces the previous SQL Server-only migration.
+- At runtime the API applies the migration automatically via `ProjectNameDbContext.MigrateDatabase`.
+- For SQL Server deployments a provider-specific migration must be generated with `Database__Provider=SqlServer`.
 
 ## Runtime Caches
 
