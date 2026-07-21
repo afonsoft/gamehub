@@ -75,3 +75,30 @@ O Dockerfile ainda apontava para o template antigo (`Eaf.ProjectName.Web.Host`) 
 - `dotnet test Api/GameHub.sln` passa (224 passed, 1 skipped).
 - `docker compose -f docker-compose.infra.yml -f docker-compose.yml config` é validado.
 - `docker compose -f docker-compose.infra.yml up -d` e `docker compose -f docker-compose.yml up -d` estão prontos para uso (infra antes da aplicação).
+
+## 2026-07-21 02:00 UTC
+
+### Tarefa
+Gerar README/CHANGELOG, executar playbook de qualidade/cobertura .NET e criar Agent Harness (CLAUDE.md, .claude/, .devin/, docs/).
+
+### Arquivos alterados
+- `README.md` — versão padrão em inglês (en-US) com badges, stack, arquitetura, fluxo, instruções de execução e snapshot de cobertura.
+- `README.pt-BR.md` — versão em português com mesmo conteúdo.
+- `CHANGELOG.md` — histórico de versões seguindo Keep a Changelog/SemVer.
+- `scripts/run-local.sh` — atualizado para usar `docker-compose.infra.yml` + `docker-compose.yml`.
+- `Api/test/GameHub.Tests/MultiTenantFactAttribute.cs` — remove warning CS0162.
+- `Api/test/GameHub.Tests/ProjectNameTestModule.cs` e `Api/test/GameHub.Web.Tests/ProjectNameWebTestModule.cs` — isolam warning CS0618 de `UseStaticMapper`.
+- `Api/src/GameHub.Core/Application/Extensions/HangfireExtensions.cs` — substitui overload obsoleto do `RecurringJob.AddOrUpdate` por `RecurringJobOptions`.
+- `CLAUDE.md`, `.claude/` (settings.json, rules, agents, skills, hooks, CONTEXT, RULES, MEMORY, TOOLS, WORKFLOWS, README), `.devin/config.json`, `.devin/hooks/`.
+- `docs/README.md`, `docs/technologies.md`, `docs/features.md`, `docs/packages.md`, `docs/plugins.md`, `docs/api.md`.
+- `.gitignore` — adiciona `CLAUDE.local.md`, `.claude/settings.local.json`, `.devin/config.local.json` e `**/TestResults/`.
+
+### Motivação
+O repositório precisava de documentação padrão bilingue, build sem warnings e um harness de agente para guiar futuras execuções do Claude Code e Devin CLI.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` passa com 0 warnings e 0 erros.
+- `dotnet test Api/GameHub.sln` passa (224 passed, 1 skipped).
+- Cobertura coletada via `coverlet` (snapshot: Core 56.23%, Application 29.03%, EFCore 5.93%, Web.Host 4.88%, geral 10.22% line / 28.84% branch).
+- `docker compose -f docker-compose.infra.yml -f docker-compose.yml config` continua válido.
+- Branch `feature/20260721-readme-changelog` criada e enviada ao remote.
