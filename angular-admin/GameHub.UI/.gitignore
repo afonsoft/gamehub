@@ -40,6 +40,9 @@ package-lock
 .DS_Store
 Thumbs.db
 
+# EAF module log service
+!src/assets/lib/eaf-ng2-module/src/log/
+
 # VS files
 /ProjectName.AngularUI.csproj.user
 project.lock.json
