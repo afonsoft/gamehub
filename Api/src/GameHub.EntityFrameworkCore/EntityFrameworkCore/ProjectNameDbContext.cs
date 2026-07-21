@@ -6,7 +6,13 @@ using Eaf.Middleware.Core.Cache;
 using Eaf.Middleware.Friendships;
 using Eaf.Middleware.MultiTenancy;
 using Eaf.Middleware.Storage;
+using GameHub;
 using GameHub.Airplanes;
+using GameHub.Builds;
+using GameHub.Catalog;
+using GameHub.Developers;
+using GameHub.Gameplay;
+using GameHub.Moderation;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -63,6 +69,21 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }
         public virtual DbSet<EafCache> EafCaches { get; set; }
         public virtual DbSet<TenantAddress> TenantAddress { get; set; }
+
+        public virtual DbSet<Game> Games { get; set; }
+        public virtual DbSet<GameBuild> GameBuilds { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<GameCategory> GameCategories { get; set; }
+        public virtual DbSet<GameTag> GameTags { get; set; }
+        public virtual DbSet<GamePlacement> GamePlacements { get; set; }
+        public virtual DbSet<DeveloperProfile> DeveloperProfiles { get; set; }
+        public virtual DbSet<PlaySession> PlaySessions { get; set; }
+        public virtual DbSet<GameplayEvent> GameplayEvents { get; set; }
+        public virtual DbSet<GameMetricSnapshot> GameMetricSnapshots { get; set; }
+        public virtual DbSet<LeaderboardEntry> LeaderboardEntries { get; set; }
+        public virtual DbSet<ModerationReview> ModerationReviews { get; set; }
+        public virtual DbSet<UserReport> UserReports { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -128,6 +149,8 @@ namespace GameHub.EntityFrameworkCore
                     b.Property(e => e.Parameters).HasColumnType("text");
                 });
             }
+
+            modelBuilder.ConfigureGameHub();
         }
     }
 }

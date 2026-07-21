@@ -28,3 +28,28 @@ O repositório era um template EAF renomeado com referências locais incorretas 
 - `npm ci && npm run build` funcionam para `angular/` e `angular-admin/GameHub.UI`.
 - GitHub Actions reconhecidos e executando no push para `main`.
 - Análise de `.specs` documentada em `docs/specs-improvements.md`.
+
+## 2026-07-21 02:30 UTC
+
+### Tarefa
+Implementar a especificação da pasta `.specs` no backend: entidades de domínio, enums, value objects, DTOs, application services, EF Core, cache abstrações, upload/validação de builds, segurança (CSP, headers, rate limiting), Docker Compose, scripts e testes. Criar também a estrutura inicial do hub Angular.
+
+### Arquivos alterados (principais)
+- `Api/src/GameHub.Core/Domain/**/*` — entidades, enums e value objects do GameHub.
+- `Api/src/GameHub.Application/**/*` — DTOs, application services, cache in-memory e validador de pacotes.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/*` — `DbSet`s e configurações Fluent API.
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` e `Middleware/*` — CSP, security headers e rate limiting.
+- `Api/src/GameHub.Application/ProjectNameApplicationModule.cs` — registro dos serviços de cache e validador.
+- `Api/test/GameHub.Tests/GameHub/**/*` — testes de domínio, cache, validação de builds, categorias e moderação.
+- `docker-compose.yml`, `.env.example` e `scripts/*` — infraestrutura local.
+- `angular/src/app/**/*` — rotas, componentes e serviços iniciais do hub.
+
+### Motivação
+A plataforma GameHub precisava de um domínio próprio além do template EAF base. A implementação seguiu os contratos de DTOs, permissões e rotas descritos nos specs, mantendo a arquitetura em camadas ABP e as convenções do repositório.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` executa com sucesso (0 erros).
+- `dotnet test Api/GameHub.sln` passa (224 passed, 2 skipped).
+- `npm run build` passa para `angular/` e `angular-admin/GameHub.UI`.
+- `docker compose config` valida a configuração local.
+- Pendências documentadas em `docs/known-issues.md`.

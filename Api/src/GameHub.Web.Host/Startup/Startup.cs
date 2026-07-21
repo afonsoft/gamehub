@@ -145,6 +145,8 @@ namespace GameHub.Web.Startup
                 options.SupportNonNullableReferenceTypes();
             }).AddSwaggerGenNewtonsoftSupport();
 
+            services.AddMemoryCache();
+
             // Response Compression (Brotli + Gzip)
             services.AddResponseCompression(options =>
             {
@@ -192,7 +194,9 @@ namespace GameHub.Web.Startup
 
             app.UseResponseCompression();
             app.UseEafHealthChecks();
+            app.UseMiddleware<SecurityHeadersMiddleware>();
             app.UseMiddleware<ContentSecurityPolicyMiddleware>();
+            app.UseMiddleware<RateLimitingMiddleware>();
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else

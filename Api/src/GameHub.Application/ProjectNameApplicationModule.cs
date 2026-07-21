@@ -7,7 +7,10 @@ using Abp.Modules;
 using Abp.MultiTenancy;
 using Abp.Reflection.Extensions;
 using Eaf.Middleware;
+using GameHub.Builds;
+using GameHub.Catalog;
 using GameHub.EntityFrameworkCore;
+using GameHub.Gameplay;
 using GameHub.Migrations.Seed;
 using System;
 
@@ -23,6 +26,10 @@ namespace GameHub
         {
             //Adding custom AutoMapper configuration
             Configuration.Modules.AbpAutoMapper().Configurators.Add(ProjectNameCustomDtoMapper.CreateMappings);
+
+            IocManager.Register<IGameCatalogCache, InMemoryGameCatalogCache>(DependencyLifeStyle.Transient);
+            IocManager.Register<ILeaderboardCache, InMemoryLeaderboardCache>(DependencyLifeStyle.Transient);
+            IocManager.Register<IGameBuildPackageValidator, GameBuildPackageValidator>(DependencyLifeStyle.Transient);
         }
 
         public override void Initialize()
