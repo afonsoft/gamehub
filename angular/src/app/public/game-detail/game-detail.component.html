@@ -1,0 +1,66 @@
+<div class="detail-page" *ngIf="game">
+  <div class="hero-banner" *ngIf="game.heroImageUrl; else thumbHero">
+    <img [src]="game.heroImageUrl" [alt]="game.title" />
+  </div>
+  <ng-template #thumbHero>
+    <div class="hero-banner">
+      <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" />
+    </div>
+  </ng-template>
+
+  <div class="detail-content">
+    <div class="detail-header">
+      <div class="detail-thumb">
+        <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" />
+      </div>
+      <div class="detail-info">
+        <h1>{{ game.title }}</h1>
+        <p class="developer" *ngIf="game.developerName">by {{ game.developerName }}</p>
+        <div class="badges">
+          <span class="badge" *ngIf="game.ageRating">{{ game.ageRating }}</span>
+          <span class="badge">{{ game.totalPlays | number }} plays</span>
+          <span class="badge" *ngIf="game.averageRating">{{ game.averageRating | number:'1.1-1' }} / 5</span>
+          <span class="badge" *ngIf="game.orientation">{{ game.orientation }}</span>
+        </div>
+        <div class="tags" *ngIf="game.tags?.length">
+          <a
+            *ngFor="let tag of game.tags"
+            [routerLink]="['/games']"
+            [queryParams]="{ tag: tag.slug }">
+            #{{ tag.name }}
+          </a>
+        </div>
+      </div>
+      <a class="play-button" [routerLink]="['/play', game.slug]">Play now</a>
+    </div>
+
+    <section class="description" *ngIf="game.description">
+      <h2>About</h2>
+      <div [innerHTML]="game.description"></div>
+    </section>
+
+    <section class="instructions" *ngIf="game.instructions">
+      <h2>How to play</h2>
+      <div [innerHTML]="game.instructions"></div>
+    </section>
+
+    <section class="related" *ngIf="game.relatedGames?.length">
+      <h2>Related games</h2>
+      <div class="related-grid">
+        <a class="game-card" *ngFor="let related of game.relatedGames; trackBy: trackGame" [routerLink]="['/play', related.slug]">
+          <div class="thumb">
+            <img [src]="related.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="related.title" loading="lazy" />
+          </div>
+          <div class="meta">
+            <h3>{{ related.title }}</h3>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="empty-state" *ngIf="loaded && !game">
+  <p>Game not found.</p>
+  <a routerLink="/games">Back to games</a>
+</div>

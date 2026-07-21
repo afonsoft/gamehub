@@ -1,5 +1,30 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-21 16:10 UTC
+
+### Tarefa
+Pesquisar o layout e funcionalidades do Poki e implementar o Game Hub público (`angular/`). O objetivo era uma página sem login, com lista de jogos em ícones grandes, busca, chips de categorias e visual no estilo Poki.
+
+### Arquivos alterados
+- `angular/src/app/app.{ts,html,css}` — cabeçalho sticky, navegação, rodapé e layout da aplicação.
+- `angular/src/app/app.spec.ts` — ajustado para o novo layout.
+- `angular/src/app/public/home/*` — landing page com hero, busca, categorias e seções de destaques/mais jogados/tendências/novos.
+- `angular/src/app/public/games/*` — página de catálogo com filtros de busca/categoria e botão "Load more".
+- `angular/src/app/public/game-detail/*` — página de detalhe do jogo com banner, metadados, botão Play e jogos relacionados.
+- `angular/src/app/player/game-frame/*` — player em tela cheia usando `publishedBuildUrl` sanitizado e sessão de gameplay.
+- `angular/src/app/core/services/game-catalog.service.ts` — serviço expandido com `getGames`, `search` e `getBySlug`, e desempacotamento seguro do envelope `AjaxResponse`.
+- `angular/src/styles.css` — reset global e tipografia.
+- `angular/public/placeholder-game.svg` — asset de placeholder para cards sem thumbnail.
+- `CHANGELOG.md` e `docs/agent-execution-log.md`.
+
+### Motivação
+O hub público precisava de uma experiência de descoberta semelhante ao Poki: grande grid de cards, categorias, busca rápida e play imediato, sem exigir autenticação.
+
+### Resultado
+- `npm run build` do `angular/` passa (production bundle ~353 KB).
+- `dotnet build Api/GameHub.sln -c Release --no-restore` passa com 0 warnings.
+- `dotnet test Api/GameHub.sln` passa (224 passed, 1 skipped).
+
 ## 2026-07-21 13:05 UTC
 
 ### Tarefa
