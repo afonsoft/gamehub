@@ -3,9 +3,11 @@ name: 🚀 CI Build & Test
 on:
   push:
     branches:
+      - main
       - "feature/*"
-      - "bug/*"
+      - "bugfix/*"
       - "hotfix/*"
+      - "refactor/*"
   pull_request:
     branches:
       - main
