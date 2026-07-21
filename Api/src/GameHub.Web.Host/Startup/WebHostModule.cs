@@ -1,0 +1,69 @@
+using Abp.AspNetCore.Configuration;
+using Abp.Configuration.Startup;
+using Abp.Modules;
+using Abp.Reflection.Extensions;
+using Eaf.KeyVault.AspNetCore;
+using Eaf.Middleware.Configuration;
+using Eaf.Middleware.Web;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using System.Net;
+
+namespace GameHub.Web.Startup
+{
+    [DependsOn(
+        typeof(ProjectNameApplicationModule),
+        typeof(MiddlewareWebCoreModule),
+        typeof(EafKeyVaultAspNetCoreModule)
+    )]
+    public class WebHostModule : AbpModule
+    {
+        private readonly IConfigurationRoot _appConfiguration;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public WebHostModule(
+            IWebHostEnvironment env
+        )
+        {
+            _hostingEnvironment = env;
+            _appConfiguration = env.GetAppConfiguration();
+        }
+
+        public override void Initialize()
+        {
+            IocManager.RegisterAssemblyByConvention(typeof(WebHostModule).GetAssembly());
+
+            //Enabled or Disabled BackgroundJobs
+            Configuration.BackgroundJobs.IsJobExecutionEnabled = true;
+        }
+
+        public override void PreInitialize()
+        {
+            //Set default connection string
+            Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(ProjectNameConsts.ConnectionStringName);
+
+            //Create Controllers APIs
+            Configuration.Modules.AbpAspNetCore()
+                .CreateControllersForAppServices(
+                    typeof(ProjectNameApplicationModule).GetAssembly()
+                );
+
+            //Send All Exceptions To Clients Angular only in develop/staging
+            if (!_hostingEnvironment.IsProduction())
+                Configuration.Modules.AbpWebCommon().SendAllExceptionsToClients = true;
+            else
+                Configuration.Modules.AbpWebCommon().SendAllExceptionsToClients = false;
+
+            //Enable Delete Expired Logs
+            Configuration.EntityHistory.IsEnabled = true;
+            Configuration.Auditing.IsEnabled = true;
+
+            Configuration.Caching.MemoryCacheOptions = new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions
+            {
+                SizeLimit = 256 //Mb
+            };
+        }
+
+    }
+}

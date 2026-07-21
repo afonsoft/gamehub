@@ -32,7 +32,7 @@ This will restore all required NuGet packages for all projects in the solution.
 
 ### 3. Configure Connection Strings
 
-Edit the connection strings in `appsettings.json` in the `Eaf.ProjectName.Web.Host` project:
+Edit the connection strings in `appsettings.json` in the `GameHub.Web.Host` project:
 
 ```json
 {
@@ -45,7 +45,7 @@ Edit the connection strings in `appsettings.json` in the `Eaf.ProjectName.Web.Ho
 
 ### 4. Update App Configuration
 
-Edit `appsettings.json` in `Eaf.ProjectName.Web.Host` to configure application settings:
+Edit `appsettings.json` in `GameHub.Web.Host` to configure application settings:
 
 ```json
 {
@@ -63,10 +63,10 @@ The template uses Entity Framework Core migrations to create and update the data
 
 ### 2. Run Migrations
 
-Navigate to the `Eaf.ProjectName.Web.Host` project and run migrations:
+Navigate to the `GameHub.Web.Host` project and run migrations:
 
 ```bash
-cd src/Eaf.ProjectName.Web.Host
+cd src/GameHub.Web.Host
 dotnet ef database update
 ```
 
@@ -88,14 +88,14 @@ The template includes a seed data system that creates:
 
 Using Visual Studio:
 
-1. Open `Eaf.ApiWithSrc.sln` or `Eaf.ProjectName.sln`
-2. Set `Eaf.ProjectName.Web.Host` as the startup project
+1. Open `Eaf.ApiWithSrc.sln` or `GameHub.sln`
+2. Set `GameHub.Web.Host` as the startup project
 3. Press F5 or click "Start" to run the application
 
 Using Command Line:
 
 ```bash
-cd src/Eaf.ProjectName.Web.Host
+cd src/GameHub.Web.Host
 dotnet run
 ```
 
@@ -119,7 +119,7 @@ Run the published application:
 
 ```bash
 cd publish
-dotnet Eaf.ProjectName.Web.Host.dll
+dotnet GameHub.Web.Host.dll
 ```
 
 ## Docker Deployment
@@ -159,11 +159,11 @@ ConnectionStrings__Default="..." docker-compose up --build
 
 ```
 src/
-├── Eaf.ProjectName.Application/    # Application layer (Application Services, DTOs)
-├── Eaf.ProjectName.Core/            # Domain layer (Entities, Value Objects, Interfaces)
-├── Eaf.ProjectName.EntityFrameworkCore/  # Data access layer (DbContext, Repositories)
-├── Eaf.ProjectName.Migrator/        # Database migration tool
-└── Eaf.ProjectName.Web.Host/        # Web API host (Controllers, Startup)
+├── GameHub.Application/    # Application layer (Application Services, DTOs)
+├── GameHub.Core/            # Domain layer (Entities, Value Objects, Interfaces)
+├── GameHub.EntityFrameworkCore/  # Data access layer (DbContext, Repositories)
+├── GameHub.Migrator/        # Database migration tool
+└── GameHub.Web.Host/        # Web API host (Controllers, Startup)
 ```
 
 ## API Endpoints
@@ -233,13 +233,13 @@ dotnet build
 dotnet test
 
 # Run application
-dotnet run --project src/Eaf.ProjectName.Web.Host
+dotnet run --project src/GameHub.Web.Host
 
 # Add migration
-dotnet ef migrations add AddNewTable --project src/Eaf.ProjectName.EntityFrameworkCore
+dotnet ef migrations add AddNewTable --project src/GameHub.EntityFrameworkCore
 
 # Update database
-dotnet ef database update --project src/Eaf.ProjectName.EntityFrameworkCore
+dotnet ef database update --project src/GameHub.EntityFrameworkCore
 ```
 
 ## Troubleshooting
@@ -264,7 +264,7 @@ dotnet ef database update --project src/Eaf.ProjectName.EntityFrameworkCore
 
 **3. Port Already in Use**
 
-- Change the port in `launchSettings.json` in `Eaf.ProjectName.Web.Host`
+- Change the port in `launchSettings.json` in `GameHub.Web.Host`
 - Or kill the process using the port:
   ```bash
   netstat -ano | findstr :21021
@@ -306,9 +306,9 @@ After successfully running the application:
 1. Read the [Modules Documentation](MODULES.md) for detailed module structure
 2. Review the [Implementations Documentation](IMPLEMENTATIONS.md) for implementation patterns
 3. Explore the Swagger UI at `http://localhost:21021/swagger`
-4. Review the code in `Eaf.ProjectName.Application` to understand the application layer
-5. Review the code in `Eaf.ProjectName.Core` to understand the domain layer
-6. Review the code in `Eaf.ProjectName.EntityFrameworkCore` to understand the data access layer
+4. Review the code in `GameHub.Application` to understand the application layer
+5. Review the code in `GameHub.Core` to understand the domain layer
+6. Review the code in `GameHub.EntityFrameworkCore` to understand the data access layer
 
 ## Additional Resources
 

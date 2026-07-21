@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props"></Import>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<AssemblyName>GameHub.Migrator</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<PackageId>GameHub.Migrator</PackageId>
+		<UserSecretsId>Eaf-ProjectName-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Update="appsettings.json;log4net.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Abp.Castle.Log4Net" Version="10.4.0" /> 
+		<ProjectReference Include="..\GameHub.EntityFrameworkCore\GameHub.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+</Project>

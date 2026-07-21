@@ -8,16 +8,16 @@ The EAF API Template follows the N-Layer Architecture pattern with clear separat
 
 ```
 src/
-├── Eaf.ProjectName.Application/    # Application Layer
-├── Eaf.ProjectName.Core/            # Domain Layer
-├── Eaf.ProjectName.EntityFrameworkCore/  # Data Access Layer
-├── Eaf.ProjectName.Migrator/        # Database Migration Tool
-└── Eaf.ProjectName.Web.Host/        # Presentation Layer (Web API)
+├── GameHub.Application/    # Application Layer
+├── GameHub.Core/            # Domain Layer
+├── GameHub.EntityFrameworkCore/  # Data Access Layer
+├── GameHub.Migrator/        # Database Migration Tool
+└── GameHub.Web.Host/        # Presentation Layer (Web API)
 ```
 
-## Domain Layer (Eaf.ProjectName.Core)
+## Domain Layer (GameHub.Core)
 
-**Location**: `src/Eaf.ProjectName.Core/`
+**Location**: `src/GameHub.Core/`
 
 The Domain Layer contains the core business logic and entities. It has no dependencies on other layers.
 
@@ -75,9 +75,9 @@ Specification pattern for complex queries:
 - `ActiveUserSpecification`: Filter for active users
 - Custom specifications for your domain
 
-## Application Layer (Eaf.ProjectName.Application)
+## Application Layer (GameHub.Application)
 
-**Location**: `src/Eaf.ProjectName.Application/`
+**Location**: `src/GameHub.Application/`
 
 The Application Layer contains application services, DTOs, and application logic. It coordinates between the domain layer and the presentation layer.
 
@@ -137,9 +137,9 @@ Application service interfaces:
 - `IRoleAppService`: Role application service interface
 - Custom application service interfaces
 
-## Data Access Layer (Eaf.ProjectName.EntityFrameworkCore)
+## Data Access Layer (GameHub.EntityFrameworkCore)
 
-**Location**: `src/Eaf.ProjectName.EntityFrameworkCore/`
+**Location**: `src/GameHub.EntityFrameworkCore/`
 
 The Data Access Layer provides implementation of repositories and DbContext using Entity Framework Core.
 
@@ -187,9 +187,9 @@ Database migrations created by Entity Framework Core:
 - Initial migration with base schema
 - Custom migrations for schema changes
 
-## Web Host Layer (Eaf.ProjectName.Web.Host)
+## Web Host Layer (GameHub.Web.Host)
 
-**Location**: `src/Eaf.ProjectName.Web.Host/`
+**Location**: `src/GameHub.Web.Host/`
 
 The Web Host Layer contains the ASP.NET Core Web API host and controllers.
 
@@ -247,9 +247,9 @@ Application-specific services:
 - `SignalRHub`: Real-time communication hub
 - Custom services for your application
 
-## Migrator Project (Eaf.ProjectName.Migrator)
+## Migrator Project (GameHub.Migrator)
 
-**Location**: `src/Eaf.ProjectName.Migrator/`
+**Location**: `src/GameHub.Migrator/`
 
 Console application for database migrations and seeding.
 
@@ -290,7 +290,7 @@ The template uses Castle Windsor for dependency injection:
 ### Step 1: Define Entity in Core Layer
 
 ```csharp
-// src/Eaf.ProjectName.Core/Entities/MyEntity.cs
+// src/GameHub.Core/Entities/MyEntity.cs
 public class MyEntity : FullAuditedAggregateRoot<Guid>
 {
     public string Name { get; set; }
@@ -301,7 +301,7 @@ public class MyEntity : FullAuditedAggregateRoot<Guid>
 ### Step 2: Create Repository Interface in Core Layer
 
 ```csharp
-// src/Eaf.ProjectName.Core/Interfaces/IMyEntityRepository.cs
+// src/GameHub.Core/Interfaces/IMyEntityRepository.cs
 public interface IMyEntityRepository : IRepository<MyEntity, Guid>
 {
     // Custom methods
@@ -311,7 +311,7 @@ public interface IMyEntityRepository : IRepository<MyEntity, Guid>
 ### Step 3: Implement Repository in EntityFrameworkCore Layer
 
 ```csharp
-// src/Eaf.ProjectName.EntityFrameworkCore/Repositories/MyEntityRepository.cs
+// src/GameHub.EntityFrameworkCore/Repositories/MyEntityRepository.cs
 public class MyEntityRepository : EfCoreRepositoryBase<EafProjectNameDbContext, MyEntity, Guid>, IMyEntityRepository
 {
     public MyEntityRepository(IDbContextProvider<EafProjectNameDbContext> dbContextProvider)
@@ -324,14 +324,14 @@ public class MyEntityRepository : EfCoreRepositoryBase<EafProjectNameDbContext, 
 ### Step 4: Create DTOs in Application Layer
 
 ```csharp
-// src/Eaf.ProjectName.Application/Dto/MyEntityDto.cs
+// src/GameHub.Application/Dto/MyEntityDto.cs
 public class MyEntityDto : EntityDto<Guid>
 {
     public string Name { get; set; }
     public string Description { get; set; }
 }
 
-// src/Eaf.ProjectName.Application/Dto/CreateMyEntityDto.cs
+// src/GameHub.Application/Dto/CreateMyEntityDto.cs
 public class CreateMyEntityDto
 {
     [Required]
@@ -346,7 +346,7 @@ public class CreateMyEntityDto
 ### Step 5: Create Application Service
 
 ```csharp
-// src/Eaf.ProjectName.Application/App/MyEntityAppService.cs
+// src/GameHub.Application/App/MyEntityAppService.cs
 public class MyEntityAppService : ApplicationService, IMyEntityAppService
 {
     private readonly IRepository<MyEntity, Guid> _myEntityRepository;
@@ -368,7 +368,7 @@ public class MyEntityAppService : ApplicationService, IMyEntityAppService
 ### Step 6: Configure AutoMapper Profile
 
 ```csharp
-// src/Eaf.ProjectName.Application/Profiles/MyEntityProfile.cs
+// src/GameHub.Application/Profiles/MyEntityProfile.cs
 public class MyEntityProfile : Profile
 {
     public MyEntityProfile()
@@ -382,7 +382,7 @@ public class MyEntityProfile : Profile
 ### Step 7: Register Application Service in Module
 
 ```csharp
-// src/Eaf.ProjectName.Application/EafProjectNameApplicationModule.cs
+// src/GameHub.Application/EafProjectNameApplicationModule.cs
 public class EafProjectNameApplicationModule : AbpModule
 {
     public override void Initialize()
@@ -401,13 +401,13 @@ public class EafProjectNameApplicationModule : AbpModule
 ### Step 8: Create Migration
 
 ```bash
-dotnet ef migrations add AddMyEntity --project src/Eaf.ProjectName.EntityFrameworkCore
+dotnet ef migrations add AddMyEntity --project src/GameHub.EntityFrameworkCore
 ```
 
 ### Step 9: Update Database
 
 ```bash
-dotnet ef database update --project src/Eaf.ProjectName.EntityFrameworkCore
+dotnet ef database update --project src/GameHub.EntityFrameworkCore
 ```
 
 ## Module Best Practices

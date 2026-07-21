@@ -169,42 +169,42 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-co
 Esse comando sobe:
 - `eaf-sqlserver`: SQL Server 2022 Express
 - `eaf-redis`: Redis 7
-- `eaf.projectname.web.host`: API EAF conectada aos dois
+- `GameHub.web.host`: API EAF conectada aos dois
 
 Aplique as migrations no SQL Server antes de acessar a API pela primeira vez:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.infra.yml exec eaf.projectname.web.host dotnet ef database update
+docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.infra.yml exec GameHub.web.host dotnet ef database update
 ```
 
 ## Estrutura do Projeto
 
 ```
 ├── src/
-│   ├── Eaf.ProjectName.Core/          # Entidades de domínio e lógica de negócio
-│   ├── Eaf.ProjectName.Application/   # Serviços de aplicação e DTOs
-│   ├── Eaf.ProjectName.EntityFrameworkCore/  # Acesso a dados e migrações
-│   └── Eaf.ProjectName.Web.Host/      # Host da API Web
+│   ├── GameHub.Core/          # Entidades de domínio e lógica de negócio
+│   ├── GameHub.Application/   # Serviços de aplicação e DTOs
+│   ├── GameHub.EntityFrameworkCore/  # Acesso a dados e migrações
+│   └── GameHub.Web.Host/      # Host da API Web
 └── test/
-    ├── Eaf.ProjectName.Tests/          # Testes de integração
-    └── Eaf.ProjectName.Web.Tests/      # Testes Web
+    ├── GameHub.Tests/          # Testes de integração
+    └── GameHub.Web.Tests/      # Testes Web
 ```
 
 ## Build e Testes
 
 ### Build
 ```bash
-dotnet build Eaf.ProjectName.sln
+dotnet build GameHub.sln
 ```
 
 ### Testes
 ```bash
-dotnet test Eaf.ProjectName.sln
+dotnet test GameHub.sln
 ```
 
 ### Testes com Cobertura
 ```bash
-dotnet test Eaf.ProjectName.sln --collect:"XPlat Code Coverage"
+dotnet test GameHub.sln --collect:"XPlat Code Coverage"
 ```
 
 ## Status dos Testes
@@ -262,7 +262,7 @@ Nomenclatura: `Dado_{Contexto}_Quando_{Acao}_Entao_{Resultado}`
 - [ ] Aumentar cobertura de código para 90%
 - [ ] Adicionar documentação XML aos membros públicos
 - [ ] Migrar EPPlus para API `ExcelPackage.License` (v8+)
-- [ ] Adicionar testes de integração Web (Eaf.ProjectName.Web.Tests)
+- [ ] Adicionar testes de integração Web (GameHub.Web.Tests)
 
 ---
 

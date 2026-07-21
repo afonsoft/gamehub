@@ -14,7 +14,7 @@ This is the EAF Project Name API template located in `Templates/Api/src`. It's a
 
 ### Project Structure
 
-#### Core Layer (Eaf.ProjectName.Core)
+#### Core Layer (GameHub.Core)
 - Domain entities and value objects
 - Application interfaces
 - Authorization and permissions
@@ -22,21 +22,21 @@ This is the EAF Project Name API template located in `Templates/Api/src`. It's a
 - Feature definitions
 - Settings
 
-#### Application Layer (Eaf.ProjectName.Application)
+#### Application Layer (GameHub.Application)
 - Application services
 - DTOs (Data Transfer Objects)
 - Business logic
 - Exporting functionality
 - Job definitions
 
-#### EntityFrameworkCore Layer (Eaf.ProjectName.EntityFrameworkCore)
+#### EntityFrameworkCore Layer (GameHub.EntityFrameworkCore)
 - DbContext implementation
 - Entity configurations
 - Repository implementations
 - Database migrations
 - Seed data
 
-#### Web Host (Eaf.ProjectName.Web.Host)
+#### Web Host (GameHub.Web.Host)
 - Startup configuration
 - API controllers
 - Authentication and authorization
@@ -49,7 +49,7 @@ This is the EAF Project Name API template located in `Templates/Api/src`. It's a
 
 #### Entities
 ```csharp
-// Entity in Eaf.ProjectName.Core/Airplanes/
+// Entity in GameHub.Core/Airplanes/
 public class Airplane : FullAuditedAggregateRoot<Guid>
 {
     public string Name { get; set; }
@@ -60,7 +60,7 @@ public class Airplane : FullAuditedAggregateRoot<Guid>
 
 #### Permissions
 ```csharp
-// Eaf.ProjectName.Core/Application/Authorization/ProjectNamePermissions.cs
+// GameHub.Core/Application/Authorization/ProjectNamePermissions.cs
 public static class ProjectNamePermissions
 {
     public const string Airplanes = "Pages.Airplanes";
@@ -86,7 +86,7 @@ public class ProjectNameAuthorizationProvider : AuthorizationProvider
 
 #### Localization
 ```xml
-<!-- Eaf.ProjectName.Core/Application/Localization/ProjectName/ProjectName.xml -->
+<!-- GameHub.Core/Application/Localization/ProjectName/ProjectName.xml -->
 <?xml version="1.0" encoding="utf-8" ?>
 <localizationDictionary culture="en">
   <texts>
@@ -102,7 +102,7 @@ public class ProjectNameAuthorizationProvider : AuthorizationProvider
 
 #### Application Service Interface
 ```csharp
-// Eaf.ProjectName.Application/Airplanes/IAirplaneAppService.cs
+// GameHub.Application/Airplanes/IAirplaneAppService.cs
 public interface IAirplaneAppService : IApplicationService
 {
     Task<PagedResultDto<AirplaneDto>> GetAll(GetAllAirplanesInput input);
@@ -116,7 +116,7 @@ public interface IAirplaneAppService : IApplicationService
 
 #### Application Service Implementation
 ```csharp
-// Eaf.ProjectName.Application/Airplanes/AirplaneAppService.cs
+// GameHub.Application/Airplanes/AirplaneAppService.cs
 public class AirplaneAppService : ProjectNameAppServiceBase, IAirplaneAppService
 {
     private readonly IRepository<Airplane, Guid> _airplaneRepository;
@@ -156,7 +156,7 @@ public class AirplaneAppService : ProjectNameAppServiceBase, IAirplaneAppService
 
 #### DTOs
 ```csharp
-// Eaf.ProjectName.Application/Airplanes/Dtos/AirplaneDto.cs
+// GameHub.Application/Airplanes/Dtos/AirplaneDto.cs
 public class AirplaneDto : EntityDto<Guid>
 {
     public string Name { get; set; }
@@ -164,7 +164,7 @@ public class AirplaneDto : EntityDto<Guid>
     public int Capacity { get; set; }
 }
 
-// Eaf.ProjectName.Application/Airplanes/Dtos/CreateAirplaneDto.cs
+// GameHub.Application/Airplanes/Dtos/CreateAirplaneDto.cs
 public class CreateAirplaneDto
 {
     [Required]
@@ -179,7 +179,7 @@ public class CreateAirplaneDto
     public int Capacity { get; set; }
 }
 
-// Eaf.ProjectName.Application/Airplanes/Dtos/GetAllAirplanesInput.cs
+// GameHub.Application/Airplanes/Dtos/GetAllAirplanesInput.cs
 public class GetAllAirplanesInput : PagedAndSortedResultRequestDto
 {
     public string Filter { get; set; }
@@ -188,7 +188,7 @@ public class GetAllAirplanesInput : PagedAndSortedResultRequestDto
 
 #### AutoMapper Profile
 ```csharp
-// Eaf.ProjectName.Application/Airplanes/AirplaneAutoMapperProfile.cs
+// GameHub.Application/Airplanes/AirplaneAutoMapperProfile.cs
 public class AirplaneAutoMapperProfile : Profile
 {
     public AirplaneAutoMapperProfile()
@@ -205,7 +205,7 @@ public class AirplaneAutoMapperProfile : Profile
 
 #### DbContext
 ```csharp
-// Eaf.ProjectName.EntityFrameworkCore/ProjectNameDbContext.cs
+// GameHub.EntityFrameworkCore/ProjectNameDbContext.cs
 public class ProjectNameDbContext : AbpDbContext
 {
     public DbSet<Airplane> Airplanes { get; set; }
@@ -225,7 +225,7 @@ public class ProjectNameDbContext : AbpDbContext
 
 #### Entity Configuration
 ```csharp
-// Eaf.ProjectName.EntityFrameworkCore/EntityConfigurations/AirplaneConfiguration.cs
+// GameHub.EntityFrameworkCore/EntityConfigurations/AirplaneConfiguration.cs
 public class AirplaneConfiguration : IEntityTypeConfiguration<Airplane>
 {
     public void Configure(EntityTypeBuilder<Airplane> builder)
@@ -249,7 +249,7 @@ public class AirplaneConfiguration : IEntityTypeConfiguration<Airplane>
 
 #### Repository Customization
 ```csharp
-// Eaf.ProjectName.EntityFrameworkCore/Repositories/AirplaneRepository.cs
+// GameHub.EntityFrameworkCore/Repositories/AirplaneRepository.cs
 public class AirplaneRepository : EfCoreRepositoryBase<ProjectNameDbContext, Airplane, Guid>, IAirplaneRepository
 {
     public AirplaneRepository(IDbContextProvider<ProjectNameDbContext> dbContextProvider)
@@ -270,7 +270,7 @@ public class AirplaneRepository : EfCoreRepositoryBase<ProjectNameDbContext, Air
 
 #### Startup Configuration
 ```csharp
-// Eaf.ProjectName.Web.Host/Startup/Startup.cs
+// GameHub.Web.Host/Startup/Startup.cs
 public class Startup
 {
     public IConfiguration Configuration { get; }
@@ -319,7 +319,7 @@ public class Startup
 
 #### Module Configuration
 ```csharp
-// Eaf.ProjectName.Web.Host/ProjectNameWebHostModule.cs
+// GameHub.Web.Host/ProjectNameWebHostModule.cs
 [DependsOn(
     typeof(ProjectNameApplicationModule),
     typeof(ProjectNameEntityFrameworkCoreModule),
@@ -404,7 +404,7 @@ public class AirplaneAppService : ProjectNameAppServiceBase
 
 ### Background Jobs
 ```csharp
-// Eaf.ProjectName.Core/Airplanes/jobs/CleanupOldAirplanesJob.cs
+// GameHub.Core/Airplanes/jobs/CleanupOldAirplanesJob.cs
 public class CleanupOldAirplanesJob : BackgroundJob<NullJobArgs>, ITransientDependency
 {
     private readonly IRepository<Airplane, Guid> _airplaneRepository;
@@ -430,7 +430,7 @@ public class CleanupOldAirplanesJob : BackgroundJob<NullJobArgs>, ITransientDepe
 
 ### SignalR Integration
 ```csharp
-// Eaf.ProjectName.Web.Host/SignalR/AirplaneHub.cs
+// GameHub.Web.Host/SignalR/AirplaneHub.cs
 public class AirplaneHub : AbpHubBase
 {
     public async Task NotifyAirplaneChange(AirplaneDto airplane)
@@ -460,7 +460,7 @@ public class AirplaneAppService : ProjectNameAppServiceBase
 ## Excel Export
 
 ```csharp
-// Eaf.ProjectName.Application/Airplanes/Exporting/AirplaneListExcelExporter.cs
+// GameHub.Application/Airplanes/Exporting/AirplaneListExcelExporter.cs
 public class AirplaneListExcelExporter : IAirplaneListExcelExporter, ITransientDependency
 {
     private readonly List<Airplane> _airplanes;
@@ -507,10 +507,10 @@ public class AirplaneListExcelExporter : IAirplaneListExcelExporter, ITransientD
 
 ```csharp
 // Create migration
-dotnet ef migrations add AddAirplanesTable --project Eaf.ProjectName.EntityFrameworkCore
+dotnet ef migrations add AddAirplanesTable --project GameHub.EntityFrameworkCore
 
 // Apply migration
-dotnet ef database update --project Eaf.ProjectName.EntityFrameworkCore
+dotnet ef database update --project GameHub.EntityFrameworkCore
 
 // Seed data in Migrator project
 public class InitialHostDbBuilder
@@ -538,7 +538,7 @@ public class InitialHostDbBuilder
 ## Testing
 
 ```csharp
-// Eaf.ProjectName.Tests/Airplanes/AirplaneAppService_Tests.cs
+// GameHub.Tests/Airplanes/AirplaneAppService_Tests.cs
 public class AirplaneAppService_Tests : ProjectNameTestBase
 {
     private readonly IAirplaneAppService _airplaneAppService;

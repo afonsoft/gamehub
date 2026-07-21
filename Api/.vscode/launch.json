@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build Eaf",
-            "program": "${workspaceFolder}/src/Eaf.ProjectName.Web.Host/bin/Debug/net10.0/Eaf.ProjectName.Web.Host.dll",
+            "program": "${workspaceFolder}/src/GameHub.Web.Host/bin/Debug/net10.0/GameHub.Web.Host.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

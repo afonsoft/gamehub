@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/Eaf.ProjectName.Web.Host/Eaf.ProjectName.Web.Host.csproj",
+                "${workspaceFolder}/src/GameHub.Web.Host/GameHub.Web.Host.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/src/Eaf.ProjectName.Web.Host/Eaf.ProjectName.Web.Host.csproj",
+                "${workspaceFolder}/src/GameHub.Web.Host/GameHub.Web.Host.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/src/Eaf.ProjectName.Web.Host/Eaf.ProjectName.Web.Host.csproj"
+                "${workspaceFolder}/src/GameHub.Web.Host/GameHub.Web.Host.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
