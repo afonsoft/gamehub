@@ -259,7 +259,19 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 | Angular Hub Build | Pass | build de produção OK |
 | Angular Admin Build | Pass | build de produção OK |
 
-> O relatório de cobertura será gerado pelo pipeline de qualidade de código.
+### Snapshot de Cobertura
+
+Medido com `dotnet test --collect:"XPlat Code Coverage"` e filtro de assemblies `GameHub.*`:
+
+| Assembly | Line Rate | Branch Rate |
+|----------|-----------|-------------|
+| GameHub.Core | 56,23% | — |
+| GameHub.Application | 29,03% | — |
+| GameHub.EntityFrameworkCore | 5,93% | — |
+| GameHub.Web.Host | 4,88% | — |
+| **Geral** | **10,22%** | **28,84%** |
+
+> A cobertura geral está baixa porque a plataforma está em desenvolvimento inicial. O target é 90% line/branch; novos testes de domínio e aplicação devem ser adicionados incrementalmente.
 
 ---
 
