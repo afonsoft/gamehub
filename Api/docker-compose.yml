@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  eaf.projectname.web.host:
+    image: ${DOCKER_REGISTRY-}eafprojectnamewebhost
+    build:
+      context: ../..
+      dockerfile: Templates/Api/Dockerfile
+    networks:
+      - eaf-network
+
+networks:
+  eaf-network:
+    driver: bridge

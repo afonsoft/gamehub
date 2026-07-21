@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props"></Import>
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<AssemblyName>Eaf.ProjectName.Application</AssemblyName>
+		<PackageId>Eaf.ProjectName.Application</PackageId>
+		<RootNamespace>Eaf.ProjectName</RootNamespace>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DocumentationFile></DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\src\Eaf.Middleware.Application\Eaf.Middleware.Application.csproj" />
+		<ProjectReference Include="..\Eaf.ProjectName.EntityFrameworkCore\Eaf.ProjectName.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<!--<PackageReference Include="Eaf.Middleware.Application" Version="9.2.0" />-->
+	</ItemGroup>
+</Project>

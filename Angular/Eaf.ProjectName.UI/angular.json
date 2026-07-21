@@ -1,0 +1,244 @@
+
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "eaf-projectname-ui": {
+      "root": "",
+      "sourceRoot": "src",
+      "projectType": "application",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "tsConfig": "src/tsconfig.app.json",
+            "polyfills": "src/polyfills.ts",
+            "serviceWorker": true,
+            "ngswConfigPath": "ngsw-config.json",
+            "aot": true,
+            "allowedCommonJsDependencies": [
+              "angular2-text-mask",
+              "moment-timezone",
+              "moment",
+              "js-sha256",
+              "object-path",
+              "angular2-counto",
+              "locales.min",
+              "moment/min/locales.min",
+              "lodash",
+              "rtl-detect",
+              "quill-delta",
+              "quill",
+              "@swimlane/ngx-charts",
+              "bezier-easing"
+            ],
+            "assets": [
+              "src/assets",
+              "src/web.config",
+              {
+                "glob": "eaf.signalr-client.js",
+                "input": "src/assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs",
+                "output": "/assets/eaf"
+              },
+              "src/manifest.json"
+            ],
+            "styles": [
+              "node_modules/animate.css/animate.min.css",
+              "node_modules/quill/dist/quill.core.css",
+              "node_modules/quill/dist/quill.snow.css",
+              "node_modules/famfamfam-flags/dist/sprite/famfamfam-flags.css",
+              "node_modules/angular-calendar/css/angular-calendar.css",
+              "node_modules/@ng-select/ng-select/themes/default.theme.css",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/sweetalert2/dist/sweetalert2.css",
+              "node_modules/cookieconsent/build/cookieconsent.min.css",
+              "src/assets/lib/freezeUI/freeze-ui.min.css",
+              "src/assets/lib/primeng/file-upload/css/primeng.file-upload.css",
+              "src/assets/lib/primeng/autocomplete/css/primeng.autocomplete.css",
+              "src/assets/lib/primeng/tree/css/primeng.tree.css",
+              "src/assets/lib/primeng/context-menu/css/primeng.context-menu.css",
+              "src/assets/common/fonts/fonts-eaf.css",
+              "src/assets/lib/ngx-bootstrap/bs-datepicker.css",
+              "src/assets/lib/metronic/assets/vendors/base/vendors.bundle.css",
+              "src/assets/common/styles/styles.css"
+            ],
+            "scripts": [
+              "node_modules/@microsoft/signalr/dist/browser/signalr.min.js",
+              "node_modules/localforage/dist/localforage.js",
+              "node_modules/moment/min/moment-with-locales.js",
+              "node_modules/moment-timezone/builds/moment-timezone-with-data.js",
+              "node_modules/push.js/bin/push.js",
+              "node_modules/quill/dist/quill.js",
+              "node_modules/sweetalert2/dist/sweetalert2.js",
+              "node_modules/cookieconsent/build/cookieconsent.min.js",
+              "node_modules/html2canvas/dist/html2canvas.min.js",
+              "node_modules/jspdf/dist/jspdf.umd.min.js",
+              "src/assets/lib/eaf-web-resources/jquery.js",
+              "src/assets/lib/mdbootstrap/mdb.min.js",
+              "src/assets/lib/freezeUI/freeze-ui.js",
+              "src/assets/lib/eaf-web-resources/eaf.js",
+              "src/assets/lib/eaf-web-resources/hammer.min.js",
+              "src/assets/lib/eaf-web-resources/eaf.sweet-alert.js",
+              "src/assets/lib/eaf-web-resources/eaf.notify.js",
+              "src/assets/lib/eaf-web-resources/eaf.freeze-ui.js",
+              "src/assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs/eaf.moment.js",
+              "src/assets/lib/metronic/assets/vendors/base/vendors.bundle.js",
+              "src/assets/lib/metronic/assets/vendors/base/scripts.bundle.js",
+              "src/assets/lib/eaf-web-resources/functions.js"
+            ],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true,
+            "allowedCommonJsDependencies": ["rfdc", "push.js", "bezier-easing", "quill", "object-path", "moment-timezone", "moment", "localforage"]
+          },
+          "configurations": {
+            "development": {
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "vendorChunk": true,
+              "buildOptimizer": false,
+              "aot": false
+            },
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "aot": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "8mb",
+                  "maximumError": "8mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.build.ts"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "eaf-projectname-ui:build:development"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "eaf-projectname-ui:build:production"
+            },
+            "development": {
+              "buildTarget": "eaf-projectname-ui:build:development"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "eaf-projectname-ui:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "sourceMap": false,
+            "assets": [
+              "src/assets",
+              "src/web.config",
+              {
+                "glob": "eaf.signalr-client.js",
+                "input": "src/assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs",
+                "output": "/assets/eaf"
+              },
+              "src/manifest.json"
+            ],
+            "styles": [
+              "node_modules/animate.css/animate.min.css",
+              "node_modules/quill/dist/quill.core.css",
+              "node_modules/quill/dist/quill.snow.css",
+              "node_modules/famfamfam-flags/dist/sprite/famfamfam-flags.css",
+              "node_modules/angular-calendar/css/angular-calendar.css",
+              "node_modules/@ng-select/ng-select/themes/default.theme.css",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/sweetalert2/dist/sweetalert2.css",
+              "node_modules/cookieconsent/build/cookieconsent.min.css",
+              "src/assets/lib/freezeUI/freeze-ui.min.css",
+              "src/assets/lib/primeng/file-upload/css/primeng.file-upload.css",
+              "src/assets/lib/primeng/autocomplete/css/primeng.autocomplete.css",
+              "src/assets/lib/primeng/tree/css/primeng.tree.css",
+              "src/assets/lib/primeng/context-menu/css/primeng.context-menu.css",
+              "src/assets/common/fonts/fonts-eaf.css",
+              "src/assets/lib/ngx-bootstrap/bs-datepicker.css",
+              "src/assets/lib/metronic/assets/vendors/base/vendors.bundle.css",
+              "src/assets/common/styles/styles.css"
+            ],
+            "scripts": [
+              "node_modules/@microsoft/signalr/dist/browser/signalr.min.js",
+              "node_modules/localforage/dist/localforage.js",
+              "node_modules/moment/min/moment-with-locales.js",
+              "node_modules/moment-timezone/builds/moment-timezone-with-data.js",
+              "node_modules/push.js/bin/push.js",
+              "node_modules/quill/dist/quill.js",
+              "node_modules/sweetalert2/dist/sweetalert2.js",
+              "node_modules/cookieconsent/build/cookieconsent.min.js",
+              "node_modules/html2canvas/dist/html2canvas.min.js",
+              "node_modules/jspdf/dist/jspdf.umd.min.js",
+              "src/assets/lib/eaf-web-resources/jquery.js",
+              "src/assets/lib/mdbootstrap/mdb.min.js",
+              "src/assets/lib/freezeUI/freeze-ui.js",
+              "src/assets/lib/eaf-web-resources/eaf.js",
+              "src/assets/lib/eaf-web-resources/hammer.min.js",
+              "src/assets/lib/eaf-web-resources/eaf.sweet-alert.js",
+              "src/assets/lib/eaf-web-resources/eaf.notify.js",
+              "src/assets/lib/eaf-web-resources/eaf.freeze-ui.js",
+              "src/assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs/eaf.moment.js",
+              "src/assets/lib/metronic/assets/vendors/base/vendors.bundle.js",
+              "src/assets/lib/metronic/assets/vendors/base/scripts.bundle.js",
+              "src/assets/lib/eaf-web-resources/functions.js"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "prefix": "app",
+      "style": "css"
+    },
+    "@schematics/angular:directive": {
+      "prefix": "app"
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

@@ -1,0 +1,46 @@
+{
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[stylus]": {
+        "editor.defaultFormatter": "thisismanta.stylus-supremacy"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "angular.enable-strict-mode-prompt": false,
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.svn": true,
+        "*.csproj": true,
+        "*.csproj.user": true,
+        "*.sln": true,
+        "*.suo": true,
+        ".vs": true,
+        "bin": true,
+        "dist": false,
+        "node_modules": true,
+        "obj": true,
+        "Properties": true
+    },
+    // Runs Prettier, then ESLint
+    "editor.codeActionsOnSave": {
+        "source.formatDocument": "explicit",
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": ["javascript"],
+    "typescript.check.workspaceVersion": false,
+    "typescriptHero.imports.multiLineWrapThreshold": 140,
+    "typescriptHero.imports.organizeOnSave": true,
+    "typescriptHero.imports.organizeSortsByFirstSpecifier": true,
+    "sonarlint.connectedMode.project": {
+        "connectionId": "afonsoft",
+        "projectKey": "afonsoft_EAF"
+    }
+}

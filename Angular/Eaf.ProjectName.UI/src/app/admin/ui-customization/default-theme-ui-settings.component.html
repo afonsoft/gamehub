@@ -1,0 +1,70 @@
+﻿<tabset class="tab-container tabbable-line" *ngIf="settings">
+  <tab heading="{{ 'UiCustomization_Header' | localize }}" customClass="m-tabs__item">
+    <form autocomplete="off" id="HeaderSettingsForm">
+      <div class="form-group m-form__group">
+        <label for="HeaderSkin">{{ 'UiCustomization_HeaderSkin' | localize }}</label>
+        <select id="HeaderSkin" name="HeaderSkin" class="form-control" [(ngModel)]="settings.header.headerSkin">
+          <option value="light">{{ 'UiCustomization_Light' | localize }}</option>
+          <option value="dark">{{ 'UiCustomization_Dark' | localize }}</option>
+          <option value="color">{{ 'UiCustomization_Color' | localize }}</option>
+        </select>
+      </div>
+      <div class="form-group m-form__group">
+        <label class="m-checkbox col-lg-12">
+          <input type="checkbox" name="DesktopFixedHeader" [(ngModel)]="settings.header.desktopFixedHeader" />
+          {{ 'UiCustomization_Desktop' | localize }} - {{ 'UiCustomization_DesktopFixedHeader' | localize }}
+          <span></span>
+        </label>
+      </div>
+      <div class="form-group m-form__group">
+        <label class="m-checkbox col-lg-12">
+          <input type="checkbox" name="MobileFixedHeader" [(ngModel)]="settings.header.mobileFixedHeader" />
+          {{ 'UiCustomization_Mobile' | localize }} - {{ 'UiCustomization_MobileFixedHeader' | localize }}
+          <span></span>
+        </label>
+      </div>
+    </form>
+  </tab>
+  <tab heading="{{ 'UiCustomization_Menu' | localize }}" customClass="m-tabs__item">
+    <form autocomplete="off" id="MenuSettingsForm">
+      <div class="form-group m-form__group">
+        <label for="AsideSkin">{{ 'UiCustomization_MenuSkin' | localize }}</label>
+        <select id="AsideSkin" name="AsideSkin" class="form-control" [(ngModel)]="settings.menu.asideSkin">
+          <option value="light">{{ 'UiCustomization_Light' | localize }}</option>
+          <option value="dark">{{ 'UiCustomization_Gray' | localize }}</option>
+        </select>
+      </div>
+      <div class="form-group m-form__group">
+        <label class="m-checkbox col-lg-12">
+          <input type="checkbox" name="FixedAside" [(ngModel)]="settings.menu.fixedAside" />
+          {{ 'UiCustomization_FixedMenu' | localize }}
+          <span></span>
+        </label>
+      </div>
+      <div class="form-group m-form__group">
+        <label class="m-checkbox col-lg-12">
+          <input
+            type="checkbox"
+            name="AllowAsideMinimizing"
+            [(ngModel)]="settings.menu.allowAsideMinimizing"
+            (ngModelChange)="allowAsideMinimizingChange($event)"
+          />
+          {{ 'UiCustomization_AllowAsideMinimizing' | localize }}
+          <span></span>
+        </label>
+      </div>
+    </form>
+  </tab>
+</tabset>
+
+<div class="m--margin-top-40">
+  <button *ngIf="isGranted('Pages.Administration.UiCustomization')" (click)="updateDefaultUiManagementSettings()" class="btn btn-primary">
+    <i class="fa fa-save"></i> {{ 'SaveAsSystemDefault' | localize }}
+  </button>
+  <button *ngIf="!isGranted('Pages.Administration.UiCustomization')" (click)="updateUiManagementSettings()" class="btn btn-primary">
+    <i class="fa fa-save"></i> {{ 'Save' | localize }}
+  </button>
+  <button *ngIf="!isGranted('Pages.Administration.UiCustomization')" (click)="useSystemDefaultSettings()" class="btn btn-metal">
+    {{ 'UseSystemDefaults' | localize }}
+  </button>
+</div>

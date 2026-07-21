@@ -1,0 +1,63 @@
+﻿{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "lib": [
+      "dom",
+      "es2022"
+    ],
+    "mapRoot": "./",
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "outDir": "../dist/out-tsc",
+    "target": "ES2022",
+    "useDefineForClassFields": false,
+    "typeRoots": [
+      "../node_modules/@types",
+      "./assets/lib/eaf-web-resources/Eaf/Framework/scripts/eaf.d.ts",
+      "./assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs/eaf.jquery.d.ts",
+      "./assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs/eaf.signalr.d.ts",
+      "./typings.d.ts"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@eaf/*": [
+        "./assets/lib/eaf-ng2-module/src/*"
+      ],
+      "@app/*": [
+        "./app/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
+      ],
+      "@node_modules/*": [
+        "../node_modules/*"
+      ],
+      "@angular/*": [
+        "../node_modules/@angular/*"
+      ],
+      "@metronic/*": [
+        "./assets/lib/metronic/*"
+      ]
+    }
+  },
+  "exclude": [
+    ".angular",
+    "dist",
+    "src/**/*.spec.ts"
+  ],
+  "angularCompilerOptions": {
+    "annotateForClosureCompiler": false,
+    "disableTypeScriptVersionCheck": true,
+    "enableI18nLegacyMessageIdFormat": true,
+    "strictInjectionParameters": false,
+    "strictInputAccessModifiers": true
+  }
+}

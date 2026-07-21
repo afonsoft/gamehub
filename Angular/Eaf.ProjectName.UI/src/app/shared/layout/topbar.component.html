@@ -1,0 +1,246 @@
+﻿<!-- BEGIN: Topbar -->
+<div id="m_header_topbar" class="m-topbar  m-stack m-stack--ver m-stack--general header-{{ currentTheme.baseSettings.header.headerSkin }}">
+  <nav class="m-stack__item m-topbar__nav-wrapper" [attr.aria-label]="l('TopMenu')">
+    <ul class="m-topbar__nav m-nav m-nav--inline" aria-label="TopMenu">
+      <li
+        *ngIf="languages.length > 1"
+        class="m-nav__item m-topbar__languages m-dropdown m-dropdown--small m-dropdown--arrow m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-{{
+          currentTheme.baseSettings.header.headerSkin
+        }} m-list-search--skin-{{ currentTheme.baseSettings.header.headerSkin }}"
+        m-dropdown-toggle="click"
+      >
+        <a href="javascript:;" class="m-nav__link m-dropdown__toggle" style="padding: 15px">
+          <span class="m-nav__link-text">
+            <i [class]="currentLanguage.icon"></i>
+            <span class="m-menu__link-text">
+              {{ currentLanguage.displayName }}
+            </span>
+            <i class="fa fa-angle-down"></i>
+          </span>
+        </a>
+        <div class="m-dropdown__wrapper">
+          <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust" style="color: #fff"></span>
+          <div class="m-dropdown__inner">
+            <div class="m-dropdown__body">
+              <div class="m-dropdown__content">
+                <ul class="m-nav m-nav--skin-{{ currentTheme.baseSettings.header.headerSkin }}">
+                  <ng-container *ngFor="let language of languages">
+                    <li class="m-nav__item" [ngClass]="{ 'm-nav__item--active': language.active }">
+                      <a href="javascript:;" (click)="changeLanguage(language.name)" class="m-nav__link">
+                        <span class="m-nav__link-icon">
+                          <span class="m-nav__link-icon-wrapper">
+                            <i [class]="language.icon"></i>
+                          </span>
+                        </span>
+                        <span
+                          class="m-nav__link-title m-topbar__language-text m-nav__link-text-{{ currentTheme.baseSettings.menu.asideSkin }}"
+                          >{{ language.displayName }}</span
+                        >
+                      </a>
+                    </li>
+                  </ng-container>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li
+        adm-bar
+        class="m-nav__item  m-dropdown m-dropdown--small m-dropdown--arrow m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-{{
+          currentTheme.baseSettings.header.headerSkin
+        }} m-list-search--skin-{{ currentTheme.baseSettings.header.headerSkin }}"
+        m-dropdown-toggle="click"
+        id="header_adm_bar"
+      ></li>
+
+      <li
+        headerNotifications
+        class="m-nav__item m-topbar__notifications m-topbar__notifications--img m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-right m-dropdown--mobile-full-width"
+        m-dropdown-toggle="click"
+        data-dropdown-persistent="true"
+        id="header_notification_bar"
+      ></li>
+
+      <li
+        id="chat_is_connecting_icon"
+        class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
+      >
+        <a
+          id="kt_quick_sidebar_toggle"
+          data-toggle="offcanvas"
+          href="javascript:;"
+          class="m-nav__link m-dropdown__toggle"
+          style="text-decoration: none"
+          [ngClass]="{ 'm--hide': !this.showChatMenu }"
+        >
+          <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger" *ngIf="unreadChatMessageCount"></span>
+          <span class="m-nav__link-icon">
+            <span class="m-nav__link-icon-wrapper" *ngIf="!chatConnected">
+              <img
+                *ngIf="!chatConnected"
+                src="./assets/common/images/loading.gif"
+                style="width: 23px"
+                alt="{{ 'ChatIsConnecting' | localize }}"
+                tooltip="{{ 'ChatIsConnecting' | localize }}"
+                placement="left"
+              />
+            </span>
+            <span class="m-nav__link-icon-wrapper" *ngIf="chatConnected">
+              <a
+                (click)="showChat('chatSideRight')"
+                class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-desktop-inline-block ng-star-inserted pull-bs-canvas-right d-block text-primary text-decoration-none"
+                href="javascript:;"
+                style="text-decoration: none"
+              >
+                <div id="chatIcon">
+                  <i class="flaticon-chat-2"></i>
+                </div>
+              </a>
+            </span>
+          </span>
+        </a>
+      </li>
+
+      <li
+        class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
+        m-dropdown-toggle="click"
+      >
+        <a href="javascript:;" class="m-nav__link m-dropdown__toggle">
+          <span class="m-nav__link-icon">
+            <span class="m-nav__link-icon-wrapper">
+              <i class="flaticon-profile-1"></i>
+            </span>
+          </span>
+        </a>
+        <div class="m-dropdown__wrapper">
+          <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
+          <div class="m-dropdown__inner">
+            <div
+              class="m-dropdown__header m--align-center"
+              [ngStyle]="{ 'background': 'url(' + appRootUrl() + 'assets/common/images/notification_bg.jpg)', 'background-size': 'cover' }"
+            >
+              <div class="m-card-user m-card-user--skin-dark">
+                <div class="m-card-user__pic">
+                  <img alt="" class="header-profile-picture m--img-rounded m--marginless m--img-centered" [src]="profilePicture" />
+                </div>
+                <div class="m-card-user__details">
+                  <span class="m-card-user__name m--font-weight-500"> {{ shownFullName }} ({{ shownLoginName }}) </span>
+                </div>
+              </div>
+            </div>
+            <div class="m-dropdown__body">
+              <nav class="m-dropdown__content" [attr.aria-label]="l('UserAccount')">
+                <ul class="m-nav m-nav--skin-light" [attr.aria-label]="l('UserAccount')">
+                  <li *ngIf="isImpersonatedLogin" class="m-nav__item">
+                    <a
+                      href="javascript:;"
+                      class="m-nav__link"
+                      (click)="backToMyAccount()"
+                      tabindex="-1"
+                    >
+                      <i class="m-nav__link-icon fa fa-reply m--font-danger"></i>
+                      <span class="m-nav__link-title">
+                        <span class="m-nav__link-wrap">
+                          <span
+                            id="UserProfileBackToMyAccountButton"
+                            class="m-nav__link-text-{{ currentTheme.baseSettings.menu.asideSkin }}"
+                          >
+                            {{ 'BackToMyAccount' | localize }}
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                  <li *ngIf="isImpersonatedLogin" class="m-nav__separator m-nav__separator--fit"></li>
+
+                  <li class="m-nav__separator m-nav__separator--fit"></li>
+                  <li class="m-nav__item" *ngIf="isSystemUser">
+                    <a
+                      href="javascript:;"
+                      class="m-nav__link"
+                      (click)="changePassword()"
+                      tabindex="-1"
+                    >
+                      <i class="m-nav__link-icon-{{ currentTheme.baseSettings.menu.asideSkin }} flaticon-more-v6"></i>
+                      <span class="m-nav__link-title">
+                        <span class="m-nav__link-wrap">
+                          <span id="UserProfileChangePasswordLink" class="m-nav__link-text-{{ currentTheme.baseSettings.menu.asideSkin }}">
+                            {{ 'ChangePassword' | localize }}
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                  <li class="m-nav__item">
+                    <a
+                      href="javascript:;"
+                      class="m-nav__link"
+                      (click)="showLoginAttempts()"
+                      tabindex="-1"
+                    >
+                      <i class="m-nav__link-icon-{{ currentTheme.baseSettings.menu.asideSkin }} flaticon-list"></i>
+                      <span class="m-nav__link-title">
+                        <span class="m-nav__link-wrap">
+                          <span id="ShowLoginAttemptsLink" class="m-nav__link-text-{{ currentTheme.baseSettings.menu.asideSkin }}">
+                            {{ 'LoginAttempts' | localize }}
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                  <li class="m-nav__item">
+                    <a
+                      href="javascript:;"
+                      class="m-nav__link"
+                      (click)="changeProfilePicture()"
+                      tabindex="-1"
+                    >
+                      <i class="m-nav__link-icon-{{ currentTheme.baseSettings.menu.asideSkin }} flaticon-profile-1"></i>
+                      <span class="m-nav__link-title">
+                        <span class="m-nav__link-wrap">
+                          <span id="UserProfileChangePictureLink" class="m-nav__link-text-{{ currentTheme.baseSettings.menu.asideSkin }}">
+                            {{ 'ChangeProfilePicture' | localize }}
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                  <li class="m-nav__item">
+                    <a
+                      href="javascript:;"
+                      class="m-nav__link"
+                      (click)="changeMySettings()"
+                      tabindex="-1"
+                    >
+                      <i class="m-nav__link-icon-{{ currentTheme.baseSettings.menu.asideSkin }} flaticon-cogwheel"></i>
+                      <span class="m-nav__link-title">
+                        <span class="m-nav__link-wrap">
+                          <span id="UserProfileMySettingsLink" class="m-nav__link-text-{{ currentTheme.baseSettings.menu.asideSkin }}">
+                            {{ 'MySettings' | localize }}
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                  <li class="m-nav__separator m-nav__separator--fit"></li>
+                  <li class="m-nav__item">
+                    <a
+                      href="javascript:;"
+                      (click)="logout()"
+                      class="btn m-btn--pill btn-primary m-btn m-btn--custom m-btn--label-brand m-btn--bolder"
+                      tabindex="-1"
+                      >{{ 'Logout' | localize }}</a
+                    >
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</div>
+<!-- END: Topbar -->

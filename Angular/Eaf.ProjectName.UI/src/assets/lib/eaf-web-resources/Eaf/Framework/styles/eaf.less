@@ -1,0 +1,37 @@
+﻿@import "eaf.mixings.less";
+
+// COMMON STYLES //////////////////////////////////////////////////////////////
+
+.eaf-clickable {
+    cursor: pointer;
+}
+
+// Docking
+
+.eaf-dock-top {
+    .eaf-dock(top);
+}
+
+.eaf-dock-right {
+    .eaf-dock(right);
+}
+
+.eaf-dock-bottom {
+    .eaf-dock(bottom);
+}
+
+.eaf-dock-left {
+    .eaf-dock(left);
+}
+
+//Busy indicator
+
+.eaf-busy-indicator-small {
+    width: 36px;
+    height: 36px;
+
+    &.eaf-dock-left, 
+    &.eaf-dock-right {
+        height: auto;
+    }
+}

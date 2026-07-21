@@ -1,0 +1,158 @@
+﻿<div [@routerTransition]
+     [busyIf]="dataTableHelper.isLoading"
+     class="m-login__signin">
+    <div class="m-login__head">
+        <h3 class="m-login__title">{{"LogIn" | localize}}</h3>
+    </div>
+    <div *ngIf="loginService.externalLoginProviders.length > 0 && !isSocialLogin"
+         class="col m--align-right">
+        <a (click)="ChangeLogin()" class="m-link" href="javascript:;">
+            {{ "Back" | localize}}
+        </a>
+    </div>
+    <form (ngSubmit)="login()"
+          #loginForm="ngForm"
+          autocomplete="off"
+          class="m-login__form m-form login-form"
+          method="post"
+          novalidate>
+        <div *ngIf="isMultiTenancyEnabled" class="form-group m-form__group">
+            <div class="row">
+                <div class="col-sm-6 m--margin-top-10">
+                    <h5>{{"Tenant" | localize}}:</h5>
+                </div>
+                <div class="col-sm-6">
+                    <div aria-expanded="true"
+                         class="m-dropdown m-dropdown--inline m-dropdown--arrow m-dropdown--align-right m-dropdown--align-push"
+                         m-dropdown-toggle="click"
+                         style="float: right">
+                        <a class="m-portlet__nav-link m-dropdown__toggle dropdown-toggle btn btn--sm m-btn--pill btn-secondary m-btn m-btn--label-brand"
+                           href="#">
+                            <span *ngIf="!selectedTenant">Host</span>
+                            <span *ngIf="selectedTenant">
+                                {{truncateStringWithPostfix(selectedTenant.name)}}
+                            </span>
+                        </a>
+                        <div class="m-dropdown__wrapper"
+                             style="z-index: 101; margin-right: 0px;">
+                            <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust">
+                            </span>
+                            <div class="m-dropdown__inner">
+                                <div class="m-dropdown__body">
+                                    <div class="m-dropdown__content">
+                                        <ul class="m-nav">
+                                            <li class="m-nav__section m-nav__section--first"
+                                                style="margin-bottom: 10px;">
+                                                <span class="m-nav__section-text">
+                                                    {{"Tenants" | localize}}
+                                                </span>
+                                            </li>
+                                            <li class="m-nav__item">
+                                                <a (click)="selectHost()"
+                                                   class="m-nav__link"
+                                                   href="javascript:;">
+                                                    <span class="m-nav__link-text">
+                                                        Host
+                                                    </span>
+                                                </a>
+                                            </li>
+                                            <li *ngFor="let tenant of tenants"
+                                                class="m-nav__item">
+                                                <a (click)="selectTenant(tenant)"
+                                                   class="m-nav__link"
+                                                   href="javascript:;">
+                                                    <span class="m-nav__link-text">
+                                                        {{truncateStringWithPostfix(tenant.name)}}
+                                                    </span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="loginService.externalLoginProviders.length > 0 && isSocialLogin"
+             class="col m--align-center">
+            <!--begin::Options-->
+            <a (click)="externalLogin(provider)"
+               *ngFor="let provider of loginService.externalLoginProviders"
+               class="btn btn-sm btn-light-primary font-weight-bolder button-container-microsoft row"
+               style=" text-transform: uppercase;"
+               title="{{provider.name}}">
+                <img alt="{{provider.name}}"
+                     src="{{'./assets/common/images/logo-'+provider.name+'.png'}}"
+                     style="height: 48px;" />
+                <span>{{provider.name}}</span>
+            </a>
+            <!--end::Options-->
+            <br />
+            <a (click)="ChangeLogin()" class="m-link" href="javascript:;">
+                {{"LoginSistem" | localize}}
+            </a>
+        </div>
+        <div *ngIf="loginService.externalLoginProviders.length <= 0 || !isSocialLogin">
+            <div class="md-form">
+                <input [(ngModel)]="loginService.authenticateModel.userNameOrEmailAddress"
+                       #userNameOrEmailAddressInput="ngModel"
+                       autofocus
+                       class="form-control m-input"
+                       id="userNameOrEmailAddress"
+                       name="userNameOrEmailAddress"
+                       required
+                       type="text" />
+                <label for="userNameOrEmailAddress">
+                    {{'UserNameOrEmail' | localize}}
+                </label>
+            </div>
+
+            <div class="md-form">
+                <input [(ngModel)]="loginService.authenticateModel.password"
+                       #passwordInput="ngModel"
+                       class="form-control m-input"
+                       id="Password"
+                       maxlength="32"
+                       name="password"
+                       required
+                       type="password" />
+                <label for="Password">{{'Password' | localize}}</label>
+            </div>
+
+            <div class="row m-login__form-sub">
+                <div class="col m--align-left">
+                    <label class="m-checkbox m-checkbox--primary">
+                        <input [(ngModel)]="loginService.rememberMe"
+                               class="form-control"
+                               name="rememberMe"
+                               type="checkbox"
+                               value="true" />
+                        {{"RememberMe" | localize}}
+                        <span>
+                        </span>
+                    </label>
+                </div>
+                <div class="col m--align-right">
+                    <a class="m-link forget-password"
+                       id="forget-password"
+                       routerLink="/account/forgot-password">
+                        {{"ForgotPassword" | localize}}
+                    </a>
+                </div>
+            </div>
+
+            <div class="row m-login__form-action text-right">
+                <div class="col m--align-right">
+                    <button [buttonBusy]="submitting"
+                            [disabled]="!loginForm.form.valid"
+                            class="btn btn-primary m-btn m-btn--pill m-btn--custom m-btn--air"
+                            type="submit">
+                        {{"LogIn" | localize}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

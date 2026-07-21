@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "name": "Launch Chrome against localhost",
+            "request": "launch",
+            "type": "pwa-chrome",
+            "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}",
+            "env": {
+              "ASPNETCORE_ENVIRONMENT": "Local",
+              "NODE_ENV": "development"
+            },
+            "runtimeArgs": [
+                "--disable-session-crashed-bubble --disable-web-security"
+            ],
+        },
+        {
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Local",
+                "NODE_ENV": "development"
+            },
+            "name": "launch Edge",
+            "port": 9222,
+            "request": "launch",
+            "runtimeArgs": [
+                "--disable-session-crashed-bubble --disable-web-security"
+            ],
+            "runtimeExecutable": "stable",
+            "sourceMaps": true,
+            "type": "pwa-msedge",
+            "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "Launch Microsoft Edge and open the Edge DevTools",
+            "request": "launch",
+            "type": "vscode-edge-devtools.debug",
+            "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}"
+        }
+    ],
+    "version": "0.2.0"
+}

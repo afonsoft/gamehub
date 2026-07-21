@@ -1,0 +1,42 @@
+{
+    "env": {
+      "browser": true,
+      "commonjs": true,
+      "es2021": true
+    },
+  "extends": [],
+    "overrides": [
+      {
+        "files": ["*.ts"],
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+          "ecmaVersion": "latest",
+          "sourceType": "module",
+          "project": ["./src/tsconfig.json"]
+        },
+        "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:@angular-eslint/template/process-inline-templates"],
+        "plugins": ["@typescript-eslint", "prettier"],
+        "rules": {
+          "eqeqeq": "warn",
+          "no-console": ["error", { "allow": ["warn", "error"] }],
+          "no-debugger": "error",
+          "prettier/prettier": ["warn", { "endOfLine": "auto" }],
+          "@typescript-eslint/no-inferrable-types": "warn",
+          "@typescript-eslint/no-empty-function": "warn",
+          "@typescript-eslint/no-explicit-any": "warn",
+          "@typescript-eslint/no-unused-vars": "warn",
+          "@typescript-eslint/triple-slash-reference": "warn",
+          "no-var": "warn",
+          "prefer-const": "warn",
+          "@typescript-eslint/no-var-requires": 0,
+          "no-useless-escape": 0
+        }
+      },
+      {
+        "files": ["*.html"],
+        "parser": "@angular-eslint/template-parser",
+        "extends": ["plugin:@angular-eslint/template/recommended"]
+      }
+    ],
+    "plugins": []
+}

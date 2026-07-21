@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "esbenp.prettier-vscode",
+        "sonarsource.sonarlint-vscode",
+        "ms-vscode.vs-keybindings",
+        "vscode-icons-team.vscode-icons",
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+        "gformat.html-formatter",
+        "msjsdiag.debugger-for-edge",
+        "sysoev.language-stylus",
+        "visualstudioexptteam.vscodeintellicode",
+        "dbaeumer.vscode-eslint"
+    ]
+}

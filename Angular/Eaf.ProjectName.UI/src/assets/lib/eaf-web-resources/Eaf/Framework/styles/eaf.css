@@ -1,0 +1,40 @@
+﻿.eaf-clickable {
+  cursor: pointer;
+}
+.eaf-dock-top {
+  left: 0;
+  top: 0;
+  right: 0;
+  position: absolute;
+  margin: 0;
+}
+.eaf-dock-right {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  margin: 0;
+}
+.eaf-dock-bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  margin: 0;
+}
+.eaf-dock-left {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  margin: 0;
+}
+.eaf-busy-indicator-small {
+  width: 36px;
+  height: 36px;
+}
+.eaf-busy-indicator-small.eaf-dock-left,
+.eaf-busy-indicator-small.eaf-dock-right {
+  height: auto;
+}
+/*# sourceMappingURL=eaf.css.map */

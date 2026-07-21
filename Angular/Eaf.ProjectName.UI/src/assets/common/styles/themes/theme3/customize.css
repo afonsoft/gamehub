@@ -1,0 +1,53 @@
+﻿theme3-layout,
+theme3-layout>div,
+theme3-layout>div>.m-page__container {
+    display: flex;
+    -webkit-box-flex: 1;
+    flex: 1 0 auto;
+    flex-direction: column;
+}
+
+app-root {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+app-root>ng-component {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.m-aside-menu.m-aside-menu--skin-dark,
+.m-grid__item.m-aside-left.m-aside-left--skin-dark>.m-brand.m-brand--skin-dark {
+    background-color: #afafb2 !important;
+}
+
+.m-aside-menu.m-aside-menu--skin-light,
+.m-grid__item.m-aside-left.m-aside-left--skin-light>.m-brand.m-brand--skin-light {
+    background-color: #fff;
+}
+
+.m-aside-left--minimize .m-aside-menu .m-menu__nav>.m-menu__item.m-menu__item--hover {
+    width: 0px;
+}
+
+.m-aside-left--minimize .m-aside-menu.m-aside-menu--skin-dark .m-menu__nav>.m-menu__item.m-menu__item--hover>.m-menu__link,
+.m-aside-left--minimize .m-aside-menu.m-aside-menu--skin-dark .m-menu__nav>.m-menu__item.m-menu__item--open>.m-menu__link {
+    background-color: #969696 !important;
+}
+
+.m_header_tilebar
+{
+    float: left;
+    font-size: 30px;
+    margin-top: 25px;
+}
+
+@media (max-width: 1024px) {
+    .m_header_tilebar
+    {
+        display: none;
+    }
+}

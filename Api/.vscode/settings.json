@@ -1,0 +1,5 @@
+{
+    "omnisharp.useModernNet": true,
+    "omnisharp.autoStart": true,
+    "csharp.showOmnisharpLogOnError": true
+}

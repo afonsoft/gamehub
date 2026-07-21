@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  eaf.projectname.web.host:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8001
+      - ConnectionStrings__Default=${ConnectionStrings__Default:?Connection string is required}
+      - Database__Provider=${Database__Provider:-SqlServer}
+      - Hangfire__IsEnabled=${Hangfire__IsEnabled:-false}
+      - SqlServerCache__IsEnabled=${SqlServerCache__IsEnabled:-false}
+      - RedisCache__IsEnabled=${RedisCache__IsEnabled:-false}
+      - RedisCache__ConnectionString=${RedisCache__ConnectionString:-redis:6379}
+      - RedisCache__DatabaseId=${RedisCache__DatabaseId:-0}
+      - App__ServerRootAddress=${App__ServerRootAddress:-http://localhost:8001/}
+      - App__ClientRootAddress=${App__ClientRootAddress:-http://localhost:8000/}
+      - App__CorsOrigins=${App__CorsOrigins:-*}
+    ports:
+      - "8001:8001"
+    networks:
+      - eaf-network

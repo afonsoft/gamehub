@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<localizationDictionary culture="pt-BR">
+  <texts>
+    <text name="Airplanes">Aeronaves</text>
+    <text name="CreateNewAirplane">Criar nova aeronave</text>
+    <text name="EditAirplane">Editar aeronaves</text>
+    <text name="DeleteAirplane">Excluir Aeronave</text>
+    <text name="AirplanesHeaderInfo">Gerenciar aeronave (Demo)</text>
+    <text name="Number">Número</text>
+    <text name="Model">Modelo</text>
+    <text name="AirplaneValidate">Já existe uma aeronave com esse número</text>
+    <text name="StartJob">Iniciar Job</text>
+  </texts>
+</localizationDictionary>

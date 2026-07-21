@@ -1,0 +1,167 @@
+﻿<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ 'Tenants' | localize }}</span>
+        </h3>
+        <span class="m-section__sub">
+          {{ 'TenantsHeaderInfo' | localize }}
+        </span>
+      </div>
+      <div class="col text-right mt-3 mt-md-0">
+        <button *ngIf="permission.isGranted('Pages.Tenants.Create')" class="btn btn-primary" (click)="createTenant()">
+          <i class="fa fa-plus"></i>{{ 'Create' | localize }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div class="m-form m-form--label-align-right">
+          <form autocomplete="off" (submit)="getTenants()">
+            <div class="form-body">
+              <div class="row m--margin-bottom-10">
+                <div class="col-xl-12">
+                  <label for="TenantNameOrTenancyCode">{{ 'Code' | localize }} / {{ 'Name' | localize }}</label>
+                  <div class="input-group">
+                    <input
+                      id="TenantNameOrTenancyCode"
+                      [(ngModel)]="filters.filterText"
+                      name="filterText"
+                      class="form-control"
+                      placeholder="{{ 'SearchWithThreeDot' | localize }}"
+                      type="text"
+                    />
+                    <span class="input-group-btn">
+                      <button class="btn btn-primary" type="submit">
+                        <i class="flaticon-search-1" [attr.aria-label]="l('Search')"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="align-items-center">
+          <div class="primeng-datatable-container" [busyIf]="dataTableHelper.isLoading">
+            <p-table
+              #dataTable
+              (onLazyLoad)="getTenants($event)"
+              [value]="dataTableHelper.records"
+              rows="{{ dataTableHelper.defaultRecordsCountPerPage }}"
+              [paginator]="false"
+              [lazy]="true"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" style="width: 80px">{{ 'Actions' | localize }}</th>
+                  <th scope="col" pSortableColumn="tenancyName" style="width: 150px">
+                    {{ 'Code' | localize }}
+                    <p-sortIcon field="tenancyName"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="name">
+                    {{ 'Name' | localize }}
+                    <p-sortIcon field="name"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="creationTime" style="width: 160px">
+                    {{ 'ModificationTime' | localize }}
+                    <p-sortIcon field="creationTime"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="isActive" style="width: 70px">
+                    {{ 'Active' | localize }}
+                    <p-sortIcon field="isActive"></p-sortIcon>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-record="$implicit">
+                <tr>
+                  <td>
+                    <div class="btn-group dropdown" dropdown>
+                      <button dropdownToggle class="dropdown-toggle btn btn-sm btn-primary">
+                        <i class="fa fa-cog"></i><span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" *dropdownMenu>
+                        <li [class.disabled]="!record.isActive">
+                          <a
+                            href="javascript:;"
+                            *ngIf="permission.isGranted('Pages.Tenants.Impersonation')"
+                            [class.disabled]="!record.isActive"
+                            (click)="record.isActive && showUserImpersonateLookUpModal(record)"
+                          >
+                            {{ 'LoginAsThisTenant' | localize }}
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            href="javascript:;"
+                            *ngIf="permission.isGranted('Pages.Tenants.ChangeFeatures')"
+                            (click)="tenantFeaturesModal.show(record.id, record.name)"
+                            >{{ 'Features' | localize }}</a
+                          >
+                        </li>
+                        <li>
+                          <a
+                            href="javascript:;"
+                            *ngIf="permission.isGranted('Pages.Tenants.Edit')"
+                            (click)="editTenantModal.show(record.id)"
+                            >{{ 'Edit' | localize }}</a
+                          >
+                        </li>
+                        <li>
+                          <a href="javascript:;" *ngIf="permission.isGranted('Pages.Tenants.Delete')" (click)="deleteTenant(record)">{{
+                            'Delete' | localize
+                          }}</a>
+                        </li>
+                        <li>
+                          <a href="javascript:;" *ngIf="entityHistoryEnabled" (click)="showHistory(record)">{{ 'History' | localize }}</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                  <td>
+                                        {{ record.tenancyName }}
+                  </td>
+                  <td>
+                                        {{ record.name }}
+                  </td>
+                  <td>
+                                        {{ record.lastModificationDate | momentFormat: 'L LT' }}
+                  </td>
+                  <td>
+                                        <span *ngIf="record.isActive" class="m-badge m-badge--success m-badge--wide">{{ 'Yes' | localize }}</span>
+                    <span *ngIf="!record.isActive" class="m-badge m-badge--metal m-badge--wide">{{ 'No' | localize }}</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <div class="primeng-no-data" *ngIf="dataTableHelper.totalRecordsCount == 0">
+              {{ 'NoData' | localize }}
+            </div>
+            <div class="primeng-paging-container">
+              <p-paginator
+                [rows]="dataTableHelper.defaultRecordsCountPerPage"
+                #paginator
+                (onPageChange)="getTenants($event)"
+                [totalRecords]="dataTableHelper.totalRecordsCount"
+                [rowsPerPageOptions]="dataTableHelper.predefinedRecordsCountPerPage"
+              >
+              </p-paginator>
+              <span class="total-records-count">
+                {{ 'TotalRecordsCount' | localize: dataTableHelper.totalRecordsCount }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <createTenantModal #createTenantModal (modalSave)="reloadPage()"></createTenantModal>
+  <editTenantModal #editTenantModal (modalSave)="reloadPage()"></editTenantModal>
+  <tenantFeaturesModal #tenantFeaturesModal></tenantFeaturesModal>
+  <commonLookupModal #impersonateUserLookupModal (itemSelected)="impersonateUser($event)"></commonLookupModal>
+  <entityTypeHistoryModal #entityTypeHistoryModal></entityTypeHistoryModal>
+</div>

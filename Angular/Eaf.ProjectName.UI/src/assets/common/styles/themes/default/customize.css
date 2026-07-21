@@ -1,0 +1,50 @@
+﻿app-root {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+app-root>ng-component {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+
+body.m-page--boxed {
+    background-color: #e2e2e2;
+}
+
+.m-container {
+    -webkit-box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.1);
+    box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.1)
+}
+
+body.m-aside-left--skin-dark .m-header .m-header-head,
+body.m-aside-left--skin-light.m-page--boxed .m-header {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+body.m-aside-left--skin-light .m-header {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+
+.m-aside-menu.m-aside-menu--skin-dark .m-menu__nav>.m-menu__item.m-menu__item--open {
+    background-color: #AFAFB2 !important;
+}
+
+.m_header_tilebar {
+    float: left;
+    font-size: 30px;
+    margin-top: 25px;
+}
+
+@media (max-width: 1024px) {
+    .m_header_tilebar {
+        display: none;
+    }
+}
+

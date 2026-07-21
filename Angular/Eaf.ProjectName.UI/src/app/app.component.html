@@ -1,0 +1,15 @@
+﻿<div class="m-grid m-grid--hor m-grid--root m-page">
+  <default-layout *ngIf="theme == 'default'"></default-layout>
+  <theme4-layout *ngIf="theme == 'theme4'"></theme4-layout>
+  <theme2-layout *ngIf="theme == 'theme2'"></theme2-layout>
+  <theme3-layout *ngIf="theme == 'theme3'"></theme3-layout>
+</div>
+
+<loginAttemptsModal #loginAttemptsModal></loginAttemptsModal>
+<changePasswordModal #changePasswordModal></changePasswordModal>
+<changeProfilePictureModal #changeProfilePictureModal></changeProfilePictureModal>
+<notificationSettingsModal #notificationSettingsModal></notificationSettingsModal>
+<mySettingsModal #mySettingsModal (modalSave)="onMySettingsModalSaved()"></mySettingsModal>
+
+<chat-bar #mAsideRight *ngIf="chatConnected" #chatBarComponent [userLookupModal]="userLookupModal"></chat-bar>
+<commonLookupModal #userLookupModal (itemSelected)="addFriendSelected($event)"></commonLookupModal>

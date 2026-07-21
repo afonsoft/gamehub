@@ -1,0 +1,41 @@
+﻿<div [@routerTransition]>
+  <!-- BEGIN: Header -->
+  <header mHeader #mHeader class="m-grid__item m-header m-header--skin-{{ currentTheme.baseSettings.header.headerSkin }}">
+    <div class="m-header__top">
+      <div class="m-container {{ ui.getContainerClass() }} m-container--xxl m-container--full-height">
+        <div class="m-stack m-stack--ver m-stack--desktop">
+          <!-- BEGIN: Brand -->
+          <default-brand
+            class="m-stack__item m-brand  m-brand--skin-{{ currentTheme.baseSettings.header.headerSkin }} d-print-non"
+          ></default-brand>
+          <!-- END: Brand -->
+          <div
+            class="m-stack__item m-stack__item--fluid m-header-head m-brand--skin-{{
+              currentTheme.baseSettings.header.headerSkin
+            }} d-print-none"
+            id="m_header_nav"
+          >
+            <titlebar></titlebar>
+            <topbar></topbar>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- END: Header -->
+  <!-- begin::Body -->
+  <div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body">
+    <!-- BEGIN: Left Aside -->
+
+    <div id="m_aside_left" #mAsideLeft [class]="'m-grid__item m-aside-left m-aside-left--skin-' + currentTheme.baseSettings.menu.asideSkin">
+      <!-- BEGIN: Aside Menu -->
+      <side-bar-menu *ngIf="currentTheme.isLeftMenuUsed"></side-bar-menu>
+      <!-- END: Aside Menu -->
+    </div>
+
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <!-- end:: Body -->
+</div>

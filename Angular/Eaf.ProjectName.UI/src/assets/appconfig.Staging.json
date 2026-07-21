@@ -1,0 +1,10 @@
+﻿{
+  "remoteServiceBaseUrl": "https://hom-ProjectName-api.afonsoft.com.br",
+  "appBaseUrl": "https://hom-ProjectName.afonsoft.com.br",
+  "localeMappings": [
+    {
+      "from": "pt-BR",
+      "to": "pt"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+﻿<div [@routerTransition]>
+  <!-- BEGIN: Header -->
+  <header
+    mHeader
+    id="m_header"
+    #mHeader
+    class="m-grid__item m-header theme-2 m-header--skin-{{ currentTheme.baseSettings.header.headerSkin }}"
+    [attr.m-minimize]="currentTheme.baseSettings.header.desktopFixedHeader ? 'minimize' : ''"
+    [attr.m-minimize-mobile]="currentTheme.baseSettings.header.mobileFixedHeader ? 'minimize' : ''"
+    m-minimize-offset="10"
+    m-minimize-mobile-offset="10"
+  >
+    <div class="m-header__top m-header__top--skin-{{ currentTheme.baseSettings.header.headerSkin }}">
+      <div class="m-container {{ ui.getContainerClass() }} m-container--full-height m-page__container">
+        <div class="m-stack m-stack--ver m-stack--desktop">
+          <!-- BEGIN: Brand -->
+          <theme2-brand
+            class="m-stack__item m-brand m-brand--skin-{{ currentTheme.baseSettings.header.headerSkin }} d-print-non head"
+          ></theme2-brand>
+          <!-- END: Brand -->
+          <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
+            <titlebar></titlebar>
+            <topbar></topbar>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-header__bottom m-header__bottom-{{ currentTheme.baseSettings.menu.asideSkin }}">
+      <div class="m-container m-container--full-height m-page__container {{ ui.getContainerClass() }}">
+        <!-- BEGIN: Topbar Menu -->
+        <top-bar-menu class="m-stack m-stack--ver m-stack--desktop"></top-bar-menu>
+        <!-- END: Topbar Menu -->
+      </div>
+    </div>
+  </header>
+  <!-- END: Header -->
+  <!-- begin::Body -->
+  <div
+    class="m-grid__item m-grid__item--fluid {{
+      ui.getContainerClass()
+    }} m-grid m-grid--ver-desktop m-grid--desktop m-container m-page__container theme-2 m-body"
+  >
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <!-- end:: Body -->
+</div>

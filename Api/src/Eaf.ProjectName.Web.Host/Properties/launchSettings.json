@@ -1,0 +1,52 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:8001/",
+      "sslPort": 44305
+    }
+  },
+  "profiles": {
+    "Eaf.ProjectName.Web.Host": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:8001",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://+:8001",
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      },
+      "applicationUrl": "http://localhost:8001/"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:8001/",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://+:8001",
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      },
+      "distributionName": ""
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:8001/",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://+:8001",
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://+:8001",
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      },
+      "publishAllPorts": true,
+      "useSSL": true
+    }
+  }
+}

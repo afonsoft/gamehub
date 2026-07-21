@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props"></Import>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<AssemblyName>Eaf.ProjectName.Core</AssemblyName>
+		<PackageId>Eaf.ProjectName.Core</PackageId>
+		<UserSecretsId>Eaf-ProjectName-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
+		<RootNamespace>Eaf.ProjectName</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Application\Localization\ProjectName\ProjectName-pt-BR.xml" />
+		<EmbeddedResource Include="Application\Localization\ProjectName\ProjectName.xml" />
+	</ItemGroup>
+	<ItemGroup>
+		<!--<PackageReference Include="Eaf.Middleware.Core" Version="9.2.0" />-->
+		<PackageReference Include="Hangfire.Console" Version="1.4.3" />
+		<PackageReference Include="Abp" Version="10.4.0" />
+		<PackageReference Include="Abp.ZeroCore" Version="10.4.0" />
+		<PackageReference Include="Abp.AutoMapper" Version="10.4.0" />
+		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="Abp.AspNetCore" Version="10.4.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\src\Eaf.Middleware.Core\Eaf.Middleware.Core.csproj" />
+	</ItemGroup>
+</Project>

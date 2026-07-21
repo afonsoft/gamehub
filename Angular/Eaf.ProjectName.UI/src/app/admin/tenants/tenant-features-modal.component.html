@@ -1,0 +1,61 @@
+﻿<div
+  bsModal
+  #tenantFeaturesModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+ 
+  aria-labelledby="tenantFeaturesModal"
+  aria-hidden="true"
+  [config]="{ backdrop: 'static' }"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form
+        autocomplete="off"
+        #editTenantFeaturesForm="ngForm"
+        name="editTenantFeaturesForm"
+        novalidate
+        class="form-validation"
+        (submit)="save()"
+      >
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <span>{{ 'Features' | localize }} - {{ tenantName }}</span>
+          </h5>
+          <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <feature-tree #featureTree></feature-tree>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            [disabled]="saving"
+            [buttonBusy]="resettingFeatures"
+            [busyText]="l('SavingWithThreeDot')"
+            class="btn btn-default pull-left"
+            (click)="resetFeatures()"
+            [tooltip]="l('ResetFeaturesTooltip')"
+            placement="top"
+          >
+            <span>{{ 'ResetSpecialFeatures' | localize }}</span>
+          </button>
+          <button type="button" [disabled]="saving || resettingFeatures" class="btn btn-default" (click)="close()">
+            {{ 'Cancel' | localize }}
+          </button>
+          <button
+            type="submit"
+            [disabled]="resettingFeatures"
+            [buttonBusy]="saving"
+            [busyText]="l('SavingWithThreeDot')"
+            class="btn btn-primary"
+          >
+            <i class="fa fa-save"></i> <span>{{ 'Save' | localize }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
