@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "ask": [
+      "Edit",
+      "Write",
+      "Bash"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.key)",
+      "Read(**/*.pem)",
+      "Read(**/secrets.*)",
+      "Read(./secrets/**)",
+      "Read(./.github/workflows/**)",
+      "Bash(git push * main*)",
+      "Bash(git push * master*)",
+      "Bash(git push * develop*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "bash .claude/hooks/block-protected-push.sh"
+      }
+    ]
+  }
+}

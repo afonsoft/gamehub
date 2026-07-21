@@ -1,0 +1,26 @@
+{
+  "read_config_from": {
+    "claude": true
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.key)",
+      "Read(**/*.pem)",
+      "Read(**/secrets.*)",
+      "Read(./.github/workflows/**)",
+      "Exec(git push * main*)",
+      "Exec(git push * master*)",
+      "Exec(git push * develop*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Exec",
+        "command": "bash .devin/hooks/block-protected-push.sh"
+      }
+    ]
+  }
+}
