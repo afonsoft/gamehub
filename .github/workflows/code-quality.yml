@@ -1,0 +1,182 @@
+name: 📊 Code Quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - main
+      - "releases/*"
+
+env:
+  DOTNET_VERSION: "10.0.x"
+
+jobs:
+  qodana:
+    name: 🔍 Qodana Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    env:
+      QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 🔍 Qodana Scan
+        id: qodana
+        if: env.QODANA_TOKEN != ''
+        uses: JetBrains/qodana-action@v2026.1.3
+        with:
+          args: --linter qodana-cdnet --solution Api/GameHub.sln --baseline qodana.sarif.json --fail-threshold 0
+          cache-default-branch-only: true
+          upload-result: false
+          primary-cache-key: qodana-2025.3-refs/heads/main-${{ github.sha }}
+          additional-cache-key: qodana-2025.3-refs/heads/main
+
+      - name: 📊 Upload Qodana Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: qodana-report
+          path: ${{ github.workspace }}/qodana
+
+  sonarqube:
+    name: 📊 SonarQube Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    env:
+      SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup NuGet
+        uses: NuGet/setup-nuget@v4
+
+      - name: 🗄️ Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: ☕ Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: "zulu"
+
+      - name: 🔧 Clear NuGet cache
+        run: dotnet nuget locals all --clear
+
+      - name: 📦 Install SonarQube Tools
+        run: dotnet tool install --global --ignore-failed-sources dotnet-sonarscanner
+
+      - name: 🔍 Prepare analysis on SonarQube
+        if: env.SONAR_TOKEN != ''
+        run: |
+          dotnet sonarscanner begin \
+            /o:"afonsoft" \
+            /k:"afonsoft_gamehub" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.scm.provider=git \
+            /d:sonar.coverage.exclusions="**Test*.cs"
+
+      - name: 🏗️ Build
+        run: dotnet build Api/GameHub.sln --configuration release
+
+      - name: 🔍 Run Code Analysis
+        if: env.SONAR_TOKEN != ''
+        run: |
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+  snyk:
+    name: 🛡️ Snyk Security
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v7
+
+      - name: 🗄️ Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 🔧 Restore Dependencies
+        run: dotnet restore Api/GameHub.sln --ignore-failed-sources
+
+      - name: 🛡️ Run Snyk
+        if: env.SNYK_TOKEN != ''
+        uses: snyk/actions/dotnet@master
+        continue-on-error: true
+        with:
+          command: test
+          args: --file=Api/GameHub.sln --severity-threshold=high --sarif-file-output=snyk.sarif --json-output=snyk.json
+
+      - name: 📊 Upload Snyk Results
+        uses: github/codeql-action/upload-sarif@v4
+        if: always() && hashFiles('snyk.sarif') != ''
+        with:
+          sarif_file: snyk.sarif
+          category: snyk
+
+  quality-metrics:
+    name: 📈 Quality Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v7
+
+      - name: 🗄️ Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 🔧 Restore Dependencies
+        run: dotnet restore Api/GameHub.sln --ignore-failed-sources
+
+      - name: 🏗️ Build Solution
+        run: dotnet build Api/GameHub.sln --configuration Release --no-restore --verbosity minimal
+
+      - name: 📊 Calculate Metrics
+        run: |
+          echo "📊 Analyzing code quality metrics..."
+          echo "Lines of Code: $(find Api/src -name '*.cs' -exec wc -l {} + | tail -1 | awk '{print $1}')"
+          echo "Test Files: $(find Api/test -name '*Tests.cs' | wc -l)"
+          echo "Projects: $(find Api -name '*.csproj' | wc -l)"
+          echo "Pending Work Tags: $(grep -r 'TODO' Api/src --include='*.cs' | wc -l)"
+          echo "Quality metrics analysis completed!"
+
+  quality-summary:
+    name: 📋 Quality Summary
+    runs-on: ubuntu-latest
+    needs: [qodana, sonarqube, snyk, quality-metrics]
+    if: always()
+
+    steps:
+      - name: 📋 Generate Quality Report
+        run: |
+          echo "## 📊 Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Tool | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Qodana | ${{ needs.qodana.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📊 SonarQube | ${{ needs.sonarqube.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🛡️ Snyk | ${{ needs.snyk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📈 Metrics | ${{ needs.quality-metrics.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Quality pipeline completed!" >> $GITHUB_STEP_SUMMARY
