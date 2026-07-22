@@ -14,6 +14,10 @@ if [ ! -f "$COMPOSE_FILE" ]; then
     exit 1
 fi
 
+echo "Parando containers existentes (se houver)..."
+docker compose -f "$COMPOSE_FILE" down --remove-orphans || true
+echo ""
+
 if [ ! -f ".env" ]; then
     echo "=============================================="
     echo ".env não encontrado."
