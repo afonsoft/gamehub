@@ -12,6 +12,7 @@
 		<DocumentationFile></DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\GameHub.Core\GameHub.Core.csproj" />
 		<ProjectReference Include="..\GameHub.EntityFrameworkCore\GameHub.EntityFrameworkCore.csproj" />
 		<PackageReference Include="Eaf.Middleware.Application" Version="9.2.0" />
 	</ItemGroup>

@@ -6,6 +6,7 @@ using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using GameHub.Catalog;
 using GameHub.Developer.Dto;
+using GameHub.Storage;
 
 namespace GameHub.Builds
 {
@@ -14,15 +15,18 @@ namespace GameHub.Builds
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
         private readonly IGameBuildPackageValidator _validator;
+        private readonly IGameAssetStorage _assetStorage;
 
         public GameBuildAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<GameBuild, Guid> buildRepository,
-            IGameBuildPackageValidator validator)
+            IGameBuildPackageValidator validator,
+            IGameAssetStorage assetStorage)
         {
             _gameRepository = gameRepository;
             _buildRepository = buildRepository;
             _validator = validator;
+            _assetStorage = assetStorage;
         }
 
         public async Task<UploadGameBuildResultDto> UploadBuildAsync(Guid gameId, Stream packageStream, string fileName, string contentType)
@@ -56,12 +60,22 @@ namespace GameHub.Builds
             var buildId = Guid.NewGuid();
             var buildNumber = (await _buildRepository.CountAsync(b => b.GameId == gameId)) + 1;
 
+            packageStream.Position = 0;
+            var asset = await _assetStorage.StoreAsync(new GameBuildPackage
+            {
+                GameId = gameId,
+                BuildId = buildId,
+                FileName = fileName,
+                ContentType = contentType,
+                Content = packageStream
+            });
+
             var build = new GameBuild(
                 buildId,
                 gameId,
                 fileName,
                 buildNumber,
-                $"/uploads/{gameId}/{buildId}/{fileName}",
+                asset.Url,
                 validation.SizeBytes,
                 validation.HashSha256);
 
