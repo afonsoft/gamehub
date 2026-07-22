@@ -341,6 +341,17 @@ In active development. The domain model, application layer, EF Core infrastructu
 
 ---
 
+## Agent Tools & Automation
+
+This repository includes an agent harness (`.claude/` + `.devin/`) and is linked to the central `afonsoft/agents-skills` catalog.
+
+- [AGENTS.md](AGENTS.md) — agent mission, rules, and workflow.
+- [CLAUDE.md](CLAUDE.md) — Claude Code / Devin CLI configuration.
+- [.claude/MEMORY.md](.claude/MEMORY.md) — cross-session decisions and available tools.
+- [.specs/](.specs/) — detailed platform specifications.
+
+Available agent tools include Devin native tools, MCP servers (`deepwiki`, `firecrawl`, `microsoft-learn`, `monday`, `notion`, `sonarqube`, `tavily`), and reusable skills for .NET/ABP/Angular/PostgreSQL.
+
 ## Links
 
 - [Portuguese README](README.pt-BR.md)
