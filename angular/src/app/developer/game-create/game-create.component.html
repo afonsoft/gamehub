@@ -1,0 +1,66 @@
+<div class="dev-page">
+  <aside class="dev-sidebar">
+    <h2>Developer</h2>
+    <nav>
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
+      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
+    </nav>
+  </aside>
+  <main class="dev-main">
+    <h1>Create new game</h1>
+    <form class="game-form" (ngSubmit)="create()">
+      <label for="title">Title *</label>
+      <input id="title" type="text" [(ngModel)]="input.title" name="title" required />
+
+      <label for="shortDescription">Short description *</label>
+      <input id="shortDescription" type="text" [(ngModel)]="input.shortDescription" name="shortDescription" required />
+
+      <label for="description">Description</label>
+      <textarea id="description" [(ngModel)]="input.description" name="description" rows="4"></textarea>
+
+      <label for="instructions">Instructions</label>
+      <textarea id="instructions" [(ngModel)]="input.instructions" name="instructions" rows="3"></textarea>
+
+      <label for="ageRating">Age rating *</label>
+      <select id="ageRating" [(ngModel)]="input.ageRating" name="ageRating" required>
+        <option value="E">E — Everyone</option>
+        <option value="E10+">E10+</option>
+        <option value="T">T — Teen</option>
+        <option value="M">M — Mature</option>
+      </select>
+
+      <label for="orientation">Orientation *</label>
+      <select id="orientation" [(ngModel)]="input.orientation" name="orientation" required>
+        <option value="Landscape">Landscape</option>
+        <option value="Portrait">Portrait</option>
+        <option value="Both">Both</option>
+      </select>
+
+      <fieldset>
+        <legend>Supported platforms</legend>
+        <label><input type="checkbox" [(ngModel)]="input.supportsDesktop" name="supportsDesktop" /> Desktop</label>
+        <label><input type="checkbox" [(ngModel)]="input.supportsMobile" name="supportsMobile" /> Mobile</label>
+        <label><input type="checkbox" [(ngModel)]="input.supportsTablet" name="supportsTablet" /> Tablet</label>
+      </fieldset>
+
+      <fieldset *ngIf="categories.length">
+        <legend>Categories</legend>
+        <label *ngFor="let category of categories">
+          <input
+            type="checkbox"
+            [checked]="hasCategory(category.id)"
+            (change)="toggleCategory(category.id)" />
+          {{ category.name }}
+        </label>
+      </fieldset>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="loading">{{ loading ? 'Creating...' : 'Create game' }}</button>
+        <a routerLink="/developer/games">Cancel</a>
+      </div>
+    </form>
+  </main>
+</div>

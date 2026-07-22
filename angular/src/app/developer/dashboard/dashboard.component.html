@@ -1,0 +1,24 @@
+<div class="dev-page">
+  <aside class="dev-sidebar">
+    <h2>Developer</h2>
+    <nav>
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
+      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
+    </nav>
+  </aside>
+  <main class="dev-main">
+    <h1>Developer Dashboard</h1>
+    <p>Manage your games, builds and profile from here.</p>
+    <div class="dev-cards">
+      <a class="dev-card" routerLink="/developer/games">
+        <h3>My Games</h3>
+        <p>View, edit and submit games for review.</p>
+      </a>
+      <a class="dev-card" routerLink="/developer/profile">
+        <h3>Profile</h3>
+        <p>Update your public developer profile.</p>
+      </a>
+    </div>
+  </main>
+</div>

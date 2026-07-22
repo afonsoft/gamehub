@@ -18,15 +18,19 @@ export class GamesComponent implements OnInit {
   loading = false;
   query = '';
   category = '';
+  tag = '';
+  searchPage = false;
   skipCount = 0;
   readonly pageSize = 24;
 
   get title(): string {
+    if (this.searchPage && !this.query && !this.category && !this.tag) return 'Search Games';
     if (this.query) return `Results for "${this.query}"`;
     if (this.category) {
       const cat = this.categories.find(c => c.slug === this.category);
       return cat ? cat.name : 'Games';
     }
+    if (this.tag) return `Games tagged #${this.tag}`;
     return 'All Games';
   }
 
@@ -37,9 +41,11 @@ export class GamesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.searchPage = this.router.url.startsWith('/search');
     this.route.queryParams.subscribe(params => {
       this.query = params['q'] || '';
       this.category = params['category'] || '';
+      this.tag = params['tag'] || '';
       this.skipCount = 0;
       this.games = [];
       this.loadCategories();
@@ -55,8 +61,15 @@ export class GamesComponent implements OnInit {
 
   loadPage(): void {
     this.loading = true;
-    const request$ = this.query.trim()
-      ? this.catalog.search(this.query.trim(), this.category ? [this.category] : [], this.skipCount, this.pageSize)
+    const hasSearch = this.query.trim() || this.tag;
+    const request$ = hasSearch
+      ? this.catalog.search(
+          this.query.trim(),
+          this.category ? [this.category] : [],
+          this.tag ? [this.tag] : [],
+          this.skipCount,
+          this.pageSize,
+        )
       : this.catalog.getGames(
           this.skipCount,
           this.pageSize,
@@ -82,7 +95,7 @@ export class GamesComponent implements OnInit {
 
   reload(): void {
     this.router.navigate(['/games'], {
-      queryParams: { q: this.query.trim() || null, category: this.category || null },
+      queryParams: { q: this.query.trim() || null, category: this.category || null, tag: this.tag || null },
       queryParamsHandling: 'merge',
     });
   }
@@ -90,6 +103,7 @@ export class GamesComponent implements OnInit {
   clear(): void {
     this.query = '';
     this.category = '';
+    this.tag = '';
     this.router.navigate(['/games']);
   }
 

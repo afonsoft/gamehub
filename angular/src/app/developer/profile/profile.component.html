@@ -1,0 +1,34 @@
+<div class="dev-page">
+  <aside class="dev-sidebar">
+    <h2>Developer</h2>
+    <nav>
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
+      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
+    </nav>
+  </aside>
+  <main class="dev-main">
+    <h1>Developer Profile</h1>
+    <div class="loading" *ngIf="loading">Loading...</div>
+    <form class="game-form" *ngIf="!loading" (ngSubmit)="save()">
+      <label for="displayName">Display name *</label>
+      <input id="displayName" type="text" [(ngModel)]="profile.displayName" name="displayName" required />
+
+      <label for="legalName">Legal name</label>
+      <input id="legalName" type="text" [(ngModel)]="profile.legalName" name="legalName" />
+
+      <label for="websiteUrl">Website</label>
+      <input id="websiteUrl" type="url" [(ngModel)]="profile.websiteUrl" name="websiteUrl" />
+
+      <label for="supportEmail">Support email</label>
+      <input id="supportEmail" type="email" [(ngModel)]="profile.supportEmail" name="supportEmail" />
+
+      <p class="success" *ngIf="saved">Profile saved successfully.</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Saving...' : 'Save profile' }}</button>
+      </div>
+    </form>
+  </main>
+</div>

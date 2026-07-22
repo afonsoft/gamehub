@@ -1,0 +1,5 @@
+@import '../game-create/game-create.component.css';
+.success {
+  color: #34a853;
+  font-size: 0.875rem;
+}

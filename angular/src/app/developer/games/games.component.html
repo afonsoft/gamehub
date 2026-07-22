@@ -1,0 +1,39 @@
+<div class="dev-page">
+  <aside class="dev-sidebar">
+    <h2>Developer</h2>
+    <nav>
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
+      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
+    </nav>
+  </aside>
+  <main class="dev-main">
+    <div class="dev-header">
+      <h1>My Games</h1>
+      <a class="btn-primary" routerLink="/developer/games/create">New Game</a>
+    </div>
+    <div class="loading" *ngIf="loading">Loading...</div>
+    <table class="games-table" *ngIf="!loading && games.length">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let game of games">
+          <td>{{ game.title }}</td>
+          <td><span class="badge">{{ game.status }}</span></td>
+          <td>{{ game.lastUpdated | date:'short' }}</td>
+          <td>
+            <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
+            <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="empty" *ngIf="!loading && !games.length">No games yet. Create your first game.</p>
+  </main>
+</div>

@@ -1,0 +1,54 @@
+@import '../dashboard/dashboard.component.css';
+.game-form {
+  max-width: 600px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.game-form label {
+  display: block;
+  margin: 16px 0 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.game-form input[type='text'],
+.game-form input[type='email'],
+.game-form textarea,
+.game-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.game-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 16px 0 0;
+}
+.game-form fieldset legend {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.game-form fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-weight: 400;
+}
+.game-form .actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+.game-form a {
+  color: #5f6368;
+  text-decoration: none;
+}
+.error {
+  color: #ea4335;
+  font-size: 0.875rem;
+}

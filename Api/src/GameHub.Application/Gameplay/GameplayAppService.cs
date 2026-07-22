@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
+using GameHub;
 using GameHub.Catalog;
 using GameHub.Gameplay.Dto;
 
@@ -53,22 +54,23 @@ namespace GameHub.Gameplay
             return ObjectMapper.Map<PlaySessionDto>(session);
         }
 
-        public async Task EventAsync(Guid sessionId, GameplayEventInput input)
+        public async Task EventAsync(GameplayEventInput input)
         {
-            var session = await _playSessionRepository.GetAsync(sessionId);
+            var session = await _playSessionRepository.GetAsync(input.SessionId);
 
             var ev = new GameplayEvent
             {
                 Id = Guid.NewGuid(),
-                PlaySessionId = sessionId,
+                PlaySessionId = input.SessionId,
                 GameId = session.GameId,
-                EventType = (GameHub.GameplayEventType)(int)input.EventType,
+                EventType = input.EventType,
                 EventName = input.EventName,
                 PayloadJson = input.PayloadJson,
                 OccurredAt = DateTime.UtcNow
             };
 
             await _gameplayEventRepository.InsertAsync(ev);
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
     }
 }
