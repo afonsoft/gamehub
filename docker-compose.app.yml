@@ -1,0 +1,51 @@
+services:
+  backend:
+    build:
+      context: ./Api
+      dockerfile: Dockerfile
+    container_name: gamehub-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      Database__Provider: PostgreSQL
+      ConnectionStrings__Default: Host=postgres;Database=${POSTGRES_DB:-A PREENCHER};Username=${POSTGRES_USER:-A PREENCHER};Password=${POSTGRES_PASSWORD:-A PREENCHER}
+      RedisCache__IsEnabled: "true"
+      RedisCache__ConnectionString: redis:6379
+      RedisCache__DatabaseId: "0"
+      Hangfire__IsEnabled: "false"
+      App__ServerRootAddress: ${GAMEHUB_API_URL:-A PREENCHER}
+      App__ClientRootAddress: ${GAMEHUB_HUB_URL:-A PREENCHER}
+      App__CorsOrigins: ${GAMEHUB_CORS_ORIGINS:-A PREENCHER}
+    ports:
+      - "4601:80"
+    networks:
+      - gamehub
+
+  angular-hub:
+    build:
+      context: ./angular
+      dockerfile: Dockerfile
+    container_name: gamehub-angular-hub
+    restart: unless-stopped
+    ports:
+      - "4600:80"
+    networks:
+      - gamehub
+
+  angular-admin:
+    build:
+      context: ./angular-admin/GameHub.UI
+      dockerfile: dockerfile
+    container_name: gamehub-angular-admin
+    restart: unless-stopped
+    environment:
+      REMOTE_SERVICE_BASE_URL: ${GAMEHUB_API_URL:-A PREENCHER}
+      APP_BASE_URL: ${GAMEHUB_ADMIN_URL:-A PREENCHER}
+    ports:
+      - "4602:80"
+    networks:
+      - gamehub
+
+networks:
+  gamehub:
+    driver: bridge
