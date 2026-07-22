@@ -33,10 +33,19 @@ namespace GameHub.Migrations.Seed.Host
         {
             foreach (var language in InitialLanguages)
             {
-                if (_context.Languages.IgnoreQueryFilters().Any(l => l.TenantId == language.TenantId && l.Name == language.Name))
-                    continue;
+                var existingLanguage = _context.Languages.IgnoreQueryFilters()
+                    .FirstOrDefault(l => l.TenantId == language.TenantId && l.Name == language.Name);
 
-                _context.Languages.Add(language);
+                if (existingLanguage != null)
+                {
+                    existingLanguage.DisplayName = language.DisplayName;
+                    existingLanguage.Icon = language.Icon;
+                }
+                else
+                {
+                    _context.Languages.Add(language);
+                }
+
                 _context.SaveChanges();
             }
         }

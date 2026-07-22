@@ -4,5 +4,7 @@
     <text name="Number">Número</text>
     <text name="Model">Modelo</text>
     <text name="StartJob">Iniciar Job</text>
+    <text name="UseCaptchaOnLogin">Usar ReCaptcha no Login</text>
+    <text name="ReCaptcha">ReCaptcha</text>
   </texts>
 </localizationDictionary>

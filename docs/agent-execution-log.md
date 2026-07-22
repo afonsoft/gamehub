@@ -1,5 +1,30 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-22 23:45 UTC
+
+### Tarefa
+Corrigir erros de layout/checkbox, codificação de caracteres e endpoints 503 reportados no admin Angular/API, além de remover rotas/menus legados (`Airplanes`, `Parameters`, `Hangfire`).
+
+### Arquivos alterados
+- `angular-admin/GameHub.UI/src/assets/common/styles/styles.css` — `.m-switch-label` ajustado para `display: inline-block`, `vertical-align: top`, `line-height: 34px` e `width: calc(100% - 75px)`, evitando quebra de linha sob o switch.
+- `angular-admin/GameHub.UI/src/app/shared/layout/nav/app-navigation.service.ts` — removidos os itens `Airplanes`, `Parameters` e `Hangfire` do menu.
+- `angular-admin/GameHub.UI/src/app/admin/admin-routing.module.ts` e `admin.module.ts` — removidas importações/declarações do componente `Hangfire` e sua rota.
+- `angular-admin/GameHub.UI/src/app/admin/hangfire/hangfire.component.*` — arquivos removidos (dashboard inacessível enquanto `Hangfire:IsEnabled` estiver `false`).
+- `Api/src/GameHub.Core/Application/Localization/GameHub/GameHub-pt-BR.xml` e `GameHub.xml` — adicionadas chaves `UseCaptchaOnLogin` e `ReCaptcha` para parar de exibir o raw key na tela.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/DefaultLanguagesCreator.cs` — agora atualiza `DisplayName` e `Icon` caso o idioma já exista, garantindo correção de `Português (Brasil)`/`Español` em bases preenchidas.
+- `Api/test/GameHub.Web.Tests/GameHubWebTestModule.cs` — removida dependência duplicada de `GameHubTestModule` e adicionada guarda em `RegisterFakeService` para evitar duplicidade de componentes.
+- `Api/test/GameHub.Tests/GameHub/Application/HostSettingsAppService_Tests.cs` — teste de integração para `GetAllSettingsAnonymous`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/DefaultLanguagesCreator.cs` e `Api/test/GameHub.Tests/Localization/Localization_Tests.cs` — convertidos para UTF-8 para corrigir caracteres acentuados.
+
+### Motivação
+Os screenshots mostravam o label do switch "Consentimento de cookies ativado" quebrando para baixo do toggle e sobrepondo o título "UseCaptchaOnLogin" (que aparecia como raw key). O log de rede exibia `503` nos itens `parameters`, `hangfire` e `settings` do admin; investigação apontou rotas/menus remanescentes do template (`Airplanes`, `Parameters`) e acesso incondicional ao dashboard Hangfire desabilitado no Docker Compose (`Hangfire__IsEnabled=false`).
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 144 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm ci --legacy-peer-deps && npm run build` no `angular-admin/GameHub.UI` sucesso.
+
 ## 2026-07-22 22:45 UTC
 
 ### Tarefa

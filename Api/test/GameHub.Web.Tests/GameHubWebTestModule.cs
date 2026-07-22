@@ -35,8 +35,7 @@ namespace GameHub.Web.Tests
         typeof(GameHubEntityFrameworkCoreModule),
         typeof(AbpAspNetCoreTestBaseModule),
         typeof(MiddlewareWebCoreModule),
-        typeof(EafKeyVaultAspNetCoreModule),
-        typeof(GameHubTestModule)
+        typeof(EafKeyVaultAspNetCoreModule)
     )]
     public class GameHubWebTestModule : AbpModule
     {
@@ -110,6 +109,11 @@ namespace GameHub.Web.Tests
 
         private void RegisterFakeService<TService>() where TService : class
         {
+            if (IocManager.IocContainer.Kernel.HasComponent(typeof(TService)))
+            {
+                return;
+            }
+
             IocManager.IocContainer.Register(
                 Component.For<TService>()
                     .UsingFactoryMethod(() => Substitute.For<TService>())

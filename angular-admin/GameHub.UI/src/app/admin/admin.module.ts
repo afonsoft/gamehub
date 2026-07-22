@@ -26,7 +26,6 @@ import { TreeModule } from 'primeng/tree';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AuditLogDetailModalComponent } from './audit-logs/audit-log-detail-modal.component';
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
-import { HangfireComponent } from './hangfire/hangfire.component';
 import { CreateOrEditLanguageModalComponent } from './languages/create-or-edit-language-modal.component';
 import { EditTextModalComponent } from './languages/edit-text-modal.component';
 import { LanguageTextsComponent } from './languages/language-texts.component';
@@ -104,7 +103,6 @@ import { UsersComponent } from './users/users.component';
     EditTextModalComponent,
     UiCustomizationComponent,
     MaintenanceComponent,
-    HangfireComponent,
     DefaultThemeUiSettingsComponent,
     Theme4ThemeUiSettingsComponent,
     Theme2ThemeUiSettingsComponent,

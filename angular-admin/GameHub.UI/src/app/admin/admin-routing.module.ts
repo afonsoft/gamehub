@@ -2,7 +2,6 @@
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
-import { HangfireComponent } from './hangfire/hangfire.component';
 import { LanguageTextsComponent } from './languages/language-texts.component';
 import { LanguagesComponent } from './languages/languages.component';
 import { MaintenanceComponent } from './maintenance/maintenance.component';
@@ -31,7 +30,6 @@ import { UsersComponent } from './users/users.component';
           { path: 'settings', component: SettingsComponent, data: { permission: 'Pages.Administration.Settings' } },
           { path: 'maintenance', component: MaintenanceComponent, data: { permission: 'Pages.Administration.Maintenance' } },
           { path: 'ui-customization', component: UiCustomizationComponent, data: { permission: 'Pages.Administration.UiCustomization' } },
-          { path: 'hangfire', component: HangfireComponent, data: { permission: 'Pages.Administration.Maintenance' } },
         ],
       },
     ]),
