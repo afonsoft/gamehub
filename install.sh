@@ -62,6 +62,12 @@ if [ ! -f ".env" ]; then
                     MINIO_ENDPOINT)
                         echo "${key}=http://host.docker.internal:9000"
                         ;;
+                    MINIO_ACCESS_KEY)
+                        echo "${key}=gamehub_user"
+                        ;;
+                    MINIO_SECRET_KEY)
+                        echo "${key}="
+                        ;;
                     GAMEHUB_API_URL)
                         echo "${key}=https://gamehub-api.afonsoft.dev/"
                         ;;
