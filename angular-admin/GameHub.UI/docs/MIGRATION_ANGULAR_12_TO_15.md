@@ -210,7 +210,7 @@ The CLI configuration format changes slightly:
 ```json
 {
   "projects": {
-    "eaf-projectname-ui": {
+    "eaf-gamehub-ui": {
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",

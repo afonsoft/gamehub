@@ -9,7 +9,7 @@ using Xunit;
 namespace GameHub.Tests.Authorization.Users
 {
     // ReSharper disable once InconsistentNaming
-    public class ProfileAppService_Tests : ProjectNameTestBase
+    public class ProfileAppService_Tests : GameHubTestBase
     {
         private readonly IProfileAppService _profileAppService;
 

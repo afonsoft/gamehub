@@ -89,6 +89,9 @@ if [ ! -f ".env" ]; then
                     GAMEHUB_CORS_ORIGINS)
                         echo "${key}=https://gamehub.afonsoft.dev,https://gamehub-admin.afonsoft.dev"
                         ;;
+                    Database__Provider)
+                        echo "${key}=PostgreSQL"
+                        ;;
                     POSTGRES_PASSWORD)
                         echo "${key}="
                         ;;

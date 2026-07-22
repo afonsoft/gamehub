@@ -12,12 +12,12 @@ namespace GameHub.Migrator
     {
         public Log Log { get; private set; }
 
-        private readonly ProjectNameDbMigrator _migrator;
+        private readonly GameHubDbMigrator _migrator;
         private readonly DefaultConnectionStringResolver _connectionStringResolver;
 
         public MigrateExecuter(
             Log log,
-            ProjectNameDbMigrator migrator,
+            GameHubDbMigrator migrator,
             DefaultConnectionStringResolver connectionStringResolver
         )
         {

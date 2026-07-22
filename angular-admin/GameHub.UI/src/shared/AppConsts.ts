@@ -18,7 +18,7 @@
   };
 
   static readonly localization = {
-    defaultLocalizationSourceName: 'ProjectName',
+    defaultLocalizationSourceName: 'GameHub',
     defaultLocalizationSourceNameEaf: 'EafCore',
     defaultLocalizationSourceNameAbp: 'Abp',
     defaultLocalizationSourceNameAbpWeb: 'AbpWeb',

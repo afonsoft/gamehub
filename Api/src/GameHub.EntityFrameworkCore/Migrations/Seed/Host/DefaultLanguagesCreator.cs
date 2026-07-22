@@ -9,11 +9,11 @@ namespace GameHub.Migrations.Seed.Host
     public class DefaultLanguagesCreator
     {
         public static List<ApplicationLanguage> InitialLanguages => GetInitialLanguages();
-        private readonly ProjectNameDbContext _context;
+        private readonly GameHubDbContext _context;
 
         private static List<ApplicationLanguage> GetInitialLanguages()
         {
-            var tenantId = ProjectNameConsts.MultiTenancyEnabled ? null : (int?)1;
+            var tenantId = GameHubConsts.MultiTenancyEnabled ? null : (int?)1;
             return new List<ApplicationLanguage>
             {
                 new ApplicationLanguage(tenantId, "pt-BR", "Português (Brasil)", "famfamfam-flags br"),
@@ -23,7 +23,7 @@ namespace GameHub.Migrations.Seed.Host
         }
 
         public DefaultLanguagesCreator(
-            ProjectNameDbContext context
+            GameHubDbContext context
         )
         {
             _context = context;

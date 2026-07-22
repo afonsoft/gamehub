@@ -14,8 +14,8 @@ using System.Threading.Tasks;
 
 namespace GameHub.Airplanes
 {
-    [AbpAuthorize(ProjectNamePermissions.Pages_Airplanes)]
-    public class AirplanesAppService : ProjectNameAppServiceBase, IAirplanesAppService
+    [AbpAuthorize(GameHubPermissions.Pages_Airplanes)]
+    public class AirplanesAppService : GameHubAppServiceBase, IAirplanesAppService
     {
         private readonly IAirplaneJob _airplaneJob;
         private readonly IAirplaneManager _airplaneManager;
@@ -27,7 +27,7 @@ namespace GameHub.Airplanes
             IAirplanesExcelExporter airplanesExcelExporter
         )
         {
-            LocalizationSourceName = ProjectNameConsts.LocalizationSourceName;
+            LocalizationSourceName = GameHubConsts.LocalizationSourceName;
 
             _airplaneJob = airplaneJob;
             _airplaneManager = airplaneManager;
@@ -47,7 +47,7 @@ namespace GameHub.Airplanes
             return new PagedResultDto<AirplaneDto>(total, ObjectMapper.Map<List<AirplaneDto>>(items));
         }
 
-        [AbpAuthorize(ProjectNamePermissions.Pages_Airplanes_Edit)]
+        [AbpAuthorize(GameHubPermissions.Pages_Airplanes_Edit)]
         public async Task<CreateOrEditAirplaneDto> GetAirplaneForEdit(EntityDto input)
         {
             var airplane = await _airplaneManager.GetByIdAsync(input.Id);
@@ -62,7 +62,7 @@ namespace GameHub.Airplanes
                 await Create(input);
         }
 
-        [AbpAuthorize(ProjectNamePermissions.Pages_Airplanes_Create)]
+        [AbpAuthorize(GameHubPermissions.Pages_Airplanes_Create)]
         private async Task Create(CreateOrEditAirplaneDto input)
         {
             var airplane = ObjectMapper.Map<Airplane>(input);
@@ -73,7 +73,7 @@ namespace GameHub.Airplanes
             await _airplaneManager.CreateAsync(airplane);
         }
 
-        [AbpAuthorize(ProjectNamePermissions.Pages_Airplanes_Edit)]
+        [AbpAuthorize(GameHubPermissions.Pages_Airplanes_Edit)]
         private async Task Update(CreateOrEditAirplaneDto input)
         {
             var airplane = await _airplaneManager.GetByIdAsync(input.Id.Value);
@@ -81,7 +81,7 @@ namespace GameHub.Airplanes
             await _airplaneManager.UpdateAsync(airplane);
         }
 
-        [AbpAuthorize(ProjectNamePermissions.Pages_Airplanes_Delete)]
+        [AbpAuthorize(GameHubPermissions.Pages_Airplanes_Delete)]
         public async Task Delete(EntityDto input)
         {
             await _airplaneManager.DeleteAsync(input.Id);

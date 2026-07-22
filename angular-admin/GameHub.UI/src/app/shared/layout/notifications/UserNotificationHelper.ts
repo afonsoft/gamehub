@@ -100,7 +100,7 @@ export class UserNotificationHelper extends AppComponentBase {
     });
 
     //Desktop notification
-    Push.default.create('ProjectName', {
+    Push.default.create('GameHub', {
       body: this.format(userNotification).text,
       icon: eaf.appPath + 'assets/common/images/eaf/eaf.png',
       timeout: 8000,

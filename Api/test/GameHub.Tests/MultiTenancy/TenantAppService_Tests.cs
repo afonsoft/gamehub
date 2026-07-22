@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace GameHub.Tests.MultiTenancy
 {
     // ReSharper disable once InconsistentNaming
-    public class TenantAppService_Tests : ProjectNameTestBase
+    public class TenantAppService_Tests : GameHubTestBase
     {
         private readonly ITenantAppService _tenantAppService;
 

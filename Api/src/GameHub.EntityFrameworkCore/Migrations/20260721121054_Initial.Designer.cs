@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace GameHub.Migrations
 {
-    [DbContext(typeof(ProjectNameDbContext))]
+    [DbContext(typeof(GameHubDbContext))]
     [Migration("20260721121054_Initial")]
     partial class Initial
     {

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Entities
 {
-    public class FullAuditedEntity_Tests : ProjectNameTestBase
+    public class FullAuditedEntity_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_FullAuditedEntity_Quando_VerificarTipo_Entao_DeveTerPropriedadesDeAuditoria()

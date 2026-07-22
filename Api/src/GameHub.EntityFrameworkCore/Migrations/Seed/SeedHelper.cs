@@ -15,10 +15,10 @@ namespace GameHub.Migrations.Seed
     {
         public static void SeedHostDb(IIocResolver iocResolver)
         {
-            WithDbContext<ProjectNameDbContext>(iocResolver, SeedHostDb);
+            WithDbContext<GameHubDbContext>(iocResolver, SeedHostDb);
         }
 
-        public static void SeedHostDb(ProjectNameDbContext context)
+        public static void SeedHostDb(GameHubDbContext context)
         {
             context.SuppressAutoSetTenantId = true;
 

@@ -1,5 +1,26 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-22 04:15 UTC
+
+### Tarefa
+Renomear todas as ocorrências do placeholder `ProjectName` para `GameHub` no repositório e corrigir a seleção do provider de banco de dados no runtime para respeitar `Database__Provider` do `.env`/Docker Compose.
+
+### Arquivos alterados
+- Renomeio de classes, arquivos, namespaces, strings e frontends: `GameHubDbContext`, `GameHubApplicationModule`, `GameHubConsts`, `GameHubPermissions`, `GameHubRepositoryBase`, `GameHubTestBase`, `GameHubWebTestBase`, Angular Admin (`package.json`, `manifest.json`, `index.html`, `AppConsts.ts`), Docker Compose, docs e CHANGELOG.
+- Fusão de `ProjectNameConsts` em `GameHubConsts` e de `ProjectNamePermissions` em `GameHubPermissions`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContextConfigurer.cs` — lê `Database__Provider` do ambiente quando provider não é passado explicitamente.
+- `.env.example` e `install.sh` — geram `Database__Provider=PostgreSQL`.
+- `docker-compose.yml` e `docker-compose.all.yml` — `Database__Provider: ${Database__Provider:-PostgreSQL}`.
+
+### Motivação
+O repositório ainda continha muitos artefatos do template EAF nomeados como `ProjectName`, o que dificultava a identidade do projeto. Além disso, o backend ignorava `Database__Provider=PostgreSQL` e tentava usar SQL Server por padrão, causando erro de conexão (`Palavra-chave não suportada: 'Host'`).
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 229 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `shellcheck install.sh` sem erros.
+
 ## 2026-07-22 03:10 UTC
 
 ### Tarefa
@@ -70,13 +91,13 @@ Continuar a implementação dos specs pendentes para API .NET e Angular Admin, d
 ### Arquivos alterados
 - `Api/src/GameHub.Core/Configuration/FeatureFlag.cs` — entidade de feature flag.
 - `Api/src/GameHub.Core/Application/Authorization/GameHubPermissions.cs` — permissões GameHub.
-- `Api/src/GameHub.Core/Application/Authorization/ProjectNameAuthorizationProvider.cs` — registro das permissões.
+- `Api/src/GameHub.Core/Application/Authorization/GameHubAuthorizationProvider.cs` — registro das permissões.
 - `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/*` — configuração `FeatureFlag` e migration `AddFeatureFlag` PostgreSQL.
 - `Api/src/GameHub.Application/Admin/**/*` — DTOs, interfaces e app services de dashboard, feature flags, audit log e reports.
 - `Api/src/GameHub.Application/Moderation/UserReportAppService.cs` — submissão de denúncias.
 - `Api/src/GameHub.Application/Developer/DeveloperProfileAppService.cs` — perfil de desenvolvedor.
 - `Api/src/GameHub.Web.Host/Controllers/GameBuildsController.cs` — upload multipart de builds.
-- `Api/src/GameHub.Application/ProjectNameCustomDtoMapper.cs` — mapeamentos `FeatureFlag` e `AuditLog`.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — mapeamentos `FeatureFlag` e `AuditLog`.
 - `Api/src/GameHub.Application/Admin/AdminGameAppService.cs` — filtro por `Status`.
 - `Api/src/GameHub.Application/Catalog/Dto/GetGamesInput.cs` — propriedade `Status`.
 - `angular-admin/GameHub.UI/src/app/main/gamehub/**/*` — módulo, rotas, componentes e serviço do painel administrativo.
@@ -104,7 +125,7 @@ Ajustar o build da API do `afonsoft/gamehub`, corrigir referências de pacotes, 
 - `Api/src/GameHub.Core/GameHub.Core.csproj` — `Eaf.Middleware.Core` 9.2.0 + ABP/EF Core.
 - `Api/src/GameHub.Web.Host/GameHub.Web.Host.csproj` — pacotes NuGet EAF 9.2.0.
 - `Api/src/GameHub.Web.Host/Startup/Program.cs` — `using Eaf.KeyVault` + `UseEafKeyVault`.
-- `Api/test/GameHub.Web.Tests/ProjectNameWebTestBase.cs` — mesmo ajuste de KeyVault.
+- `Api/test/GameHub.Web.Tests/GameHubWebTestBase.cs` — mesmo ajuste de KeyVault.
 - `angular-admin/GameHub.UI/src/assets/lib/eaf-ng2-module/src/log/log.service.ts` — serviço criado para build do admin.
 - `angular-admin/GameHub.UI/.gitignore` — exceção para a pasta `log/` do módulo EAF.
 - `angular/` — app Angular 20 (GameHub Hub) gerado e simplificado para hello world.
@@ -112,7 +133,7 @@ Ajustar o build da API do `afonsoft/gamehub`, corrigir referências de pacotes, 
 - `docs/agent-execution-log.md` e `docs/specs-improvements.md` — documentação do trabalho.
 
 ### Motivação
-O repositório era um template EAF renomeado com referências locais incorretas (`..\..\..\EAF\src\..` e `ProjectName`), impossibilitando o build. Foi necessário apontar para os pacotes NuGet `Eaf.*` 9.2.0 e corrigir a solução. O frontend admin estava com o `LogService` ausente no módulo `eaf-ng2-module`. O hub Angular ainda não existia, então foi criado do zero. Os workflows foram modelados a partir dos CI dos repositórios irmãos para garantir build, testes e qualidade contínua.
+O repositório era um template EAF renomeado com referências locais incorretas (`..\..\..\EAF\src\..` e `GameHub`), impossibilitando o build. Foi necessário apontar para os pacotes NuGet `Eaf.*` 9.2.0 e corrigir a solução. O frontend admin estava com o `LogService` ausente no módulo `eaf-ng2-module`. O hub Angular ainda não existia, então foi criado do zero. Os workflows foram modelados a partir dos CI dos repositórios irmãos para garantir build, testes e qualidade contínua.
 
 ### Resultado
 - `dotnet build Api/GameHub.sln` executa com sucesso em Release.
@@ -131,7 +152,7 @@ Implementar a especificação da pasta `.specs` no backend: entidades de domíni
 - `Api/src/GameHub.Application/**/*` — DTOs, application services, cache in-memory e validador de pacotes.
 - `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/*` — `DbSet`s e configurações Fluent API.
 - `Api/src/GameHub.Web.Host/Startup/Startup.cs` e `Middleware/*` — CSP, security headers e rate limiting.
-- `Api/src/GameHub.Application/ProjectNameApplicationModule.cs` — registro dos serviços de cache e validador.
+- `Api/src/GameHub.Application/GameHubApplicationModule.cs` — registro dos serviços de cache e validador.
 - `Api/test/GameHub.Tests/GameHub/**/*` — testes de domínio, cache, validação de builds, categorias e moderação.
 - `docker-compose.yml`, `.env.example` e `scripts/*` — infraestrutura local.
 - `angular/src/app/**/*` — rotas, componentes e serviços iniciais do hub.
@@ -153,14 +174,14 @@ Corrigir o Dockerfile da API, separar o Docker Compose em infraestrutura (`docke
 
 ### Arquivos alterados
 - `Api/Dockerfile` — corrigido build para `GameHub.Web.Host.csproj` e `GameHub.Web.Host.dll`.
-- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/ProjectNameDbContextFactory.cs` — evita que o design-time factory execute `MigrateDatabase`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContextFactory.cs` — evita que o design-time factory execute `MigrateDatabase`.
 - `Api/src/GameHub.EntityFrameworkCore/Migrations/*` — removida migration SQL Server e gerada migration `Initial` para PostgreSQL.
 - `docker-compose.yml` — API + Angular Hub + Angular Admin.
 - `docker-compose.infra.yml` — PostgreSQL, Redis e MinIO.
 - `docs/known-issues.md` e `docs/agent-execution-log.md` — atualização das pendências.
 
 ### Motivação
-O Dockerfile ainda apontava para o template antigo (`Eaf.ProjectName.Web.Host`) e a migration existente era SQL Server, impossibilitando a API de subir no PostgreSQL definido no Docker Compose. O Docker Compose anterior misturava infra e aplicação, então foi dividido para facilitar execução local.
+O Dockerfile ainda apontava para o template antigo (`Eaf.GameHub.Web.Host`) e a migration existente era SQL Server, impossibilitando a API de subir no PostgreSQL definido no Docker Compose. O Docker Compose anterior misturava infra e aplicação, então foi dividido para facilitar execução local.
 
 ### Resultado
 - `dotnet build Api/GameHub.sln` executa com sucesso.
@@ -179,7 +200,7 @@ Gerar README/CHANGELOG, executar playbook de qualidade/cobertura .NET e criar Ag
 - `CHANGELOG.md` — histórico de versões seguindo Keep a Changelog/SemVer.
 - `scripts/run-local.sh` — atualizado para usar `docker-compose.infra.yml` + `docker-compose.yml`.
 - `Api/test/GameHub.Tests/MultiTenantFactAttribute.cs` — remove warning CS0162.
-- `Api/test/GameHub.Tests/ProjectNameTestModule.cs` e `Api/test/GameHub.Web.Tests/ProjectNameWebTestModule.cs` — isolam warning CS0618 de `UseStaticMapper`.
+- `Api/test/GameHub.Tests/GameHubTestModule.cs` e `Api/test/GameHub.Web.Tests/GameHubWebTestModule.cs` — isolam warning CS0618 de `UseStaticMapper`.
 - `Api/src/GameHub.Core/Application/Extensions/HangfireExtensions.cs` — substitui overload obsoleto do `RecurringJob.AddOrUpdate` por `RecurringJobOptions`.
 - `CLAUDE.md`, `.claude/` (settings.json, rules, agents, skills, hooks, CONTEXT, RULES, MEMORY, TOOLS, WORKFLOWS, README), `.devin/config.json`, `.devin/hooks/`.
 - `docs/README.md`, `docs/technologies.md`, `docs/features.md`, `docs/packages.md`, `docs/plugins.md`, `docs/api.md`.

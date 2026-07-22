@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Entities
 {
-    public class IMustHaveTenant_Tests : ProjectNameTestBase
+    public class IMustHaveTenant_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_IMustHaveTenant_Quando_VerificarTipo_Entao_DeveSerInterface()

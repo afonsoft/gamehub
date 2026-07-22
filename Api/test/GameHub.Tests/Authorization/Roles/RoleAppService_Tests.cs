@@ -7,7 +7,7 @@ using Xunit;
 namespace GameHub.Tests.Authorization.Roles
 {
     // ReSharper disable once InconsistentNaming
-    public class RoleAppService_Tests : ProjectNameTestBase
+    public class RoleAppService_Tests : GameHubTestBase
     {
         private readonly IRoleAppService _roleAppService;
 

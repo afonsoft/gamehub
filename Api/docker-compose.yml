@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  eaf.projectname.web.host:
-    image: ${DOCKER_REGISTRY-}eafprojectnamewebhost
+  eaf.gamehub.web.host:
+    image: ${DOCKER_REGISTRY-}eafgamehubwebhost
     build:
       context: ../..
       dockerfile: Templates/Api/Dockerfile

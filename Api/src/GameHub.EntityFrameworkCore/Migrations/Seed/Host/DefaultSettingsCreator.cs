@@ -12,11 +12,11 @@ namespace GameHub.Migrations.Seed.Host
 {
     public class DefaultSettingsCreator
     {
-        private readonly ProjectNameDbContext _context;
+        private readonly GameHubDbContext _context;
         private readonly MicrosoftExternalLoginProviderSettings microsoftExternalLogin;
         private readonly AuthZeroExternalLoginProviderSettings authZeroExternalLogin;
 
-        public DefaultSettingsCreator(ProjectNameDbContext context)
+        public DefaultSettingsCreator(GameHubDbContext context)
         {
             _context = context;
             microsoftExternalLogin = new MicrosoftExternalLoginProviderSettings

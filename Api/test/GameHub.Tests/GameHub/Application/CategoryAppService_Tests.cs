@@ -9,7 +9,7 @@ using Xunit;
 
 namespace GameHub.Tests.GameHub.Application
 {
-    public class CategoryAppService_Tests : ProjectNameTestBase
+    public class CategoryAppService_Tests : GameHubTestBase
     {
         private readonly ICategoryAppService _categoryAppService;
         private readonly IUnitOfWorkManager _unitOfWorkManager;

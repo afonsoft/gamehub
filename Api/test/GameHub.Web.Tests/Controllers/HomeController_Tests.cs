@@ -5,7 +5,7 @@ using Xunit;
 
 namespace GameHub.Web.Tests.Controllers
 {
-    public class HomeController_Tests : ProjectNameWebTestBase
+    public class HomeController_Tests : GameHubWebTestBase
     {
         [Fact(Skip = "Skipped in CI: depends on external configuration/database")]
         public async Task About_Test()

@@ -25,7 +25,7 @@ module.exports = function karmaConfig(config) {
       suppressAll: true, // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('node:path').join(__dirname, './coverage/eaf-projectname-ui'),
+      dir: require('node:path').join(__dirname, './coverage/eaf-gamehub-ui'),
       subdir: '.',
       reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },

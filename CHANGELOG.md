@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- API Dockerfile no longer references the old `Eaf.ProjectName.Web.Host` template paths.
+- API Dockerfile no longer references the old `Eaf.GameHub.Web.Host` template paths.
 - `AuditLogAppService` now resolves `UserName` from `IRepository<User, long>` because `Abp.Auditing.AuditLog` only stores `UserId`.
 
 ## [0.9.0] - 2026-07-21
@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Renamed the EAF template from `Eaf.ProjectName` to `GameHub` across the solution.
+- Renamed the EAF template from `Eaf.GameHub` to `GameHub` across the solution.
 - Switched EAF references from local project paths to NuGet packages (`Eaf.Middleware.*` 9.2.0).
 - Updated `GameHub.Web.Host` and test projects to use `Eaf.KeyVault.AspNetCore`.
 

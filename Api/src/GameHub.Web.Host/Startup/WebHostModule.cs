@@ -17,7 +17,7 @@ using System.Net;
 namespace GameHub.Web.Startup
 {
     [DependsOn(
-        typeof(ProjectNameApplicationModule),
+        typeof(GameHubApplicationModule),
         typeof(MiddlewareWebCoreModule),
         typeof(EafKeyVaultAspNetCoreModule)
     )]
@@ -45,7 +45,7 @@ namespace GameHub.Web.Startup
         public override void PreInitialize()
         {
             //Set default connection string
-            Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(ProjectNameConsts.ConnectionStringName);
+            Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(GameHubConsts.ConnectionStringName);
 
             // Bind storage options and register MinIO/S3 implementation
             var storageOptions = new StorageOptions();
@@ -56,7 +56,7 @@ namespace GameHub.Web.Startup
             //Create Controllers APIs
             Configuration.Modules.AbpAspNetCore()
                 .CreateControllersForAppServices(
-                    typeof(ProjectNameApplicationModule).GetAssembly()
+                    typeof(GameHubApplicationModule).GetAssembly()
                 );
 
             //Send All Exceptions To Clients Angular only in develop/staging

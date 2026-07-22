@@ -420,7 +420,7 @@ No módulo principal da aplicação, adicione a dependência ao seu novo módulo
     typeof(AbpEntityFrameworkCoreModule),
     typeof(EafMyModuleModule) // Adicione seu módulo aqui
 )]
-public class EafProjectNameApplicationModule : AbpModule
+public class EafGameHubApplicationModule : AbpModule
 {
     public override void Initialize()
     {

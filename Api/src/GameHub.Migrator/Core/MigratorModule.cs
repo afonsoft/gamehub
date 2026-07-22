@@ -12,12 +12,12 @@ using System;
 
 namespace GameHub.Migrator
 {
-    [DependsOn(typeof(ProjectNameEntityFrameworkCoreModule))]
+    [DependsOn(typeof(GameHubEntityFrameworkCoreModule))]
     public class MigratorModule : AbpModule
     {
         private readonly IConfigurationRoot _appConfiguration;
 
-        public MigratorModule(ProjectNameEntityFrameworkCoreModule eafMiddlewareTemplateEntityFrameworkCoreModule)
+        public MigratorModule(GameHubEntityFrameworkCoreModule eafMiddlewareTemplateEntityFrameworkCoreModule)
         {
             eafMiddlewareTemplateEntityFrameworkCoreModule.SkipDbSeed = true;
 

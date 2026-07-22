@@ -5,7 +5,7 @@ using Xunit;
 
 namespace GameHub.Tests.Jobs
 {
-    public class AirplaneJob_Tests : ProjectNameTestBase
+    public class AirplaneJob_Tests : GameHubTestBase
     {
         private readonly IAirplaneJob _airplaneJob;
 

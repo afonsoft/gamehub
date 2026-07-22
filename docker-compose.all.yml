@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      Database__Provider: PostgreSQL
+      Database__Provider: ${Database__Provider:-PostgreSQL}
       ConnectionStrings__Default: Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-gamehub};Username=${POSTGRES_USER:-gamehub};Password=${POSTGRES_PASSWORD:-change-me}
       RedisCache__IsEnabled: "true"
       RedisCache__ConnectionString: ${REDIS_CONNECTION:-redis:6379,abortConnect=false}

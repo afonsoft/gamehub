@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "name": "eaf-projectname-ui",
-  "displayName": "eaf-projectname-ui",
+  "name": "eaf-gamehub-ui",
+  "displayName": "eaf-gamehub-ui",
   "description": "EAF application description",
   "main": "index.html",
   "repository": {

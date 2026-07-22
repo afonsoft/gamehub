@@ -8,7 +8,7 @@ using Xunit;
 
 namespace GameHub.Tests.Core.Application.EntityHistory
 {
-    public class EntityHistoryConfigProvider_GetConfig_Tests : ProjectNameTestBase
+    public class EntityHistoryConfigProvider_GetConfig_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_EntityHistoryDesabilitado_Quando_ObterConfig_Entao_DeveRetornarIsEnabledFalse()

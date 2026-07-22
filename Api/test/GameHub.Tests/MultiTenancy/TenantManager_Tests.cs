@@ -10,7 +10,7 @@ namespace GameHub.Tests.MultiTenancy
     /// <summary>
     /// Testes para gerenciamento de multi-tenancy seguindo o padrão BDD (Given/When/Then) em português
     /// </summary>
-    public class TenantManager_Tests : ProjectNameTestBase
+    public class TenantManager_Tests : GameHubTestBase
     {
         [Fact]
         public async Task Dado_SistemaInicializado_Quando_ObterTenantPadrao_Entao_DeveRetornarTenantValido()

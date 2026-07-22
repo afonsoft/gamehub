@@ -116,9 +116,9 @@ public async Task MyMethod()
 ### Custom Repository Implementation
 
 ```csharp
-public class MyEntityRepository : EfCoreRepositoryBase<EafProjectNameDbContext, MyEntity, Guid>, IMyEntityRepository
+public class MyEntityRepository : EfCoreRepositoryBase<EafGameHubDbContext, MyEntity, Guid>, IMyEntityRepository
 {
-    public MyEntityRepository(IDbContextProvider<EafProjectNameDbContext> dbContextProvider)
+    public MyEntityRepository(IDbContextProvider<EafGameHubDbContext> dbContextProvider)
         : base(dbContextProvider)
     {
     }
@@ -199,7 +199,7 @@ public class MyEntityConfiguration : IEntityTypeConfiguration<MyEntity>
 ### Register Entity Configuration in DbContext
 
 ```csharp
-public class EafProjectNameDbContext : AbpDbContext
+public class EafGameHubDbContext : AbpDbContext
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -239,7 +239,7 @@ public class CreateMyEntityDtoValidator : AbstractValidator<CreateMyEntityDto>
 ### Register Validator in Module
 
 ```csharp
-public class EafProjectNameApplicationModule : AbpModule
+public class EafGameHubApplicationModule : AbpModule
 {
     public override void PreInitialize()
     {
@@ -269,7 +269,7 @@ public class MyEntityProfile : Profile
 ### Register Profile in Module
 
 ```csharp
-public class EafProjectNameApplicationModule : AbpModule
+public class EafGameHubApplicationModule : AbpModule
 {
     public override void PreInitialize()
     {

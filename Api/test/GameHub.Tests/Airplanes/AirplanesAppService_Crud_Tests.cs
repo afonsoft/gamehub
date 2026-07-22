@@ -8,7 +8,7 @@ using Xunit;
 
 namespace GameHub.Tests.Airplanes
 {
-    public class AirplanesAppService_Crud_Tests : ProjectNameTestBase
+    public class AirplanesAppService_Crud_Tests : GameHubTestBase
     {
         private readonly AirplanesAppService _airplanesAppService;
         private readonly IUnitOfWorkManager _unitOfWorkManager;

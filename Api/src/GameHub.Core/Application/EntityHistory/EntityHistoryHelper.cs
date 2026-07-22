@@ -11,7 +11,7 @@ namespace GameHub.EntityHistory
 {
     public static class EntityHistoryHelper
     {
-        public static readonly Type[] ProjectNameTrackedTypes =
+        public static readonly Type[] GameHubTrackedTypes =
         {
             typeof(Role),
             typeof(Tenant),
@@ -21,7 +21,7 @@ namespace GameHub.EntityHistory
             typeof(Airplane)
         };
 
-        public static Type[] TrackedTypes { get; } = ProjectNameTrackedTypes
+        public static Type[] TrackedTypes { get; } = GameHubTrackedTypes
             .GroupBy(type => type.FullName)
             .Select(types => types.First())
             .ToArray();

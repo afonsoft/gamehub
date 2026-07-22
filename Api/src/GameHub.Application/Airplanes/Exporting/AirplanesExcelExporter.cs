@@ -12,7 +12,7 @@ namespace GameHub.Airplanes.Exporting
             ITempFileCacheManager tempFileCacheManager
         ) : base(tempFileCacheManager)
         {
-            LocalizationSourceName = ProjectNameConsts.LocalizationSourceName;
+            LocalizationSourceName = GameHubConsts.LocalizationSourceName;
         }
 
         public FileDto ExportToFile(List<AirplaneDto> airplanes)

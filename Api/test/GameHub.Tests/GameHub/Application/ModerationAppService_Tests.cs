@@ -14,7 +14,7 @@ using Xunit;
 
 namespace GameHub.Tests.GameHub.Application
 {
-    public class ModerationAppService_Tests : ProjectNameTestBase
+    public class ModerationAppService_Tests : GameHubTestBase
     {
         private readonly IAdminGameAppService _adminGameAppService;
         private readonly IRepository<GameBuild, Guid> _buildRepository;

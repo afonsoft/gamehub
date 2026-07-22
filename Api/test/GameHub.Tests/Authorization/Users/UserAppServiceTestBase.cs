@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace GameHub.Tests.Authorization.Users
 {
-    public abstract class UserAppServiceTestBase : ProjectNameTestBase
+    public abstract class UserAppServiceTestBase : GameHubTestBase
     {
         protected readonly IUserAppService UserAppService;
 
