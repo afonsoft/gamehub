@@ -1,4 +1,4 @@
-﻿export const environment = {
+export const environment = {
   production: false,
-  appConfig: 'appconfig.json',
+  appConfig: 'appconfig.Local.json',
 };

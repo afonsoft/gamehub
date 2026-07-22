@@ -1,6 +1,6 @@
-﻿{
-  "remoteServiceBaseUrl": "https://dev-ProjectName-api.afonsoft.com.br",
-  "appBaseUrl": "https://dev-ProjectName.afonsoft.com.br",
+{
+  "remoteServiceBaseUrl": "https://gamehub-api.afonsoft.dev/",
+  "appBaseUrl": "https://gamehub-admin.afonsoft.dev/",
   "localeMappings": [
     {
       "from": "pt-BR",
