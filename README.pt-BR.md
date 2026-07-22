@@ -104,7 +104,8 @@ gamehub/
 ├── angular/                               # Game Hub público (Angular 20+)
 ├── angular-admin/GameHub.UI/              # UI administrativa (Angular 20+)
 ├── docker-compose.infra.yml               # Infraestrutura local (PostgreSQL, Redis, MinIO)
-├── docker-compose.yml                     # API + Angular Hub + Angular Admin
+├── docker-compose.yml                     # API + Angular Hub + Angular Admin (requer infra externa)
+├── docker-compose.all.yml                 # Stack completa (infra + API + Angular Hub + Angular Admin)
 ├── .env.example                           # Variáveis de ambiente de exemplo
 ├── scripts/                               # Scripts locais de build, teste e execução
 ├── docs/                                  # Log de execução e issues conhecidas
@@ -219,8 +220,11 @@ cp .env.example .env
 # Subir infraestrutura (PostgreSQL, Redis, MinIO)
 docker compose -f docker-compose.infra.yml up -d
 
-# Subir aplicação (API + Angular Hub + Angular Admin)
+# Opção 1: subir aplicação com infra externa/host
 docker compose -f docker-compose.yml up --build -d
+
+# Opção 2: subir stack completa (infra + aplicação)
+# docker compose -f docker-compose.all.yml up --build -d
 ```
 
 ### URLs Locais

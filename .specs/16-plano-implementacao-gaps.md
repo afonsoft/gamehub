@@ -481,9 +481,9 @@ export const ADMIN_ROUTES: Routes = [
 
 **Objetivo:** completar Docker Compose e configuração para produção.
 
-### 7.1 Criar `docker-compose.yml` na raiz
+### 7.1 Criar `docker-compose.all.yml` na raiz
 
-Unir `docker-compose.app.yml` + `docker-compose.infra.yml`:
+Unir infraestrutura (`docker-compose.infra.yml`) + aplicação:
 - `backend`, `angular-hub`, `angular-admin`.
 - `postgres`, `redis`, `minio`.
 - Rede `gamehub`, volumes `pgdata`, `minio-data`.
@@ -497,11 +497,11 @@ Unir `docker-compose.app.yml` + `docker-compose.infra.yml`:
 ### 7.3 `install.sh`
 
 - Suportar flag `--infra` para subir infra junto.
-- Ou documentar uso combinado: `docker compose -f docker-compose.yml up -d`.
+- Ou documentar uso combinado: `docker compose -f docker-compose.all.yml up -d`.
 
 ### Arquivos afetados
-- `docker-compose.yml` (novo)
-- `docker-compose.app.yml`
+- `docker-compose.all.yml` (novo full stack)
+- `docker-compose.yml` (app, sem infra)
 - `docker-compose.infra.yml`
 - `Api/src/GameHub.Web.Host/appsettings*.json`
 - `.env.example`
