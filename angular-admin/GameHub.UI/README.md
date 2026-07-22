@@ -145,8 +145,8 @@ docker build -t eaf-angular-ui .
 
 ```bash
 docker run -d -p 80:80 \
-  -e REMOTE_SERVICE_BASE_URL=http://localhost:8001/ \
-  -e APP_BASE_URL=http://localhost:8000/ \
+  -e REMOTE_SERVICE_BASE_URL=http://localhost:8001 \
+  -e APP_BASE_URL=http://localhost:8000 \
   -e ASPNETCORE_ENVIRONMENT=Local \
   eaf-angular-ui
 ```
@@ -155,8 +155,8 @@ docker run -d -p 80:80 \
 
 The container uses `envsubst` to generate `assets/env.js` from `src/assets/env.template.js` at startup. The following variables are available:
 
-- `REMOTE_SERVICE_BASE_URL` - URL base da API EAF (ex: `http://localhost:8001/`)
-- `APP_BASE_URL` - URL base da aplicação Angular (ex: `http://localhost:8000/`)
+- `REMOTE_SERVICE_BASE_URL` - URL base da API EAF (ex: `http://localhost:8001`)
+- `APP_BASE_URL` - URL base da aplicação Angular (ex: `http://localhost:8000`)
 - `ASPNETCORE_ENVIRONMENT` - Ambiente usado para carregar `appconfig.{env}.json` quando `REMOTE_SERVICE_BASE_URL` não é fornecido
 
 Quando `REMOTE_SERVICE_BASE_URL` está definido, o `AppPreBootstrap` o utiliza diretamente e ignora o `appconfig.{env}.json`. Isso permite reutilizar a mesma imagem Docker em diferentes ambientes (dev, hom, prod) sem recompilar o frontend.

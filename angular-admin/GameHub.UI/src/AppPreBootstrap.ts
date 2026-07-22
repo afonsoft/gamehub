@@ -39,10 +39,10 @@ export class AppPreBootstrap {
     const env = (window as any).env || {};
     if (env.remoteServiceBaseUrl) {
       const currentOrigin = window.location.origin;
-      AppConsts.remoteServiceBaseUrlFormat = env.remoteServiceBaseUrl;
-      AppConsts.remoteServiceBaseUrl = env.remoteServiceBaseUrl;
-      AppConsts.appBaseUrlFormat = env.appBaseUrl || currentOrigin;
-      AppConsts.appBaseUrl = env.appBaseUrl || currentOrigin;
+      AppConsts.remoteServiceBaseUrlFormat = this.removeTrailingSlash(env.remoteServiceBaseUrl);
+      AppConsts.remoteServiceBaseUrl = this.removeTrailingSlash(env.remoteServiceBaseUrl);
+      AppConsts.appBaseUrlFormat = this.removeTrailingSlash(env.appBaseUrl || currentOrigin);
+      AppConsts.appBaseUrl = this.removeTrailingSlash(env.appBaseUrl || currentOrigin);
       AppConsts.localeMappings = env.localeMappings || [{ from: 'pt-BR', to: 'pt' }];
       callback();
       return;
@@ -65,15 +65,19 @@ export class AppPreBootstrap {
         appBaseUrl = currentOrigin;
       }
 
-      AppConsts.appBaseUrlFormat = appBaseUrl;
-      AppConsts.remoteServiceBaseUrlFormat = result.remoteServiceBaseUrl;
+      AppConsts.appBaseUrlFormat = this.removeTrailingSlash(appBaseUrl);
+      AppConsts.remoteServiceBaseUrlFormat = this.removeTrailingSlash(result.remoteServiceBaseUrl);
       AppConsts.localeMappings = result.localeMappings;
 
-      AppConsts.appBaseUrl = appBaseUrl;
-      AppConsts.remoteServiceBaseUrl = result.remoteServiceBaseUrl;
+      AppConsts.appBaseUrl = this.removeTrailingSlash(appBaseUrl);
+      AppConsts.remoteServiceBaseUrl = this.removeTrailingSlash(result.remoteServiceBaseUrl);
 
       callback();
     });
+  }
+
+  private static removeTrailingSlash(url: string): string {
+    return url?.replace(/\/$/, '') ?? '';
   }
 
   private static getCurrentClockProvider(currentProviderName: string): eaf.timing.IClockProvider {

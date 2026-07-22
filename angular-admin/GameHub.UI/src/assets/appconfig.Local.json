@@ -1,6 +1,6 @@
 {
-  "remoteServiceBaseUrl": "http://127.0.0.1:4601/",
-  "appBaseUrl": "http://127.0.0.1:4602/",
+  "remoteServiceBaseUrl": "http://127.0.0.1:4601",
+  "appBaseUrl": "http://127.0.0.1:4602",
   "localeMappings": [
     {
       "from": "pt-BR",
