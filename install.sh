@@ -114,13 +114,13 @@ if [ ! -f ".env" ]; then
                         echo "${key}=api-key=A PREENCHER"
                         ;;
                     GAMEHUB_API_URL)
-                        echo "${key}=https://gamehub-api.afonsoft.dev/"
+                        echo "${key}=https://gamehub-api.afonsoft.dev"
                         ;;
                     GAMEHUB_HUB_URL)
-                        echo "${key}=https://gamehub.afonsoft.dev/"
+                        echo "${key}=https://gamehub.afonsoft.dev"
                         ;;
                     GAMEHUB_ADMIN_URL)
-                        echo "${key}=https://gamehub-admin.afonsoft.dev/"
+                        echo "${key}=https://gamehub-admin.afonsoft.dev"
                         ;;
                     GAMEHUB_CORS_ORIGINS)
                         echo "${key}=https://gamehub.afonsoft.dev,https://gamehub-admin.afonsoft.dev"
