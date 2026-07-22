@@ -27,9 +27,9 @@ docs/
 ## Início Rápido
 
 1. Copiar `.env.example` para `.env`.
-2. Subir infra: `docker compose -f docker-compose.infra.yml up -d`.
-3. Subir app: `docker compose -f docker-compose.yml up --build -d`.
-4. API: http://localhost:5000, Hub: http://localhost:4200, Admin: http://localhost:4201.
+2. Subir apenas a app (requer infra externa): `docker compose -f docker-compose.yml up --build -d`.
+3. Ou subir stack completa: `docker compose -f docker-compose.all.yml up --build -d`.
+4. API: http://localhost:4601, Hub: http://localhost:4600, Admin: http://localhost:4602.
 
 ## Referências
 

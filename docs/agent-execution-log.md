@@ -1,5 +1,25 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-22 03:10 UTC
+
+### Tarefa
+Renomear arquivos Docker Compose e ajustar a string de conexão do Redis.
+
+### Arquivos alterados
+- `docker-compose.app.yml` renomeado para `docker-compose.yml` (app sem infraestrutura).
+- `docker-compose.yml` anterior renomeado para `docker-compose.all.yml` (stack completa com Postgres, Redis, MinIO, API e frontends).
+- `docker-compose.yml` e `docker-compose.all.yml` — `RedisCache__ConnectionString` usa `${REDIS_CONNECTION:-...}` com `abortConnect=false` no fallback.
+- `install.sh` — default do `COMPOSE_FILE` alterado para `docker-compose.yml`.
+- `README.md`, `README.pt-BR.md`, `docs/README.md`, `.specs/16-plano-implementacao-gaps.md` — atualizados para refletir os novos nomes e opções de deploy.
+
+### Motivação
+Separar a app (`docker-compose.yml`) da stack completa (`docker-compose.all.yml`) e manter a tolerância à indisponibilidade do Redis no startup via `abortConnect=false`.
+
+### Resultado
+- `docker compose -f docker-compose.yml config` valida.
+- `docker compose -f docker-compose.all.yml config` valida.
+- `shellcheck install.sh` passa.
+
 ## 2026-07-22 02:50 UTC
 
 ### Tarefa

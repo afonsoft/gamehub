@@ -3,11 +3,11 @@ set -euo pipefail
 
 # GameHub — install script para API, Admin e Hub (sem infraestrutura)
 # Requisito: a infraestrutura (PostgreSQL/Redis/MinIO) deve estar rodando
-#            via docker-compose.infra.yml ou equivalente antes de subir a aplicação.
+#            no host ou via docker-compose.all.yml antes de subir a aplicação.
 
 cd "$(dirname "$0")"
 
-COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.app.yml}"
+COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 
 if [ ! -f "$COMPOSE_FILE" ]; then
     echo "Erro: arquivo '$COMPOSE_FILE' não encontrado no diretório atual." >&2
