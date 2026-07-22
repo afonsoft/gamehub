@@ -48,10 +48,10 @@ if [ ! -f ".env" ]; then
                         echo "${key}=5432"
                         ;;
                     POSTGRES_DB)
-                        echo "${key}=gamehub"
+                        echo "${key}=gamehub_db"
                         ;;
                     POSTGRES_USER)
-                        echo "${key}=gamehub"
+                        echo "${key}=gamehub_user"
                         ;;
                     REDIS_CONNECTION)
                         echo "${key}=host.docker.internal:6379"
@@ -73,6 +73,9 @@ if [ ! -f ".env" ]; then
                         ;;
                     GAMEHUB_CORS_ORIGINS)
                         echo "${key}=https://gamehub.afonsoft.dev,https://gamehub-admin.afonsoft.dev"
+                        ;;
+                    POSTGRES_PASSWORD)
+                        echo "${key}="
                         ;;
                     *)
                         echo "${key}=A PREENCHER"
