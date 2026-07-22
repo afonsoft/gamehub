@@ -210,6 +210,29 @@ dotnet test Api/GameHub.sln
 dotnet run --project Api/src/GameHub.Web.Host
 ```
 
+### Install Script (API + Admin + Hub)
+
+Use o script `install.sh` para subir apenas a aplicação (API, Hub e Admin) sem a infraestrutura. Requisito: PostgreSQL, Redis e (opcionalmente) MinIO devem estar rodando previamente, por exemplo via `docker compose -f docker-compose.infra.yml up -d`.
+
+```bash
+./install.sh
+```
+
+Comportamento:
+
+- Se o arquivo `.env` **não existir**, o script cria um `.env` com todas as variáveis preenchidas com `A PREENCHER`, executa `docker compose pull` e `docker compose build`, e **não sobe os containers**. Edite o `.env` e execute o script novamente.
+- Se o arquivo `.env` **já existir**, o script executa `pull`, `build` e `up -d`.
+
+Para subir manualmente a infraestrutura antes do script:
+
+```bash
+# Start infrastructure (PostgreSQL, Redis, MinIO)
+docker compose -f docker-compose.infra.yml up -d
+
+# Then run the install script
+./install.sh
+```
+
 ### Full Stack with Docker Compose
 
 ```bash
