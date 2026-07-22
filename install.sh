@@ -37,14 +37,33 @@ if [ ! -f ".env" ]; then
         else
             key="${line%%=*}"
             if [ -n "$key" ]; then
-                echo "${key}=A PREENCHER"
+                case "$key" in
+                    ASPNETCORE_ENVIRONMENT)
+                        echo "${key}=Production"
+                        ;;
+                    GAMEHUB_API_URL)
+                        echo "${key}=https://gamehub-api.afonsoft.dev/"
+                        ;;
+                    GAMEHUB_HUB_URL)
+                        echo "${key}=https://gamehub.afonsoft.dev/"
+                        ;;
+                    GAMEHUB_ADMIN_URL)
+                        echo "${key}=https://gamehub-admin.afonsoft.dev/"
+                        ;;
+                    GAMEHUB_CORS_ORIGINS)
+                        echo "${key}=https://gamehub.afonsoft.dev,https://gamehub-admin.afonsoft.dev"
+                        ;;
+                    *)
+                        echo "${key}=A PREENCHER"
+                        ;;
+                esac
             else
                 echo "$line"
             fi
         fi
     done < .env.example > .env
 
-    echo ".env criado. Preencha todas as variáveis antes de subir os containers."
+    echo ".env criado com os DNS de produção preenchidos. Preencha as demais variáveis (PostgreSQL, Redis, JWT, MinIO) antes de subir os containers."
     echo ""
     echo "Executando docker compose pull e build (sem subir os containers)..."
     echo ""
