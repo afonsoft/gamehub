@@ -1,10 +1,14 @@
 using Abp.AspNetCore.Configuration;
 using Abp.Configuration.Startup;
+using Abp.Dependency;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
+using Castle.MicroKernel.Registration;
 using Eaf.KeyVault.AspNetCore;
 using Eaf.Middleware.Configuration;
 using Eaf.Middleware.Web;
+using GameHub.Storage;
+using GameHub.Web.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -42,6 +46,12 @@ namespace GameHub.Web.Startup
         {
             //Set default connection string
             Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(ProjectNameConsts.ConnectionStringName);
+
+            // Bind storage options and register MinIO/S3 implementation
+            var storageOptions = new StorageOptions();
+            _appConfiguration.GetSection("Storage").Bind(storageOptions);
+            IocManager.IocContainer.Register(Component.For<StorageOptions>().Instance(storageOptions));
+            IocManager.Register<IGameAssetStorage, MinioGameAssetStorage>(DependencyLifeStyle.Transient);
 
             //Create Controllers APIs
             Configuration.Modules.AbpAspNetCore()

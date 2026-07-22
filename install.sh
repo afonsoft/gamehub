@@ -68,6 +68,15 @@ if [ ! -f ".env" ]; then
                     MINIO_SECRET_KEY)
                         echo "${key}="
                         ;;
+                    MINIO_BUCKET)
+                        echo "${key}=gamehub-builds"
+                        ;;
+                    MINIO_REGION)
+                        echo "${key}=us-east-1"
+                        ;;
+                    MINIO_FORCEPATHSTYLE)
+                        echo "${key}=true"
+                        ;;
                     GAMEHUB_API_URL)
                         echo "${key}=https://gamehub-api.afonsoft.dev/"
                         ;;
