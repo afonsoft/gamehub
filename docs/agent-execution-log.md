@@ -215,3 +215,26 @@ O repositório precisava de documentação padrão bilingue, build sem warnings 
 - Cobertura coletada via `coverlet` (snapshot: Core 56.23%, Application 29.03%, EFCore 5.93%, Web.Host 4.88%, geral 10.22% line / 28.84% branch).
 - `docker compose -f docker-compose.infra.yml -f docker-compose.yml config` continua válido.
 - Branch `feature/20260721-readme-changelog` criada e enviada ao remote.
+
+## 2026-07-22 06:20 UTC
+
+### Tarefa
+Ajustar comunicação interna com MinIO, corrigir endpoint OTLP da New Relic e eliminar foreign keys de shadow state no EF Core.
+
+### Arquivos alterados
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — endpoint/protocolo OTLP via config (`OpenTelemetry:OtlpEndpoint` / `OTEL_EXPORTER_OTLP_ENDPOINT`) com fallback `https://otlp.nr-data.net:4318` e `http/protobuf`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContextFactory.cs` — lê `Database__Provider` do ambiente no design-time.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubModelCreatingExtensions.cs` — `HasOne(x => x.Nav).WithMany(...).HasForeignKey(...)` corrigidos para `Category`, `Tag`, `User`, `Reviewer` e `ModerationReview`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260722223436_FixShadowForeignKeys.*` — remove colunas, índices e FKs de shadow state (`CategoryId1`, `TagId1`, `UserId1`, `ReviewerId`, `ModerationReviewId1`).
+- `docker-compose.yml` e `docker-compose.all.yml` — `Storage__Minio__Endpoint` aponta para `http://gamehub-minio:9000` e adiciona `OTEL_EXPORTER_OTLP_*`.
+- `.env.example` e `install.sh` — defaults do MinIO, OTLP e `Database__Provider`.
+
+### Motivação
+O backend usava `http://host.docker.internal:9000` para MinIO mesmo com o container no mesmo compose; o endpoint OTLP usava `https://otlp.nr-data.net` sem porta (405/404); e os logs mostravam propriedades de shadow state geradas por navegações não mapeadas explicitamente.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 229 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `shellcheck install.sh` sem erros.
+- PR #24 criado.

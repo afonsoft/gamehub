@@ -87,7 +87,7 @@ if [ ! -f ".env" ]; then
                         echo "${key}=MinIO"
                         ;;
                     MINIO_ENDPOINT)
-                        echo "${key}=http://host.docker.internal:9000"
+                        echo "${key}=http://gamehub-minio:9000"
                         ;;
                     MINIO_ACCESS_KEY)
                         echo "${key}=gamehub_user"
@@ -103,6 +103,15 @@ if [ ! -f ".env" ]; then
                         ;;
                     MINIO_FORCEPATHSTYLE)
                         echo "${key}=true"
+                        ;;
+                    OTEL_EXPORTER_OTLP_ENDPOINT)
+                        echo "${key}=https://otlp.nr-data.net:4318"
+                        ;;
+                    OTEL_EXPORTER_OTLP_PROTOCOL)
+                        echo "${key}=http/protobuf"
+                        ;;
+                    OTEL_EXPORTER_OTLP_HEADERS)
+                        echo "${key}=api-key=A PREENCHER"
                         ;;
                     GAMEHUB_API_URL)
                         echo "${key}=https://gamehub-api.afonsoft.dev/"

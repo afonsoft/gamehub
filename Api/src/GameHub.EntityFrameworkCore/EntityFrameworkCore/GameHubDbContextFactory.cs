@@ -19,7 +19,11 @@ namespace GameHub.EntityFrameworkCore
         {
             var builder = new DbContextOptionsBuilder<GameHubDbContext>();
             var configuration = GetConfigurationRoot();
-            var databaseProvider = configuration["Database:Provider"] ?? "SqlServer";
+            var databaseProvider =
+                Environment.GetEnvironmentVariable("Database__Provider")
+                ?? Environment.GetEnvironmentVariable("Database:Provider")
+                ?? configuration["Database:Provider"]
+                ?? "SqlServer";
             GameHubDbContextConfigurer.Configure(
                 builder,
                 configuration.GetConnectionString(GameHubConsts.ConnectionStringName),
