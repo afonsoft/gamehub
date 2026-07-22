@@ -1,5 +1,7 @@
-using GameHub.Airplanes;
+using Abp.Domain.Repositories;
+using GameHub.Catalog;
 using Shouldly;
+using System;
 using Xunit;
 
 namespace GameHub.Tests.Core
@@ -9,9 +11,9 @@ namespace GameHub.Tests.Core
         [Fact]
         public void Dado_DomainService_Quando_Resolver_Entao_DeveEstarConfigurado()
         {
-            var manager = LocalIocManager.Resolve<IAirplaneManager>();
+            var repository = LocalIocManager.Resolve<IRepository<Game, Guid>>();
 
-            manager.ShouldNotBeNull();
+            repository.ShouldNotBeNull();
         }
 
         [Fact]

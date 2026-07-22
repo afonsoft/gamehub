@@ -1,5 +1,31 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-22 22:45 UTC
+
+### Tarefa
+Implementar PR-1 do plano de gaps (Fase 9 + Fase 1): remover legado `Airplanes`, implementar publicação de builds no MinIO com extração de ZIP e cálculo de `PublicBaseUrl`/`IndexHtmlPath`, e adicionar idempotência de sessão de gameplay via `ClientRequestId`.
+
+### Arquivos alterados
+- Remoção do domínio/aplicação/testes do `Airplane`: `GameHubDbContext`, `GameHubPermissions`, `GameHubAuthorizationProvider`, `EntityHistoryHelper`, `GameHubCustomDtoMapper`, `HangfireExtensions`, localizações, Angular `main-routing.module.ts`, testes de localization/mapper/permissions/settings.
+- Migrações EF Core: `20260722225753_RemoveAirplanes` e `20260722225953_AddPlaySessionClientRequestId` (PostgreSQL).
+- `Api/src/GameHub.Web.Host/Storage/MinioGameAssetStorage.cs` — extrai entradas do ZIP, faz upload individual com content-type, mantém o pacote original e retorna `PublicBaseUrl`.
+- `Api/src/GameHub.Core/Storage/StoredAsset.cs` — adiciona `PublicBaseUrl`.
+- `Api/src/GameHub.Application/Developer/Dto/ValidationSummaryDto.cs` e `Builds/GameBuildPackageValidator.cs` — capturam e validam `IndexHtmlPath`.
+- `Api/src/GameHub.Application/Builds/GameBuildAppService.cs` — persiste `PublicBaseUrl` e `IndexHtmlPath` e define `TenantId`.
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` — adiciona `SetPublishedBuild(GameBuild build)`.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs` e `Admin/Dto/PublishGameInput.cs` — `PublishAsync` agora exige `GameBuildId` e associa build aprovado via `SetPublishedBuild`.
+- `Api/src/GameHub.Application/Gameplay/GameplayAppService.cs`, `Gameplay/Dto/StartPlaySessionInput.cs`, `Domain/Gameplay/PlaySession.cs` e `GameHubModelCreatingExtensions` — `ClientRequestId`, índice `GameId + ClientRequestId` e `TotalPlays` incrementado apenas em sessões novas.
+- `Api/src/GameHub.Application/*AppService.cs` — todas as AppServices agora herdam de `GameHubAppServiceBase` para alinhar localização e convenções.
+- Testes: `MinioGameAssetStorage_Tests.cs` (ZIP extração), `GameBuildAppService_Tests.cs` (upload/persistência), `GameplayAppService_Tests.cs` (idempotência). Correção de `GameHubDomainServiceBase_Localization_Tests.cs`.
+
+### Motivação
+O domínio `Airplane` era lixo do template e quebrava o build. A publicação de builds precisava descompactar o ZIP no MinIO para que `PublicBaseUrl/IndexHtmlPath` fosse uma URL real. As sessões de gameplay precisavam de idempotência para evitar contagem duplicada de plays em retries.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 143 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+
 ## 2026-07-22 04:15 UTC
 
 ### Tarefa

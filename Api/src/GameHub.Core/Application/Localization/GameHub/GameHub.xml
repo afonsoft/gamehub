@@ -1,14 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <localizationDictionary culture="en">
   <texts>
-    <text name="Airplanes">Airplanes</text>
-    <text name="CreateNewAirplane">Create new airplane</text>
-    <text name="EditAirplane">Edit airplane</text>
-    <text name="DeleteAirplane">Delete airplane</text>
-    <text name="AirplanesHeaderInfo">Airplanes manager</text>
     <text name="Number">Number</text>
     <text name="Model">Model</text>
-    <text name="AirplaneValidate">There is already an airplane with this number</text>
     <text name="StartJob">Start Job</text>
   </texts>
 </localizationDictionary>

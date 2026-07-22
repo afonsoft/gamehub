@@ -2,7 +2,6 @@
 import { RouterModule } from '@angular/router';
 import { AppRouteGuard } from '@app/shared/common/auth/auth-route-guard';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { AirplanesComponent } from './airplanes/airplanes.component';
 
 @NgModule({
   imports: [
@@ -10,7 +9,6 @@ import { AirplanesComponent } from './airplanes/airplanes.component';
       {
         path: '',
         children: [
-          { path: 'airplanes', component: AirplanesComponent, data: { permission: 'Pages.Airplanes' } },
           { path: 'dashboard', component: DashboardComponent, data: { permission: 'Pages.Dashboard' } },
           {
             path: 'gamehub',

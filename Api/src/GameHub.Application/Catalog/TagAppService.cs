@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Catalog
 {
-    public class TagAppService : ApplicationService, ITagAppService
+    public class TagAppService : GameHubAppServiceBase, ITagAppService
     {
         private readonly IRepository<Tag, Guid> _tagRepository;
 

@@ -8,7 +8,7 @@ using GameHub.Gameplay.Dto;
 
 namespace GameHub.Gameplay
 {
-    public class GameplayAppService : ApplicationService, IGameplayAppService
+    public class GameplayAppService : GameHubAppServiceBase, IGameplayAppService
     {
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
@@ -26,20 +26,32 @@ namespace GameHub.Gameplay
 
         public async Task<PlaySessionDto> StartSessionAsync(StartPlaySessionInput input)
         {
-            await _gameRepository.GetAsync(input.GameId);
+            var game = await _gameRepository.GetAsync(input.GameId);
+
+            if (!string.IsNullOrEmpty(input.ClientRequestId))
+            {
+                var existingSession = await _playSessionRepository.FirstOrDefaultAsync(
+                    s => s.GameId == input.GameId && s.ClientRequestId == input.ClientRequestId);
+
+                if (existingSession != null)
+                    return ObjectMapper.Map<PlaySessionDto>(existingSession);
+            }
 
             var session = new PlaySession
             {
                 Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
                 GameId = input.GameId,
                 UserId = AbpSession.UserId,
                 StartedAt = DateTime.UtcNow,
                 DeviceType = input.DeviceType,
-                Browser = input.Browser,
-                Referrer = input.Referrer
+                Browser = input.Browser ?? "Unknown",
+                Referrer = input.Referrer,
+                ClientRequestId = input.ClientRequestId
             };
 
             await _playSessionRepository.InsertAsync(session);
+            game.TotalPlays++;
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<PlaySessionDto>(session);

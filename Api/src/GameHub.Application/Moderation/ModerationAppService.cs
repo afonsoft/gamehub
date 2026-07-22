@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Moderation
 {
-    public class ModerationAppService : ApplicationService, IModerationAppService
+    public class ModerationAppService : GameHubAppServiceBase, IModerationAppService
     {
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;
         private readonly IRepository<UserReport, Guid> _reportRepository;

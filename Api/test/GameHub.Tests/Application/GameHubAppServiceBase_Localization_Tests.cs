@@ -1,4 +1,4 @@
-using GameHub.Airplanes;
+using GameHub.Gameplay;
 using Shouldly;
 using Xunit;
 
@@ -17,7 +17,7 @@ namespace GameHub.Tests.Application
         [Fact]
         public void Dado_AppServiceBase_Quando_ResolverServico_Entao_DeveEstarDisponivel()
         {
-            var service = LocalIocManager.Resolve<IAirplanesAppService>();
+            var service = LocalIocManager.Resolve<IGameplayAppService>();
 
             service.ShouldNotBeNull();
         }

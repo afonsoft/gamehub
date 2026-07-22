@@ -14,7 +14,7 @@ namespace GameHub.Admin
     /// <summary>
     /// Gerencia feature flags do painel administrativo.
     /// </summary>
-    public class FeatureFlagAppService : ApplicationService, IFeatureFlagAppService
+    public class FeatureFlagAppService : GameHubAppServiceBase, IFeatureFlagAppService
     {
         private readonly IRepository<FeatureFlag, Guid> _featureFlagRepository;
 

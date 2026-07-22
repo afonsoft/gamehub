@@ -29,19 +29,6 @@ namespace GameHub.Tests.Configuration
             settings.Count().ShouldBeGreaterThan(0);
         }
 
-        [Fact]
-        public void Dado_ProviderInicializado_Quando_DefinirConfiguracoes_Entao_DeveIncluirConfiguracaoDeAirplane()
-        {
-            // Dado (Given)
-            var manager = LocalIocManager.Resolve<Abp.Configuration.ISettingDefinitionManager>();
-            var context = new Abp.Configuration.SettingDefinitionProviderContext(manager);
-            
-            // Quando (When)
-            var settings = _settingProvider.GetSettingDefinitions(context);
-            
-            // Então (Then)
-            settings.ShouldNotBeNull();
-            settings.Count().ShouldBeGreaterThan(0);
-        }
+
     }
 }

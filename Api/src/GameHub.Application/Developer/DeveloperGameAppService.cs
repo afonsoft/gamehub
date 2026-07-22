@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Developer
 {
-    public class DeveloperGameAppService : ApplicationService, IDeveloperGameAppService
+    public class DeveloperGameAppService : GameHubAppServiceBase, IDeveloperGameAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;

@@ -2,9 +2,9 @@ namespace GameHub.Configuration
 {
     public static class GameHubSettings
     {
-        public static class AirplaneSettings
+        public static class General
         {
-            public const string IsAirplaneManagerEnabled = "AirplaneSettings.IsAirplaneManagerEnabled";
+            public const string PlatformName = "GameHub.General.PlatformName";
         }
     }
 }

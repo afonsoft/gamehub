@@ -58,6 +58,18 @@ namespace GameHub.Catalog
             Status = GameStatus.Published;
         }
 
+        /// <summary>Associates the given approved/published build as the published build for this game.</summary>
+        public void SetPublishedBuild(GameBuild build)
+        {
+            if (build == null)
+                throw new ArgumentNullException(nameof(build));
+
+            if (build.GameId != Id)
+                throw new InvalidOperationException("Build does not belong to this game.");
+
+            Publish(build.Id);
+        }
+
         public GameBuild AddBuild(Guid buildId, string version, int buildNumber, string originalPackageUrl, long sizeBytes, string hashSha256)
         {
             var build = new GameBuild(buildId, Id, version, buildNumber, originalPackageUrl, sizeBytes, hashSha256);

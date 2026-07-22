@@ -14,7 +14,7 @@ namespace GameHub.Admin
     /// <summary>
     /// Gestão de reports de usuários no painel administrativo.
     /// </summary>
-    public class AdminReportAppService : ApplicationService, IAdminReportAppService
+    public class AdminReportAppService : GameHubAppServiceBase, IAdminReportAppService
     {
         private readonly IRepository<UserReport, Guid> _userReportRepository;
 

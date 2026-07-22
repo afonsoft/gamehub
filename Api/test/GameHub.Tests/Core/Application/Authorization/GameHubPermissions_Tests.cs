@@ -9,10 +9,13 @@ namespace GameHub.Tests.Core.Application.Authorization
         [Fact]
         public void Dado_GameHubPermissions_Quando_VerificarConsts_Entao_DeveTerValoresValidos()
         {
-            GameHubPermissions.Pages_Airplanes.ShouldNotBeNullOrEmpty();
-            GameHubPermissions.Pages_Airplanes_Create.ShouldNotBeNullOrEmpty();
-            GameHubPermissions.Pages_Airplanes_Edit.ShouldNotBeNullOrEmpty();
-            GameHubPermissions.Pages_Airplanes_Delete.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Games.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Games_Create.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Games_Edit.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Games_Delete.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Builds_Upload.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Gameplay.ShouldNotBeNullOrEmpty();
+            GameHubPermissions.Pages_Leaderboard.ShouldNotBeNullOrEmpty();
         }
     }
 }

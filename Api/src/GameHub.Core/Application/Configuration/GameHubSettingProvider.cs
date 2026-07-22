@@ -9,7 +9,7 @@ namespace GameHub.Configuration
         {
             return new[]
                 {
-                    new SettingDefinition(GameHubSettings.AirplaneSettings.IsAirplaneManagerEnabled, "true"),
+                    new SettingDefinition(GameHubSettings.General.PlatformName, "GameHub"),
                 };
         }
     }

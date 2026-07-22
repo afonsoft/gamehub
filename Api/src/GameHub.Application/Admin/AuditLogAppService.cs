@@ -15,7 +15,7 @@ namespace GameHub.Admin
     /// <summary>
     /// Consulta logs de auditoria do ABP para o painel administrativo.
     /// </summary>
-    public class AuditLogAppService : ApplicationService, IAuditLogAppService
+    public class AuditLogAppService : GameHubAppServiceBase, IAuditLogAppService
     {
         private readonly IRepository<AuditLog, long> _auditLogRepository;
         private readonly IRepository<User, long> _userRepository;

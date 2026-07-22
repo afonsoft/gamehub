@@ -10,7 +10,7 @@ using GameHub.Storage;
 
 namespace GameHub.Builds
 {
-    public class GameBuildAppService : ApplicationService, IGameBuildAppService
+    public class GameBuildAppService : GameHubAppServiceBase, IGameBuildAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
@@ -77,9 +77,13 @@ namespace GameHub.Builds
                 buildNumber,
                 asset.Url,
                 validation.SizeBytes,
-                validation.HashSha256);
-
-            build.Status = GameBuildStatus.Validated;
+                validation.HashSha256)
+            {
+                TenantId = AbpSession.TenantId,
+                PublicBaseUrl = asset.PublicBaseUrl,
+                IndexHtmlPath = validation.IndexHtmlPath,
+                Status = GameBuildStatus.Validated
+            };
 
             await _buildRepository.InsertAsync(build);
             await CurrentUnitOfWork.SaveChangesAsync();

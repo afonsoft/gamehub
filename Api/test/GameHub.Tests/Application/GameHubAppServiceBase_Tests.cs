@@ -1,5 +1,5 @@
 using GameHub;
-using GameHub.Airplanes;
+using GameHub.Gameplay;
 using Shouldly;
 using Xunit;
 
@@ -10,8 +10,8 @@ namespace GameHub.Tests.Application
         [Fact]
         public void Dado_GameHubAppServiceBase_Quando_CriarInstanciaEntao_DeveSerValido()
         {
-            // GameHubAppServiceBase is abstract, so we test the concrete implementation
-            var service = LocalIocManager.Resolve<AirplanesAppService>();
+            // GameHubAppServiceBase is abstract, so we test a concrete implementation
+            var service = LocalIocManager.Resolve<GameplayAppService>();
             service.ShouldNotBeNull();
             service.ShouldBeAssignableTo<GameHubAppServiceBase>();
         }

@@ -15,7 +15,7 @@ namespace GameHub.Admin
     /// <summary>
     /// Expõe métricas e séries temporais para o dashboard administrativo.
     /// </summary>
-    public class AdminDashboardAppService : ApplicationService, IAdminDashboardAppService
+    public class AdminDashboardAppService : GameHubAppServiceBase, IAdminDashboardAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;

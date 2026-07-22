@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
@@ -12,6 +15,35 @@ namespace GameHub.Web.Storage
     {
         private readonly StorageOptions _options;
         private readonly IAmazonS3 _s3Client;
+
+        private static readonly Dictionary<string, string> ContentTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            [".html"] = "text/html",
+            [".htm"] = "text/html",
+            [".js"] = "application/javascript",
+            [".mjs"] = "application/javascript",
+            [".json"] = "application/json",
+            [".css"] = "text/css",
+            [".png"] = "image/png",
+            [".jpg"] = "image/jpeg",
+            [".jpeg"] = "image/jpeg",
+            [".gif"] = "image/gif",
+            [".svg"] = "image/svg+xml",
+            [".webp"] = "image/webp",
+            [".wasm"] = "application/wasm",
+            [".data"] = "application/octet-stream",
+            [".unityweb"] = "application/octet-stream",
+            [".mem"] = "application/octet-stream",
+            [".ogg"] = "audio/ogg",
+            [".mp3"] = "audio/mpeg",
+            [".mp4"] = "video/mp4",
+            [".webm"] = "video/webm",
+            [".ttf"] = "font/ttf",
+            [".otf"] = "font/otf",
+            [".woff"] = "font/woff",
+            [".woff2"] = "font/woff2",
+            [".eot"] = "application/vnd.ms-fontobject"
+        };
 
         public MinioGameAssetStorage(StorageOptions options)
             : this(options, S3ClientFactory.Create(options))
@@ -30,28 +62,83 @@ namespace GameHub.Web.Storage
             if (package?.Content == null)
                 throw new ArgumentNullException(nameof(package));
 
-            var key = $"builds/{package.GameId:N}/{package.BuildId:N}/{package.FileName}";
+            var prefix = $"builds/{package.GameId:N}/{package.BuildId:N}/";
+            var packageKey = $"{prefix}{package.FileName}";
 
             await EnsureBucketExistsAsync(cancellationToken);
 
-            var request = new PutObjectRequest
+            var stream = package.Content;
+
+            // The same stream is read multiple times by the validator and this storage.
+            // Guard against a stream that is not at the beginning.
+            if (stream.CanSeek && stream.Position != 0)
+                stream.Position = 0;
+
+            if (stream.Length == 0)
+                throw new InvalidOperationException($"Build package stream is empty (length 0, position {stream.Position}).");
+
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: true))
+            {
+                foreach (var entry in zip.Entries)
+                {
+                    if (string.IsNullOrEmpty(entry.Name) || entry.FullName.EndsWith("/"))
+                        continue;
+
+                    await UploadEntryAsync(entry, prefix, cancellationToken);
+                }
+            }
+
+            // Upload the original package as well for audit/reprocessing.
+            if (stream.CanSeek)
+                stream.Position = 0;
+
+            var packageResponse = await _s3Client.PutObjectAsync(new PutObjectRequest
             {
                 BucketName = _options.Minio.Bucket,
-                Key = key,
-                InputStream = package.Content,
-                ContentType = package.ContentType ?? "application/octet-stream",
+                Key = packageKey,
+                InputStream = stream,
+                ContentType = package.ContentType ?? "application/zip",
                 AutoCloseStream = false
-            };
-
-            var response = await _s3Client.PutObjectAsync(request, cancellationToken);
+            }, cancellationToken);
 
             return new StoredAsset
             {
-                Key = key,
-                ETag = response.ETag,
-                SizeBytes = package.Content.Length,
-                Url = BuildPublicUrl(key)
+                Key = packageKey,
+                ETag = packageResponse.ETag,
+                SizeBytes = stream.Length,
+                Url = BuildPublicUrl(packageKey),
+                PublicBaseUrl = BuildPublicUrl(prefix)
             };
+        }
+
+        private async Task UploadEntryAsync(ZipArchiveEntry entry, string prefix, CancellationToken cancellationToken)
+        {
+            var key = $"{prefix}{entry.FullName}";
+            var extension = Path.GetExtension(entry.Name);
+            var contentType = ContentTypes.TryGetValue(extension, out var value)
+                ? value
+                : "application/octet-stream";
+
+            await using (var entryStream = entry.Open())
+            {
+                // AWS SDK PutObject requires a seekable stream to compute the hash/content-length.
+                using (var memoryStream = new MemoryStream())
+                {
+                    await entryStream.CopyToAsync(memoryStream, cancellationToken);
+                    memoryStream.Position = 0;
+
+                    var request = new PutObjectRequest
+                    {
+                        BucketName = _options.Minio.Bucket,
+                        Key = key,
+                        InputStream = memoryStream,
+                        ContentType = contentType,
+                        AutoCloseStream = false
+                    };
+
+                    await _s3Client.PutObjectAsync(request, cancellationToken);
+                }
+            }
         }
 
         private async Task EnsureBucketExistsAsync(CancellationToken cancellationToken)
