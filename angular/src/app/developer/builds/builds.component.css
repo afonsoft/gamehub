@@ -1,0 +1,22 @@
+@import '../games/games.component.css';
+.upload-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.upload-section h2 {
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+}
+.hint {
+  font-size: 0.75rem;
+  color: #5f6368;
+  margin-top: 6px;
+}
+.result {
+  margin-top: 12px;
+  color: #34a853;
+  font-size: 0.875rem;
+}

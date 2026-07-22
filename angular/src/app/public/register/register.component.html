@@ -1,0 +1,32 @@
+<div class="auth-page">
+  <form class="auth-card" (ngSubmit)="register()">
+    <h1>Create your GameHub account</h1>
+    <p class="subtitle">Join to save favorites, compete and publish games.</p>
+
+    <label for="name">First name</label>
+    <input id="name" type="text" [(ngModel)]="model.name" name="name" required />
+
+    <label for="surname">Last name</label>
+    <input id="surname" type="text" [(ngModel)]="model.surname" name="surname" required />
+
+    <label for="userName">Username</label>
+    <input id="userName" type="text" [(ngModel)]="model.userName" name="userName" required />
+
+    <label for="email">Email</label>
+    <input id="email" type="email" [(ngModel)]="model.emailAddress" name="email" required />
+
+    <label for="password">Password</label>
+    <input id="password" type="password" [(ngModel)]="model.password" name="password" required />
+
+    <label for="confirmPassword">Confirm password</label>
+    <input id="confirmPassword" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required />
+
+    <button type="submit" class="btn-primary" [disabled]="loading">
+      {{ loading ? 'Registering...' : 'Register' }}
+    </button>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <p class="switch">Already have an account? <a routerLink="/login">Login</a></p>
+  </form>
+</div>

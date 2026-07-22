@@ -1,0 +1,47 @@
+<div class="dev-page">
+  <aside class="dev-sidebar">
+    <h2>Developer</h2>
+    <nav>
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
+      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
+    </nav>
+  </aside>
+  <main class="dev-main">
+    <div class="dev-header">
+      <h1>Builds: {{ gameTitle }}</h1>
+      <a routerLink="/developer/games">Back to games</a>
+    </div>
+
+    <section class="upload-section">
+      <h2>Upload build</h2>
+      <input type="file" accept=".zip,.tar.gz" (change)="uploadFile($event)" [disabled]="uploading" />
+      <p class="hint">Accepted: .zip, .tar.gz — max 100 MB</p>
+      <p class="result" *ngIf="uploadResult">Uploaded build {{ uploadResult.version }} ({{ uploadResult.status }})</p>
+    </section>
+
+    <h2>Build history</h2>
+    <div class="loading" *ngIf="loading">Loading...</div>
+    <table class="games-table" *ngIf="!loading && builds.length">
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Build #</th>
+          <th>Status</th>
+          <th>Size</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let build of builds">
+          <td>{{ build.version }}</td>
+          <td>#{{ build.buildNumber }}</td>
+          <td><span class="badge">{{ build.status }}</span></td>
+          <td>{{ build.sizeBytes | number }} bytes</td>
+          <td>{{ build.createdAt | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="empty" *ngIf="!loading && !builds.length">No builds uploaded yet.</p>
+  </main>
+</div>

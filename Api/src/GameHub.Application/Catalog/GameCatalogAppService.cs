@@ -266,6 +266,9 @@ namespace GameHub.Catalog
                     : null,
                 TotalPlays = game.TotalPlays,
                 AverageRating = (decimal)(game.AverageRating ?? 0),
+                SupportsDesktop = game.SupportsDesktop,
+                SupportsMobile = game.SupportsMobile,
+                SupportsTablet = game.SupportsTablet,
                 Tags = game.GameTags
                     .Where(gt => gt.Tag != null)
                     .Select(gt => new TagDto

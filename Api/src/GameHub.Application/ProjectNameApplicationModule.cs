@@ -12,6 +12,7 @@ using GameHub.Catalog;
 using GameHub.EntityFrameworkCore;
 using GameHub.Gameplay;
 using GameHub.Migrations.Seed;
+using GameHub.Monetization;
 using System;
 
 namespace GameHub
@@ -30,6 +31,7 @@ namespace GameHub
             IocManager.Register<IGameCatalogCache, InMemoryGameCatalogCache>(DependencyLifeStyle.Transient);
             IocManager.Register<ILeaderboardCache, InMemoryLeaderboardCache>(DependencyLifeStyle.Transient);
             IocManager.Register<IGameBuildPackageValidator, GameBuildPackageValidator>(DependencyLifeStyle.Transient);
+            IocManager.Register<IAdProvider, FakeAdProvider>(DependencyLifeStyle.Transient);
         }
 
         public override void Initialize()

@@ -11,6 +11,6 @@ namespace GameHub.Gameplay
 
         Task<PlaySessionDto> StopSessionAsync(Guid sessionId);
 
-        Task EventAsync(Guid sessionId, GameplayEventInput input);
+        Task EventAsync(GameplayEventInput input);
     }
 }

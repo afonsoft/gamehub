@@ -31,7 +31,10 @@
           </a>
         </div>
       </div>
-      <a class="play-button" [routerLink]="['/play', game.slug]">Play now</a>
+      <div class="detail-actions">
+        <a class="play-button" [routerLink]="['/play', game.slug]">Play now</a>
+        <a class="leaderboard-button" [routerLink]="['/leaderboard', game.slug]">Leaderboard</a>
+      </div>
     </div>
 
     <section class="description" *ngIf="game.description">

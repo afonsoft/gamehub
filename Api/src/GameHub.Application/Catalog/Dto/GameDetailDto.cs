@@ -57,6 +57,15 @@ public class GameDetailDto
     /// <summary>Average user rating (0–5).</summary>
     public decimal AverageRating { get; set; }
 
+    /// <summary>Supports desktop browsers.</summary>
+    public bool SupportsDesktop { get; set; }
+
+    /// <summary>Supports mobile browsers.</summary>
+    public bool SupportsMobile { get; set; }
+
+    /// <summary>Supports tablet browsers.</summary>
+    public bool SupportsTablet { get; set; }
+
     /// <summary>Assigned tags.</summary>
     public List<TagDto> Tags { get; set; } = new();
 

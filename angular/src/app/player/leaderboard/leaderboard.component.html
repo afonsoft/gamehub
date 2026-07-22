@@ -1,0 +1,44 @@
+<div class="leaderboard-page" *ngIf="game">
+  <div class="leaderboard-header">
+    <a class="back" [routerLink]="['/game', game.slug]">&larr; Back to game</a>
+    <h1>{{ game.title }} — Leaderboard</h1>
+  </div>
+
+  <section class="submit-score">
+    <h2>Submit your score</h2>
+    <div class="score-row">
+      <input type="number" [(ngModel)]="score" placeholder="Score" min="0" />
+      <button class="btn-primary" (click)="submitScore()" [disabled]="submitting">Submit</button>
+    </div>
+  </section>
+
+  <section class="top-list">
+    <h2>Top players</h2>
+    <table *ngIf="entries.length; else empty">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Score</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of entries">
+          <td>#{{ entry.rank }}</td>
+          <td>{{ entry.displayName || 'Player ' + entry.userId }}</td>
+          <td>{{ entry.score | number }}</td>
+          <td>{{ entry.updatedAt | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <p class="empty">No scores yet. Be the first!</p>
+    </ng-template>
+  </section>
+</div>
+
+<div class="empty-state" *ngIf="loaded && !game">
+  <p>Game not found.</p>
+  <a routerLink="/games">Back to games</a>
+</div>

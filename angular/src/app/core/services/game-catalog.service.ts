@@ -45,6 +45,9 @@ export interface GameDetail {
   publishedBuildUrl: string;
   totalPlays: number;
   averageRating: number;
+  supportsDesktop: boolean;
+  supportsMobile: boolean;
+  supportsTablet: boolean;
   tags: { id: string; name: string; slug: string }[];
   relatedGames: GameCard[];
 }
@@ -97,6 +100,7 @@ export class GameCatalogService {
   search(
     query: string,
     categories: string[] = [],
+    tags: string[] = [],
     skipCount = 0,
     maxResultCount = 24,
   ): Observable<PagedGames> {
@@ -105,6 +109,7 @@ export class GameCatalogService {
       .set('SkipCount', skipCount.toString())
       .set('MaxResultCount', maxResultCount.toString());
     categories.forEach(c => (params = params.append('Categories', c)));
+    tags.forEach(t => (params = params.append('Tags', t)));
     return this.http.get<PagedGames>(`${this.apiUrl}/Search`, { params }).pipe(
       map(response => this.unwrap<PagedGames>(response)),
     );
