@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace GameHub.Airplanes
 {
-    public class AirplaneManager : ProjectNameDomainServiceBase, IAirplaneManager
+    public class AirplaneManager : GameHubDomainServiceBase, IAirplaneManager
     {
         private readonly IRepository<Airplane> _repositoryAirplane;
         private readonly IChatCommunicator _chatCommunicator;

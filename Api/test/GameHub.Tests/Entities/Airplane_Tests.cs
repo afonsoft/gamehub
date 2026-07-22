@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Entities
 {
-    public class Airplane_Tests : ProjectNameTestBase
+    public class Airplane_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_Airplane_Quando_Criar_Entao_DeveTerPropriedadesValidas()

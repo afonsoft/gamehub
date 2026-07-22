@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Core.Application.Extensions
 {
-    public class HangfireExtensions_Tests : ProjectNameTestBase
+    public class HangfireExtensions_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_HangfireExtensions_Quando_VerificarTipo_Entao_DeveSerClasseEstatica()

@@ -144,7 +144,7 @@ cp .env.example .env
 
 | Variável | Descrição | Exemplo |
 |----------|-----------|---------|
-| `ConnectionStrings__Default` | Connection string do SQL Server | `Server=sqlserver,1433;Database=EafProjectName;User Id=sa;Password=...` |
+| `ConnectionStrings__Default` | Connection string do SQL Server | `Server=sqlserver,1433;Database=EafGameHub;User Id=sa;Password=...` |
 | `Database__Provider` | Provider do banco de dados | `SqlServer` |
 | `Hangfire__IsEnabled` | Habilita o Hangfire | `false` |
 | `SqlServerCache__IsEnabled` | Habilita cache no SQL Server | `false` |
@@ -161,7 +161,7 @@ Para testar a API com Redis e SQL Server sem depender de infraestrutura externa,
 
 ```bash
 cd Templates/Api
-ConnectionStrings__Default="Server=sqlserver,1433;Database=EafProjectName;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;Encrypt=false" \
+ConnectionStrings__Default="Server=sqlserver,1433;Database=EafGameHub;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;Encrypt=false" \
 RedisCache__IsEnabled=true \
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.infra.yml up -d
 ```
@@ -213,9 +213,9 @@ dotnet test GameHub.sln --collect:"XPlat Code Coverage"
 |--------|-------------------|-----|--------|
 | Domain (Core) | `AirplaneManager_Crud_Tests` | 8 | Passando |
 | Domain (Core) | `Airplane_Validation_Tests` | 7 | Passando |
-| Domain (Core) | `ProjectNameConsts_Validation_Tests` | 4 | Passando |
+| Domain (Core) | `GameHubConsts_Validation_Tests` | 4 | Passando |
 | Application | `AirplanesAppService_Crud_Tests` | 10 | 9 passando, 1 skip (EPPlus) |
-| Application | `ProjectNameAuthorizationProvider_Permissions_Tests` | 5 | Passando |
+| Application | `GameHubAuthorizationProvider_Permissions_Tests` | 5 | Passando |
 | DTOs | `CreateOrEditAirplaneDto_Validation_Tests` | 6 | Passando |
 | DTOs | `GetAirplanesInput_Validation_Tests` | 4 | Passando |
 | DTOs | `AirplaneDto_Mapping_Tests` | 2 | Passando |

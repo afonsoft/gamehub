@@ -7,7 +7,7 @@ using Xunit;
 namespace GameHub.Tests.Localization
 {
     // ReSharper disable once InconsistentNaming
-    public class Localization_Tests : ProjectNameTestBase
+    public class Localization_Tests : GameHubTestBase
     {
         [Theory]
         [InlineData("en")]

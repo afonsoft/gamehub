@@ -6,7 +6,7 @@
 		<AssemblyName>GameHub.Web.Host</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<PackageId>GameHub.Web.Host</PackageId>
-		<UserSecretsId>Eaf-ProjectName-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
+		<UserSecretsId>Eaf-GameHub-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
 		<RootNamespace>GameHub.Web</RootNamespace>
 		<AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -7,7 +7,7 @@ namespace GameHub.Tests.Sessions
     /// <summary>
     /// Testes para gerenciamento de sessões seguindo o padrão BDD (Given/When/Then) em português
     /// </summary>
-    public class SessionManager_Tests : ProjectNameTestBase
+    public class SessionManager_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_SistemaInicializado_Quando_ObterUserId_Entao_DeveRetornarIdValido()

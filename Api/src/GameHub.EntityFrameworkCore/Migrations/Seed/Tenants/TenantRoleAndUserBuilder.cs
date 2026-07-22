@@ -11,10 +11,10 @@ namespace GameHub.Migrations.Seed.Tenants
 {
     public class TenantRoleAndUserBuilder
     {
-        private readonly ProjectNameDbContext _context;
+        private readonly GameHubDbContext _context;
         private readonly int _tenantId;
 
-        public TenantRoleAndUserBuilder(ProjectNameDbContext context, int tenantId)
+        public TenantRoleAndUserBuilder(GameHubDbContext context, int tenantId)
         {
             _context = context;
             _tenantId = tenantId;
@@ -36,8 +36,8 @@ namespace GameHub.Migrations.Seed.Tenants
             var adminUser = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == _tenantId && u.UserName == AbpUserBase.AdminUserName);
             if (adminUser == null)
             {
-                adminUser = User.CreateTenantAdminUser(_tenantId, "projectname@afonsoft.com.br");
-                adminUser.Surname = "projectname";
+                adminUser = User.CreateTenantAdminUser(_tenantId, "gamehub@afonsoft.com.br");
+                adminUser.Surname = "gamehub";
                 adminUser.IsEmailConfirmed = true;
                 adminUser.IsActive = true;
                 adminUser.ShouldChangePasswordOnNextLogin = true;

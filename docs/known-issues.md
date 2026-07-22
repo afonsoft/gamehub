@@ -3,7 +3,7 @@
 ## EF Core Migrations
 
 - The PostgreSQL initial migration (`Migrations/20260721121054_Initial`) was generated and replaces the previous SQL Server-only migration.
-- At runtime the API applies the migration automatically via `ProjectNameDbContext.MigrateDatabase`.
+- At runtime the API applies the migration automatically via `GameHubDbContext.MigrateDatabase`.
 - For SQL Server deployments a provider-specific migration must be generated with `Database__Provider=SqlServer`.
 
 ## Runtime Caches

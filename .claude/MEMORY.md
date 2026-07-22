@@ -18,7 +18,7 @@
 
 ## Lições Aprendidas
 
-- O design-time factory `ProjectNameDbContextFactory` deve setar `SkipMigrate = true` para `dotnet ef migrations add` funcionar.
+- O design-time factory `GameHubDbContextFactory` deve setar `SkipMigrate = true` para `dotnet ef migrations add` funcionar.
 - O Dockerfile precisa apontar para `GameHub.Web.Host.csproj`/`GameHub.Web.Host.dll`, não para o template antigo.
 
 ## Ferramentas e Recursos Disponíveis

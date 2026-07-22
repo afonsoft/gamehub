@@ -4,7 +4,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "eaf-projectname-ui": {
+    "eaf-gamehub-ui": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -144,21 +144,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "eaf-projectname-ui:build:development"
+            "buildTarget": "eaf-gamehub-ui:build:development"
           },
           "configurations": {
             "production": {
-              "buildTarget": "eaf-projectname-ui:build:production"
+              "buildTarget": "eaf-gamehub-ui:build:production"
             },
             "development": {
-              "buildTarget": "eaf-projectname-ui:build:development"
+              "buildTarget": "eaf-gamehub-ui:build:development"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "eaf-projectname-ui:build"
+            "buildTarget": "eaf-gamehub-ui:build"
           }
         },
         "test": {

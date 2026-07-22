@@ -7,7 +7,7 @@ namespace GameHub.Tests.Notifications
     /// <summary>
     /// Testes para gerenciamento de notificações seguindo o padrão BDD (Given/When/Then) em português
     /// </summary>
-    public class NotificationManager_Tests : ProjectNameTestBase
+    public class NotificationManager_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_SistemaInicializado_Quando_CriarNotificationData_Entao_DeveCriarComSucesso()

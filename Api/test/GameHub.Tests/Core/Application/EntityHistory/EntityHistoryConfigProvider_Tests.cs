@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Core.Application.EntityHistory
 {
-    public class EntityHistoryConfigProvider_Tests : ProjectNameTestBase
+    public class EntityHistoryConfigProvider_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_EntityHistoryConfigProvider_Quando_CriarInstancia_Entao_DeveSerValido()

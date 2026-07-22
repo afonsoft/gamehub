@@ -3,10 +3,10 @@
 	<PropertyGroup>
 		<Version>9.0.0</Version>
 		<TemplateVersion>9.0.0.0</TemplateVersion>
-		<PackageProjectUrl>http://www.projectname.com.br/</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/afonsoft/projectname/</PackageLicenseUrl>
+		<PackageProjectUrl>http://www.gamehub.com.br/</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/afonsoft/gamehub/</PackageLicenseUrl>
 		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/afonsoft/projectname/</RepositoryUrl>
+		<RepositoryUrl>https://github.com/afonsoft/gamehub/</RepositoryUrl>
 		<Authors>AFONSOFT</Authors>
 		<Company>EAF</Company>
 		<Copyright>Copyright © 2025</Copyright>

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Airplanes.Dtos
 {
-    public class GetAirplanesInput_Tests : ProjectNameTestBase
+    public class GetAirplanesInput_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_GetAirplanesInput_Quando_Criar_Entao_DeveTerPropriedadesValidas()

@@ -145,7 +145,7 @@ Adicionar `StackExchange.Redis` em `GameHub.Web.Host.csproj`.
 - `Api/src/GameHub.Application/Gameplay/ILeaderboardCache.cs`
 - `Api/src/GameHub.Application/Gameplay/InMemoryLeaderboardCache.cs` (remover)
 - Novos: `Api/src/GameHub.Web.Host/Caching/RedisGameCatalogCache.cs`, `RedisLeaderboardCache.cs`
-- `Api/src/GameHub.Application/ProjectNameApplicationModule.cs`
+- `Api/src/GameHub.Application/GameHubApplicationModule.cs`
 - `Api/src/GameHub.Web.Host/GameHub.Web.Host.csproj`
 - `Api/src/GameHub.Web.Host/Startup/WebHostModule.cs`
 - `Api/src/GameHub.Web.Host/appsettings*.json`
@@ -353,7 +353,7 @@ Criar `GameHubRoleAndUserSeeder` executado em `SeedHelper.SeedHostDb`:
 
 ### Arquivos afetados
 - `Api/src/GameHub.Core/Application/Authorization/GameHubPermissions.cs`
-- `Api/src/GameHub.Core/Application/Authorization/ProjectNameAuthorizationProvider.cs`
+- `Api/src/GameHub.Core/Application/Authorization/GameHubAuthorizationProvider.cs`
 - `Api/src/GameHub.Application/*/*.cs` (adicionar attributes)
 - Novo: `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/GameHubRoleAndUserSeeder.cs`
 - `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/InitialHostDbBuilder.cs` / `SeedHelper.cs`
@@ -563,7 +563,7 @@ public interface IPrivacyAppService
 ### 9.1 Backend
 - Remover `Api/src/GameHub.Core/Airplanes/`.
 - Remover `Api/src/GameHub.Application/Airplanes/`.
-- Remover DbSet `Airplanes` de `ProjectNameDbContext`.
+- Remover DbSet `Airplanes` de `GameHubDbContext`.
 - Remover permissões `Pages.Airplanes`.
 - Gerar migration `RemoveAirplanes`.
 
@@ -574,9 +574,9 @@ public interface IPrivacyAppService
 ### Arquivos afetados
 - `Api/src/GameHub.Core/Airplanes/` (remover)
 - `Api/src/GameHub.Application/Airplanes/` (remover)
-- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/ProjectNameDbContext.cs`
-- `Api/src/GameHub.Core/Application/Authorization/ProjectNameAuthorizationProvider.cs`
-- `Api/src/GameHub.Core/Application/Authorization/ProjectNamePermissions.cs`
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`
+- `Api/src/GameHub.Core/Application/Authorization/GameHubAuthorizationProvider.cs`
+- `Api/src/GameHub.Core/Application/Authorization/GameHubPermissions.cs`
 - `angular-admin/GameHub.UI/src/app/main/main-routing.module.ts`
 - `angular-admin/GameHub.UI/src/app/main/airplanes/` (remover)
 

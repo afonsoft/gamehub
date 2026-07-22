@@ -90,7 +90,7 @@ export class LanguageTextsComponent extends AppComponentBase implements AfterVie
     this._activatedRoute.params.subscribe((params: Params) => {
       this.baseLanguageName = params['baseLanguageName'] || eaf.localization.currentLanguage.name;
       this.targetLanguageName = params['name'];
-      this.sourceName = params['sourceName'] || 'ProjectName';
+      this.sourceName = params['sourceName'] || 'GameHub';
       this.targetValueFilter = params['targetValueFilter'] || 'ALL';
       this.filters.filterText = params['filterText'] || '';
 

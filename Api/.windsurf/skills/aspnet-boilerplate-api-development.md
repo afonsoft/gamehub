@@ -60,8 +60,8 @@ public class Airplane : FullAuditedAggregateRoot<Guid>
 
 #### Permissions
 ```csharp
-// GameHub.Core/Application/Authorization/ProjectNamePermissions.cs
-public static class ProjectNamePermissions
+// GameHub.Core/Application/Authorization/GameHubPermissions.cs
+public static class GameHubPermissions
 {
     public const string Airplanes = "Pages.Airplanes";
     public const string Airplanes_Create = "Pages.Airplanes.Create";
@@ -70,23 +70,23 @@ public static class ProjectNamePermissions
 }
 
 // Permission provider
-public class ProjectNameAuthorizationProvider : AuthorizationProvider
+public class GameHubAuthorizationProvider : AuthorizationProvider
 {
     public override void SetPermissions(IPermissionDefinitionContext context)
     {
-        var airplanes = context.GetPermissionOrNull(ProjectNamePermissions.Airplanes) 
-            ?? context.CreatePermission(ProjectNamePermissions.Airplanes, L("Airplanes"));
+        var airplanes = context.GetPermissionOrNull(GameHubPermissions.Airplanes) 
+            ?? context.CreatePermission(GameHubPermissions.Airplanes, L("Airplanes"));
         
-        airplanes.CreateChildPermission(ProjectNamePermissions.Airplanes_Create, L("Create"));
-        airplanes.CreateChildPermission(ProjectNamePermissions.Airplanes_Edit, L("Edit"));
-        airplanes.CreateChildPermission(ProjectNamePermissions.Airplanes_Delete, L("Delete"));
+        airplanes.CreateChildPermission(GameHubPermissions.Airplanes_Create, L("Create"));
+        airplanes.CreateChildPermission(GameHubPermissions.Airplanes_Edit, L("Edit"));
+        airplanes.CreateChildPermission(GameHubPermissions.Airplanes_Delete, L("Delete"));
     }
 }
 ```
 
 #### Localization
 ```xml
-<!-- GameHub.Core/Application/Localization/ProjectName/ProjectName.xml -->
+<!-- GameHub.Core/Application/Localization/GameHub/GameHub.xml -->
 <?xml version="1.0" encoding="utf-8" ?>
 <localizationDictionary culture="en">
   <texts>
@@ -117,7 +117,7 @@ public interface IAirplaneAppService : IApplicationService
 #### Application Service Implementation
 ```csharp
 // GameHub.Application/Airplanes/AirplaneAppService.cs
-public class AirplaneAppService : ProjectNameAppServiceBase, IAirplaneAppService
+public class AirplaneAppService : GameHubAppServiceBase, IAirplaneAppService
 {
     private readonly IRepository<Airplane, Guid> _airplaneRepository;
 
@@ -126,7 +126,7 @@ public class AirplaneAppService : ProjectNameAppServiceBase, IAirplaneAppService
         _airplaneRepository = airplaneRepository;
     }
 
-    [AbpAuthorize(ProjectNamePermissions.Airplanes)]
+    [AbpAuthorize(GameHubPermissions.Airplanes)]
     public async Task<PagedResultDto<AirplaneDto>> GetAll(GetAllAirplanesInput input)
     {
         var query = _airplaneRepository.GetAll()
@@ -144,7 +144,7 @@ public class AirplaneAppService : ProjectNameAppServiceBase, IAirplaneAppService
         );
     }
 
-    [AbpAuthorize(ProjectNamePermissions.Airplanes_Create)]
+    [AbpAuthorize(GameHubPermissions.Airplanes_Create)]
     public async Task<AirplaneDto> Create(CreateAirplaneDto input)
     {
         var airplane = ObjectMapper.Map<Airplane>(input);
@@ -205,12 +205,12 @@ public class AirplaneAutoMapperProfile : Profile
 
 #### DbContext
 ```csharp
-// GameHub.EntityFrameworkCore/ProjectNameDbContext.cs
-public class ProjectNameDbContext : AbpDbContext
+// GameHub.EntityFrameworkCore/GameHubDbContext.cs
+public class GameHubDbContext : AbpDbContext
 {
     public DbSet<Airplane> Airplanes { get; set; }
 
-    public ProjectNameDbContext(DbContextOptions<ProjectNameDbContext> options)
+    public GameHubDbContext(DbContextOptions<GameHubDbContext> options)
         : base(options)
     {
     }
@@ -250,9 +250,9 @@ public class AirplaneConfiguration : IEntityTypeConfiguration<Airplane>
 #### Repository Customization
 ```csharp
 // GameHub.EntityFrameworkCore/Repositories/AirplaneRepository.cs
-public class AirplaneRepository : EfCoreRepositoryBase<ProjectNameDbContext, Airplane, Guid>, IAirplaneRepository
+public class AirplaneRepository : EfCoreRepositoryBase<GameHubDbContext, Airplane, Guid>, IAirplaneRepository
 {
-    public AirplaneRepository(IDbContextProvider<ProjectNameDbContext> dbContextProvider)
+    public AirplaneRepository(IDbContextProvider<GameHubDbContext> dbContextProvider)
         : base(dbContextProvider)
     {
     }
@@ -282,18 +282,18 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddAbpDbContext<ProjectNameDbContext>(options =>
+        services.AddAbpDbContext<GameHubDbContext>(options =>
         {
             options.AddDefaultRepositories();
         });
 
-        services.AddAbpIdentity<ProjectNameUser, ProjectNameRole>()
-            .AddAbpUserManager<ProjectNameUserManager>()
-            .AddAbpRoleManager<ProjectNameRoleManager>()
-            .AddAbpLoginManager<ProjectNameLoginManager>()
-            .AddAbpSignInManager<ProjectNameSignInManager>()
-            .AddAbpUserStore<ProjectNameUserStore>()
-            .AddAbpRoleStore<ProjectNameRoleStore>()
+        services.AddAbpIdentity<GameHubUser, GameHubRole>()
+            .AddAbpUserManager<GameHubUserManager>()
+            .AddAbpRoleManager<GameHubRoleManager>()
+            .AddAbpLoginManager<GameHubLoginManager>()
+            .AddAbpSignInManager<GameHubSignInManager>()
+            .AddAbpUserStore<GameHubUserStore>()
+            .AddAbpRoleStore<GameHubRoleStore>()
             .AddAbpPermissionChecker<PermissionChecker>()
             .AddAbpPermissionManager<PermissionManager>();
 
@@ -319,13 +319,13 @@ public class Startup
 
 #### Module Configuration
 ```csharp
-// GameHub.Web.Host/ProjectNameWebHostModule.cs
+// GameHub.Web.Host/GameHubWebHostModule.cs
 [DependsOn(
-    typeof(ProjectNameApplicationModule),
-    typeof(ProjectNameEntityFrameworkCoreModule),
+    typeof(GameHubApplicationModule),
+    typeof(GameHubEntityFrameworkCoreModule),
     typeof(AbpAspNetCoreModule)
 )]
-public class ProjectNameWebHostModule : AbpModule
+public class GameHubWebHostModule : AbpModule
 {
     public override void Initialize()
     {
@@ -360,14 +360,14 @@ public class MyService : ITransientDependency
 ### Authorization
 ```csharp
 // Attribute-based
-[AbpAuthorize(ProjectNamePermissions.Airplanes_Create)]
+[AbpAuthorize(GameHubPermissions.Airplanes_Create)]
 public async Task<AirplaneDto> Create(CreateAirplaneDto input)
 {
     // ...
 }
 
 // Programmatic check
-if (await PermissionChecker.IsGrantedAsync(ProjectNamePermissions.Airplanes_Edit))
+if (await PermissionChecker.IsGrantedAsync(GameHubPermissions.Airplanes_Edit))
 {
     // Allow action
 }
@@ -375,7 +375,7 @@ if (await PermissionChecker.IsGrantedAsync(ProjectNamePermissions.Airplanes_Edit
 
 ### Caching
 ```csharp
-public class AirplaneAppService : ProjectNameAppServiceBase
+public class AirplaneAppService : GameHubAppServiceBase
 {
     private readonly ICacheManager _cacheManager;
     
@@ -390,7 +390,7 @@ public class AirplaneAppService : ProjectNameAppServiceBase
 ### Unit of Work
 ```csharp
 // Automatic UOW in application services
-public class AirplaneAppService : ProjectNameAppServiceBase
+public class AirplaneAppService : GameHubAppServiceBase
 {
     // UOW automatically starts and commits
     public async Task<AirplaneDto> Create(CreateAirplaneDto input)
@@ -440,7 +440,7 @@ public class AirplaneHub : AbpHubBase
 }
 
 // In application service
-public class AirplaneAppService : ProjectNameAppServiceBase
+public class AirplaneAppService : GameHubAppServiceBase
 {
     private readonly IHubContext<AirplaneHub> _hubContext;
     
@@ -515,9 +515,9 @@ dotnet ef database update --project GameHub.EntityFrameworkCore
 // Seed data in Migrator project
 public class InitialHostDbBuilder
 {
-    private readonly ProjectNameDbContext _context;
+    private readonly GameHubDbContext _context;
     
-    public InitialHostDbBuilder(ProjectNameDbContext context)
+    public InitialHostDbBuilder(GameHubDbContext context)
     {
         _context = context;
     }
@@ -539,7 +539,7 @@ public class InitialHostDbBuilder
 
 ```csharp
 // GameHub.Tests/Airplanes/AirplaneAppService_Tests.cs
-public class AirplaneAppService_Tests : ProjectNameTestBase
+public class AirplaneAppService_Tests : GameHubTestBase
 {
     private readonly IAirplaneAppService _airplaneAppService;
     
@@ -576,16 +576,16 @@ public class AirplaneAppService_Tests : ProjectNameTestBase
 ```json
 {
   "ConnectionStrings": {
-    "Default": "Server=localhost;Database=EafProjectNameDb;Trusted_Connection=True"
+    "Default": "Server=localhost;Database=EafGameHubDb;Trusted_Connection=True"
   },
   "App": {
     "WebSiteRootAddress": "http://localhost:62134/"
   },
   "Authentication": {
     "JwtBearer": {
-      "SecurityKey": "ProjectName_C421AAEE0D114E9C",
-      "Issuer": "ProjectName",
-      "Audience": "ProjectName"
+      "SecurityKey": "GameHub_C421AAEE0D114E9C",
+      "Issuer": "GameHub",
+      "Audience": "GameHub"
     }
   }
 }

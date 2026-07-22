@@ -8,10 +8,10 @@ namespace GameHub.Migrations.Seed.Tenants
 {
     public class DefaultTenantBuilder
     {
-        private readonly ProjectNameDbContext _context;
+        private readonly GameHubDbContext _context;
 
         public DefaultTenantBuilder(
-            ProjectNameDbContext context
+            GameHubDbContext context
         )
         {
             _context = context;

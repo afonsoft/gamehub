@@ -11,9 +11,9 @@ namespace GameHub.Migrations.Seed.Host
 {
     public class HostRoleAndUserCreator
     {
-        private readonly ProjectNameDbContext _context;
+        private readonly GameHubDbContext _context;
 
-        public HostRoleAndUserCreator(ProjectNameDbContext context)
+        public HostRoleAndUserCreator(GameHubDbContext context)
         {
             _context = context;
         }
@@ -42,8 +42,8 @@ namespace GameHub.Migrations.Seed.Host
                     TenantId = null,
                     UserName = AbpUserBase.AdminUserName,
                     Name = "admin",
-                    Surname = "projectname",
-                    EmailAddress = "projectname@afonsoft.com.br",
+                    Surname = "gamehub",
+                    EmailAddress = "gamehub@afonsoft.com.br",
                     IsEmailConfirmed = true,
                     ShouldChangePasswordOnNextLogin = true,
                     IsActive = true,

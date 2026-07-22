@@ -9,7 +9,7 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      Database__Provider: PostgreSQL
+      Database__Provider: ${Database__Provider:-PostgreSQL}
       ConnectionStrings__Default: Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-A PREENCHER};Username=${POSTGRES_USER:-A PREENCHER};Password=${POSTGRES_PASSWORD:-A PREENCHER}
       RedisCache__IsEnabled: "true"
       RedisCache__ConnectionString: ${REDIS_CONNECTION:-host.docker.internal:6379,abortConnect=false}

@@ -22,15 +22,15 @@ ENV RedisCache__IsEnabled=false
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY . .
-WORKDIR "/src/Templates/Api/src/Eaf.ProjectName.Migrator"
-RUN dotnet restore "Eaf.ProjectName.Migrator.csproj"
-RUN dotnet build "Eaf.ProjectName.Migrator.csproj" \
+WORKDIR "/src/Templates/Api/src/Eaf.GameHub.Migrator"
+RUN dotnet restore "Eaf.GameHub.Migrator.csproj"
+RUN dotnet build "Eaf.GameHub.Migrator.csproj" \
     -c Release \
     -o /app/build \
     --no-restore
 
 FROM build AS publish
-RUN dotnet publish "Eaf.ProjectName.Migrator.csproj" \
+RUN dotnet publish "Eaf.GameHub.Migrator.csproj" \
     -c Release \
     -o /app/publish \
     --no-restore \
@@ -57,4 +57,4 @@ RUN apt-get update && \
 
 USER app
 
-ENTRYPOINT ["dotnet", "Eaf.ProjectName.Migrator.dll", "-s"]
+ENTRYPOINT ["dotnet", "Eaf.GameHub.Migrator.dll", "-s"]

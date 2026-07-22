@@ -178,7 +178,7 @@ An error occurred while saving the entity changes. See the inner exception for d
 - Created and applied EF Core migration to update database schema
 
 **Files Modified**:
-- `Templates/Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/ProjectNameDbContext.cs`
+- `Templates/Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`
 
 ### Fix 3: Global Loading Indicator
 **Requirement**: Loading indicator should remain visible until all HTTP requests complete.
@@ -226,7 +226,7 @@ An error occurred while saving the entity changes. See the inner exception for d
 3. **angular.json** - Added angular-calendar CSS references
 4. **src/app/main/main.module.ts** - Removed CalendarModule import (temporary, re-introduced later)
 5. **src/app/app.module.ts** - Removed duplicate CommonLookupModalComponent declaration
-6. **Templates/Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/ProjectNameDbContext.cs** - Added AbpAuditLogs.Parameters column configuration
+6. **Templates/Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs** - Added AbpAuditLogs.Parameters column configuration
 7. **src/assets/lib/eaf-ng2-module/src/eafHttpInterceptor.ts** - Added global loading indicator
 8. **src/app/admin/shared/permission-tree.component.ts** - Removed local styles
 9. **src/assets/common/styles/styles.css** - Added PrimeNG new (p-*) styles mapping

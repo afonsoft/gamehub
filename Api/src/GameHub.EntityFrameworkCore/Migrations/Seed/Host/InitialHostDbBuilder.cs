@@ -4,10 +4,10 @@ namespace GameHub.Migrations.Seed.Host
 {
     public class InitialHostDbBuilder
     {
-        private readonly ProjectNameDbContext _context;
+        private readonly GameHubDbContext _context;
 
         public InitialHostDbBuilder(
-            ProjectNameDbContext context
+            GameHubDbContext context
         )
         {
             _context = context;

@@ -5,7 +5,7 @@
 		<AssemblyName>GameHub.Migrator</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<PackageId>GameHub.Migrator</PackageId>
-		<UserSecretsId>Eaf-ProjectName-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
+		<UserSecretsId>Eaf-GameHub-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
 	</PropertyGroup>

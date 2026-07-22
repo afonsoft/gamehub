@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Exporting
 {
-    public class AirplanesExcelExporter_Tests : ProjectNameTestBase
+    public class AirplanesExcelExporter_Tests : GameHubTestBase
     {
         private readonly IAirplanesExcelExporter _airplanesExcelExporter;
 

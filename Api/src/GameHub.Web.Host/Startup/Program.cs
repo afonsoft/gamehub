@@ -41,7 +41,7 @@ namespace GameHub.Web.Startup
 #else
                 .UseEafSerilog(Serilog.Events.LogEventLevel.Information)
 #endif
-                .UseEafConfiguration(prefix: "ProjectName_")
+                .UseEafConfiguration(prefix: "GameHub_")
                 .UseEafKeyVault(opt => opt.Provider = EnumKeyVault.None)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

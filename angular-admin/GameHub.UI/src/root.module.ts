@@ -60,10 +60,10 @@ export function appInitializerFactory(injector: Injector, platformLocation: Plat
 function initializeLocalForage() {
   localForage.config({
     driver: localForage.LOCALSTORAGE,
-    name: 'ProjectName',
+    name: 'GameHub',
     version: 1.0,
-    storeName: 'projectName',
-    description: 'Cached data for ProjectName',
+    storeName: 'gameHub',
+    description: 'Cached data for GameHub',
   });
 }
 

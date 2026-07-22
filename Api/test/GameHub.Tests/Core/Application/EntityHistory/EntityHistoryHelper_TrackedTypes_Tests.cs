@@ -27,9 +27,9 @@ namespace GameHub.Tests.Core.Application.EntityHistory
         }
 
         [Fact]
-        public void Dado_EntityHistoryHelper_Quando_VerificarProjectNameTrackedTypes_Entao_DeveConterTiposEsperados()
+        public void Dado_EntityHistoryHelper_Quando_VerificarGameHubTrackedTypes_Entao_DeveConterTiposEsperados()
         {
-            var trackedTypes = EntityHistoryHelper.ProjectNameTrackedTypes;
+            var trackedTypes = EntityHistoryHelper.GameHubTrackedTypes;
 
             trackedTypes.ShouldNotBeNull();
             trackedTypes.Length.ShouldBe(6);

@@ -5,7 +5,7 @@ using Xunit;
 namespace GameHub.Tests.Auditing
 {
     // ReSharper disable once InconsistentNaming
-    public class NamespaceStripper_Tests : ProjectNameTestBase
+    public class NamespaceStripper_Tests : GameHubTestBase
     {
         private readonly INamespaceStripper _namespaceStripper;
 

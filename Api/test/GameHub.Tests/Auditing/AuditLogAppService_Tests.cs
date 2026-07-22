@@ -11,7 +11,7 @@ using Xunit;
 namespace GameHub.Tests.Auditing
 {
     // ReSharper disable once InconsistentNaming
-    public class AuditLogAppService_Tests : ProjectNameTestBase
+    public class AuditLogAppService_Tests : GameHubTestBase
     {
         private readonly IAuditLogAppService _auditLogAppService;
 

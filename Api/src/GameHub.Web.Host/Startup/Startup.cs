@@ -89,7 +89,7 @@ namespace GameHub.Web.Startup
             //Configure CORS for angular2 UI
             services.AddCors(options =>
             {
-                options.AddPolicy(ProjectNameConsts.DefaultCorsPolicyName, builder =>
+                options.AddPolicy(GameHubConsts.DefaultCorsPolicyName, builder =>
                 {
                     builder.SetIsOriginAllowedToAllowWildcardSubdomains();
 
@@ -118,12 +118,12 @@ namespace GameHub.Web.Startup
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "ProjectName API",
-                    Description = "ProjectName",
+                    Title = "GameHub API",
+                    Description = "GameHub",
                     Contact = new OpenApiContact
                     {
-                        Name = "ProjectName",
-                        Email = "ProjectName@afonsoft.com.br"
+                        Name = "GameHub",
+                        Email = "GameHub@afonsoft.com.br"
                     },
                     License = new OpenApiLicense
                     {
@@ -201,7 +201,7 @@ namespace GameHub.Web.Startup
                 app.UseDeveloperExceptionPage();
             else
                 app.UseExceptionHandler("/Error");
-            app.UseCors(ProjectNameConsts.DefaultCorsPolicyName); //Enable CORS!
+            app.UseCors(GameHubConsts.DefaultCorsPolicyName); //Enable CORS!
             app.UseJwtTokenMiddleware();
             app.UseAbpRequestLocalization();
             app.UseRouting();
@@ -245,14 +245,14 @@ namespace GameHub.Web.Startup
             }
 
             //For Security Only Swagger on Develop/Staging
-            if (!_hostingEnvironment.IsProduction() || ProjectNameDebugHelper.IsDebug)
+            if (!_hostingEnvironment.IsProduction() || GameHubDebugHelper.IsDebug)
             {
                 // Enable middleware to serve generated Swagger as a JSON endpoint
                 app.UseSwagger();
                 // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("../swagger/v1/swagger.json", "ProjectName API V1");
+                    options.SwaggerEndpoint("../swagger/v1/swagger.json", "GameHub API V1");
                     options.IndexStream = () => Assembly.GetExecutingAssembly().GetManifestResourceStream("GameHub.Web.wwwroot.swagger.ui.index.html");
                     options.InjectBaseUrl(_appConfiguration["App:ServerRootAddress"]);
                 });

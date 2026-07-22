@@ -28,7 +28,7 @@ namespace GameHub.HealthCheck
                 using (var uowManager = _iocResolver.ResolveAsDisposable<IUnitOfWorkManager>())
                 using (var uow = uowManager.Object.Begin(TransactionScopeOption.Suppress))
                 {
-                    var dbContext = await uowManager.Object.Current.GetDbContextAsync<ProjectNameDbContext>(MultiTenancySides.Host);
+                    var dbContext = await uowManager.Object.Current.GetDbContextAsync<GameHubDbContext>(MultiTenancySides.Host);
                     await dbContext.Database.OpenConnectionAsync(cancellationToken);
                     await uow.CompleteAsync();
                 }

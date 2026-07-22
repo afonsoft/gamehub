@@ -4,12 +4,12 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<AssemblyName>GameHub.Core</AssemblyName>
 		<PackageId>GameHub.Core</PackageId>
-		<UserSecretsId>Eaf-ProjectName-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
+		<UserSecretsId>Eaf-GameHub-894FDFC1-6482-4A56-926A-3C46C9FE0329</UserSecretsId>
 		<RootNamespace>GameHub</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Application\Localization\ProjectName\ProjectName-pt-BR.xml" />
-		<EmbeddedResource Include="Application\Localization\ProjectName\ProjectName.xml" />
+		<EmbeddedResource Include="Application\Localization\GameHub\GameHub-pt-BR.xml" />
+		<EmbeddedResource Include="Application\Localization\GameHub\GameHub.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Eaf.Middleware.Core" Version="9.2.0" />

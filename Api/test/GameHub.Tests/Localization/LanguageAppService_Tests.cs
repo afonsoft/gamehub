@@ -13,11 +13,11 @@ using Xunit;
 namespace GameHub.Tests.Localization
 {
     // ReSharper disable once InconsistentNaming
-    public class LanguageAppService_Tests : ProjectNameTestBase
+    public class LanguageAppService_Tests : GameHubTestBase
     {
         private readonly ILanguageAppService _languageAppService;
         private readonly IApplicationLanguageManager _languageManager;
-        private readonly bool _multiTenancyEnabled = ProjectNameConsts.MultiTenancyEnabled;
+        private readonly bool _multiTenancyEnabled = GameHubConsts.MultiTenancyEnabled;
 
         public LanguageAppService_Tests()
         {
@@ -117,7 +117,7 @@ namespace GameHub.Tests.Localization
             await _languageAppService.UpdateLanguageText(
                 new UpdateLanguageTextInput
                 {
-                    SourceName = ProjectNameConsts.LocalizationSourceName,
+                    SourceName = GameHubConsts.LocalizationSourceName,
                     LanguageName = "en",
                     Key = "Save",
                     Value = "save-new-value"
@@ -125,7 +125,7 @@ namespace GameHub.Tests.Localization
 
             var newValue = Resolve<ILocalizationManager>()
                 .GetString(
-                    ProjectNameConsts.LocalizationSourceName,
+                    GameHubConsts.LocalizationSourceName,
                     "Save",
                     CultureInfo.GetCultureInfo("en")
                 );

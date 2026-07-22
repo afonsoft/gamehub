@@ -4,7 +4,7 @@
 
 ## 1. Resumo executivo
 
-A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e moderação de jogos web. A implementação atual ainda é essencialmente o template EAF/ABP renomeado, com o domínio de exemplo `Airplane` e muitos placeholders `ProjectName`. As maiores oportunidades estão em: modelar o domínio GameHub, substituir/renamear artefatos do template, implementar os contratos da API, reescrever os frontends conforme as rotas e, por fim, reforçar segurança, observabilidade e DevOps.
+A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e moderação de jogos web. A implementação atual ainda é essencialmente o template EAF/ABP renomeado, com o domínio de exemplo `Airplane` e muitos placeholders `GameHub`. As maiores oportunidades estão em: modelar o domínio GameHub, substituir/renamear artefatos do template, implementar os contratos da API, reescrever os frontends conforme as rotas e, por fim, reforçar segurança, observabilidade e DevOps.
 
 ---
 
@@ -21,13 +21,13 @@ A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e
 
 **Oportunidade:**
 - Remover `Airplanes` e criar as entidades/aggregates do GameHub em `GameHub.Core`.
-- Criar DbSets em `GameHub.EntityFrameworkCore/EntityFrameworkCore/ProjectNameDbContext.cs`.
+- Criar DbSets em `GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`.
 - Gerar nova migration inicial (`dotnet ef migrations add Initial_GameHub`).
 - Aplicar soft-delete, `TenantId` e índices conforme a modelagem (ex: `IX_Game_Slug`, `IX_GameBuild_GameId_Version`).
 
-### 2.2 Renomear artefatos `ProjectName`
+### 2.2 Renomear artefatos `GameHub`
 
-**Implementação atual:** ainda existem `ProjectNameConsts`, `ProjectNameAuthorizationProvider`, `ProjectNamePermissions`, `ProjectNameApplicationModule`, `ProjectNameDbContext`, etc.
+**Implementação atual:** ainda existem `GameHubConsts`, `GameHubAuthorizationProvider`, `GameHubPermissions`, `GameHubApplicationModule`, `GameHubDbContext`, etc.
 
 **Oportunidade:**
 - Renomear tudo para `GameHub*` (ex: `GameHubConsts`, `GameHubAuthorizationProvider`, `GameHubDbContext`) para manter consistência e evitar confusão no namespace.
@@ -36,7 +36,7 @@ A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e
 
 **Especificação:** `12-rbac-permissions.md` define hierarquias `Pages.Games.*`, `Pages.Builds.*`, `Pages.Moderation.*` etc.
 
-**Implementação atual:** `ProjectNamePermissions` contém permissões genéricas do template.
+**Implementação atual:** `GameHubPermissions` contém permissões genéricas do template.
 
 **Oportunidade:**
 - Criar `GameHubPermissions` com as constantes e descrições do spec.
@@ -203,10 +203,10 @@ A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e
 
 ### 5.2 Ajustes do template EAF
 
-**Implementação atual:** o `eaf-ng2-module` estava com `LogService` ausente (corrigido provisoriamente com stub). O nome do package ainda é `eaf-projectname-ui`.
+**Implementação atual:** o `eaf-ng2-module` estava com `LogService` ausente (corrigido provisoriamente com stub). O nome do package ainda é `eaf-gamehub-ui`.
 
 **Oportunidade:**
-- Renomear package e referências de `ProjectName` para `GameHub` no admin.
+- Renomear package e referências de `GameHub` para `GameHub` no admin.
 - Revisar e substituir o `LogService` stub por implementação alinhada à estratégia de logging do EAF/Serilog.
 
 ---
@@ -253,7 +253,7 @@ A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e
 ## 8. Priorização sugerida
 
 1. **Crítico — build e estrutura base:**
-   - Renomear `ProjectName*` para `GameHub*`.
+   - Renomear `GameHub*` para `GameHub*`.
    - Criar entidades do spec e gerar nova migration.
    - Criar DTOs e Application Services mínimos para `Game`/`GameBuild`.
    - Substituição do `Airplane` de exemplo.

@@ -54,5 +54,11 @@ namespace GameHub.Authorization
         // Gameplay
         public const string Pages_Gameplay = "Pages.Gameplay";
         public const string Pages_Leaderboard = "Pages.Leaderboard";
+
+        // Legacy Airplanes (template) - to be removed when Airplanes domain is deleted
+        public const string Pages_Airplanes = "Pages.Airplanes";
+        public const string Pages_Airplanes_Create = "Pages.Airplanes.Create";
+        public const string Pages_Airplanes_Edit = "Pages.Airplanes.Edit";
+        public const string Pages_Airplanes_Delete = "Pages.Airplanes.Delete";
     }
 }

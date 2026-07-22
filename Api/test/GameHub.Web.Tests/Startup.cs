@@ -50,7 +50,7 @@ namespace GameHub.Web.Tests
             services.AddEafConfigurer(_appConfiguration);
 
             //Configure Eaf and Dependency Injection
-            return services.AddAbp<ProjectNameWebTestModule>(options =>
+            return services.AddAbp<GameHubWebTestModule>(options =>
             {
                 options.IocManager.IocContainer.AddFacility<LoggingFacility>(
                    f => f.UseEafSerilog()
@@ -86,14 +86,14 @@ namespace GameHub.Web.Tests
 
         private void UseInMemoryDb(IServiceProvider serviceProvider)
         {
-            var builder = new DbContextOptionsBuilder<ProjectNameDbContext>();
+            var builder = new DbContextOptionsBuilder<GameHubDbContext>();
             builder.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(serviceProvider);
             var options = builder.Options;
 
             var iocManager = serviceProvider.GetRequiredService<IIocManager>();
             iocManager.IocContainer
                 .Register(
-                    Component.For<DbContextOptions<ProjectNameDbContext>>()
+                    Component.For<DbContextOptions<GameHubDbContext>>()
                         .Instance(options)
                         .LifestyleSingleton()
                 );

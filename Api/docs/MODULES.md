@@ -147,7 +147,7 @@ The Data Access Layer provides implementation of repositories and DbContext usin
 
 #### DbContext
 
-**Location**: `EafProjectNameDbContext.cs`
+**Location**: `EafGameHubDbContext.cs`
 
 Main DbContext that configures Entity Framework Core:
 
@@ -312,9 +312,9 @@ public interface IMyEntityRepository : IRepository<MyEntity, Guid>
 
 ```csharp
 // src/GameHub.EntityFrameworkCore/Repositories/MyEntityRepository.cs
-public class MyEntityRepository : EfCoreRepositoryBase<EafProjectNameDbContext, MyEntity, Guid>, IMyEntityRepository
+public class MyEntityRepository : EfCoreRepositoryBase<EafGameHubDbContext, MyEntity, Guid>, IMyEntityRepository
 {
-    public MyEntityRepository(IDbContextProvider<EafProjectNameDbContext> dbContextProvider)
+    public MyEntityRepository(IDbContextProvider<EafGameHubDbContext> dbContextProvider)
         : base(dbContextProvider)
     {
     }
@@ -382,8 +382,8 @@ public class MyEntityProfile : Profile
 ### Step 7: Register Application Service in Module
 
 ```csharp
-// src/GameHub.Application/EafProjectNameApplicationModule.cs
-public class EafProjectNameApplicationModule : AbpModule
+// src/GameHub.Application/EafGameHubApplicationModule.cs
+public class EafGameHubApplicationModule : AbpModule
 {
     public override void Initialize()
     {

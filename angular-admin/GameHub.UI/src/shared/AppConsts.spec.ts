@@ -6,7 +6,7 @@ describe('AppConsts', () => {
   });
 
   it('should have localization source names', () => {
-    expect(AppConsts.localization.defaultLocalizationSourceName).toBe('ProjectName');
+    expect(AppConsts.localization.defaultLocalizationSourceName).toBe('GameHub');
     expect(AppConsts.localization.defaultLocalizationSourceNameEaf).toBe('EafCore');
     expect(AppConsts.localization.defaultLocalizationSourceNameAbp).toBe('Abp');
     expect(AppConsts.localization.defaultLocalizationSourceNameAbpWeb).toBe('AbpWeb');

@@ -7,7 +7,7 @@ namespace GameHub.Tests.DependencyInjection
     /// <summary>
     /// Testes para injeção de dependência seguindo o padrão BDD (Given/When/Then) em português
     /// </summary>
-    public class DependencyInjection_Tests : ProjectNameTestBase
+    public class DependencyInjection_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_SistemaInicializado_Quando_ResolverServicoDoContainer_Entao_DeveRetornarInstanciaValida()

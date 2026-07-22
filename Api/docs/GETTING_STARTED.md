@@ -37,8 +37,8 @@ Edit the connection strings in `appsettings.json` in the `GameHub.Web.Host` proj
 ```json
 {
   "ConnectionStrings": {
-    "Default": "Server=localhost;Database=EafProjectName;Trusted_Connection=True;MultipleActiveResultSets=true",
-    "Hangfire": "Server=localhost;Database=EafProjectNameHangfire;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "Default": "Server=localhost;Database=EafGameHub;Trusted_Connection=True;MultipleActiveResultSets=true",
+    "Hangfire": "Server=localhost;Database=EafGameHubHangfire;Trusted_Connection=True;MultipleActiveResultSets=true"
   }
 }
 ```
@@ -137,7 +137,7 @@ docker build -t eaf-api -f Templates/Api/Dockerfile .
 
 ```bash
 docker run -d -p 8001:8001 \
-  -e ConnectionStrings__Default="Server=sqlserver;Database=EafProjectName;User Id=sa;Password=YourPassword;TrustServerCertificate=True;Encrypt=false" \
+  -e ConnectionStrings__Default="Server=sqlserver;Database=EafGameHub;User Id=sa;Password=YourPassword;TrustServerCertificate=True;Encrypt=false" \
   -e Database__Provider=SqlServer \
   -e Hangfire__IsEnabled=false \
   -e SqlServerCache__IsEnabled=false \
@@ -202,7 +202,7 @@ curl -X GET http://localhost:21021/api/services/app/User/GetAll \
 You can override configuration using environment variables:
 
 ```bash
-export ConnectionStrings__Default="Server=localhost;Database=EafProjectName;Trusted_Connection=True"
+export ConnectionStrings__Default="Server=localhost;Database=EafGameHub;Trusted_Connection=True"
 export App__WebSiteRootAddress="http://localhost:21021/"
 ```
 

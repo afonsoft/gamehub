@@ -7,7 +7,7 @@ namespace GameHub.Tests.Localization
     /// <summary>
     /// Testes para gerenciamento de localização seguindo o padrão BDD (Given/When/Then) em português
     /// </summary>
-    public class LocalizationManager_Tests : ProjectNameTestBase
+    public class LocalizationManager_Tests : GameHubTestBase
     {
         [Fact]
         public void Dado_SistemaInicializado_Quando_ObterFonteDeLocalizacao_Entao_DeveRetornarFonteValida()
@@ -16,11 +16,11 @@ namespace GameHub.Tests.Localization
             var localizationManager = LocalIocManager.Resolve<ILocalizationManager>();
 
             // Quando (When)
-            var source = localizationManager.GetSource("ProjectName");
+            var source = localizationManager.GetSource("GameHub");
 
             // Então (Then)
             source.ShouldNotBeNull();
-            source.Name.ShouldBe("ProjectName");
+            source.Name.ShouldBe("GameHub");
         }
 
         [Fact]
@@ -30,7 +30,7 @@ namespace GameHub.Tests.Localization
             var localizationManager = LocalIocManager.Resolve<ILocalizationManager>();
 
             // Quando (When)
-            var texto = localizationManager.GetString("ProjectName", "Welcome");
+            var texto = localizationManager.GetString("GameHub", "Welcome");
 
             // Então (Then)
             texto.ShouldNotBeNull();
@@ -44,7 +44,7 @@ namespace GameHub.Tests.Localization
             var localizationManager = LocalIocManager.Resolve<ILocalizationManager>();
 
             // Quando (When)
-            var texto = localizationManager.GetString("ProjectName", "ChaveInexistente");
+            var texto = localizationManager.GetString("GameHub", "ChaveInexistente");
 
             // Então (Then)
             texto.ShouldBe("[Chave inexistente]");

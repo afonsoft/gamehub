@@ -6,7 +6,7 @@ using Xunit;
 namespace GameHub.Tests.Notifications
 {
     // ReSharper disable once InconsistentNaming
-    public class NotificationAppService_Tests : ProjectNameTestBase
+    public class NotificationAppService_Tests : GameHubTestBase
     {
         private readonly INotificationAppService _notificationAppService;
 

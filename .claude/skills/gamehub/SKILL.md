@@ -39,4 +39,4 @@ Use este skill quando for implementar ou alterar partes da plataforma GameHub.
 
 - Criar entidade: herdar `FullAuditedEntity<Guid>` ou `FullAuditedAggregateRoot<Guid>`, implementar `IMayHaveTenant`.
 - Application service: herdar `ApplicationService` ou `AsyncCrudAppService<...>`, usar `IRepository<T>`.
-- EF config: adicionar `DbSet` em `ProjectNameDbContext` e configurar em `GameHubModelCreatingExtensions`.
+- EF config: adicionar `DbSet` em `GameHubDbContext` e configurar em `GameHubModelCreatingExtensions`.

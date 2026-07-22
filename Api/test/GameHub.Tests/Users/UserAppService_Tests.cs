@@ -7,7 +7,7 @@ using Xunit;
 
 namespace GameHub.Tests.Users
 {
-    public class UserAppService_Tests : ProjectNameTestBase
+    public class UserAppService_Tests : GameHubTestBase
     {
         private readonly IUserAppService _userAppService;
 

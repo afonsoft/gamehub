@@ -4,7 +4,7 @@ using Xunit;
 
 namespace GameHub.Tests.Sessions
 {
-    public class SessionAppService_Tests : ProjectNameTestBase
+    public class SessionAppService_Tests : GameHubTestBase
     {
         public SessionAppService_Tests()
         {
