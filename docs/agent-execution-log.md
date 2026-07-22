@@ -1,5 +1,26 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-22 04:15 UTC
+
+### Tarefa
+Renomear todas as ocorrências do placeholder `ProjectName` para `GameHub` no repositório e corrigir a seleção do provider de banco de dados no runtime para respeitar `Database__Provider` do `.env`/Docker Compose.
+
+### Arquivos alterados
+- Renomeio de classes, arquivos, namespaces, strings e frontends: `GameHubDbContext`, `GameHubApplicationModule`, `GameHubConsts`, `GameHubPermissions`, `GameHubRepositoryBase`, `GameHubTestBase`, `GameHubWebTestBase`, Angular Admin (`package.json`, `manifest.json`, `index.html`, `AppConsts.ts`), Docker Compose, docs e CHANGELOG.
+- Fusão de `ProjectNameConsts` em `GameHubConsts` e de `ProjectNamePermissions` em `GameHubPermissions`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContextConfigurer.cs` — lê `Database__Provider` do ambiente quando provider não é passado explicitamente.
+- `.env.example` e `install.sh` — geram `Database__Provider=PostgreSQL`.
+- `docker-compose.yml` e `docker-compose.all.yml` — `Database__Provider: ${Database__Provider:-PostgreSQL}`.
+
+### Motivação
+O repositório ainda continha muitos artefatos do template EAF nomeados como `ProjectName`, o que dificultava a identidade do projeto. Além disso, o backend ignorava `Database__Provider=PostgreSQL` e tentava usar SQL Server por padrão, causando erro de conexão (`Palavra-chave não suportada: 'Host'`).
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 229 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `shellcheck install.sh` sem erros.
+
 ## 2026-07-22 03:10 UTC
 
 ### Tarefa
