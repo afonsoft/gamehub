@@ -1,6 +1,6 @@
 ﻿{
-  "remoteServiceBaseUrl": "https://demo-eaf-api.afonsoft.com.br/",
-  "appBaseUrl": "http://localhost:8000",
+  "remoteServiceBaseUrl": "https://gamehub-api.afonsoft.dev/",
+  "appBaseUrl": "https://gamehub-admin.afonsoft.dev/",
   "localeMappings": [
     {
       "from": "pt-BR",

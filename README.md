@@ -227,10 +227,36 @@ docker compose -f docker-compose.yml up --build -d
 
 | Service | URL |
 |---------|-----|
-| API | http://localhost:5000 |
-| Game Hub | http://localhost:4200 |
-| Admin | http://localhost:4201 |
+| API | http://localhost:4601 |
+| Game Hub | http://localhost:4600 |
+| Admin | http://localhost:4602 |
 | MinIO Console | http://localhost:9001 |
+
+### DNS de produção (conforme `.specs`)
+
+| Serviço | DNS |
+|---------|-----|
+| Game Hub | `gamehub.afonsoft.dev` |
+| API | `gamehub-api.afonsoft.dev` |
+| Admin | `gamehub-admin.afonsoft.dev` |
+| Sandbox dos jogos | `games.afonsoft.dev` |
+
+Para testar localmente com esses domínios, aponte-os para `127.0.0.1` no `/etc/hosts`:
+
+```
+127.0.0.1 gamehub.afonsoft.dev
+127.0.0.1 gamehub-api.afonsoft.dev
+127.0.0.1 gamehub-admin.afonsoft.dev
+127.0.0.1 games.afonsoft.dev
+```
+
+O nginx já configurado deve fazer proxy para os upstreams locais:
+
+- `gamehub.afonsoft.dev` → `http://127.0.0.1:4600`
+- `gamehub-api.afonsoft.dev` → `http://127.0.0.1:4601`
+- `gamehub-admin.afonsoft.dev` → `http://127.0.0.1:4602`
+
+As variáveis `GAMEHUB_API_URL`, `GAMEHUB_HUB_URL`, `GAMEHUB_ADMIN_URL` e `GAMEHUB_CORS_ORIGINS` no `.env` permitem sobrescrever as URLs públicas (útil para http/local ou outro domínio).
 
 ---
 

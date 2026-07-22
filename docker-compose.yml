@@ -6,22 +6,23 @@ services:
     container_name: gamehub-backend
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       Database__Provider: PostgreSQL
       ConnectionStrings__Default: Host=postgres;Database=${POSTGRES_DB:-gamehub};Username=${POSTGRES_USER:-gamehub};Password=${POSTGRES_PASSWORD:-change-me}
       RedisCache__IsEnabled: "true"
       RedisCache__ConnectionString: redis:6379
       RedisCache__DatabaseId: "0"
       Hangfire__IsEnabled: "false"
-      App__ServerRootAddress: http://localhost:5000/
-      App__CorsOrigins: "http://localhost:4200,http://localhost:4201"
+      App__ServerRootAddress: ${GAMEHUB_API_URL:-https://gamehub-api.afonsoft.dev/}
+      App__ClientRootAddress: ${GAMEHUB_HUB_URL:-https://gamehub.afonsoft.dev/}
+      App__CorsOrigins: ${GAMEHUB_CORS_ORIGINS:-https://gamehub.afonsoft.dev,https://gamehub-admin.afonsoft.dev}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     ports:
-      - "5000:80"
+      - "4601:80"
     networks:
       - gamehub
 
@@ -34,7 +35,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "4200:80"
+      - "4600:80"
     networks:
       - gamehub
 
@@ -45,12 +46,12 @@ services:
     container_name: gamehub-angular-admin
     restart: unless-stopped
     environment:
-      REMOTE_SERVICE_BASE_URL: http://localhost:5000
-      APP_BASE_URL: http://localhost:4201
+      REMOTE_SERVICE_BASE_URL: ${GAMEHUB_API_URL:-https://gamehub-api.afonsoft.dev/}
+      APP_BASE_URL: ${GAMEHUB_ADMIN_URL:-https://gamehub-admin.afonsoft.dev/}
     depends_on:
       - backend
     ports:
-      - "4201:80"
+      - "4602:80"
     networks:
       - gamehub
 
