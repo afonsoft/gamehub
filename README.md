@@ -223,6 +223,11 @@ Comportamento:
 
 - Se o arquivo `.env` **não existir**, o script cria um `.env` com todas as variáveis preenchidas com `A PREENCHER`, executa `docker compose pull` e `docker compose build`, e **não sobe os containers**. Edite o `.env` e execute o script novamente.
 - Se o arquivo `.env` **já existir**, o script executa `pull`, `build` e `up -d`.
+- Para forçar o rebuild das imagens sem cache e recriar os containers, use a flag `-r`:
+
+```bash
+./install.sh -r
+```
 
 Para subir manualmente a infraestrutura antes do script:
 

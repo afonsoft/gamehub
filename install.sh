@@ -8,6 +8,33 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
+REBUILD=false
+
+usage() {
+    echo "Uso: $0 [-r]" >&2
+    echo "  -r  Força o rebuild das imagens Docker (--no-cache --pull) e recria os containers" >&2
+    exit 1
+}
+
+while getopts ":r" opt; do
+    case $opt in
+        r)
+            REBUILD=true
+            ;;
+        \?)
+            echo "Opção inválida: -$OPTARG" >&2
+            usage
+            ;;
+    esac
+done
+
+if [ "$REBUILD" = true ]; then
+    BUILD_OPTS="--no-cache --pull"
+    UP_OPTS="-d --force-recreate"
+else
+    BUILD_OPTS=""
+    UP_OPTS="-d"
+fi
 
 if [ ! -f "$COMPOSE_FILE" ]; then
     echo "Erro: arquivo '$COMPOSE_FILE' não encontrado no diretório atual." >&2
@@ -111,7 +138,8 @@ if [ ! -f ".env" ]; then
     echo ""
 
     docker compose -f "$COMPOSE_FILE" pull
-    docker compose -f "$COMPOSE_FILE" build
+    # shellcheck disable=SC2086
+    docker compose -f "$COMPOSE_FILE" build $BUILD_OPTS
 
     echo ""
     echo "=============================================="
@@ -138,8 +166,10 @@ echo "=============================================="
 echo ""
 
 docker compose -f "$COMPOSE_FILE" pull
-docker compose -f "$COMPOSE_FILE" build
-docker compose -f "$COMPOSE_FILE" up -d
+# shellcheck disable=SC2086
+docker compose -f "$COMPOSE_FILE" build $BUILD_OPTS
+# shellcheck disable=SC2086
+docker compose -f "$COMPOSE_FILE" up $UP_OPTS
 
 echo ""
 echo "=============================================="
