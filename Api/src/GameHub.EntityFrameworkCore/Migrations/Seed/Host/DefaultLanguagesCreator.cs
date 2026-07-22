@@ -16,9 +16,9 @@ namespace GameHub.Migrations.Seed.Host
             var tenantId = GameHubConsts.MultiTenancyEnabled ? null : (int?)1;
             return new List<ApplicationLanguage>
             {
-                new ApplicationLanguage(tenantId, "pt-BR", "Português (Brasil)", "famfamfam-flags br"),
+                new ApplicationLanguage(tenantId, "pt-BR", "PortuguÃªs (Brasil)", "famfamfam-flags br"),
                 new ApplicationLanguage(tenantId, "en", "English", "famfamfam-flags us"),
-                new ApplicationLanguage(tenantId, "es", "Español", "famfamfam-flags es")
+                new ApplicationLanguage(tenantId, "es", "EspaÃ±ol", "famfamfam-flags es")
             };
         }
 
