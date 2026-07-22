@@ -12,7 +12,7 @@ services:
       Database__Provider: PostgreSQL
       ConnectionStrings__Default: Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-A PREENCHER};Username=${POSTGRES_USER:-A PREENCHER};Password=${POSTGRES_PASSWORD:-A PREENCHER}
       RedisCache__IsEnabled: "true"
-      RedisCache__ConnectionString: ${REDIS_CONNECTION:-host.docker.internal:6379}
+      RedisCache__ConnectionString: ${REDIS_CONNECTION:-host.docker.internal:6379,abortConnect=false}
       RedisCache__DatabaseId: "0"
       Hangfire__IsEnabled: "false"
       Storage__Provider: ${STORAGE_PROVIDER:-MinIO}
