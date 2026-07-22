@@ -99,7 +99,7 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
 
                 b.HasOne(x => x.Category)
-                    .WithMany()
+                    .WithMany(x => x.GameCategories)
                     .HasForeignKey(x => x.CategoryId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -116,7 +116,7 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
 
                 b.HasOne(x => x.Tag)
-                    .WithMany()
+                    .WithMany(x => x.GameTags)
                     .HasForeignKey(x => x.TagId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -149,7 +149,7 @@ namespace GameHub.EntityFrameworkCore
 
                 b.HasIndex(x => x.UserId).IsUnique();
 
-                b.HasOne<Eaf.Middleware.Authorization.Users.User>()
+                b.HasOne(x => x.User)
                     .WithMany()
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
@@ -175,7 +175,7 @@ namespace GameHub.EntityFrameworkCore
                     .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                b.HasOne<Eaf.Middleware.Authorization.Users.User>()
+                b.HasOne(x => x.User)
                     .WithMany()
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.SetNull);
@@ -243,7 +243,7 @@ namespace GameHub.EntityFrameworkCore
                     .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                b.HasOne<Eaf.Middleware.Authorization.Users.User>()
+                b.HasOne(x => x.User)
                     .WithMany()
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
@@ -272,7 +272,7 @@ namespace GameHub.EntityFrameworkCore
                     .HasForeignKey(x => x.GameBuildId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                b.HasOne<Eaf.Middleware.Authorization.Users.User>()
+                b.HasOne(x => x.Reviewer)
                     .WithMany()
                     .HasForeignKey(x => x.ReviewerUserId)
                     .OnDelete(DeleteBehavior.SetNull);
@@ -296,12 +296,12 @@ namespace GameHub.EntityFrameworkCore
                     .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                b.HasOne<ModerationReview>()
+                b.HasOne(x => x.ModerationReview)
                     .WithMany(x => x.UserReports)
                     .HasForeignKey(x => x.ModerationReviewId)
                     .OnDelete(DeleteBehavior.SetNull);
 
-                b.HasOne<Eaf.Middleware.Authorization.Users.User>()
+                b.HasOne(x => x.User)
                     .WithMany()
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.SetNull);

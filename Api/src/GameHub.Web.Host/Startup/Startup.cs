@@ -70,11 +70,19 @@ namespace GameHub.Web.Startup
             services.AddEafOpenTelemetry(options =>
             {
                 options.ConsoleExporter = false;
-                options.OtlpEndpoint = "https://otlp.nr-data.net";
-                var otlpHeaders = _appConfiguration["OpenTelemetry:OtlpHeaders"];
+                options.OtlpEndpoint = _appConfiguration["OpenTelemetry:OtlpEndpoint"]
+                    ?? _appConfiguration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+                    ?? "https://otlp.nr-data.net:4318";
+                options.OtlpVariables["OTEL_EXPORTER_OTLP_ENDPOINT"] = options.OtlpEndpoint;
+
+                var otlpHeaders = _appConfiguration["OpenTelemetry:OtlpHeaders"]
+                    ?? _appConfiguration["OTEL_EXPORTER_OTLP_HEADERS"];
                 if (!string.IsNullOrEmpty(otlpHeaders))
                     options.OtlpVariables["OTEL_EXPORTER_OTLP_HEADERS"] = otlpHeaders;
-                options.OtlpVariables["OTEL_EXPORTER_OTLP_PROTOCOL"] = "http/protobuf";
+
+                options.OtlpVariables["OTEL_EXPORTER_OTLP_PROTOCOL"] = _appConfiguration["OpenTelemetry:OtlpProtocol"]
+                    ?? _appConfiguration["OTEL_EXPORTER_OTLP_PROTOCOL"]
+                    ?? "http/protobuf";
                 options.ServiceName = "GameHub";
                 options.SourceName = new[]
                 {
