@@ -54,7 +54,7 @@ if [ ! -f ".env" ]; then
                         echo "${key}=gamehub_user"
                         ;;
                     REDIS_CONNECTION)
-                        echo "${key}=host.docker.internal:6379"
+                        echo "${key}=host.docker.internal:6379,abortConnect=false"
                         ;;
                     STORAGE_PROVIDER)
                         echo "${key}=MinIO"
@@ -123,6 +123,13 @@ fi
 
 echo "=============================================="
 echo ".env encontrado."
+
+# Garante abortConnect=false na connection string do Redis para nao falhar no startup
+if grep -qE '^REDIS_CONNECTION=' .env && ! grep -qE '^REDIS_CONNECTION=.*abortConnect=false' .env; then
+    sed -i 's|^\(REDIS_CONNECTION=.*\)|\1,abortConnect=false|' .env
+    echo "Ajustada REDIS_CONNECTION para abortConnect=false (evita crash quando Redis nao esta disponivel no startup)."
+fi
+
 echo "Executando pull, build e up dos containers..."
 echo "=============================================="
 echo ""
