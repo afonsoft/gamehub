@@ -1157,7 +1157,10 @@ body .ui-table .ui-table-tbody>tr {
 
 .m-switch-label {
     display: inline-block;
-    margin: 7px;
+    margin: 0 0 0 12px;
+    vertical-align: top;
+    line-height: 34px;
+    width: calc(100% - 75px);
 }
 
 .m-link:hover {

@@ -20,7 +20,6 @@ export class AppNavigationService {
     return new AppMenu('MainMenu', 'MainMenu', [
       new AppMenuItem('Dashboard', 'Pages.Dashboard', 'flaticon-line-graph', '/app/main/dashboard'),
       new AppMenuItem('Tenants', 'Pages.Tenants', 'flaticon-squares-4', '/app/admin/tenants'),
-      new AppMenuItem('Airplanes', 'Pages.Airplanes', 'flaticon-paper-plane', '/app/main/airplanes'),
     ]);
   }
 
@@ -33,8 +32,6 @@ export class AppNavigationService {
       new AppMenuItem('VisualSettings', 'Pages.Administration.UiCustomization', 'flaticon-imac', '/app/admin/ui-customization'),
       new AppMenuItem('Maintenance', 'Pages.Administration.Maintenance', 'flaticon-lock', '/app/admin/maintenance'),
       new AppMenuItem('Settings', 'Pages.Administration.Settings', 'flaticon-settings', '/app/admin/settings'),
-      new AppMenuItem('Parameters', 'Pages.Administration.Maintenance', 'flaticon-lock', '/app/admin/parameters'),
-      new AppMenuItem('Jobs', 'Pages.Administration.HangfireDashboard', 'flaticon-line-graph', '/app/admin/hangfire'),
     ]);
   }
 

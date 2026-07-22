@@ -23,7 +23,7 @@ namespace GameHub.Tests.Localization
 
             var localizationManager = Resolve<ILocalizationManager>();
 
-            // Obter a string localizada e verificar se n„o est· vazia
+            // Obter a string localizada e verificar se n√£o est√° vazia
             var localizedString = localizationManager.GetString(AbpConsts.LocalizationSourceName, "Identity.UserNotInRole");
             localizedString.ShouldNotBeNullOrEmpty();
         }

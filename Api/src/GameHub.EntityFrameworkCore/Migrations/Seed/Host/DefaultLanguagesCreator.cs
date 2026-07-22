@@ -16,9 +16,9 @@ namespace GameHub.Migrations.Seed.Host
             var tenantId = GameHubConsts.MultiTenancyEnabled ? null : (int?)1;
             return new List<ApplicationLanguage>
             {
-                new ApplicationLanguage(tenantId, "pt-BR", "Português (Brasil)", "famfamfam-flags br"),
+                new ApplicationLanguage(tenantId, "pt-BR", "PortuguÃªs (Brasil)", "famfamfam-flags br"),
                 new ApplicationLanguage(tenantId, "en", "English", "famfamfam-flags us"),
-                new ApplicationLanguage(tenantId, "es", "Español", "famfamfam-flags es")
+                new ApplicationLanguage(tenantId, "es", "EspaÃ±ol", "famfamfam-flags es")
             };
         }
 
@@ -33,10 +33,19 @@ namespace GameHub.Migrations.Seed.Host
         {
             foreach (var language in InitialLanguages)
             {
-                if (_context.Languages.IgnoreQueryFilters().Any(l => l.TenantId == language.TenantId && l.Name == language.Name))
-                    continue;
+                var existingLanguage = _context.Languages.IgnoreQueryFilters()
+                    .FirstOrDefault(l => l.TenantId == language.TenantId && l.Name == language.Name);
 
-                _context.Languages.Add(language);
+                if (existingLanguage != null)
+                {
+                    existingLanguage.DisplayName = language.DisplayName;
+                    existingLanguage.Icon = language.Icon;
+                }
+                else
+                {
+                    _context.Languages.Add(language);
+                }
+
                 _context.SaveChanges();
             }
         }
