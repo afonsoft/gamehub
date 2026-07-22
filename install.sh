@@ -41,6 +41,27 @@ if [ ! -f ".env" ]; then
                     ASPNETCORE_ENVIRONMENT)
                         echo "${key}=Production"
                         ;;
+                    POSTGRES_HOST)
+                        echo "${key}=host.docker.internal"
+                        ;;
+                    POSTGRES_PORT)
+                        echo "${key}=5432"
+                        ;;
+                    POSTGRES_DB)
+                        echo "${key}=gamehub"
+                        ;;
+                    POSTGRES_USER)
+                        echo "${key}=gamehub"
+                        ;;
+                    REDIS_CONNECTION)
+                        echo "${key}=host.docker.internal:6379"
+                        ;;
+                    STORAGE_PROVIDER)
+                        echo "${key}=MinIO"
+                        ;;
+                    MINIO_ENDPOINT)
+                        echo "${key}=http://host.docker.internal:9000"
+                        ;;
                     GAMEHUB_API_URL)
                         echo "${key}=https://gamehub-api.afonsoft.dev/"
                         ;;
