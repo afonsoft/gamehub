@@ -1,4 +1,56 @@
 services:
+  postgres:
+    image: postgres:16
+    container_name: gamehub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gamehub}
+      POSTGRES_USER: ${POSTGRES_USER:-gamehub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gamehub} -d ${POSTGRES_DB:-gamehub}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - gamehub
+
+  redis:
+    image: redis:7
+    container_name: gamehub-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - gamehub
+
+  minio:
+    image: minio/minio
+    container_name: gamehub-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-gamehub_user}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gamehub
+
   backend:
     build:
       context: ./Api
@@ -8,11 +60,18 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       Database__Provider: PostgreSQL
-      ConnectionStrings__Default: Host=postgres;Database=${POSTGRES_DB:-gamehub};Username=${POSTGRES_USER:-gamehub};Password=${POSTGRES_PASSWORD:-change-me}
+      ConnectionStrings__Default: Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-gamehub};Username=${POSTGRES_USER:-gamehub};Password=${POSTGRES_PASSWORD:-change-me}
       RedisCache__IsEnabled: "true"
-      RedisCache__ConnectionString: redis:6379
+      RedisCache__ConnectionString: ${REDIS_CONNECTION:-redis:6379},abortConnect=false
       RedisCache__DatabaseId: "0"
       Hangfire__IsEnabled: "false"
+      Storage__Provider: ${STORAGE_PROVIDER:-MinIO}
+      Storage__Minio__Endpoint: ${MINIO_ENDPOINT:-http://minio:9000}
+      Storage__Minio__AccessKey: ${MINIO_ACCESS_KEY:-gamehub_user}
+      Storage__Minio__SecretKey: ${MINIO_SECRET_KEY:-}
+      Storage__Minio__Bucket: ${MINIO_BUCKET:-gamehub-builds}
+      Storage__Minio__Region: ${MINIO_REGION:-us-east-1}
+      Storage__Minio__ForcePathStyle: "true"
       App__ServerRootAddress: ${GAMEHUB_API_URL:-https://gamehub-api.afonsoft.dev/}
       App__ClientRootAddress: ${GAMEHUB_HUB_URL:-https://gamehub.afonsoft.dev/}
       App__CorsOrigins: ${GAMEHUB_CORS_ORIGINS:-https://gamehub.afonsoft.dev,https://gamehub-admin.afonsoft.dev}
@@ -20,6 +79,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     ports:
       - "4601:80"
@@ -54,6 +115,9 @@ services:
       - "4602:80"
     networks:
       - gamehub
+
+volumes:
+  pgdata:
 
 networks:
   gamehub:

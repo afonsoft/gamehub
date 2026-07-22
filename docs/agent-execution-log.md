@@ -1,5 +1,22 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-22 02:50 UTC
+
+### Tarefa
+Ajustar `docker-compose.yml` raiz para subir a pilha completa (Postgres, Redis, MinIO, API, Hub, Admin) e evitar crash do backend quando o Redis/Postgres do host estiver indisponível no startup. Também adicionar `minio-data/` no `.gitignore`.
+
+### Arquivos alterados
+- `docker-compose.yml` — adicionados serviços `postgres`, `redis` e `minio` com healthchecks; backend usa variáveis de ambiente (`POSTGRES_HOST`, `REDIS_CONNECTION`, `MINIO_ENDPOINT`) com defaults para os serviços internos e `,abortConnect=false` na connection string do Redis.
+- `.gitignore` — ignorada a pasta `minio-data/` gerada pelo volume do MinIO.
+- `docs/agent-execution-log.md` — registro desta execução.
+
+### Motivação
+O `docker-compose.yml` raiz continha `depends_on` para `postgres` e `redis`, mas os serviços não estavam declarados. Além disso, sem `abortConnect=false` o `StackExchange.Redis` abortava o startup da API quando não conseguia conectar no Redis do host.
+
+### Resultado
+- `docker compose -f docker-compose.yml config` valida sem erros.
+- O backend inicia mesmo se o Redis/Postgres do host ainda não estiver disponível, reconectando em background.
+
 ## 2026-07-21 16:10 UTC
 
 ### Tarefa
