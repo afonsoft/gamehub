@@ -11,7 +11,7 @@ namespace GameHub.Developer
     /// <summary>
     /// Permite ao desenvolvedor gerenciar seu próprio perfil.
     /// </summary>
-    public class DeveloperProfileAppService : ApplicationService, IDeveloperProfileAppService
+    public class DeveloperProfileAppService : GameHubAppServiceBase, IDeveloperProfileAppService
     {
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
 

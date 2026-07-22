@@ -43,7 +43,9 @@ namespace GameHub.Builds
                 using (var zip = new ZipArchive(packageStream, ZipArchiveMode.Read, leaveOpen: true))
                 {
                     var entries = zip.Entries;
-                    summary.HasIndexHtml = entries.Any(e => e.FullName.Equals("index.html", StringComparison.OrdinalIgnoreCase));
+                    var indexEntry = entries.FirstOrDefault(e => e.FullName.Equals("index.html", StringComparison.OrdinalIgnoreCase));
+                    summary.HasIndexHtml = indexEntry != null;
+                    summary.IndexHtmlPath = summary.HasIndexHtml ? indexEntry.FullName : string.Empty;
 
                     if (!summary.HasIndexHtml)
                     {

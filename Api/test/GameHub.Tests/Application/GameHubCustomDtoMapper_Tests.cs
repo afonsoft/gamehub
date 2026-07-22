@@ -1,7 +1,8 @@
 using Abp.ObjectMapping;
-using GameHub.Airplanes;
-using GameHub.Airplanes.Dtos;
+using GameHub.Catalog;
+using GameHub.Catalog.Dto;
 using Shouldly;
+using System;
 using Xunit;
 
 namespace GameHub.Tests.Application
@@ -16,53 +17,58 @@ namespace GameHub.Tests.Application
         }
 
         [Fact]
-        public void Dado_MapperConfigurado_Quando_MapearAirplaneParaDto_Entao_DeveMapearCorretamente()
+        public void Dado_MapperConfigurado_Quando_MapearGameParaGameCardDto_Entao_DeveMapearCorretamente()
         {
-            var airplane = new Airplane
+            var game = new Game(Guid.NewGuid(), "Game Title", "game-title", "Short description", Guid.NewGuid())
             {
-                Number = "MAP-001",
-                Model = "Boeing 737",
-                TenantId = 1
+                ThumbnailUrl = "https://cdn/game.png",
+                TotalPlays = 42
             };
 
-            var dto = _objectMapper.Map<AirplaneDto>(airplane);
+            var dto = _objectMapper.Map<GameCardDto>(game);
 
             dto.ShouldNotBeNull();
-            dto.Number.ShouldBe("MAP-001");
-            dto.Model.ShouldBe("Boeing 737");
+            dto.Title.ShouldBe("Game Title");
+            dto.Slug.ShouldBe("game-title");
+            dto.ShortDescription.ShouldBe("Short description");
+            dto.ThumbnailUrl.ShouldBe("https://cdn/game.png");
+            dto.TotalPlays.ShouldBe(42);
+            dto.SupportsMobile.ShouldBeTrue();
+            dto.SupportsDesktop.ShouldBeTrue();
         }
 
         [Fact]
-        public void Dado_MapperConfigurado_Quando_MapearDtoParaAirplane_Entao_DeveMapearCorretamente()
+        public void Dado_MapperConfigurado_Quando_MapearCategoryParaCategoryDto_Entao_DeveMapearCorretamente()
         {
-            var dto = new CreateOrEditAirplaneDto
+            var category = new Category
             {
-                Number = "MAP-002",
-                Model = "Airbus A320"
+                Id = Guid.NewGuid(),
+                Name = "Action",
+                Slug = "action",
+                SortOrder = 1,
+                IsActive = true
             };
 
-            var airplane = _objectMapper.Map<Airplane>(dto);
+            var dto = _objectMapper.Map<CategoryDto>(category);
 
-            airplane.ShouldNotBeNull();
-            airplane.Number.ShouldBe("MAP-002");
-            airplane.Model.ShouldBe("Airbus A320");
+            dto.ShouldNotBeNull();
+            dto.Id.ShouldBe(category.Id);
+            dto.Name.ShouldBe("Action");
+            dto.Slug.ShouldBe("action");
+            dto.SortOrder.ShouldBe(1);
         }
 
         [Fact]
-        public void Dado_MapperConfigurado_Quando_MapearComPropriedadesNulas_Entao_DeveMapear()
+        public void Dado_MapperConfigurado_Quando_MapearGameSemDescricao_Entao_DevePreencherValoresPadrao()
         {
-            var airplane = new Airplane
-            {
-                Number = "MAP-003",
-                Model = "Cessna 172",
-                TenantId = null
-            };
+            var game = new Game(Guid.NewGuid(), "Minimal Game", "minimal-game", string.Empty, Guid.NewGuid());
 
-            var dto = _objectMapper.Map<AirplaneDto>(airplane);
+            var dto = _objectMapper.Map<GameCardDto>(game);
 
             dto.ShouldNotBeNull();
-            dto.Number.ShouldBe("MAP-003");
-            dto.Model.ShouldBe("Cessna 172");
+            dto.Title.ShouldBe("Minimal Game");
+            dto.ShortDescription.ShouldBeEmpty();
+            dto.Categories.ShouldNotBeNull();
         }
     }
 }

@@ -8,7 +8,7 @@ using GameHub.Gameplay.Dto;
 
 namespace GameHub.Gameplay
 {
-    public class LeaderboardAppService : ApplicationService, ILeaderboardAppService
+    public class LeaderboardAppService : GameHubAppServiceBase, ILeaderboardAppService
     {
         private readonly ILeaderboardCache _leaderboardCache;
         private readonly IRepository<LeaderboardEntry, Guid> _leaderboardEntryRepository;

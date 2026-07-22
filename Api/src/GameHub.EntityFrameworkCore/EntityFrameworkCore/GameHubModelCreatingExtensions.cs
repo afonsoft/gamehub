@@ -166,9 +166,11 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Browser).IsRequired().HasMaxLength(64);
                 b.Property(x => x.CountryCode).HasMaxLength(2);
                 b.Property(x => x.Referrer).HasMaxLength(1024);
+                b.Property(x => x.ClientRequestId).HasMaxLength(64);
 
                 b.HasIndex(x => new { x.GameId, x.StartedAt });
                 b.HasIndex(x => x.UserId);
+                b.HasIndex(x => new { x.GameId, x.ClientRequestId });
 
                 b.HasOne(x => x.Game)
                     .WithMany(x => x.PlaySessions)

@@ -1,4 +1,4 @@
-using GameHub.Airplanes;
+using GameHub.Catalog;
 using GameHub.EntityHistory;
 using Shouldly;
 using System;
@@ -19,11 +19,11 @@ namespace GameHub.Tests.Core.Application.EntityHistory
         }
 
         [Fact]
-        public void Dado_EntityHistoryHelper_Quando_VerificarTrackedTypes_Entao_DeveConterAirplane()
+        public void Dado_EntityHistoryHelper_Quando_VerificarTrackedTypes_Entao_DeveConterGame()
         {
             var trackedTypes = EntityHistoryHelper.TrackedTypes;
 
-            trackedTypes.ShouldContain(typeof(Airplane));
+            trackedTypes.ShouldContain(typeof(Game));
         }
 
         [Fact]

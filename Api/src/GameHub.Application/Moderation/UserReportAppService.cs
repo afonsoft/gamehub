@@ -11,7 +11,7 @@ namespace GameHub.Moderation
     /// <summary>
     /// Permite que jogadores reportem jogos ou conteúdo inadequado.
     /// </summary>
-    public class UserReportAppService : ApplicationService, IUserReportAppService
+    public class UserReportAppService : GameHubAppServiceBase, IUserReportAppService
     {
         private readonly IRepository<UserReport, Guid> _userReportRepository;
         private readonly IRepository<Game, Guid> _gameRepository;

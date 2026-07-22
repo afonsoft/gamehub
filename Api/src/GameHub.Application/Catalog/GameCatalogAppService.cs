@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Catalog
 {
-    public class GameCatalogAppService : ApplicationService, IGameCatalogAppService
+    public class GameCatalogAppService : GameHubAppServiceBase, IGameCatalogAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<Category, Guid> _categoryRepository;

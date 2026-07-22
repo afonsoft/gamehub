@@ -7,7 +7,6 @@ using Eaf.Middleware.Friendships;
 using Eaf.Middleware.MultiTenancy;
 using Eaf.Middleware.Storage;
 using GameHub;
-using GameHub.Airplanes;
 using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Developers;
@@ -64,7 +63,6 @@ namespace GameHub.EntityFrameworkCore
 
         /* Define an IDbSet for each entity of the application */
 
-        public virtual DbSet<Airplane> Airplanes { get; set; }
         public virtual DbSet<BinaryObject> BinaryObjects { get; set; }
         public virtual DbSet<Friendship> Friendships { get; set; }
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }

@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Admin
 {
-    public class AdminGameAppService : ApplicationService, IAdminGameAppService
+    public class AdminGameAppService : GameHubAppServiceBase, IAdminGameAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
@@ -96,15 +96,13 @@ namespace GameHub.Admin
         public async Task PublishAsync(PublishGameInput input)
         {
             var game = await _gameRepository.GetAsync(input.GameId);
-            game.Publish();
+            var build = await _buildRepository.GetAsync(input.GameBuildId);
 
-            var build = game.PublishedBuildId.HasValue
-                ? await _buildRepository.GetAsync(game.PublishedBuildId.Value)
-                : null;
-
-            build?.Publish();
+            build.Publish();
+            game.SetPublishedBuild(build);
 
             await _catalogCache.InvalidateHomeAsync();
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
 
         public async Task SuspendAsync(SuspendGameInput input)

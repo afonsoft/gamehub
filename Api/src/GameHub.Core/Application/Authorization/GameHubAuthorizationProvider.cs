@@ -11,11 +11,6 @@ namespace GameHub.Authorization
         {
             var pages = context.GetPermissionOrNull(MiddlewarePermissions.Pages) ?? context.CreatePermission(MiddlewarePermissions.Pages, LEaf("Pages"));
 
-            var airplanes = pages.CreateChildPermission(GameHubPermissions.Pages_Airplanes, L("Airplanes"));
-            airplanes.CreateChildPermission(GameHubPermissions.Pages_Airplanes_Create, L("CreateNewAirplane"));
-            airplanes.CreateChildPermission(GameHubPermissions.Pages_Airplanes_Edit, L("EditAirplane"));
-            airplanes.CreateChildPermission(GameHubPermissions.Pages_Airplanes_Delete, L("DeleteAirplane"));
-
             RegisterGameHubPermissions(pages);
         }
 

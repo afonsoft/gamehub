@@ -18,4 +18,8 @@ public class PublishGameInput
     /// <summary>Game to publish.</summary>
     [Required]
     public Guid GameId { get; set; }
+
+    /// <summary>Approved build to publish.</summary>
+    [Required]
+    public Guid GameBuildId { get; set; }
 }

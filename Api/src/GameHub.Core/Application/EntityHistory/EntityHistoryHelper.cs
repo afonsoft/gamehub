@@ -3,7 +3,7 @@ using Abp.Configuration;
 using Eaf.Middleware.Authorization.Roles;
 using Eaf.Middleware.Authorization.Users;
 using Eaf.Middleware.MultiTenancy;
-using GameHub.Airplanes;
+using GameHub.Catalog;
 using System;
 using System.Linq;
 
@@ -18,7 +18,7 @@ namespace GameHub.EntityHistory
             typeof(User),
             typeof(Setting),
             typeof(FeatureSetting),
-            typeof(Airplane)
+            typeof(Game)
         };
 
         public static Type[] TrackedTypes { get; } = GameHubTrackedTypes

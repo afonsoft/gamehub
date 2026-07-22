@@ -13,5 +13,8 @@ namespace GameHub.Developer.Dto
         public string HashSha256 { get; set; } = string.Empty;
 
         public bool HasIndexHtml { get; set; }
+
+        /// <summary>Relative path of the index.html entry inside the ZIP.</summary>
+        public string IndexHtmlPath { get; set; } = string.Empty;
     }
 }

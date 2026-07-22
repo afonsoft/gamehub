@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
-using GameHub.Airplanes;
-using GameHub.Airplanes.Dtos;
 using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Catalog.Dto;
@@ -23,9 +21,6 @@ namespace GameHub
         public static void CreateMappings(IMapperConfigurationExpression configuration)
         {
             /* ADD YOUR OWN CUSTOM AUTOMAPPER MAPPINGS HERE */
-
-            configuration.CreateMap<CreateOrEditAirplaneDto, Airplane>();
-            configuration.CreateMap<Airplane, AirplaneDto>();
 
             // Catalog
             configuration.CreateMap<Category, CategoryDto>();

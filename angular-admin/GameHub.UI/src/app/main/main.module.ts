@@ -14,9 +14,6 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { BsDatepickerModule, BsDatepickerConfig, BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { NgxBootstrapDatePickerConfigService } from 'assets/lib/ngx-bootstrap/ngx-bootstrap-datepicker-config.service';
-import { AirplanesComponent } from './airplanes/airplanes.component';
-import { CreateOrEditAirplaneModalComponent } from './airplanes/create-or-edit-airplane-modal.component';
-
 import { InputMaskModule } from 'primeng/inputmask';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { FileUploadModule as PrimeNgFileUploadModule } from 'primeng/fileupload';
@@ -62,7 +59,7 @@ NgxBootstrapDatePickerConfigService.registerNgxBootstrapDatePickerLocales();
     InputMaskModule,
     NgxChartsModule,
   ],
-  declarations: [DashboardComponent, AirplanesComponent, CreateOrEditAirplaneModalComponent],
+  declarations: [DashboardComponent],
   providers: [
     provideNgxMask(),
     { provide: BsDatepickerConfig, useFactory: NgxBootstrapDatePickerConfigService.getDatepickerConfig },

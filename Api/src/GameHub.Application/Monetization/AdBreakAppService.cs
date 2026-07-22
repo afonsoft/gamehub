@@ -7,7 +7,7 @@ namespace GameHub.Monetization
     /// <summary>
     /// Serviço de monetização: orquestra breaks comerciais e rewarded ads via IAdProvider.
     /// </summary>
-    public class AdBreakAppService : ApplicationService, IAdBreakAppService
+    public class AdBreakAppService : GameHubAppServiceBase, IAdBreakAppService
     {
         private readonly IAdProvider _adProvider;
 
