@@ -8,6 +8,26 @@
       </div>
     </div>
     <div class="m-portlet__body">
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <select class="form-control" [(ngModel)]="status" (change)="onStatusChange()">
+            <option value="">All statuses</option>
+            <option value="Uploaded">Uploaded</option>
+            <option value="Approved">Approved</option>
+            <option value="Published">Published</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group">
+            <input type="text" class="form-control" [(ngModel)]="searchText" placeholder="Search by game or developer" (keyup.enter)="onSearch()" />
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="button" (click)="onSearch()">Search</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <p-table [value]="builds" [lazy]="true" (onLazyLoad)="loadBuilds($event)" [paginator]="true"
                [rows]="maxResultCount" [totalRecords]="totalCount" [loading]="loading"
                [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
@@ -29,7 +49,7 @@
             <td>{{ build.developerName }}</td>
             <td>{{ build.version }}</td>
             <td><span class="m-badge m-badge--info">{{ build.status }}</span></td>
-            <td>{{ build.sizeBytes | number }} bytes</td>
+            <td>{{ formatBytes(build.sizeBytes) }}</td>
             <td>{{ build.createdAt | date:'short' }}</td>
             <td>
               <a [routerLink]="['/app/main/gamehub/uploads', build.id]" class="btn btn-sm btn-primary">Files</a>
