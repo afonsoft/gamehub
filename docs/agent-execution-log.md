@@ -662,3 +662,19 @@ O `GetAll` funcionava porque não disparava o cache ABP; `GetCurrentLoginInforma
 - `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
 - `dotnet test Api/GameHub.sln -c Release --no-build` — 170 passaram, 1 skipped.
 - `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+
+## 2026-07-23 20:10 UTC
+
+### Tarefa
+Criar novos specs baseados no site e na documentação da Poki, mapeando conceitos e requisitos de uma plataforma de jogos web madura para o GameHub.
+
+### Arquivos alterados
+- `.specs/18-poki-referencia.md` — referência de funcionalidades, SDK, requisitos, qualidade, monetização e mapeamento para o GameHub.
+- `.specs/19-poki-backlog.md` — backlog de melhorias por fase inspiradas na Poki.
+
+### Motivação
+Usar a Poki como referência de mercado para evoluir o GameHub sem copiar marca, layout ou conteúdo, focando em UX pública, developer portal, SDK, cloud saves, monetização, qualidade e inspector.
+
+### Resultado
+- Novos specs criados e prontos para revisão.
+- Branch `feature/poki-specs` criada a partir de `main`.
