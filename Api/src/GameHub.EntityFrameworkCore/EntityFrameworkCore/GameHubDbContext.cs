@@ -81,6 +81,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<GameplayEvent> GameplayEvents { get; set; }
         public virtual DbSet<GameMetricSnapshot> GameMetricSnapshots { get; set; }
         public virtual DbSet<LeaderboardEntry> LeaderboardEntries { get; set; }
+        public virtual DbSet<CloudSave> CloudSaves { get; set; }
         public virtual DbSet<ModerationReview> ModerationReviews { get; set; }
         public virtual DbSet<UserReport> UserReports { get; set; }
         public virtual DbSet<GameVote> GameVotes { get; set; }

@@ -254,6 +254,27 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            modelBuilder.Entity<CloudSave>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "CloudSaves", GameHubConsts.DbSchema);
+
+                b.Property(x => x.DeviceIdHash).HasMaxLength(128);
+                b.Property(x => x.Data).HasMaxLength(4000000);
+
+                b.HasIndex(x => new { x.GameId, x.UserId }).IsUnique();
+                b.HasIndex(x => new { x.GameId, x.DeviceIdHash });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<ModerationReview>(b =>
             {
                 b.ToTable(GameHubConsts.DbTablePrefix + "ModerationReviews", GameHubConsts.DbSchema);

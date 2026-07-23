@@ -1,5 +1,30 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 23:25 UTC
+
+### Tarefa
+Executar o spec `19.3-poki-sdk-cloud-saves.md`: SDK Promises, Cloud Saves, login/getUser/getToken e fallback local em modo anônimo.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Gameplay/CloudSave.cs` — entidade de save na nuvem.
+- `Api/src/GameHub.Application/Gameplay/ICloudSaveAppService.cs`, `CloudSaveAppService.cs`, `Dto/GetCloudSaveInput.cs`, `SaveCloudSaveInput.cs`, `CloudSaveDto.cs` — serviço de cloud save com limite de 1 MB e fallback.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs` — `DbSet<CloudSave>`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubModelCreatingExtensions.cs` — mapeamento e índices de `CloudSave`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260723231*_AddCloudSaves.*` — migração gerada.
+- `Api/test/GameHub.Tests/GameHub/Application/CloudSaveAppService_Tests.cs` — testes de persistência e limite de tamanho.
+- `angular/public/gamehub-sdk.js` — `init` retorna Promise, handlers de `getPlayerData`/`setPlayerData`/`login`/`getUser`/`getToken`, IDs de requisição.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — handlers para as novas mensagens do SDK, armazenamento local com prefixos e chamadas ao backend quando logado.
+- `docs/agent-execution-log.md` — este registro.
+
+### Motivação
+Aproximar o SDK do portal do jogo do padrão Poki, permitindo persistência de progresso e login do jogador, com fallback seguro para modo anônimo/incognito.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 204 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- `dotnet ef migrations add AddCloudSaves` gerada com sucesso.
+
 ## 2026-07-23 23:08 UTC
 
 ### Tarefa
