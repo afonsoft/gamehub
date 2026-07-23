@@ -18,5 +18,11 @@ namespace GameHub.Admin.Dto
 
         /// <summary>Usuários ativos nos últimos 7 dias.</summary>
         public long ActiveUsers7d { get; set; }
+
+        /// <summary>Total de usuários cadastrados.</summary>
+        public long TotalUsers { get; set; }
+
+        /// <summary>Total de desenvolvedores cadastrados.</summary>
+        public long TotalDevelopers { get; set; }
     }
 }

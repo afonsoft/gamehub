@@ -42,6 +42,13 @@ export class GameHubAdminService {
     return this.http.get(`${this.baseUrl}/api/services/app/AuditLog/GetAll`, { params }).pipe(map(this.unwrapResult));
   }
 
+  getUsers(skipCount: number, maxResultCount: number): Observable<any> {
+    const params = new HttpParams()
+      .set('SkipCount', skipCount.toString())
+      .set('MaxResultCount', maxResultCount.toString());
+    return this.http.get(`${this.baseUrl}/api/services/app/AdminUser/GetAll`, { params }).pipe(map(this.unwrapResult));
+  }
+
   getGames(skipCount: number, maxResultCount: number, status?: string): Observable<any> {
     let params = new HttpParams()
       .set('SkipCount', skipCount.toString())

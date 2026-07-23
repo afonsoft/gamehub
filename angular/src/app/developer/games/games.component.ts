@@ -32,4 +32,19 @@ export class DeveloperGamesComponent implements OnInit {
       },
     });
   }
+
+  canSubmitForReview(game: GameSummary): boolean {
+    return game.status === 'Draft' || game.status === 'Rejected';
+  }
+
+  submitForReview(game: GameSummary): void {
+    this.developerService.submitForReview(game.id).subscribe({
+      next: () => {
+        game.status = 'InReview';
+      },
+      error: () => {
+        // Keep existing status; surface nothing for now.
+      },
+    });
+  }
 }

@@ -66,6 +66,9 @@ public class GameDetailDto
     /// <summary>Supports tablet browsers.</summary>
     public bool SupportsTablet { get; set; }
 
+    /// <summary>Assigned categories.</summary>
+    public List<CategoryDto> Categories { get; set; } = new();
+
     /// <summary>Assigned tags.</summary>
     public List<TagDto> Tags { get; set; } = new();
 

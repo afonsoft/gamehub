@@ -60,6 +60,10 @@ namespace GameHub.Tests.GameHub.Application
 
             result.Status.ShouldBe(GameBuildStatus.Validated.ToString());
             result.BuildId.ShouldNotBe(Guid.Empty);
+            result.Version.ShouldMatch("1.0.*");
+            result.ValidationSummary.ShouldNotBeNull();
+            result.ValidationSummary.IsValid.ShouldBeTrue();
+            result.ValidationSummary.HasIndexHtml.ShouldBeTrue();
 
             var build = await _buildRepository.GetAsync(result.BuildId);
             build.OriginalPackageUrl.ShouldBe($"http://minio/gamehub/builds/{gameId:N}/{result.BuildId:N}/build.zip");
@@ -72,12 +76,16 @@ namespace GameHub.Tests.GameHub.Application
         public async Task Dado_PackageSemIndexHtml_Quando_UploadBuild_Entao_RetornaValidationFailed()
         {
             var gameId = await SeedGameAsync();
-            var stream = new MemoryStream(new byte[] { 0x01, 0x02, 0x03 });
+            using var stream = CreateZipWithoutIndex();
 
             var result = await _gameBuildAppService.UploadBuildAsync(gameId, stream, "build.zip", "application/zip");
 
             result.Status.ShouldBe(GameBuildStatus.ValidationFailed.ToString());
             result.BuildId.ShouldBe(Guid.Empty);
+            result.ValidationSummary.ShouldNotBeNull();
+            result.ValidationSummary.IsValid.ShouldBeFalse();
+            result.ValidationSummary.HasIndexHtml.ShouldBeFalse();
+            result.ValidationSummary.Errors.ShouldContain(e => e.Contains("index.html"));
         }
 
         private static Stream CreateZipStream()
@@ -90,6 +98,22 @@ namespace GameHub.Tests.GameHub.Application
                 using (var writer = new StreamWriter(s))
                 {
                     writer.Write("<html></html>");
+                }
+            }
+            stream.Position = 0;
+            return stream;
+        }
+
+        private static Stream CreateZipWithoutIndex()
+        {
+            var stream = new MemoryStream();
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                var entry = zip.CreateEntry("readme.txt");
+                using (var s = entry.Open())
+                using (var writer = new StreamWriter(s))
+                {
+                    writer.Write("No index here");
                 }
             }
             stream.Position = 0;

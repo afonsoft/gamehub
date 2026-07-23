@@ -23,7 +23,7 @@ namespace GameHub.Tests.Authorization.Users
             output.User.Name.ShouldBe(null);
             output.User.Password.ShouldBe(null);
 
-            output.Roles.Length.ShouldBe(1);
+            output.Roles.Length.ShouldBe(3);
             output.Roles.Any(r => r.RoleName == StaticRoleNames.Host.Admin).ShouldBe(true);
             output.Roles.Single(r => r.RoleName == StaticRoleNames.Host.Admin).IsAssigned.ShouldBe(true);
         }

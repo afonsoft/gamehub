@@ -24,8 +24,8 @@ namespace GameHub.Tests.Authorization.Roles
             //Act
             var output = await _roleAppService.GetRoles(new GetRolesInput());
 
-            //Assert
-            output.Items.Count.ShouldBe(1);
+            //Assert: Admin, Developer, Player
+            output.Items.Count.ShouldBe(3);
         }
 
         [Fact]

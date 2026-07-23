@@ -9,6 +9,7 @@ using GameHub.Authorization;
 using GameHub.Catalog;
 using GameHub.Developer.Dto;
 using GameHub.Storage;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Builds
 {
@@ -38,30 +39,19 @@ namespace GameHub.Builds
 
             if (packageStream.Length > GameHubConsts.MaxBuildPackageSizeBytes)
             {
-                return new UploadGameBuildResultDto
-                {
-                    BuildId = Guid.Empty,
-                    Version = fileName,
-                    Status = GameBuildStatus.ValidationFailed.ToString(),
-                    ValidationSummary = $"Package exceeds maximum size of {GameHubConsts.MaxBuildPackageSizeBytes} bytes."
-                };
+                return BuildFailedResult(fileName, $"Package exceeds maximum size of {GameHubConsts.MaxBuildPackageSizeBytes} bytes.");
             }
 
             var validation = await _validator.ValidateAsync(packageStream);
 
             if (!validation.IsValid)
             {
-                return new UploadGameBuildResultDto
-                {
-                    BuildId = Guid.Empty,
-                    Version = fileName,
-                    Status = GameBuildStatus.ValidationFailed.ToString(),
-                    ValidationSummary = string.Join("; ", validation.Errors)
-                };
+                return BuildFailedResult(fileName, string.Join("; ", validation.Errors), validation);
             }
 
             var buildId = Guid.NewGuid();
-            var buildNumber = (await _buildRepository.CountAsync(b => b.GameId == gameId)) + 1;
+            var buildNumber = await GetNextBuildNumberAsync(gameId);
+            var version = $"1.0.{buildNumber}";
 
             packageStream.Position = 0;
             var asset = await _assetStorage.StoreAsync(new GameBuildPackage
@@ -76,10 +66,10 @@ namespace GameHub.Builds
             var build = new GameBuild(
                 buildId,
                 gameId,
-                fileName,
+                version,
                 buildNumber,
                 asset.Url,
-                validation.SizeBytes,
+                validation.PackageSizeBytes,
                 validation.HashSha256)
             {
                 TenantId = AbpSession.TenantId,
@@ -94,9 +84,39 @@ namespace GameHub.Builds
             return new UploadGameBuildResultDto
             {
                 BuildId = buildId,
-                Version = fileName,
+                Version = version,
                 Status = build.Status.ToString(),
-                ValidationSummary = string.Join("; ", validation.Errors)
+                ValidationSummary = validation
+            };
+        }
+
+        private async Task<int> GetNextBuildNumberAsync(Guid gameId)
+        {
+            var max = await _buildRepository.GetAll()
+                .Where(b => b.GameId == gameId)
+                .Select(b => b.BuildNumber)
+                .DefaultIfEmpty()
+                .MaxAsync();
+
+            return max + 1;
+        }
+
+        private static UploadGameBuildResultDto BuildFailedResult(string fileName, string error, ValidationSummaryDto validation = null)
+        {
+            var summary = validation ?? new ValidationSummaryDto();
+            summary.IsValid = false;
+
+            if (!summary.Errors.Contains(error))
+            {
+                summary.Errors.Add(error);
+            }
+
+            return new UploadGameBuildResultDto
+            {
+                BuildId = Guid.Empty,
+                Version = fileName,
+                Status = GameBuildStatus.ValidationFailed.ToString(),
+                ValidationSummary = summary
             };
         }
     }

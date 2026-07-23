@@ -28,7 +28,8 @@ namespace GameHub.Builds
                 summary.Errors.Add($"Package exceeds maximum size of {GameHubConsts.MaxBuildPackageSizeBytes} bytes.");
             }
 
-            summary.SizeBytes = packageStream.Length;
+            summary.PackageSizeBytes = packageStream.Length;
+            summary.Warnings = new System.Collections.Generic.List<string>();
 
             packageStream.Position = 0;
             using (var sha = SHA256.Create())

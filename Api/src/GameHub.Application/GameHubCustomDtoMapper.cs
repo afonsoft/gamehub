@@ -44,6 +44,7 @@ namespace GameHub
 
             configuration.CreateMap<Game, GameDetailDto>()
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))
+                .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.GameTags))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
                 .ForMember(dest => dest.PublishedBuildUrl, opt => opt.MapFrom(src => BuildUrl(src.PublishedBuild)))
@@ -56,7 +57,8 @@ namespace GameHub
 
             configuration.CreateMap<Game, AdminGameListItemDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
-                .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty));
+                .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime));
 
             configuration.CreateMap<Game, AdminGameDetailDto>()
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))

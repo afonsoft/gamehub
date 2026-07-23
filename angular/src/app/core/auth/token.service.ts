@@ -3,9 +3,13 @@ import { Injectable } from '@angular/core';
 export interface TokenPayload {
   sub?: string;
   unique_name?: string;
+  name?: string;
   nameidentifier?: string;
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'?: string;
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'?: string;
   userId?: string;
   role?: string | string[];
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string | string[];
   exp?: number;
 }
 
@@ -64,7 +68,11 @@ export class TokenService {
 
   getUserId(): number | null {
     const payload = this.getPayload();
-    const raw = payload?.userId ?? payload?.nameidentifier ?? payload?.sub;
+    const raw =
+      payload?.userId ??
+      payload?.nameidentifier ??
+      payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
+      payload?.sub;
     if (!raw) {
       return null;
     }
@@ -73,12 +81,18 @@ export class TokenService {
   }
 
   getUserName(): string | null {
-    return this.getPayload()?.unique_name ?? null;
+    const payload = this.getPayload();
+    return (
+      payload?.unique_name ??
+      payload?.name ??
+      payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ??
+      null
+    );
   }
 
   getRoles(): string[] {
     const payload = this.getPayload();
-    const role = payload?.role;
+    const role = payload?.role ?? payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     if (!role) {
       return [];
     }

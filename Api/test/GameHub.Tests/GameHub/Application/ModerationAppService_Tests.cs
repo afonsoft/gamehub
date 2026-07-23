@@ -1,14 +1,17 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
-using GameHub;
 using GameHub.Admin;
 using GameHub.Admin.Dto;
 using GameHub.Builds;
 using GameHub.Catalog;
+using GameHub.Developer;
+using GameHub.Developer.Dto;
 using GameHub.Developers;
+using GameHub.Moderation;
 using Shouldly;
 using Xunit;
 
@@ -17,12 +20,18 @@ namespace GameHub.Tests.GameHub.Application
     public class ModerationAppService_Tests : GameHubTestBase
     {
         private readonly IAdminGameAppService _adminGameAppService;
+        private readonly IDeveloperGameAppService _developerGameAppService;
+        private readonly IModerationAppService _moderationAppService;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
+        private readonly IRepository<Game, Guid> _gameRepository;
 
         public ModerationAppService_Tests()
         {
             _adminGameAppService = LocalIocManager.Resolve<IAdminGameAppService>();
+            _developerGameAppService = LocalIocManager.Resolve<IDeveloperGameAppService>();
+            _moderationAppService = LocalIocManager.Resolve<IModerationAppService>();
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();
+            _gameRepository = LocalIocManager.Resolve<IRepository<Game, Guid>>();
         }
 
         [Fact]
@@ -49,6 +58,29 @@ namespace GameHub.Tests.GameHub.Application
 
             var updated = await _buildRepository.GetAsync(buildId);
             updated.Status.ShouldBe(GameBuildStatus.Rejected);
+        }
+
+        [Fact]
+        public async Task Dado_JogoSubmetido_Quando_CompletarReviewComAprovacao_Entao_BuildEAprovadoEJogoPublicado()
+        {
+            var gameId = await SeedGameAndSubmitForReviewAsync("Approve Review Game");
+
+            var reviews = await _moderationAppService.GetPendingReviewsAsync();
+            var pending = reviews.Items.FirstOrDefault(r => r.GameId == gameId);
+            pending.ShouldNotBeNull();
+
+            await _moderationAppService.CompleteReviewAsync(new CompleteReviewInput
+            {
+                ReviewId = pending.ReviewId,
+                Decision = ReviewDecision.Approved,
+                Notes = "Looks good."
+            });
+
+            var game = await _gameRepository.GetAsync(gameId);
+            game.Status.ShouldBe(GameStatus.Published);
+
+            var build = await _buildRepository.GetAsync(pending.GameBuildId);
+            build.Status.ShouldBe(GameBuildStatus.Approved);
         }
 
         private Guid SeedGameWithBuild(string title)
@@ -90,6 +122,31 @@ namespace GameHub.Tests.GameHub.Application
             });
 
             return buildId;
+        }
+
+        private async Task<Guid> SeedGameAndSubmitForReviewAsync(string title)
+        {
+            var draft = await _developerGameAppService.CreateDraftAsync(new CreateGameDraftInput
+            {
+                Title = title,
+                ShortDescription = "For moderation",
+                AgeRating = "E",
+                Orientation = "Both"
+            });
+
+            var buildId = Guid.NewGuid();
+            await UsingDbContextAsync(async context =>
+            {
+                await context.GameBuilds.AddAsync(new GameBuild(buildId, draft.Id, "1.0.0", 1, "/uploads/test.zip", 100, "hash")
+                {
+                    TenantId = AbpSession.TenantId,
+                    Status = GameBuildStatus.Validated
+                });
+                await context.SaveChangesAsync();
+            });
+
+            await _developerGameAppService.SubmitForReviewAsync(new SubmitGameForReviewInput { GameId = draft.Id, Notes = "" });
+            return draft.Id;
         }
     }
 }

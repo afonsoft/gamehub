@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { DeveloperService, CreateGameDraftInput } from '../../core/services/developer.service';
-import { GameCatalogService, Category } from '../../core/services/game-catalog.service';
+import { GameCatalogService, Category, Tag } from '../../core/services/game-catalog.service';
 
 @Component({
   selector: 'app-game-create',
@@ -27,6 +27,7 @@ export class GameCreateComponent implements OnInit {
     tagIds: [],
   };
   categories: Category[] = [];
+  tags: Tag[] = [];
   loading = false;
   error = '';
 
@@ -41,6 +42,15 @@ export class GameCreateComponent implements OnInit {
       },
       error: () => {
         this.categories = [];
+      },
+    });
+
+    this.catalog.getTags().subscribe({
+      next: tagList => {
+        this.tags = tagList ?? [];
+      },
+      error: () => {
+        this.tags = [];
       },
     });
   }
@@ -66,16 +76,29 @@ export class GameCreateComponent implements OnInit {
 
   toggleCategory(id: string): void {
     const list = this.input.categoryIds ?? [];
+    this.input.categoryIds = this.toggle(list, id);
+  }
+
+  hasCategory(id: string): boolean {
+    return (this.input.categoryIds ?? []).includes(id);
+  }
+
+  toggleTag(id: string): void {
+    const list = this.input.tagIds ?? [];
+    this.input.tagIds = this.toggle(list, id);
+  }
+
+  hasTag(id: string): boolean {
+    return (this.input.tagIds ?? []).includes(id);
+  }
+
+  private toggle(list: string[], id: string): string[] {
     const index = list.indexOf(id);
     if (index >= 0) {
       list.splice(index, 1);
     } else {
       list.push(id);
     }
-    this.input.categoryIds = [...list];
-  }
-
-  hasCategory(id: string): boolean {
-    return (this.input.categoryIds ?? []).includes(id);
+    return [...list];
   }
 }

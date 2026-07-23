@@ -41,6 +41,24 @@ namespace GameHub.Migrations.Seed.Host
                 isDefault: false);
 
             GrantPermissions(admin, AllPermissions());
+
+            var developer = GetOrCreateRole(
+                tenantId: null,
+                "Developer",
+                "Developer",
+                isStatic: false,
+                isDefault: false);
+
+            GrantPermissions(developer, DeveloperPermissions());
+
+            var player = GetOrCreateRole(
+                tenantId: null,
+                "Player",
+                "Player",
+                isStatic: false,
+                isDefault: true);
+
+            GrantPermissions(player, PlayerPermissions());
         }
 
         private void SeedDefaultTenantRoles()

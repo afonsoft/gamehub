@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Eaf.Middleware.Authorization.Users;
 using GameHub.Admin.Dto;
+using GameHub.Authorization;
 using GameHub.Catalog;
+using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Moderation;
 using Microsoft.EntityFrameworkCore;
@@ -15,23 +19,30 @@ namespace GameHub.Admin
     /// <summary>
     /// Expõe métricas e séries temporais para o dashboard administrativo.
     /// </summary>
+    [AbpAuthorize(GameHubPermissions.Pages_Dashboard_View)]
     public class AdminDashboardAppService : GameHubAppServiceBase, IAdminDashboardAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
+        private readonly IRepository<User, long> _userRepository;
+        private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
 
         public AdminDashboardAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<ModerationReview, Guid> reviewRepository,
             IRepository<PlaySession, Guid> playSessionRepository,
-            IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository)
+            IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
+            IRepository<User, long> userRepository,
+            IRepository<DeveloperProfile, Guid> developerProfileRepository)
         {
             _gameRepository = gameRepository;
             _reviewRepository = reviewRepository;
             _playSessionRepository = playSessionRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
+            _userRepository = userRepository;
+            _developerProfileRepository = developerProfileRepository;
         }
 
         public async Task<AdminDashboardSummaryDto> GetSummaryAsync()
@@ -49,12 +60,17 @@ namespace GameHub.Admin
                 .Distinct()
                 .CountAsync();
 
+            var totalUsers = await _userRepository.CountAsync(u => !u.IsDeleted);
+            var totalDevelopers = await _developerProfileRepository.CountAsync();
+
             return new AdminDashboardSummaryDto
             {
                 TotalGames = totalGames,
                 PendingReviews = pendingReviews,
                 TotalPlays = totalPlays,
-                ActiveUsers7d = activeUsers
+                ActiveUsers7d = activeUsers,
+                TotalUsers = totalUsers,
+                TotalDevelopers = totalDevelopers,
             };
         }
 

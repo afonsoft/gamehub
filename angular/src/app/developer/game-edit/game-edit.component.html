@@ -45,10 +45,35 @@
         <label><input type="checkbox" [(ngModel)]="input.supportsTablet" name="supportsTablet" /> Tablet</label>
       </fieldset>
 
+      <fieldset *ngIf="categories.length">
+        <legend>Categories</legend>
+        <label *ngFor="let category of categories">
+          <input
+            type="checkbox"
+            [checked]="hasCategory(category.id)"
+            (change)="toggleCategory(category.id)" />
+          {{ category.name }}
+        </label>
+      </fieldset>
+
+      <fieldset *ngIf="tags.length">
+        <legend>Tags</legend>
+        <label *ngFor="let tag of tags">
+          <input
+            type="checkbox"
+            [checked]="hasTag(tag.id)"
+            (change)="toggleTag(tag.id)" />
+          {{ tag.name }}
+        </label>
+      </fieldset>
+
       <p class="error" *ngIf="error">{{ error }}</p>
 
       <div class="actions">
         <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
+        <button type="button" class="btn-secondary" [disabled]="submitting" *ngIf="canSubmitForReview()" (click)="submitForReview()">
+          {{ submitting ? 'Submitting...' : 'Submit for review' }}
+        </button>
         <a routerLink="/developer/games">Cancel</a>
       </div>
     </form>

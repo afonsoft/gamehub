@@ -1,5 +1,37 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 03:25 UTC
+
+### Tarefa
+Implementar PR-5 do plano de gaps: cadastro público, fluxo completo de desenvolvedor (criação/edição/submissão de jogo), upload de build, moderação/publicação, dashboard admin com jogos e usuários, e correção do CORS para o admin.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Authorization/RegistrationAppService.cs`, `IRegistrationAppService.cs` e `Dto/RegisterInput.cs`/`RegisterOutput.cs` — endpoint anônimo de registro com roles `Player` e `Developer`, criação de `DeveloperProfile`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/GameHubPermissionSeeder.cs` — seed das roles `Player` e `Developer` no host.
+- `Api/src/GameHub.Application/Developer/DeveloperGameAppService.cs` — `CreateDraftAsync` com geração de slug único, persistência de categorias/tags e `TenantId`; `SubmitForReviewAsync` cria `ModerationReview`.
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` — `SetCategories`/`SetTags` e `AgeRating` padrão `"E"`.
+- `Api/src/GameHub.Application/Developer/Dto/CreateGameDraftInput.cs` e `UpdateGameMetadataInput.cs` — `Description`/`Instructions` não obrigatórios; `CategoryIds`/`TagIds` como `List<Guid>`.
+- `Api/src/GameHub.Application/Catalog/Dto/GameDetailDto.cs` e `GameCatalogAppService.cs` — mapeamento de `Categories` no detalhe.
+- `Api/src/GameHub.Application/Builds/GameBuildAppService.cs` — versão determinística `1.0.{buildNumber}` a partir do máximo existente.
+- `Api/src/GameHub.Application/Builds/GameBuildPackageValidator.cs` e `Developer/Dto/ValidationSummaryDto.cs`/`UploadGameBuildResultDto.cs` — `ValidationSummary` como objeto com `PackageSizeBytes`, `Warnings`, `HashSha256`, `HasIndexHtml` e `IndexHtmlPath`.
+- `Api/src/GameHub.Application/Moderation/ModerationAppService.cs` — `CompleteReviewAsync` transiciona `GameBuild` e `Game` (`Approved`/`Rejected`/`RequiresChanges`).
+- `Api/src/GameHub.Application/Admin/AdminDashboardAppService.cs`, `AdminUserAppService.cs`, `IAdminUserAppService.cs`, `Dto/AdminUserListItemDto.cs` e `AdminDashboardSummaryDto.cs` — total de usuários/desenvolvedores e listagem paginada de usuários.
+- `Api/src/GameHub.Web.Host/Configuration/CorsConfiguration.cs`, `Startup/Startup.cs` e `appsettings.Production.json` — CORS com wildcard `*.afonsoft.dev`, `AllowAnyOrigin` opt-out, headers EAF e `UseCors` após `UseRouting`.
+- `angular/src/app/core/auth/token.service.ts`, `auth.service.ts`, `public/register/*` — leitura de claims EAF, auto-login após registro e checkbox de desenvolvedor.
+- `angular/src/app/core/services/game-catalog.service.ts`, `developer/*` — seleção de tags, submeter para revisão, `accept=".zip"` e hint de upload.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/dashboard/dashboard.component.html`, `users/*`, `shared/services/gamehub-admin.service.ts`, `gamehub-routing.module.ts`, `gamehub.module.ts`, `shared/layout/nav/app-navigation.service.ts` — cards de usuários/desenvolvedores, listagem paginada de usuários e menu GameHub.
+- `Api/test/GameHub.Tests/GameHub/Application/RegistrationAppService_Tests.cs`, `DeveloperGameAppService_Tests.cs`, `ModerationAppService_Tests.cs`, `GameBuildAppService_Tests.cs`, `AdminUserAppService_Tests.cs`, `BuildPackageValidator_Tests.cs` — testes dos novos fluxos.
+- `Api/test/GameHub.Tests/Authorization/Roles/RoleAppService_Tests.cs` e `UserAppService_GetUserForEdit_Tests.cs` — ajustados para 3+ roles no host.
+
+### Motivação
+Tornar funcional o fluxo de usuário: cadastro público, criação/upload de jogo pelo desenvolvedor, revisão/publicação pela moderação e dashboard administrativo com jogos e usuários, além de corrigir o bloqueio de CORS do admin.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 170 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm ci --legacy-peer-deps && npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+
 ## 2026-07-23 02:50 UTC
 
 ### Tarefa

@@ -6,6 +6,7 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.UI;
 using GameHub;
 using GameHub.Authorization;
 using GameHub.Builds;
@@ -13,6 +14,7 @@ using GameHub.Catalog;
 using GameHub.Catalog.Dto;
 using GameHub.Developer.Dto;
 using GameHub.Developers;
+using GameHub.Moderation;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Developer
@@ -20,15 +22,21 @@ namespace GameHub.Developer
     public class DeveloperGameAppService : GameHubAppServiceBase, IDeveloperGameAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IRepository<GameBuild, Guid> _gameBuildRepository;
+        private readonly IRepository<ModerationReview, Guid> _moderationReviewRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
         private readonly IGameCatalogCache _catalogCache;
 
         public DeveloperGameAppService(
             IRepository<Game, Guid> gameRepository,
+            IRepository<GameBuild, Guid> gameBuildRepository,
+            IRepository<ModerationReview, Guid> moderationReviewRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
             IGameCatalogCache catalogCache)
         {
             _gameRepository = gameRepository;
+            _gameBuildRepository = gameBuildRepository;
+            _moderationReviewRepository = moderationReviewRepository;
             _developerProfileRepository = developerProfileRepository;
             _catalogCache = catalogCache;
         }
@@ -39,14 +47,18 @@ namespace GameHub.Developer
             var profile = await GetOrCreateProfileAsync();
 
             var id = Guid.NewGuid();
+            var slug = await GetUniqueSlugAsync(Slug.Create(input.Title).Value);
             var game = new Game(
                 id,
                 input.Title,
-                Slug.Create(input.Title).Value,
+                slug,
                 input.ShortDescription,
                 profile.Id);
 
             ObjectMapper.Map(input, game);
+            game.TenantId = AbpSession.TenantId ?? profile.TenantId;
+            game.SetCategories(input.CategoryIds ?? new List<Guid>());
+            game.SetTags(input.TagIds ?? new List<Guid>());
 
             await _gameRepository.InsertAsync(game);
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -59,14 +71,36 @@ namespace GameHub.Developer
         [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
         public async Task<GameDetailDto> UpdateMetadataAsync(UpdateGameMetadataInput input)
         {
-            var game = await _gameRepository.GetAsync(input.GameId);
+            var game = await _gameRepository.GetAll()
+                .Where(g => g.Id == input.GameId && !g.IsDeleted)
+                .Include(g => g.GameCategories)
+                .Include(g => g.GameTags)
+                .FirstOrDefaultAsync();
+
+            if (game == null)
+            {
+                throw new InvalidOperationException($"Game {input.GameId} not found.");
+            }
+
             ObjectMapper.Map(input, game);
 
+            if (input.CategoryIds != null)
+            {
+                game.SetCategories(input.CategoryIds);
+            }
+
+            if (input.TagIds != null)
+            {
+                game.SetTags(input.TagIds);
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
             await _catalogCache.InvalidateHomeAsync();
 
             return ObjectMapper.Map<GameDetailDto>(game);
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
         public async Task<GameDetailDto> SubmitForReviewAsync(SubmitGameForReviewInput input)
         {
             var game = await _gameRepository.GetAsync(input.GameId);
@@ -76,12 +110,36 @@ namespace GameHub.Developer
                 throw new InvalidOperationException($"Game cannot be submitted for review from status {game.Status}.");
             }
 
+            var latestBuild = await _gameBuildRepository.GetAll()
+                .Where(b => b.GameId == input.GameId && !b.IsDeleted)
+                .OrderByDescending(b => b.BuildNumber)
+                .FirstOrDefaultAsync();
+
+            if (latestBuild == null)
+            {
+                throw new UserFriendlyException("Upload a build before submitting for review.");
+            }
+
             game.Status = GameStatus.InReview;
+
+            var review = new ModerationReview
+            {
+                Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
+                GameId = input.GameId,
+                GameBuildId = latestBuild.Id,
+                Status = ModerationReviewStatus.Pending,
+                Notes = input.Notes ?? string.Empty,
+            };
+
+            await _moderationReviewRepository.InsertAsync(review);
+            await CurrentUnitOfWork.SaveChangesAsync();
             await _catalogCache.InvalidateHomeAsync();
 
             return ObjectMapper.Map<GameDetailDto>(game);
         }
 
+        [AbpAuthorize]
         public async Task<PagedResultDto<GameSummaryDto>> GetMyGamesAsync(GetGamesInput input)
         {
             var profile = await GetOrCreateProfileAsync();
@@ -100,6 +158,7 @@ namespace GameHub.Developer
             return new PagedResultDto<GameSummaryDto>(total, ObjectMapper.Map<List<GameSummaryDto>>(items));
         }
 
+        [AbpAuthorize]
         public async Task<ListResultDto<BuildDto>> GetBuildsAsync(Guid gameId)
         {
             var game = await _gameRepository.GetAll()
@@ -120,16 +179,44 @@ namespace GameHub.Developer
                 return profile;
             }
 
+            var user = await UserManager.FindByIdAsync(userId.ToString());
+            var displayName = $"{user?.Name} {user?.Surname}".Trim();
+            if (string.IsNullOrEmpty(displayName))
+            {
+                displayName = user?.UserName ?? "anonymous";
+            }
+
             profile = new DeveloperProfile
             {
                 Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId ?? user?.TenantId,
                 UserId = userId,
-                DisplayName = AbpSession.UserId?.ToString() ?? "anonymous",
+                DisplayName = displayName,
                 Status = DeveloperProfileStatus.Pending
             };
 
             await _developerProfileRepository.InsertAsync(profile);
             return profile;
+        }
+
+        private async Task<string> GetUniqueSlugAsync(string baseSlug)
+        {
+            if (!await _gameRepository.GetAll().AnyAsync(g => g.Slug == baseSlug && !g.IsDeleted))
+            {
+                return baseSlug;
+            }
+
+            var suffix = 2;
+            while (true)
+            {
+                var candidate = $"{baseSlug}-{suffix}";
+                if (!await _gameRepository.GetAll().AnyAsync(g => g.Slug == candidate && !g.IsDeleted))
+                {
+                    return candidate;
+                }
+
+                suffix++;
+            }
         }
     }
 }

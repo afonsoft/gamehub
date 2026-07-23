@@ -33,6 +33,22 @@
         </div>
       </div>
     </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Total Users</h5>
+          <p>{{ summary.totalUsers }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Total Developers</h5>
+          <p>{{ summary.totalDevelopers }}</p>
+        </div>
+      </div>
+    </div>
   </div>
   <h3>Plays over time</h3>
   <p *ngIf="!playsOverTime?.length">No data available.</p>

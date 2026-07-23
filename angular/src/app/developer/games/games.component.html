@@ -30,6 +30,7 @@
           <td>
             <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
             <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
+            <button type="button" *ngIf="canSubmitForReview(game)" (click)="submitForReview(game)">Submit for review</button>
           </td>
         </tr>
       </tbody>

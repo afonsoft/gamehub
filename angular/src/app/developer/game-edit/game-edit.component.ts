@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { DeveloperService, UpdateGameMetadataInput } from '../../core/services/developer.service';
-import { GameCatalogService, GameDetail, Category } from '../../core/services/game-catalog.service';
+import { GameCatalogService, GameDetail, Category, Tag } from '../../core/services/game-catalog.service';
 
 @Component({
   selector: 'app-game-edit',
@@ -20,15 +20,20 @@ export class GameEditComponent implements OnInit {
     shortDescription: '',
     description: '',
     instructions: '',
-    ageRating: 'Everyone',
+    ageRating: 'E',
     orientation: 'Both',
     supportsDesktop: true,
     supportsMobile: true,
     supportsTablet: true,
+    categoryIds: [],
+    tagIds: [],
   };
   categories: Category[] = [];
+  tags: Tag[] = [];
+  status = '';
   loading = false;
   saving = false;
+  submitting = false;
   error = '';
 
   private readonly route = inject(ActivatedRoute);
@@ -50,6 +55,14 @@ export class GameEditComponent implements OnInit {
       },
       error: () => {
         this.categories = [];
+      },
+    });
+    this.catalog.getTags().subscribe({
+      next: tagList => {
+        this.tags = tagList ?? [];
+      },
+      error: () => {
+        this.tags = [];
       },
     });
     this.developerService.getMyGames(0, 100).subscribe({
@@ -96,18 +109,69 @@ export class GameEditComponent implements OnInit {
     });
   }
 
+  submitForReview(): void {
+    this.error = '';
+    this.submitting = true;
+    this.developerService.submitForReview(this.gameId).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.status = 'InReview';
+        void this.router.navigate(['/developer/games']);
+      },
+      error: () => {
+        this.submitting = false;
+        this.error = 'Unable to submit for review. Please try again.';
+      },
+    });
+  }
+
+  canSubmitForReview(): boolean {
+    return this.status === 'Draft' || this.status === 'Rejected';
+  }
+
+  toggleCategory(id: string): void {
+    const list = this.input.categoryIds ?? [];
+    this.input.categoryIds = this.toggle(list, id);
+  }
+
+  hasCategory(id: string): boolean {
+    return (this.input.categoryIds ?? []).includes(id);
+  }
+
+  toggleTag(id: string): void {
+    const list = this.input.tagIds ?? [];
+    this.input.tagIds = this.toggle(list, id);
+  }
+
+  hasTag(id: string): boolean {
+    return (this.input.tagIds ?? []).includes(id);
+  }
+
+  private toggle(list: string[], id: string): string[] {
+    const index = list.indexOf(id);
+    if (index >= 0) {
+      list.splice(index, 1);
+    } else {
+      list.push(id);
+    }
+    return [...list];
+  }
+
   private mapDetail(detail: GameDetail): void {
+    this.status = detail.status ?? '';
     this.input = {
       gameId: detail.id,
       title: detail.title,
       shortDescription: detail.shortDescription,
       description: detail.description,
       instructions: detail.instructions,
-      ageRating: detail.ageRating,
+      ageRating: detail.ageRating || 'E',
       orientation: detail.orientation,
       supportsDesktop: detail.supportsDesktop,
       supportsMobile: detail.supportsMobile,
       supportsTablet: detail.supportsTablet,
+      categoryIds: (detail.categories ?? []).map(c => c.id),
+      tagIds: (detail.tags ?? []).map(t => t.id),
     };
   }
 }

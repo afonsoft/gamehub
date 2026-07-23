@@ -19,6 +19,7 @@ import { FeatureFlagsComponent } from './dashboard/feature-flags.component';
 import { AuditLogComponent } from './dashboard/audit-log.component';
 import { GameDetailComponent } from './games/game-detail.component';
 import { ReviewDetailComponent } from './moderation/review-detail.component';
+import { UserListComponent } from './users/user-list.component';
 
 @NgModule({
   imports: [
@@ -44,6 +45,7 @@ import { ReviewDetailComponent } from './moderation/review-detail.component';
     TagEditComponent,
     FeatureFlagsComponent,
     AuditLogComponent,
+    UserListComponent,
   ],
   providers: [],
 })

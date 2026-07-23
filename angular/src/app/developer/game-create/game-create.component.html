@@ -55,6 +55,17 @@
         </label>
       </fieldset>
 
+      <fieldset *ngIf="tags.length">
+        <legend>Tags</legend>
+        <label *ngFor="let tag of tags">
+          <input
+            type="checkbox"
+            [checked]="hasTag(tag.id)"
+            (change)="toggleTag(tag.id)" />
+          {{ tag.name }}
+        </label>
+      </fieldset>
+
       <p class="error" *ngIf="error">{{ error }}</p>
 
       <div class="actions">

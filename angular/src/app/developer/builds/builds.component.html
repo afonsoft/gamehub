@@ -15,8 +15,8 @@
 
     <section class="upload-section">
       <h2>Upload build</h2>
-      <input type="file" accept=".zip,.tar.gz" (change)="uploadFile($event)" [disabled]="uploading" />
-      <p class="hint">Accepted: .zip, .tar.gz — max 100 MB</p>
+      <input type="file" accept=".zip" (change)="uploadFile($event)" [disabled]="uploading" />
+      <p class="hint">Accepted: .zip — max 100 MB</p>
       <p class="result" *ngIf="uploadResult">Uploaded build {{ uploadResult.version }} ({{ uploadResult.status }})</p>
     </section>
 

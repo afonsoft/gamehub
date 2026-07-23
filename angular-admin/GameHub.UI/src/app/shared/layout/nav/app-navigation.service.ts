@@ -19,6 +19,12 @@ export class AppNavigationService {
   getMenu(): AppMenu {
     return new AppMenu('MainMenu', 'MainMenu', [
       new AppMenuItem('Dashboard', 'Pages.Dashboard', 'flaticon-line-graph', '/app/main/dashboard'),
+      new AppMenuItem('GameHub', 'Pages.GameHubDashboard.View', 'flaticon-game', '/app/main/gamehub/dashboard'),
+      new AppMenuItem('Games', 'Pages.Games.View', 'flaticon-layers', '/app/main/gamehub/games'),
+      new AppMenuItem('Moderation', 'Pages.Moderation.View', 'flaticon-shield', '/app/main/gamehub/moderation'),
+      new AppMenuItem('Categories', 'Pages.Categories.Manage', 'flaticon-list', '/app/main/gamehub/categories'),
+      new AppMenuItem('Tags', 'Pages.Tags.Manage', 'flaticon-tags', '/app/main/gamehub/tags'),
+      new AppMenuItem('Users', 'Pages.Users.Manage', 'flaticon-users-1', '/app/main/gamehub/users'),
       new AppMenuItem('Tenants', 'Pages.Tenants', 'flaticon-squares-4', '/app/admin/tenants'),
     ]);
   }

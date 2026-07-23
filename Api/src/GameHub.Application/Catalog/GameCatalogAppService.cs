@@ -269,6 +269,16 @@ namespace GameHub.Catalog
                 SupportsDesktop = game.SupportsDesktop,
                 SupportsMobile = game.SupportsMobile,
                 SupportsTablet = game.SupportsTablet,
+                Categories = game.GameCategories
+                    .Where(gc => gc.Category != null)
+                    .Select(gc => new CategoryDto
+                    {
+                        Id = gc.Category.Id,
+                        Name = gc.Category.Name,
+                        Slug = gc.Category.Slug,
+                        SortOrder = gc.Category.SortOrder
+                    })
+                    .ToList(),
                 Tags = game.GameTags
                     .Where(gt => gt.Tag != null)
                     .Select(gt => new TagDto

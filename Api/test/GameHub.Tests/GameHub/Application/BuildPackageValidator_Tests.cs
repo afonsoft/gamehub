@@ -20,6 +20,8 @@ namespace GameHub.Tests.GameHub.Application
 
             result.IsValid.ShouldBeTrue();
             result.HasIndexHtml.ShouldBeTrue();
+            result.PackageSizeBytes.ShouldBeGreaterThan(0);
+            result.Warnings.ShouldNotBeNull();
         }
 
         [Fact]

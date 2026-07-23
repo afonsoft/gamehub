@@ -12,7 +12,7 @@ import { AuthService, RegisterModel } from '../../core/auth/auth.service';
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  model: RegisterModel = { name: '', surname: '', userName: '', emailAddress: '', password: '' };
+  model: RegisterModel = { name: '', surname: '', userName: '', emailAddress: '', password: '', isDeveloper: false };
   confirmPassword = '';
   loading = false;
   error = '';
@@ -32,12 +32,13 @@ export class RegisterComponent {
     }
     this.loading = true;
     this.auth.register(this.model).subscribe({
-      next: success => {
+      next: result => {
         this.loading = false;
-        if (success) {
-          void this.router.navigate(['/login']);
+        if (result.success) {
+          const target = this.model.isDeveloper && this.auth.isDeveloper() ? '/developer' : '/';
+          void this.router.navigate([target]);
         } else {
-          this.error = 'Registration failed. Please try again.';
+          this.error = result.error || 'Registration failed. Please try again.';
         }
       },
       error: () => {
