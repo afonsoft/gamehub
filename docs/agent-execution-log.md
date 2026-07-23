@@ -1,5 +1,31 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 20:20 UTC
+
+### Tarefa
+Executar o plano de beta readiness (`17-prompt-proxima-sessao-beta.md`): documentação pública `/docs`, melhorias de UX no hub (detalhe do jogo, game frame, leaderboard, busca), portal do desenvolvedor (upload de thumbnail/hero, validação, wizard), painel admin (fila de moderação, categorias/tags, reports, menu, detalhe do jogo) e backend de suporte (upload de imagens, reports, suspensão, leaderboard display name).
+
+### Arquivos alterados
+- `angular/src/app/public/docs/` — nova área `/docs` com guias públicas (`user-guide`, `api-guide`, `admin-guide`, `sdk-guide`), menu responsivo e links no header/footer.
+- `angular/src/app/public/game-detail/`, `game-frame/`, `leaderboard/`, `games/`, `home/` — UX mobile-first, modal de report, favoritos, skeletons, empty states, filtros com persistência na URL e debounce.
+- `angular/src/app/developer/game-edit/`, `builds/` — upload de thumbnail/hero com preview e resumo de validação.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/moderation/`, `categories/`, `tags/`, `games/`, `reports/`, `shared/layout/nav/` — fila de moderação, detalhe de revisão, CRUD de categorias/tags, lista de reports, ação de suspensão e novos itens de menu.
+- `Api/src/GameHub.Web.Host/Controllers/GameAssetsController.cs`, `Api/src/GameHub.Application/Developer/`, `Api/src/GameHub.Core/Storage/` — upload de imagens via MinIO com validação de extensão e tamanho.
+- `Api/src/GameHub.Application/Moderation/`, `Api/src/GameHub.Application/Admin/` — backend de reports, suspensão de jogo, detalhe de moderação com histórico e resumo de validação.
+- `Api/src/GameHub.Application/Gameplay/` — `GetMyRankAsync` e hidratação do display name no leaderboard.
+- `Api/test/GameHub.Tests/DependencyInjection/FakeGameAssetStorage.cs`, `GameHubTestModule.cs` — fake de armazenamento para testes.
+- `angular/public/i18n/en-US.json` e `pt-BR.json` — traduções novas sem textos hardcoded.
+
+### Motivação
+Preparar a plataforma GameHub para beta com fluxos completos do público ao admin, responsividade, i18n e infraestrutura de suporte backend.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 199 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config -q` e `docker compose -f docker-compose.all.yml config -q` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Branch `feature/beta-readiness` criada a partir de `main`.
+
 ## 2026-07-23 23:00 UTC
 
 ### Tarefa

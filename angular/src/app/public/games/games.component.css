@@ -75,6 +75,15 @@
   flex-wrap: wrap;
 }
 
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 .filter-label {
   color: #6b7280;
   font-weight: 600;
@@ -88,10 +97,28 @@
   font-size: 0.95rem;
 }
 
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.game-card-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .game-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1.25rem;
+}
+
+.desktop-only {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
 }
 
 .game-card {

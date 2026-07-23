@@ -1,10 +1,21 @@
 <div class="gamehub-review-queue">
   <h1>Moderation Queue</h1>
+
+  <div class="quick-filters">
+    <button class="btn btn-sm" [class.btn-primary]="filter === 'All'" (click)="setFilter('All')">All</button>
+    <button class="btn btn-sm" [class.btn-primary]="filter === 'Pending'" (click)="setFilter('Pending')">Pending</button>
+    <button class="btn btn-sm" [class.btn-primary]="filter === 'Approved'" (click)="setFilter('Approved')">Approved</button>
+    <button class="btn btn-sm" [class.btn-primary]="filter === 'Rejected'" (click)="setFilter('Rejected')">Rejected</button>
+    <button class="btn btn-sm" [class.btn-primary]="filter === 'RequiresChanges'" (click)="setFilter('RequiresChanges')">Requires Changes</button>
+  </div>
+
   <p-table [value]="reviews" [paginator]="false">
     <ng-template pTemplate="header">
       <tr>
         <th>Game</th>
-        <th>Build</th>
+        <th>Developer</th>
+        <th>Submitted</th>
+        <th>Version</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
@@ -12,12 +23,16 @@
     <ng-template pTemplate="body" let-review>
       <tr>
         <td>{{ review.gameTitle }}</td>
-        <td>{{ review.gameBuildId }}</td>
-        <td>{{ review.status }}</td>
+        <td>{{ review.developerName || '-' }}</td>
+        <td>{{ review.createdAt | date:'short' }}</td>
+        <td>{{ review.version || '-' }}</td>
+        <td><span class="m-badge m-badge--info">{{ review.status }}</span></td>
         <td>
-          <button class="btn btn-sm btn-primary">Review</button>
+          <a [routerLink]="['/app/main/gamehub/moderation', review.reviewId]" class="btn btn-sm btn-primary">Review</a>
         </td>
       </tr>
     </ng-template>
   </p-table>
+
+  <p *ngIf="!reviews.length" class="empty">No reviews found.</p>
 </div>

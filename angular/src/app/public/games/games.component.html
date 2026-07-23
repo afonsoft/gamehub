@@ -4,19 +4,47 @@
     <div class="search-row">
       <input
         type="text"
-        [(ngModel)]="query"
+        [ngModel]="query"
+        (ngModelChange)="onQueryChange($event)"
         (keyup.enter)="reload()"
-        placeholder="Search games..."
-        aria-label="Search games" />
-      <button class="btn-primary" (click)="reload()">Search</button>
-      <button class="btn-secondary" (click)="clear()" *ngIf="query || category">Clear</button>
+        [placeholder]="'games.searchPlaceholder' | translate"
+        [attr.aria-label]="'games.searchPlaceholder' | translate" />
+      <app-button variant="primary" (appClick)="reload()">{{ 'games.search' | translate }}</app-button>
+      <app-button variant="ghost" (appClick)="clear()" *ngIf="query || category || device || orientation">{{ 'games.clear' | translate }}</app-button>
     </div>
-    <div class="filters" *ngIf="categories?.length">
-      <span class="filter-label">Category:</span>
-      <select [(ngModel)]="category" (change)="reload()">
-        <option value="">All categories</option>
-        <option *ngFor="let c of categories" [value]="c.slug">{{ c.name }}</option>
-      </select>
+    <div class="filters">
+      <label *ngIf="categories?.length">
+        {{ 'games.category' | translate }}
+        <select [(ngModel)]="category" (change)="reload()">
+          <option value="">{{ 'games.allCategories' | translate }}</option>
+          <option *ngFor="let c of categories" [value]="c.slug">{{ c.name }}</option>
+        </select>
+      </label>
+      <label>
+        {{ 'games.device' | translate }}
+        <select [(ngModel)]="device" (change)="reload()">
+          <option value="">{{ 'games.allDevices' | translate }}</option>
+          <option value="Desktop">{{ 'games.desktop' | translate }}</option>
+          <option value="Mobile">{{ 'games.mobile' | translate }}</option>
+          <option value="Tablet">{{ 'games.tablet' | translate }}</option>
+        </select>
+      </label>
+      <label>
+        {{ 'games.orientation' | translate }}
+        <select [(ngModel)]="orientation" (change)="reload()">
+          <option value="">{{ 'games.allOrientations' | translate }}</option>
+          <option value="Landscape">{{ 'games.landscape' | translate }}</option>
+          <option value="Portrait">{{ 'games.portrait' | translate }}</option>
+          <option value="Both">{{ 'games.both' | translate }}</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="skeleton-grid" *ngIf="loading && !games.length">
+    <div class="game-card-skeleton" *ngFor="let _ of [1,2,3,4,5,6]">
+      <app-skeleton width="100%" height="160px" radius="1rem"></app-skeleton>
+      <app-skeleton width="70%" height="1rem"></app-skeleton>
     </div>
   </div>
 
@@ -24,6 +52,7 @@
     <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
       <div class="thumb">
         <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+        <app-badge *ngIf="!game.supportsMobile" class="desktop-only" label="Desktop" variant="primary"></app-badge>
       </div>
       <div class="meta">
         <h3>{{ game.title }}</h3>
@@ -34,13 +63,13 @@
   </div>
 
   <div class="load-more" *ngIf="games?.length && totalCount > games.length">
-    <button class="btn-primary" (click)="loadMore()">Load more</button>
+    <app-button variant="primary" (appClick)="loadMore()" [disabled]="loading">{{ 'games.loadMore' | translate }}</app-button>
   </div>
 
   <div class="empty-state" *ngIf="!loading && !games?.length">
-    <p *ngIf="query || category; else noGames">No games found for your filters.</p>
+    <p *ngIf="query || category || device || orientation; else noGames">{{ 'games.noResults' | translate }}</p>
     <ng-template #noGames>
-      <p>No games published yet. Check back soon!</p>
+      <p>{{ 'emptyState.home' | translate }}</p>
     </ng-template>
   </div>
 </div>

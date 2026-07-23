@@ -1,0 +1,34 @@
+<div class="frame-shell">
+  <div *ngIf="!started && !loadingError" class="start-overlay">
+    <div class="start-card">
+      <h1 *ngIf="game">{{ game.title }}</h1>
+      <p *ngIf="game">{{ 'gameFrame.ready' | translate }}</p>
+      <button class="btn-primary" (click)="startGame()" [disabled]="starting">
+        {{ starting ? ('common.loading' | translate) : ('gameFrame.start' | translate) }}
+      </button>
+      <p *ngIf="startError" class="error-message">{{ startError }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="starting && !loadingError" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>{{ 'gameFrame.loading' | translate }}</p>
+  </div>
+
+  <iframe
+    #frame
+    *ngIf="started && safeUrl"
+    [src]="safeUrl"
+    title="Game"
+    width="100%"
+    height="100%"
+    sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-forms"
+    allow="fullscreen; gamepad"
+    referrerpolicy="no-referrer">
+  </iframe>
+
+  <div *ngIf="loadingError" class="error">
+    <p>{{ 'gameFrame.unavailable' | translate }}</p>
+    <a (click)="back()">{{ 'gameFrame.back' | translate }}</a>
+  </div>
+</div>

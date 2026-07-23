@@ -1,0 +1,95 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.frame-shell {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  position: relative;
+}
+
+iframe {
+  border: 0;
+  display: block;
+}
+
+.start-overlay,
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: linear-gradient(135deg, #2b2d42 0%, #1a1b2e 100%);
+  z-index: 10;
+}
+
+.start-card {
+  text-align: center;
+  max-width: 480px;
+  padding: 2rem;
+}
+
+.start-card h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.start-card p {
+  color: #c7c9d3;
+  margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+  padding: 0.85rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  background: #ff5e57;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ff5e57;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error,
+.error-message {
+  color: #ff5e57;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+}
+
+.error a {
+  color: #ff5e57;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 700;
+}

@@ -11,5 +11,7 @@ namespace GameHub.Gameplay
         Task SubmitScoreAsync(Guid gameId, long userId, long score, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<LeaderboardEntryDto>> GetTopAsync(Guid gameId, int take, CancellationToken cancellationToken = default);
+
+        Task<LeaderboardEntryDto> GetMyRankAsync(Guid gameId, long userId, CancellationToken cancellationToken = default);
     }
 }

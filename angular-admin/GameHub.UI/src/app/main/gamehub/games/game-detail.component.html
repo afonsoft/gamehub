@@ -14,8 +14,13 @@
       <p><strong>Age Rating:</strong> {{ game.ageRating }}</p>
       <p><strong>Orientation:</strong> {{ game.orientation }}</p>
       <p><strong>Total Plays:</strong> {{ game.totalPlays | number }}</p>
+      <p><strong>Average Rating:</strong> {{ game.averageRating | number:'1.1-1' }}</p>
       <p><strong>Description:</strong></p>
       <p>{{ game.shortDescription }}</p>
+
+      <div class="btn-group">
+        <button class="btn btn-danger" (click)="suspend()" [disabled]="suspending || !canSuspend()">{{ suspending ? 'Suspending...' : 'Suspend' }}</button>
+      </div>
 
       <h4>Build History</h4>
       <p-table [value]="game.buildHistory" *ngIf="game.buildHistory?.length">

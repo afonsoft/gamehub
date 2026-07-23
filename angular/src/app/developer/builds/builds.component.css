@@ -20,3 +20,33 @@
   color: #34a853;
   font-size: 0.875rem;
 }
+
+.validation-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.validation-card h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.validation-card ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.validation-card .error {
+  color: #ea4335;
+}
+
+.validation-card .warning {
+  color: #fbbc05;
+}
+
+.badge.status-published { background: #34a853; color: #fff; }
+.badge.status-validated { background: #1a73e8; color: #fff; }
+.badge.status-rejected { background: #ea4335; color: #fff; }
+.badge.status-uploading { background: #9aa0a6; color: #fff; }

@@ -12,6 +12,7 @@ using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
 using GameHub.Moderation;
 using GameHub.Admin.Dto;
+using GameHub.Storage;
 using Abp.Auditing;
 
 namespace GameHub
@@ -95,6 +96,9 @@ namespace GameHub
             configuration.CreateMap<CreateOrUpdateDeveloperProfileInput, DeveloperProfile>();
             configuration.CreateMap<DeveloperProfileStatus, string>().ConvertUsing(s => s.ToString());
 
+            configuration.CreateMap<StoredAsset, UploadImageResultDto>()
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
+
             // Gameplay
             configuration.CreateMap<PlaySession, PlaySessionDto>()
                 .ForMember(dest => dest.SessionId, opt => opt.MapFrom(src => src.Id));
@@ -109,11 +113,21 @@ namespace GameHub
                 .ForMember(dest => dest.Decision, opt => opt.MapFrom(src => src.Decision.ToString()))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime))
                 .ForMember(dest => dest.CompletedAt, opt => opt.MapFrom(src => src.LastModificationTime))
-                .ForMember(dest => dest.GameTitle, opt => opt.MapFrom(src => src.Game != null ? src.Game.Title : string.Empty));
+                .ForMember(dest => dest.GameTitle, opt => opt.MapFrom(src => src.Game != null ? src.Game.Title : string.Empty))
+                .ForMember(dest => dest.Version, opt => opt.Ignore())
+                .ForMember(dest => dest.ValidationSummary, opt => opt.Ignore())
+                .ForMember(dest => dest.History, opt => opt.Ignore());
+
+            configuration.CreateMap<ModerationReview, ModerationReviewHistoryItemDto>()
+                .ForMember(dest => dest.ReviewId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Decision, opt => opt.MapFrom(src => src.Decision.ToString()))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime));
 
             configuration.CreateMap<UserReport, UserReportDto>()
                 .ForMember(dest => dest.ReportId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId ?? 0))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : string.Empty))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime))
                 .ForMember(dest => dest.GameTitle, opt => opt.MapFrom(src => src.Game != null ? src.Game.Title : string.Empty));
 

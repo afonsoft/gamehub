@@ -10,6 +10,7 @@ using Abp.Zero.EntityFrameworkCore;
 using Abp.EntityFrameworkCore;
 using Castle.MicroKernel.Registration;
 using GameHub.EntityFrameworkCore;
+using GameHub.Storage;
 using GameHub.Tests.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -56,6 +57,7 @@ namespace GameHub.Tests
             Clock.Provider = ClockProviders.Utc;
 
             RegisterFakeService<AbpZeroDbMigrator<GameHubDbContext>>();
+            IocManager.Register<IGameAssetStorage, FakeGameAssetStorage>(DependencyLifeStyle.Transient);
 
             Configuration.ReplaceService<IEmailSender, NullEmailSender>(DependencyLifeStyle.Transient);
         }

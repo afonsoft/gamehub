@@ -24,5 +24,9 @@ namespace GameHub.Developer
         Task<BuildDto> ApproveBuildAsync(DeveloperApproveBuildInput input);
 
         Task<BuildDto> RejectBuildAsync(DeveloperRejectBuildInput input);
+
+        Task<UploadImageResultDto> UploadThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
+
+        Task<UploadImageResultDto> UploadHeroAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
     }
 }

@@ -25,6 +25,9 @@ export class AppNavigationService {
       new AppMenuItem('Moderation', 'Pages.Moderation.View', 'flaticon-shield', '/app/main/gamehub/moderation'),
       new AppMenuItem('Categories', 'Pages.Categories.Manage', 'flaticon-list', '/app/main/gamehub/categories'),
       new AppMenuItem('Tags', 'Pages.Tags.Manage', 'flaticon-tags', '/app/main/gamehub/tags'),
+      new AppMenuItem('Reports', 'Pages.Reports.Manage', 'flaticon-warning', '/app/main/gamehub/reports'),
+      new AppMenuItem('Feature Flags', 'Pages.GameHubDashboard.FeatureFlags', 'flaticon-settings', '/app/main/gamehub/dashboard/flags'),
+      new AppMenuItem('Audit Log', 'Pages.GameHubDashboard.AuditLog', 'flaticon-folder-1', '/app/main/gamehub/dashboard/audit'),
       new AppMenuItem('Users', 'Pages.Users.Manage', 'flaticon-users-1', '/app/main/gamehub/users'),
       new AppMenuItem('Tenants', 'Pages.Tenants', 'flaticon-squares-4', '/app/admin/tenants'),
     ]);

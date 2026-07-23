@@ -22,6 +22,7 @@ import { ReviewDetailComponent } from './moderation/review-detail.component';
 import { UserListComponent } from './users/user-list.component';
 import { BuildListComponent } from './uploads/build-list.component';
 import { BuildFilesComponent } from './uploads/build-files.component';
+import { ReportListComponent } from './reports/report-list.component';
 
 @NgModule({
   imports: [
@@ -50,6 +51,7 @@ import { BuildFilesComponent } from './uploads/build-files.component';
     UserListComponent,
     BuildListComponent,
     BuildFilesComponent,
+    ReportListComponent,
   ],
   providers: [],
 })

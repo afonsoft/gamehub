@@ -1,4 +1,17 @@
-<div class="detail-page" *ngIf="game">
+<div class="skeleton-detail" *ngIf="!loaded">
+  <app-skeleton width="100%" height="240px" radius="0"></app-skeleton>
+  <div class="detail-content">
+    <div class="detail-header">
+      <app-skeleton width="120px" height="120px" radius="1rem"></app-skeleton>
+      <div class="skeleton-info">
+        <app-skeleton width="60%" height="2rem"></app-skeleton>
+        <app-skeleton width="40%" height="1rem"></app-skeleton>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="detail-page" *ngIf="loaded && game">
   <div class="hero-banner" *ngIf="game.heroImageUrl; else thumbHero">
     <img [src]="game.heroImageUrl" [alt]="game.title" />
   </div>
@@ -17,10 +30,10 @@
         <h1>{{ game.title }}</h1>
         <p class="developer" *ngIf="game.developerName">by {{ game.developerName }}</p>
         <div class="badges">
-          <span class="badge" *ngIf="game.ageRating">{{ game.ageRating }}</span>
-          <span class="badge">{{ game.totalPlays | number }} plays</span>
-          <span class="badge" *ngIf="game.averageRating">{{ game.averageRating | number:'1.1-1' }} / 5</span>
-          <span class="badge" *ngIf="game.orientation">{{ game.orientation }}</span>
+          <app-badge *ngIf="game.ageRating" [label]="game.ageRating" variant="default"></app-badge>
+          <app-badge [label]="(game.totalPlays | number) + ' plays'" variant="primary"></app-badge>
+          <app-badge *ngIf="game.averageRating" [label]="(game.averageRating | number:'1.1-1') + ' / 5'" variant="success"></app-badge>
+          <app-badge *ngIf="game.orientation" [label]="game.orientation" variant="default"></app-badge>
         </div>
         <div class="tags" *ngIf="game.tags?.length">
           <a
@@ -32,23 +45,25 @@
         </div>
       </div>
       <div class="detail-actions">
-        <a class="play-button" [routerLink]="['/play', game.slug]">Play now</a>
-        <a class="leaderboard-button" [routerLink]="['/leaderboard', game.slug]">Leaderboard</a>
+        <app-button variant="primary" (appClick)="router.navigate(['/play', game.slug])">{{ 'gameDetail.play' | translate }}</app-button>
+        <app-button variant="secondary" (appClick)="router.navigate(['/leaderboard', game.slug])">{{ 'gameDetail.leaderboard' | translate }}</app-button>
+        <app-button variant="ghost" (appClick)="toggleFavorite()">{{ isFavorite ? '♥' : '♡' }} {{ 'gameDetail.favorite' | translate }}</app-button>
+        <app-button variant="ghost" (appClick)="openReport()">{{ 'gameDetail.report' | translate }}</app-button>
       </div>
     </div>
 
     <section class="description" *ngIf="game.description">
-      <h2>About</h2>
+      <h2>{{ 'gameDetail.about' | translate }}</h2>
       <div [innerHTML]="game.description"></div>
     </section>
 
     <section class="instructions" *ngIf="game.instructions">
-      <h2>How to play</h2>
+      <h2>{{ 'gameDetail.howToPlay' | translate }}</h2>
       <div [innerHTML]="game.instructions"></div>
     </section>
 
     <section class="related" *ngIf="game.relatedGames?.length">
-      <h2>Related games</h2>
+      <h2>{{ 'gameDetail.related' | translate }}</h2>
       <div class="related-grid">
         <a class="game-card" *ngFor="let related of game.relatedGames; trackBy: trackGame" [routerLink]="['/play', related.slug]">
           <div class="thumb">
@@ -64,6 +79,27 @@
 </div>
 
 <div class="empty-state" *ngIf="loaded && !game">
-  <p>Game not found.</p>
-  <a routerLink="/games">Back to games</a>
+  <p>{{ 'gameDetail.notFound' | translate }}</p>
+  <a routerLink="/games">{{ 'gameDetail.back' | translate }}</a>
+</div>
+
+<div class="modal-overlay" *ngIf="reportOpen" (click)="closeReport()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>{{ 'gameDetail.report' | translate }}</h2>
+    <label for="reason">{{ 'gameDetail.reportReason' | translate }}</label>
+    <select id="reason" [(ngModel)]="reportReason">
+      <option value="">{{ 'gameDetail.reportReasonSelect' | translate }}</option>
+      <option value="Inappropriate">{{ 'gameDetail.reportInappropriate' | translate }}</option>
+      <option value="Broken">{{ 'gameDetail.reportBroken' | translate }}</option>
+      <option value="Copyright">{{ 'gameDetail.reportCopyright' | translate }}</option>
+      <option value="Other">{{ 'gameDetail.reportOther' | translate }}</option>
+    </select>
+    <label for="description">{{ 'gameDetail.reportDescription' | translate }}</label>
+    <textarea id="description" [(ngModel)]="reportDescription" rows="4" [placeholder]="'gameDetail.reportDescriptionPlaceholder' | translate"></textarea>
+    <p *ngIf="reportSent" class="success">{{ 'gameDetail.reportSent' | translate }}</p>
+    <div class="modal-actions">
+      <app-button variant="ghost" (appClick)="closeReport()">{{ 'common.cancel' | translate }}</app-button>
+      <app-button variant="primary" (appClick)="submitReport()" [disabled]="!reportReason || reportSending">{{ reportSending ? ('common.loading' | translate) : ('common.send' | translate) }}</app-button>
+    </div>
+  </div>
 </div>

@@ -189,6 +189,10 @@ export class GameHubAdminService {
     return this.http.delete(`${this.baseUrl}/api/services/app/Tag/Delete`, { params }).pipe(map(this.unwrapResult));
   }
 
+  getReports(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/services/app/UserReport/GetAll`).pipe(map(this.unwrapResult));
+  }
+
   private unwrapResult = (response: any): any => {
     return response && typeof response === 'object' && 'result' in response ? response.result : response;
   };

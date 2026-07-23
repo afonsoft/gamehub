@@ -143,7 +143,13 @@ export interface UploadResult {
   buildId: string;
   version: string;
   status: string;
-  validationSummary?: { isValid: boolean; errors: string[]; warnings: string[]; packageSizeBytes: number; hashSha256: string };
+  validationSummary?: { isValid: boolean; errors: string[]; warnings: string[]; packageSizeBytes: number; hashSha256: string; hasIndexHtml: boolean; indexHtmlPath: string };
+}
+
+export interface UploadImageResult {
+  url: string;
+  key: string;
+  sizeBytes: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -151,6 +157,7 @@ export class DeveloperService {
   private readonly profileUrl = '/api/services/app/DeveloperProfile';
   private readonly gameUrl = '/api/services/app/DeveloperGame';
   private readonly uploadUrl = '/api/game-builds';
+  private readonly assetUrl = '/api/game-assets';
   private readonly dashboardUrl = '/api/services/app/DeveloperDashboard';
   private readonly metricsUrl = '/api/services/app/GameMetrics';
 
@@ -243,6 +250,22 @@ export class DeveloperService {
     return this.http
       .post<UploadResult | { result?: UploadResult }>(`${this.uploadUrl}/${gameId}/upload`, form)
       .pipe(map(response => this.unwrap<UploadResult>(response)));
+  }
+
+  uploadThumbnail(gameId: string, file: File): Observable<UploadImageResult> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http
+      .post<UploadImageResult | { result?: UploadImageResult }>(`${this.assetUrl}/${gameId}/thumbnail`, form)
+      .pipe(map(response => this.unwrap<UploadImageResult>(response)));
+  }
+
+  uploadHero(gameId: string, file: File): Observable<UploadImageResult> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http
+      .post<UploadImageResult | { result?: UploadImageResult }>(`${this.assetUrl}/${gameId}/hero`, form)
+      .pipe(map(response => this.unwrap<UploadImageResult>(response)));
   }
 
   private unwrap<T>(response: T | { result?: T }): T {

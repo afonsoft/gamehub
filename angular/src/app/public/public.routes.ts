@@ -10,6 +10,7 @@ import { guestGuard } from '../core/auth/guest.guard';
 
 export const publicRoutes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'docs', loadChildren: () => import('./docs/docs.routes').then(m => m.docsRoutes) },
   { path: 'games', component: GamesComponent },
   { path: 'games/:slug', component: GameDetailComponent },
   { path: 'game/:slug', redirectTo: 'games/:slug', pathMatch: 'full' },

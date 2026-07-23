@@ -23,28 +23,6 @@ namespace GameHub.Tests.GameHub.Application
 
         public GameBuildAppService_Tests()
         {
-            LocalIocManager.IocContainer.Register(
-                Component.For<IGameAssetStorage>().UsingFactoryMethod(() =>
-                {
-                    var substitute = Substitute.For<IGameAssetStorage>();
-                    substitute.StoreAsync(Arg.Any<GameBuildPackage>(), Arg.Any<CancellationToken>())
-                        .Returns(callInfo =>
-                        {
-                            var package = callInfo.Arg<GameBuildPackage>();
-                            var key = $"builds/{package.GameId:N}/{package.BuildId:N}/{package.FileName}";
-                            var prefix = $"builds/{package.GameId:N}/{package.BuildId:N}/";
-                            return Task.FromResult(new StoredAsset
-                            {
-                                Key = key,
-                                Url = $"http://minio/gamehub/{key}",
-                                PublicBaseUrl = $"http://minio/gamehub/{prefix}",
-                                ETag = "\"etag\"",
-                                SizeBytes = package.Content.Length
-                            });
-                        });
-                    return substitute;
-                }).LifestyleSingleton());
-
             _gameBuildAppService = LocalIocManager.Resolve<IGameBuildAppService>();
             _gameRepository = LocalIocManager.Resolve<IRepository<Game, Guid>>();
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();

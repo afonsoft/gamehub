@@ -53,6 +53,26 @@ namespace GameHub.Web.Caching
                 .ToList();
         }
 
+        public async Task<LeaderboardEntryDto> GetMyRankAsync(Guid gameId, long userId, CancellationToken cancellationToken = default)
+        {
+            var db = _redis.GetDatabase();
+            var score = await db.SortedSetScoreAsync(GetKey(gameId), userId.ToString());
+            if (!score.HasValue)
+            {
+                return null;
+            }
+
+            var rank = await db.SortedSetRankAsync(GetKey(gameId), userId.ToString(), Order.Descending);
+            return new LeaderboardEntryDto
+            {
+                Rank = (int)(rank ?? 0) + 1,
+                UserId = userId,
+                Score = (long)score.Value,
+                DisplayName = string.Empty,
+                UpdatedAt = DateTime.UtcNow
+            };
+        }
+
         private string GetKey(Guid gameId)
         {
             var tenantId = _abpSession.TenantId?.ToString() ?? "host";

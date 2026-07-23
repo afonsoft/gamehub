@@ -22,6 +22,9 @@ export class CategoryListComponent implements OnInit {
   }
 
   delete(category: any): void {
+    if (!confirm(`Delete category "${category.name}"?`)) {
+      return;
+    }
     this.adminService.deleteCategory(category.id).subscribe(() => {
       this.categories = this.categories.filter(c => c.id !== category.id);
     });

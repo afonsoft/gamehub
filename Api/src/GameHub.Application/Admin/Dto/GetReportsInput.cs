@@ -1,3 +1,4 @@
+using System;
 using Abp.Application.Services.Dto;
 
 namespace GameHub.Admin.Dto
@@ -9,5 +10,8 @@ namespace GameHub.Admin.Dto
     {
         /// <summary>Filtro por status do report.</summary>
         public string Status { get; set; } = string.Empty;
+
+        /// <summary>Filtro por jogo reportado.</summary>
+        public Guid? GameId { get; set; }
     }
 }

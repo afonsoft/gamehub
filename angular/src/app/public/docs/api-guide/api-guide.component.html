@@ -1,0 +1,30 @@
+<article class="doc-article">
+  <h1>{{ 'docs.apiGuide' | translate }}</h1>
+
+  <section>
+    <h2>{{ 'docs.api.baseUrl' | translate }}</h2>
+    <code>/api</code>
+  </section>
+
+  <section>
+    <h2>{{ 'docs.api.auth' | translate }}</h2>
+    <p>{{ 'docs.api.authText' | translate }}</p>
+    <pre ngNonBindable><code>POST /api/TokenAuth/Authenticate</code></pre>
+  </section>
+
+  <section>
+    <h2>{{ 'docs.api.catalog' | translate }}</h2>
+    <p>{{ 'docs.api.catalogText' | translate }}</p>
+    <pre><code>GET /api/services/app/GameCatalog/GetGames
+GET /api/services/app/GameCatalog/GetBySlug?slug=&lcub;slug&rcub;
+GET /api/services/app/GameCatalog/Search?Query=&lcub;q&rcub;</code></pre>
+  </section>
+
+  <section>
+    <h2>{{ 'docs.api.gameplay' | translate }}</h2>
+    <p>{{ 'docs.api.gameplayText' | translate }}</p>
+    <pre ngNonBindable><code>POST /api/services/app/Gameplay/StartSession
+POST /api/services/app/Gameplay/Event
+POST /api/services/app/Leaderboard/SubmitScore</code></pre>
+  </section>
+</article>

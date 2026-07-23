@@ -15,6 +15,7 @@ using GameHub.Catalog.Dto;
 using GameHub.Developer.Dto;
 using GameHub.Developers;
 using GameHub.Moderation;
+using GameHub.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Developer
@@ -26,19 +27,24 @@ namespace GameHub.Developer
         private readonly IRepository<ModerationReview, Guid> _moderationReviewRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
         private readonly IGameCatalogCache _catalogCache;
+        private readonly IGameAssetStorage _assetStorage;
+
+        private static readonly string[] AllowedImageExtensions = { ".png", ".jpg", ".jpeg", ".webp", ".gif" };
 
         public DeveloperGameAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<GameBuild, Guid> gameBuildRepository,
             IRepository<ModerationReview, Guid> moderationReviewRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
-            IGameCatalogCache catalogCache)
+            IGameCatalogCache catalogCache,
+            IGameAssetStorage assetStorage)
         {
             _gameRepository = gameRepository;
             _gameBuildRepository = gameBuildRepository;
             _moderationReviewRepository = moderationReviewRepository;
             _developerProfileRepository = developerProfileRepository;
             _catalogCache = catalogCache;
+            _assetStorage = assetStorage;
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Games_Create)]
@@ -269,6 +275,67 @@ namespace GameHub.Developer
 
                 suffix++;
             }
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
+        public async Task<UploadImageResultDto> UploadThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType)
+        {
+            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "thumbnails", g => g.ThumbnailUrl);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
+        public async Task<UploadImageResultDto> UploadHeroAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType)
+        {
+            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "heroes", g => g.HeroImageUrl);
+        }
+
+        private async Task<UploadImageResultDto> UploadImageAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType, string assetKind, System.Func<Game, string> urlSetter)
+        {
+            if (fileBytes == null || fileBytes.Length == 0)
+            {
+                throw new UserFriendlyException("Image file is required.");
+            }
+
+            var extension = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+            if (System.Array.IndexOf(AllowedImageExtensions, extension) < 0)
+            {
+                throw new UserFriendlyException($"Image type not allowed. Allowed: {string.Join(", ", AllowedImageExtensions)}");
+            }
+
+            const long maxSize = 2L * 1024 * 1024;
+            if (fileBytes.Length > maxSize)
+            {
+                throw new UserFriendlyException("Image must be 2 MB or smaller.");
+            }
+
+            var game = await _gameRepository.GetAsync(gameId);
+            await EnsureCurrentUserOwnsGameAsync(game);
+
+            using var stream = new System.IO.MemoryStream(fileBytes);
+            var input = new AssetUploadInput
+            {
+                GameId = gameId,
+                AssetKind = assetKind,
+                FileName = $"{Guid.NewGuid():N}{extension}",
+                ContentType = contentType,
+                Content = stream,
+            };
+
+            var stored = await _assetStorage.StoreAssetAsync(input);
+
+            if (assetKind == "thumbnails")
+            {
+                game.ThumbnailUrl = stored.Url;
+            }
+            else
+            {
+                game.HeroImageUrl = stored.Url;
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
+
+            return ObjectMapper.Map<UploadImageResultDto>(stored);
         }
     }
 }
