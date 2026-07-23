@@ -1,5 +1,38 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 22:00 UTC
+
+### Tarefa
+Implementar Fase B do plano aprovado: design system, internacionalização (i18n) e lazy routes no frontend Game Hub.
+
+### Arquivos alterados
+- `angular/src/styles.css` — tokens CSS do design system (`--gh-primary`, `--gh-surface`, `--gh-radius`, etc.).
+- `angular/src/app/shared/ui/button/button.component.ts` — componente `app-button` com variantes `primary/secondary/ghost`.
+- `angular/src/app/shared/ui/card/card.component.ts` — componente `app-card`.
+- `angular/src/app/shared/ui/badge/badge.component.ts` — componente `app-badge`.
+- `angular/src/app/shared/ui/skeleton/skeleton.component.ts` — componente `app-skeleton`.
+- `angular/src/app/shared/ui/pagination/pagination.component.ts` — componente `app-pagination`.
+- `angular/src/app/shared/ui/language-selector/language-selector.component.ts` — seletor de idioma.
+- `angular/src/app/core/i18n/i18n.service.ts` — `I18nService` com carregamento de JSON por idioma, persistência em `localStorage` e `BehaviorSubject`.
+- `angular/src/app/core/i18n/translate.pipe.ts` — pipe `translate` impuro para atualizar templates ao trocar idioma.
+- `angular/public/i18n/pt-BR.json` e `en-US.json` — dicionários iniciais.
+- `angular/src/app/app.config.ts` — `APP_INITIALIZER` para carregar idioma padrão.
+- `angular/src/app/app.routes.ts` — `loadChildren` para `public/public.routes.ts` e `developer/developer.routes.ts`.
+- `angular/src/app/public/public.routes.ts` — rotas lazy da área pública.
+- `angular/src/app/developer/developer.routes.ts` — rotas lazy da área do desenvolvedor.
+- `angular/src/app/public/home/home.component.ts/.html` — tradução das strings, `app-button` e `app-language-selector`.
+- `angular/src/app/developer/dashboard/dashboard.component.ts/.html` — tradução e `app-badge`.
+
+### Motivação
+Padronizar a base visual e textual do Game Hub, permitir futura expansão multilíngue e melhorar a organização das rotas com lazy loading.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release` sucesso.
+- `dotnet test Api/GameHub.sln -c Release` — 194 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker-compose.all.yml config` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+- PR `feature/hub-design-system` criado para `main`.
+
 ## 2026-07-23 21:00 UTC
 
 ### Tarefa

@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { GameCatalogService, HomeResponse } from '../../core/services/game-catalog.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { LanguageSelectorComponent } from '../../shared/ui/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ButtonComponent, LanguageSelectorComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

@@ -1,23 +1,24 @@
 <div class="home-page">
   <section class="hero">
     <div class="hero-inner">
-      <h1>Play free online games</h1>
-      <p>No downloads, no login — just pick a game and start playing.</p>
+      <app-language-selector></app-language-selector>
+      <h1>{{ 'hero.title' | translate }}</h1>
+      <p>{{ 'hero.subtitle' | translate }}</p>
       <div class="search-box">
         <input
           type="text"
           [(ngModel)]="searchQuery"
           (keyup.enter)="doSearch()"
-          placeholder="What are you playing today?"
-          aria-label="Search games" />
-        <button class="btn-primary" (click)="doSearch()">Search</button>
+          [placeholder]="'hero.searchPlaceholder' | translate"
+          [attr.aria-label]="'hero.searchPlaceholder' | translate" />
+        <app-button variant="primary" (appClick)="doSearch()">{{ 'hero.searchButton' | translate }}</app-button>
       </div>
     </div>
   </section>
 
   <div class="page-content">
     <section class="categories" *ngIf="home?.categories?.length">
-      <h2 class="section-title">Categories</h2>
+      <h2 class="section-title">{{ 'categories.title' | translate }}</h2>
       <div class="category-chips">
         <button
           *ngFor="let category of home?.categories"
@@ -29,7 +30,7 @@
     </section>
 
     <section class="game-section" *ngIf="home?.highlights?.length">
-      <h2 class="section-title">Highlights</h2>
+      <h2 class="section-title">{{ 'section.highlights' | translate }}</h2>
       <div class="game-grid large">
         <a class="game-card" *ngFor="let game of home?.highlights" [routerLink]="['/play', game.slug]">
           <div class="thumb">
@@ -45,7 +46,7 @@
     </section>
 
     <section class="game-section" *ngIf="home?.mostPlayed?.length">
-      <h2 class="section-title">Most Played</h2>
+      <h2 class="section-title">{{ 'section.mostPlayed' | translate }}</h2>
       <div class="game-grid">
         <a class="game-card" *ngFor="let game of home?.mostPlayed" [routerLink]="['/play', game.slug]">
           <div class="thumb">
@@ -60,7 +61,7 @@
     </section>
 
     <section class="game-section" *ngIf="home?.trending?.length">
-      <h2 class="section-title">Trending</h2>
+      <h2 class="section-title">{{ 'section.trending' | translate }}</h2>
       <div class="game-grid">
         <a class="game-card" *ngFor="let game of home?.trending" [routerLink]="['/play', game.slug]">
           <div class="thumb">
@@ -75,7 +76,7 @@
     </section>
 
     <section class="game-section" *ngIf="home?.newGames?.length">
-      <h2 class="section-title">New Games</h2>
+      <h2 class="section-title">{{ 'section.newGames' | translate }}</h2>
       <div class="game-grid">
         <a class="game-card" *ngFor="let game of home?.newGames" [routerLink]="['/play', game.slug]">
           <div class="thumb">
@@ -90,7 +91,7 @@
     </section>
 
     <section class="empty-state" *ngIf="loaded && !hasAnyGames()">
-      <p>No games published yet. Check back soon!</p>
+      <p>{{ 'emptyState.home' | translate }}</p>
     </section>
   </div>
 </div>
