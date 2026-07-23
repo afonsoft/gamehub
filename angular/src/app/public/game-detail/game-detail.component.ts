@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GameCatalogService, GameDetail, GameCard, GameVoteResult } from '../../core/services/game-catalog.service';
 import { ReportService } from '../../core/services/report.service';
@@ -35,6 +36,8 @@ export class GameDetailComponent implements OnInit {
   private readonly catalog = inject(GameCatalogService);
   private readonly reportService = inject(ReportService);
   private readonly auth = inject(AuthService);
+  private readonly titleService = inject(Title);
+  private readonly metaService = inject(Meta);
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
@@ -47,6 +50,7 @@ export class GameDetailComponent implements OnInit {
       next: g => {
         this.game = g;
         this.loaded = true;
+        this.setSeo(g);
         if (g) {
           this.isFavorite = this.checkFavorite(g.id);
           this.loadVote(g.id);
@@ -176,6 +180,14 @@ export class GameDetailComponent implements OnInit {
     const totalVotes = this.game.totalLikes + this.game.totalDislikes;
     this.game.totalVotes = totalVotes;
     this.game.averageRating = totalVotes > 0 ? (this.game.totalLikes / totalVotes) * 5 : 0;
+  }
+
+  private setSeo(game: GameDetail | null): void {
+    if (!game) return;
+    const title = `${game.title} - GameHub`;
+    const description = game.seoDescription?.trim() || game.shortDescription;
+    this.titleService.setTitle(title);
+    this.metaService.updateTag({ name: 'description', content: description });
   }
 
   private generateId(): string {

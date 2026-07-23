@@ -60,6 +60,8 @@ export interface GameDetail {
   description: string;
   instructions: string;
   controls?: string;
+  suggestedDescription?: string;
+  seoDescription?: string;
   ageRating: string;
   orientation: string;
   developerName: string;

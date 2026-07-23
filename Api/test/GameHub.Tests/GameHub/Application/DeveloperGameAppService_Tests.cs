@@ -116,6 +116,40 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
+        public async Task Dado_DraftComDescricoes_Quando_AtualizarMetadata_Entao_SugestedDescriptionESeOPersistidos()
+        {
+            var input = new CreateGameDraftInput
+            {
+                Title = "Description Game",
+                ShortDescription = "A valid short text",
+                SuggestedDescription = "Suggested initial",
+                SeoDescription = "SEO initial",
+                AgeRating = "E",
+                Orientation = "Both"
+            };
+
+            var game = await _developerGameAppService.CreateDraftAsync(input);
+
+            await _developerGameAppService.UpdateMetadataAsync(new UpdateGameMetadataInput
+            {
+                GameId = game.Id,
+                Title = game.Title,
+                ShortDescription = "A valid short text",
+                SuggestedDescription = "Updated suggestion",
+                SeoDescription = "Updated SEO",
+                AgeRating = "E",
+                Orientation = "Both",
+                SupportsDesktop = true,
+                SupportsMobile = true,
+                SupportsTablet = true
+            });
+
+            var updated = await _gameRepository.GetAsync(game.Id);
+            updated.SuggestedDescription.ShouldBe("Updated suggestion");
+            updated.SeoDescription.ShouldBe("Updated SEO");
+        }
+
+        [Fact]
         public async Task Dado_JogoComBuildAprovado_Quando_SubmeterParaRevisao_Entao_CriaModerationReviewPending()
         {
             var (gameId, buildId) = await SeedGameWithBuildAsync("Review Game");
