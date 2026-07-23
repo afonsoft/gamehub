@@ -1,0 +1,13 @@
+<div class="docs-page">
+  <aside class="docs-sidebar">
+    <nav>
+      <a routerLink="user-guide" routerLinkActive="active">{{ 'docs.userGuide' | translate }}</a>
+      <a routerLink="api-guide" routerLinkActive="active">{{ 'docs.apiGuide' | translate }}</a>
+      <a routerLink="admin-guide" routerLinkActive="active">{{ 'docs.adminGuide' | translate }}</a>
+      <a routerLink="sdk-guide" routerLinkActive="active">{{ 'docs.sdkGuide' | translate }}</a>
+    </nav>
+  </aside>
+  <main class="docs-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

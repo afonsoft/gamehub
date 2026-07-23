@@ -24,25 +24,6 @@ namespace GameHub.Tests.GameHub.Application
 
         public AdminBuildAppService_Tests()
         {
-            LocalIocManager.IocContainer.Register(
-                Component.For<IGameAssetStorage>().UsingFactoryMethod(() =>
-                {
-                    var substitute = Substitute.For<IGameAssetStorage>();
-                    substitute.ListBuildFilesAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>())
-                        .Returns(Task.FromResult<IReadOnlyList<StoredFile>>(new List<StoredFile>
-                        {
-                            new StoredFile
-                            {
-                                Key = "builds/game/build/index.html",
-                                Name = "index.html",
-                                SizeBytes = 100,
-                                Url = "http://minio/gamehub/builds/game/build/index.html",
-                                ContentType = "text/html"
-                            }
-                        }));
-                    return substitute;
-                }).LifestyleSingleton());
-
             _adminBuildAppService = LocalIocManager.Resolve<IAdminBuildAppService>();
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();
             _gameRepository = LocalIocManager.Resolve<IRepository<Game, Guid>>();

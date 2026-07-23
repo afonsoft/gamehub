@@ -10,5 +10,7 @@ namespace GameHub.Gameplay
         Task SubmitScoreAsync(SubmitScoreInput input);
 
         Task<ListResultDto<LeaderboardEntryDto>> GetTopAsync(GetLeaderboardInput input);
+
+        Task<LeaderboardEntryDto> GetMyRankAsync(GetLeaderboardInput input);
     }
 }

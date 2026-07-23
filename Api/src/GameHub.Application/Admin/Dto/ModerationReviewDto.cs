@@ -1,11 +1,7 @@
-using GameHub.Authentication.Dto;
-using GameHub.Admin.Dto;
-using GameHub.Gameplay.Dto;
-using GameHub.Developer.Dto;
-using GameHub.Catalog.Dto;
-using System.Linq;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using GameHub.Developer.Dto;
+
 namespace GameHub.Admin.Dto;
 
 /// <summary>
@@ -36,6 +32,15 @@ public class ModerationReviewDto
 
     /// <summary>Reviewer notes.</summary>
     public string Notes { get; set; }
+
+    /// <summary>Build version being reviewed.</summary>
+    public string Version { get; set; } = string.Empty;
+
+    /// <summary>Validation summary for the build.</summary>
+    public ValidationSummaryDto ValidationSummary { get; set; }
+
+    /// <summary>Previous reviews for the same game.</summary>
+    public List<ModerationReviewHistoryItemDto> History { get; set; } = new List<ModerationReviewHistoryItemDto>();
 
     /// <summary>UTC timestamp when the review was created.</summary>
     public DateTime CreatedAt { get; set; }

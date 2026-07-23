@@ -42,5 +42,25 @@ namespace GameHub.Gameplay
 
             return Task.FromResult<IReadOnlyList<LeaderboardEntryDto>>(entries);
         }
+
+        public Task<LeaderboardEntryDto> GetMyRankAsync(Guid gameId, long userId, CancellationToken cancellationToken = default)
+        {
+            if (!_scores.TryGetValue(gameId, out var gameScores) || !gameScores.ContainsKey(userId))
+            {
+                return Task.FromResult<LeaderboardEntryDto>(null);
+            }
+
+            var ordered = gameScores.OrderByDescending(x => x.Value).ToList();
+            var rank = ordered.FindIndex(x => x.Key == userId) + 1;
+            var score = gameScores[userId];
+
+            return Task.FromResult(new LeaderboardEntryDto
+            {
+                Rank = rank,
+                UserId = userId,
+                Score = score,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
     }
 }

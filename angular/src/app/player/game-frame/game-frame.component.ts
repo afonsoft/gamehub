@@ -4,47 +4,26 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { GameCatalogService, GameDetail } from '../../core/services/game-catalog.service';
 import { GameplayBridgeService, StartPlaySessionInput } from '../../core/services/gameplay-bridge.service';
-import { environment } from '../../../environments/environment';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-game-frame',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="frame-shell">
-      <iframe
-        #frame
-        *ngIf="safeUrl"
-        [src]="safeUrl"
-        title="Game"
-        width="100%"
-        height="100%"
-        sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-forms"
-        allow="fullscreen; gamepad"
-        referrerpolicy="no-referrer">
-      </iframe>
-      <div *ngIf="loadingError" class="error">
-        <p>This game is not available to play right now.</p>
-        <a (click)="back()">Back to games</a>
-      </div>
-    </div>
-  `,
-  styles: [
-    ':host { display: block; height: 100vh; }',
-    '.frame-shell { width: 100%; height: 100%; background: #000; }',
-    'iframe { border: 0; display: block; }',
-    '.error { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #fff; gap: 1rem; }',
-    '.error a { color: #ff5e57; cursor: pointer; text-decoration: underline; font-weight: 700; }',
-  ],
+  imports: [CommonModule, TranslatePipe],
+  templateUrl: './game-frame.component.html',
+  styleUrl: './game-frame.component.css',
 })
 export class GameFrameComponent implements OnInit, OnDestroy {
   @ViewChild('frame') frame!: ElementRef<HTMLIFrameElement>;
   safeUrl: SafeResourceUrl | null = null;
-  loaded = false;
+  started = false;
+  starting = false;
   loadingError = false;
+  startError: string | null = null;
+  game: GameDetail | null = null;
   private sessionId: string | null = null;
   private gameId: string | null = null;
-  private gameOrigin = environment.gameOrigin;
+  private gameOrigin = '*';
   private readonly messageHandler = (event: MessageEvent<unknown>) => this.bridge.handleMessage(event);
 
   private readonly route = inject(ActivatedRoute);
@@ -57,42 +36,57 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.catalog.getBySlug(slug).subscribe({
       next: (game: GameDetail | null) => {
-        this.loaded = true;
         if (!game?.publishedBuildUrl) {
           this.loadingError = true;
           return;
         }
+
+        this.game = game;
         this.gameId = game.id;
         this.gameOrigin = new URL(game.publishedBuildUrl).origin;
         this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(game.publishedBuildUrl);
         this.bridge.setGameOrigin(this.gameOrigin);
         this.bridge.setReplyHandler(msg => this.postToGame(msg));
-
-        const input: StartPlaySessionInput = {
-          gameId: game.id,
-          deviceType: 'Desktop',
-          browser: navigator.userAgent,
-          referrer: document.referrer,
-        };
-        this.bridge.startSession(input).subscribe({
-          next: session => {
-            this.sessionId = session?.sessionId ?? null;
-            if (this.sessionId && this.gameId) {
-              this.bridge.setSession(this.sessionId, this.gameId);
-            }
-          },
-          error: () => {
-            // Session creation failed; still allow the game to load.
-          },
-        });
       },
       error: () => {
-        this.loaded = true;
         this.loadingError = true;
       },
     });
 
     window.addEventListener('message', this.messageHandler);
+  }
+
+  startGame(): void {
+    if (!this.game || !this.safeUrl || this.starting) {
+      return;
+    }
+
+    this.starting = true;
+    this.startError = null;
+    this.bridge.gameplayStart();
+
+    const input: StartPlaySessionInput = {
+      gameId: this.game.id,
+      deviceType: this.detectDevice(),
+      browser: navigator.userAgent,
+      referrer: document.referrer,
+    };
+
+    this.bridge.startSession(input).subscribe({
+      next: session => {
+        this.starting = false;
+        this.started = true;
+        this.sessionId = session?.sessionId ?? null;
+        if (this.sessionId && this.gameId) {
+          this.bridge.setSession(this.sessionId, this.gameId);
+        }
+      },
+      error: () => {
+        this.starting = false;
+        this.startError = 'gameFrame.sessionError';
+        this.started = true;
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -113,5 +107,12 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     if (contentWindow) {
       contentWindow.postMessage(message, this.gameOrigin);
     }
+  }
+
+  private detectDevice(): string {
+    const ua = navigator.userAgent;
+    if (/Mobi/i.test(ua)) return 'Mobile';
+    if (/Tablet/i.test(ua) || /iPad/i.test(ua)) return 'Tablet';
+    return 'Desktop';
   }
 }

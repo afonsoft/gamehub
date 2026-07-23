@@ -17,6 +17,18 @@
       <h2>Upload build</h2>
       <input type="file" accept=".zip" (change)="uploadFile($event)" [disabled]="uploading" />
       <p class="hint">Accepted: .zip — max 100 MB. After upload, approve the build here before submitting the game for review.</p>
+      <div class="validation-card" *ngIf="uploadResult?.validationSummary">
+        <h3>Validation: {{ uploadResult!.validationSummary!.isValid ? 'Valid' : 'Invalid' }}</h3>
+        <p>Size: {{ uploadResult!.validationSummary!.packageSizeBytes | number }} bytes</p>
+        <p>Has index.html: {{ uploadResult!.validationSummary!.hasIndexHtml ? 'Yes' : 'No' }}</p>
+        <p>Path: {{ uploadResult!.validationSummary!.indexHtmlPath || '-' }}</p>
+        <ul *ngIf="uploadResult!.validationSummary!.errors?.length">
+          <li *ngFor="let err of uploadResult!.validationSummary!.errors" class="error">{{ err }}</li>
+        </ul>
+        <ul *ngIf="uploadResult!.validationSummary!.warnings?.length">
+          <li *ngFor="let warn of uploadResult!.validationSummary!.warnings" class="warning">{{ warn }}</li>
+        </ul>
+      </div>
       <p class="result" *ngIf="uploadResult">Uploaded build {{ uploadResult.version }} ({{ uploadResult.status }})</p>
     </section>
 
@@ -37,7 +49,7 @@
         <tr *ngFor="let build of builds">
           <td>{{ build.version }}</td>
           <td>#{{ build.buildNumber }}</td>
-          <td><span class="badge">{{ build.status }}</span></td>
+          <td><span class="badge" [class]="'badge status-' + build.status.toLowerCase()">{{ build.status }}</span></td>
           <td>{{ build.sizeBytes | number }} bytes</td>
           <td>{{ build.createdAt | date:'short' }}</td>
           <td>

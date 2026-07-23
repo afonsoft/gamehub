@@ -12,6 +12,8 @@ namespace GameHub.Storage
     {
         Task<StoredAsset> StoreAsync(GameBuildPackage package, CancellationToken cancellationToken = default);
 
+        Task<StoredAsset> StoreAssetAsync(AssetUploadInput input, CancellationToken cancellationToken = default);
+
         Task<IReadOnlyList<StoredFile>> ListBuildFilesAsync(Guid gameId, Guid buildId, CancellationToken cancellationToken = default);
     }
 }

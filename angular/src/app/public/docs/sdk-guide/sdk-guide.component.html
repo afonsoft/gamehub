@@ -1,0 +1,28 @@
+<article class="doc-article">
+  <h1>{{ 'docs.sdkGuide' | translate }}</h1>
+
+  <section>
+    <h2>{{ 'docs.sdk.init' | translate }}</h2>
+    <pre><code>&lt;script src="https://gamehub.afonsoft.dev/gamehub-sdk.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  GameHubSDK.init();
+&lt;/script&gt;</code></pre>
+  </section>
+
+  <section>
+    <h2>{{ 'docs.sdk.events' | translate }}</h2>
+    <p>{{ 'docs.sdk.eventsText' | translate }}</p>
+    <pre><code>GameHubSDK.gameLoadingStarted();
+GameHubSDK.gameLoadingFinished();
+GameHubSDK.gameplayStart();
+GameHubSDK.gameplayStop();
+GameHubSDK.submitScore(1234);</code></pre>
+  </section>
+
+  <section>
+    <h2>{{ 'docs.sdk.ads' | translate }}</h2>
+    <p>{{ 'docs.sdk.adsText' | translate }}</p>
+    <pre><code>await GameHubSDK.commercialBreakRequested();
+const rewarded = await GameHubSDK.rewardedBreakRequested();</code></pre>
+  </section>
+</article>

@@ -32,6 +32,13 @@ export class LeaderboardService {
     return this.http.post(`${this.apiUrl}/SubmitScore`, { gameId, score });
   }
 
+  getMyRank(gameId: string): Observable<LeaderboardEntry | null> {
+    const params = new HttpParams().set('gameId', gameId);
+    return this.http
+      .get<LeaderboardEntry | { result?: LeaderboardEntry | null }>(`${this.apiUrl}/GetMyRank`, { params })
+      .pipe(map(response => this.unwrap<LeaderboardEntry | null>(response) ?? null));
+  }
+
   private unwrap<T>(response: T | { result?: T }): T {
     return response && typeof response === 'object' && 'result' in response
       ? (response as { result?: T }).result!

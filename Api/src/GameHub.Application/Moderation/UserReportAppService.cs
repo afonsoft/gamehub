@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Application.Services.Dto;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub.Admin.Dto;
+using GameHub.Authorization;
 using GameHub.Catalog;
 using GameHub.Moderation.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Moderation
 {
@@ -42,6 +48,32 @@ namespace GameHub.Moderation
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<UserReportDto>(report);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Reports_Manage)]
+        public async Task<PagedResultDto<UserReportDto>> GetAllAsync(GetReportsInput input)
+        {
+            var query = _userReportRepository.GetAll().Where(r => !r.IsDeleted);
+
+            if (!string.IsNullOrWhiteSpace(input.Status) && Enum.TryParse<UserReportStatus>(input.Status, true, out var status))
+            {
+                query = query.Where(r => r.Status == status);
+            }
+
+            if (input.GameId.HasValue)
+            {
+                query = query.Where(r => r.GameId == input.GameId.Value);
+            }
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(r => r.CreationTime)
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .Include(r => r.Game)
+                .ToListAsync();
+
+            return new PagedResultDto<UserReportDto>(total, ObjectMapper.Map<List<UserReportDto>>(items));
         }
     }
 }

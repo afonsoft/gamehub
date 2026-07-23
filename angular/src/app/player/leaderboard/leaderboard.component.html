@@ -1,31 +1,47 @@
-<div class="leaderboard-page" *ngIf="game">
+<div class="leaderboard-page" *ngIf="game; else noGame">
   <div class="leaderboard-header">
-    <a class="back" [routerLink]="['/game', game.slug]">&larr; Back to game</a>
-    <h1>{{ game.title }} — Leaderboard</h1>
+    <a class="back" [routerLink]="['/game', game.slug]">&larr; {{ 'gameDetail.back' | translate }}</a>
+    <h1>{{ game.title }} — {{ 'leaderboard.topPlayers' | translate }}</h1>
   </div>
 
-  <section class="submit-score">
-    <h2>Submit your score</h2>
-    <div class="score-row">
-      <input type="number" [(ngModel)]="score" placeholder="Score" min="0" />
-      <button class="btn-primary" (click)="submitScore()" [disabled]="submitting">Submit</button>
-    </div>
-  </section>
+  <app-card>
+    <section class="submit-score" *ngIf="isLoggedIn(); else loginCta">
+      <h2>{{ 'leaderboard.submit' | translate }}</h2>
+      <div class="score-row">
+        <input type="number" [(ngModel)]="score" placeholder="Score" min="0" />
+        <app-button variant="primary" (appClick)="submitScore()" [disabled]="submitting">{{ submitting ? ('common.loading' | translate) : ('leaderboard.submit' | translate) }}</app-button>
+      </div>
+    </section>
+    <ng-template #loginCta>
+      <div class="login-cta">
+        <p>{{ 'leaderboard.loginToSubmit' | translate }}</p>
+        <app-button variant="primary" [routerLink]="['/login']">Login</app-button>
+      </div>
+    </ng-template>
+  </app-card>
 
-  <section class="top-list">
-    <h2>Top players</h2>
+  <app-card class="my-rank" *ngIf="myRank">
+    <h2>{{ 'leaderboard.myRank' | translate }}</h2>
+    <p>#{{ myRank.rank }} — {{ myRank.displayName || 'Player ' + myRank.userId }} — {{ myRank.score | number }}</p>
+  </app-card>
+
+  <app-card class="top-list">
+    <h2>{{ 'leaderboard.topPlayers' | translate }}</h2>
     <table *ngIf="entries.length; else empty">
       <thead>
         <tr>
-          <th>Rank</th>
-          <th>Player</th>
-          <th>Score</th>
-          <th>Date</th>
+          <th>{{ 'leaderboard.rank' | translate }}</th>
+          <th>{{ 'leaderboard.player' | translate }}</th>
+          <th>{{ 'leaderboard.score' | translate }}</th>
+          <th>{{ 'leaderboard.date' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let entry of entries">
-          <td>#{{ entry.rank }}</td>
+          <td>
+            <app-badge *ngIf="entry.rank <= 3" [label]="'#' + entry.rank" [variant]="entry.rank === 1 ? 'success' : entry.rank === 2 ? 'primary' : 'warning'"></app-badge>
+            <span *ngIf="entry.rank > 3">#{{ entry.rank }}</span>
+          </td>
           <td>{{ entry.displayName || 'Player ' + entry.userId }}</td>
           <td>{{ entry.score | number }}</td>
           <td>{{ entry.updatedAt | date:'short' }}</td>
@@ -33,12 +49,14 @@
       </tbody>
     </table>
     <ng-template #empty>
-      <p class="empty">No scores yet. Be the first!</p>
+      <p class="empty">{{ 'leaderboard.empty' | translate }}</p>
     </ng-template>
-  </section>
+  </app-card>
 </div>
 
-<div class="empty-state" *ngIf="loaded && !game">
-  <p>Game not found.</p>
-  <a routerLink="/games">Back to games</a>
-</div>
+<ng-template #noGame>
+  <div class="empty-state" *ngIf="loaded">
+    <p>{{ 'gameDetail.notFound' | translate }}</p>
+    <a routerLink="/games">{{ 'gameDetail.back' | translate }}</a>
+  </div>
+</ng-template>

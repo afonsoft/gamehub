@@ -22,6 +22,9 @@ export class TagListComponent implements OnInit {
   }
 
   delete(tag: any): void {
+    if (!confirm(`Delete tag "${tag.name}"?`)) {
+      return;
+    }
     this.adminService.deleteTag(tag.id).subscribe(() => {
       this.tags = this.tags.filter(t => t.id !== tag.id);
     });

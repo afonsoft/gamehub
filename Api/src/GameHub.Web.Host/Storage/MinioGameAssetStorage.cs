@@ -57,6 +57,49 @@ namespace GameHub.Web.Storage
             _s3Client = s3Client ?? throw new ArgumentNullException(nameof(s3Client));
         }
 
+        public async Task<StoredAsset> StoreAssetAsync(AssetUploadInput input, CancellationToken cancellationToken = default)
+        {
+            if (input?.Content == null)
+                throw new ArgumentNullException(nameof(input));
+
+            var prefix = $"{input.AssetKind}/{input.GameId:N}/";
+            var key = $"{prefix}{input.FileName}";
+
+            await EnsureBucketExistsAsync(cancellationToken);
+
+            if (input.Content.CanSeek && input.Content.Position != 0)
+                input.Content.Position = 0;
+
+            var extension = Path.GetExtension(input.FileName).ToLowerInvariant();
+            var contentType = ContentTypes.TryGetValue(extension, out var value)
+                ? value
+                : (string.IsNullOrWhiteSpace(input.ContentType) ? "application/octet-stream" : input.ContentType);
+
+            await using (var memoryStream = new MemoryStream())
+            {
+                await input.Content.CopyToAsync(memoryStream, cancellationToken);
+                memoryStream.Position = 0;
+
+                var response = await _s3Client.PutObjectAsync(new PutObjectRequest
+                {
+                    BucketName = _options.Minio.Bucket,
+                    Key = key,
+                    InputStream = memoryStream,
+                    ContentType = contentType,
+                    AutoCloseStream = false,
+                }, cancellationToken);
+
+                return new StoredAsset
+                {
+                    Key = key,
+                    ETag = response.ETag,
+                    SizeBytes = memoryStream.Length,
+                    Url = BuildPublicUrl(key),
+                    PublicBaseUrl = BuildPublicUrl(prefix),
+                };
+            }
+        }
+
         public async Task<StoredAsset> StoreAsync(GameBuildPackage package, CancellationToken cancellationToken = default)
         {
             if (package?.Content == null)

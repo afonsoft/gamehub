@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { DeveloperService, UpdateGameMetadataInput } from '../../core/services/developer.service';
+import { DeveloperService, UpdateGameMetadataInput, UploadImageResult } from '../../core/services/developer.service';
 import { GameCatalogService, GameDetail, Category, Tag } from '../../core/services/game-catalog.service';
 
 @Component({
@@ -31,9 +31,13 @@ export class GameEditComponent implements OnInit {
   categories: Category[] = [];
   tags: Tag[] = [];
   status = '';
+  thumbnailUrl = '';
+  heroImageUrl = '';
   loading = false;
   saving = false;
   submitting = false;
+  uploadingThumbnail = false;
+  uploadingHero = false;
   error = '';
 
   private readonly route = inject(ActivatedRoute);
@@ -157,8 +161,49 @@ export class GameEditComponent implements OnInit {
     return [...list];
   }
 
+  onThumbnailSelected(event: Event): void {
+    const file = this.extractFile(event);
+    if (!file) return;
+    this.uploadingThumbnail = true;
+    this.developerService.uploadThumbnail(this.gameId, file).subscribe({
+      next: (result: UploadImageResult) => {
+        this.thumbnailUrl = result.url;
+        this.uploadingThumbnail = false;
+      },
+      error: () => {
+        this.uploadingThumbnail = false;
+        this.error = 'Unable to upload thumbnail.';
+      },
+    });
+  }
+
+  onHeroSelected(event: Event): void {
+    const file = this.extractFile(event);
+    if (!file) return;
+    this.uploadingHero = true;
+    this.developerService.uploadHero(this.gameId, file).subscribe({
+      next: (result: UploadImageResult) => {
+        this.heroImageUrl = result.url;
+        this.uploadingHero = false;
+      },
+      error: () => {
+        this.uploadingHero = false;
+        this.error = 'Unable to upload hero image.';
+      },
+    });
+  }
+
+  private extractFile(event: Event): File | null {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    return file ?? null;
+  }
+
   private mapDetail(detail: GameDetail): void {
     this.status = detail.status ?? '';
+    this.thumbnailUrl = detail.thumbnailUrl ?? '';
+    this.heroImageUrl = detail.heroImageUrl ?? '';
     this.input = {
       gameId: detail.id,
       title: detail.title,

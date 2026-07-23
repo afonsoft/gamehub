@@ -1,5 +1,16 @@
 <div class="home-page">
-  <section class="hero">
+  <header class="public-header">
+  <nav>
+    <a routerLink="/" class="logo">GameHub</a>
+    <div class="nav-links">
+      <a routerLink="/games">{{ 'nav.games' | translate }}</a>
+      <a routerLink="/docs">{{ 'nav.docs' | translate }}</a>
+      <a routerLink="/developer">{{ 'nav.developer' | translate }}</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
     <div class="hero-inner">
       <app-language-selector></app-language-selector>
       <h1>{{ 'hero.title' | translate }}</h1>

@@ -98,6 +98,7 @@ namespace GameHub.Admin
         {
             var game = await _gameRepository.GetAsync(input.GameId);
             game.Status = GameStatus.Suspended;
+            await CurrentUnitOfWork.SaveChangesAsync();
             await _catalogCache.InvalidateHomeAsync();
             await _catalogCache.InvalidateBySlugAsync(game.Slug);
         }

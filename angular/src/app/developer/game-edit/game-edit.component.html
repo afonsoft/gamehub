@@ -67,6 +67,21 @@
         </label>
       </fieldset>
 
+      <section class="image-uploads">
+        <div class="image-field">
+          <label>Thumbnail</label>
+          <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" (change)="onThumbnailSelected($event)" [disabled]="uploadingThumbnail" />
+          <img *ngIf="thumbnailUrl" [src]="thumbnailUrl" alt="Thumbnail preview" class="preview" />
+          <span *ngIf="uploadingThumbnail">Uploading...</span>
+        </div>
+        <div class="image-field">
+          <label>Hero image</label>
+          <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" (change)="onHeroSelected($event)" [disabled]="uploadingHero" />
+          <img *ngIf="heroImageUrl" [src]="heroImageUrl" alt="Hero preview" class="preview hero" />
+          <span *ngIf="uploadingHero">Uploading...</span>
+        </div>
+      </section>
+
       <p class="error" *ngIf="error">{{ error }}</p>
 
       <div class="actions">

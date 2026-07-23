@@ -11,6 +11,7 @@ using GameHub.Admin.Dto;
 using GameHub.Authorization;
 using GameHub.Builds;
 using GameHub.Catalog;
+using GameHub.Developer.Dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Moderation
@@ -54,9 +55,44 @@ namespace GameHub.Moderation
             var review = await _reviewRepository.GetAll()
                 .Where(r => r.Id == reviewId)
                 .Include(r => r.Game)
+                    .ThenInclude(g => g.GameBuilds)
+                .Include(r => r.Game)
+                    .ThenInclude(g => g.ModerationReviews)
                 .FirstOrDefaultAsync();
 
-            return ObjectMapper.Map<ModerationReviewDto>(review);
+            if (review == null)
+            {
+                return null;
+            }
+
+            var build = review.GameBuildId == Guid.Empty
+                ? null
+                : review.Game?.GameBuilds?.FirstOrDefault(b => b.Id == review.GameBuildId);
+
+            var dto = ObjectMapper.Map<ModerationReviewDto>(review);
+            dto.Version = build?.Version ?? string.Empty;
+            dto.ValidationSummary = DeserializeValidationSummary(build?.ValidationSummary);
+            dto.History = ObjectMapper.Map<List<ModerationReviewHistoryItemDto>>(
+                (review.Game?.ModerationReviews?.Where(r => r.Id != reviewId).OrderByDescending(r => r.CreationTime) ?? Enumerable.Empty<ModerationReview>()).ToList());
+
+            return dto;
+        }
+
+        private static ValidationSummaryDto DeserializeValidationSummary(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            try
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<ValidationSummaryDto>(json);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Moderation_Complete)]

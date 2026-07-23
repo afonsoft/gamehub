@@ -25,6 +25,9 @@ public class UserReportDto
     /// <summary>User who submitted the report.</summary>
     public long UserId { get; set; }
 
+    /// <summary>Display name of the reporter.</summary>
+    public string ReporterName { get; set; } = string.Empty;
+
     /// <summary>Report reason category.</summary>
     public string Reason { get; set; } = string.Empty;
 
