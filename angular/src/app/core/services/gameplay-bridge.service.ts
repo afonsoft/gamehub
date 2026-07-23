@@ -50,6 +50,7 @@ export class GameplayBridgeService implements GameplayBridge {
 
   private sessionId: string | null = null;
   private gameId: string | null = null;
+  private gameOrigin = environment.gameOrigin;
   private replyHandler?: (message: unknown) => void;
 
   constructor(
@@ -60,6 +61,10 @@ export class GameplayBridgeService implements GameplayBridge {
   setSession(sessionId: string, gameId: string): void {
     this.sessionId = sessionId;
     this.gameId = gameId;
+  }
+
+  setGameOrigin(origin: string): void {
+    this.gameOrigin = origin;
   }
 
   setReplyHandler(handler?: (message: unknown) => void): void {
@@ -130,7 +135,7 @@ export class GameplayBridgeService implements GameplayBridge {
   }
 
   handleMessage(event: MessageEvent<unknown>): void {
-    if (event.origin !== environment.gameOrigin) {
+    if (event.origin !== this.gameOrigin) {
       return;
     }
 

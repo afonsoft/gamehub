@@ -13,8 +13,16 @@ namespace GameHub.Web.Storage
             {
                 ServiceURL = minio.Endpoint,
                 ForcePathStyle = minio.ForcePathStyle,
-                RegionEndpoint = RegionEndpoint.GetBySystemName(minio.Region ?? "us-east-1")
             };
+
+            if (string.IsNullOrWhiteSpace(minio.Endpoint))
+            {
+                s3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(minio.Region ?? "us-east-1");
+            }
+            else
+            {
+                s3Config.AuthenticationRegion = minio.Region ?? "us-east-1";
+            }
 
             return new AmazonS3Client(minio.AccessKey, minio.SecretKey, s3Config);
         }
