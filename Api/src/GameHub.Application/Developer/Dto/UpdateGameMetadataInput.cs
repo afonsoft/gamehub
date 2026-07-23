@@ -30,8 +30,7 @@ public class UpdateGameMetadataInput
     public string ShortDescription { get; set; } = string.Empty;
 
     /// <summary>Full description.</summary>
-    [Required]
-    [StringLength(50000, MinimumLength = 20)]
+    [StringLength(50000)]
     public string Description { get; set; } = string.Empty;
 
     /// <summary>Game instructions.</summary>

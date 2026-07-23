@@ -190,10 +190,10 @@ namespace GameHub.Web.Startup
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-            app.UseCors(GameHubConsts.DefaultCorsPolicyName);
             app.UseJwtTokenMiddleware();
             app.UseAbpRequestLocalization();
             app.UseRouting();
+            app.UseCors(GameHubConsts.DefaultCorsPolicyName);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<AbpCommonHub>("/signalr");

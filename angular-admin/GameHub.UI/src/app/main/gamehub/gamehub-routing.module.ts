@@ -12,6 +12,7 @@ import { TagListComponent } from './tags/tag-list.component';
 import { TagEditComponent } from './tags/tag-edit.component';
 import { FeatureFlagsComponent } from './dashboard/feature-flags.component';
 import { AuditLogComponent } from './dashboard/audit-log.component';
+import { UserListComponent } from './users/user-list.component';
 import { gameDetailResolver } from './resolvers/game-detail.resolver';
 import { moderationDetailResolver } from './resolvers/moderation-detail.resolver';
 import { categoryEditResolver } from './resolvers/category-edit.resolver';
@@ -33,6 +34,7 @@ const routes: Routes = [
   { path: 'tags/:id/edit', component: TagEditComponent, resolve: { tag: tagEditResolver }, data: { permission: 'Pages.Tags.Manage' } },
   { path: 'dashboard/flags', component: FeatureFlagsComponent, data: { permission: 'Pages.GameHubDashboard.FeatureFlags' } },
   { path: 'dashboard/audit', component: AuditLogComponent, data: { permission: 'Pages.GameHubDashboard.AuditLog' } },
+  { path: 'users', component: UserListComponent, data: { permission: 'Pages.Users.Manage' } },
   { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];
 

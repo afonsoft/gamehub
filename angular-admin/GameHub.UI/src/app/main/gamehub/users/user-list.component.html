@@ -1,0 +1,57 @@
+<div class="m-subheader">
+  <div class="d-flex align-items-center">
+    <h3 class="m-subheader__title">Users</h3>
+  </div>
+</div>
+<div class="m-content">
+  <div class="m-portlet">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text">All Users</h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div *ngIf="loading" class="text-center">Loading...</div>
+      <table class="table table-striped" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Active</th>
+            <th>Developer</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.userName }}</td>
+            <td>{{ user.emailAddress }}</td>
+            <td>{{ user.fullName }}</td>
+            <td>
+              <span class="m-badge" [ngClass]="user.isActive ? 'm-badge--success' : 'm-badge--danger'">
+                {{ user.isActive ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td>
+              <span class="m-badge" [ngClass]="user.isDeveloper ? 'm-badge--success' : 'm-badge--default'">
+                {{ user.isDeveloper ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td>{{ user.creationTime | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row" *ngIf="totalCount > maxResultCount">
+        <div class="col-6">
+          <button class="btn btn-primary" (click)="previousPage()" [disabled]="skipCount === 0">Previous</button>
+        </div>
+        <div class="col-6 text-right">
+          <button class="btn btn-primary" (click)="nextPage()" [disabled]="skipCount + maxResultCount >= totalCount">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

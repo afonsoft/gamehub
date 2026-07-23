@@ -29,7 +29,7 @@ namespace GameHub.Catalog
             DeveloperProfileId = developerProfileId;
             Status = GameStatus.Draft;
             TotalPlays = 0;
-            AgeRating = "Everyone";
+            AgeRating = "E";
             Orientation = GameOrientation.Both;
             SupportsDesktop = true;
             SupportsMobile = true;
@@ -137,5 +137,33 @@ namespace GameHub.Catalog
         public virtual ICollection<LeaderboardEntry> LeaderboardEntries { get; protected set; } = new List<LeaderboardEntry>();
         public virtual ICollection<ModerationReview> ModerationReviews { get; protected set; } = new List<ModerationReview>();
         public virtual ICollection<UserReport> UserReports { get; protected set; } = new List<UserReport>();
+
+        public void SetCategories(IEnumerable<Guid> categoryIds)
+        {
+            if (categoryIds == null)
+            {
+                return;
+            }
+
+            GameCategories.Clear();
+            foreach (var id in categoryIds.Distinct())
+            {
+                GameCategories.Add(new GameCategory { GameId = Id, CategoryId = id });
+            }
+        }
+
+        public void SetTags(IEnumerable<Guid> tagIds)
+        {
+            if (tagIds == null)
+            {
+                return;
+            }
+
+            GameTags.Clear();
+            foreach (var id in tagIds.Distinct())
+            {
+                GameTags.Add(new GameTag { GameId = Id, TagId = id });
+            }
+        }
     }
 }

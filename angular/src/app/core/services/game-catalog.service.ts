@@ -10,6 +10,12 @@ export interface Category {
   sortOrder?: number;
 }
 
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export interface GameCard {
   id: string;
   title: string;
@@ -34,6 +40,7 @@ export interface GameDetail {
   id: string;
   title: string;
   slug: string;
+  status?: string;
   thumbnailUrl: string;
   heroImageUrl: string;
   shortDescription: string;
@@ -48,6 +55,7 @@ export interface GameDetail {
   supportsDesktop: boolean;
   supportsMobile: boolean;
   supportsTablet: boolean;
+  categories: { id: string; name: string; slug: string }[];
   tags: { id: string; name: string; slug: string }[];
   relatedGames: GameCard[];
 }
@@ -60,12 +68,19 @@ export interface PagedGames {
 @Injectable({ providedIn: 'root' })
 export class GameCatalogService {
   private readonly apiUrl = '/api/services/app/GameCatalog';
+  private readonly tagUrl = '/api/services/app/Tag';
 
   constructor(private http: HttpClient) {}
 
   getHome(): Observable<HomeResponse> {
     return this.http.get<HomeResponse>(`${this.apiUrl}/GetHome`).pipe(
       map(response => this.unwrap<HomeResponse>(response)),
+    );
+  }
+
+  getTags(): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${this.tagUrl}/GetAll`).pipe(
+      map(response => this.unwrap<Tag[]>(response)),
     );
   }
 

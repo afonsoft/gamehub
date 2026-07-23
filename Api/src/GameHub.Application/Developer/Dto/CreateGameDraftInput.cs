@@ -26,8 +26,7 @@ public class CreateGameDraftInput
     public string ShortDescription { get; set; } = string.Empty;
 
     /// <summary>Full description (HTML/Markdown).</summary>
-    [Required]
-    [StringLength(50000, MinimumLength = 20)]
+    [StringLength(50000)]
     public string Description { get; set; } = string.Empty;
 
     /// <summary>Game instructions (HTML/Markdown).</summary>

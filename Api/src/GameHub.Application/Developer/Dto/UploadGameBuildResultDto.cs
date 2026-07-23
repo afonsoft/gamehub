@@ -23,5 +23,5 @@ public class UploadGameBuildResultDto
     public string Status { get; set; } = string.Empty;
 
     /// <summary>Validation result summary.</summary>
-    public string ValidationSummary { get; set; }
+    public ValidationSummaryDto ValidationSummary { get; set; }
 }

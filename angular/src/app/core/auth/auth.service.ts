@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { TokenService } from './token.service';
 
 export interface AuthenticateModel {
@@ -24,6 +24,19 @@ export interface RegisterModel {
   userName: string;
   emailAddress: string;
   password: string;
+  isDeveloper?: boolean;
+}
+
+export interface RegisterResultModel {
+  userId: number;
+  userName: string;
+}
+
+export interface RegisterErrorModel {
+  error: {
+    message: string;
+    details?: string;
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,7 +46,7 @@ export class AuthService {
   private readonly router = inject(Router);
 
   private readonly authUrl = '/api/TokenAuth/Authenticate';
-  private readonly registerUrl = '/api/services/app/Account/Register';
+  private readonly registerUrl = '/api/services/app/Registration/Register';
 
   login(model: AuthenticateModel): Observable<boolean> {
     return this.http.post<AuthenticateResultModel | { result?: AuthenticateResultModel }>(this.authUrl, model).pipe(
@@ -48,10 +61,21 @@ export class AuthService {
     );
   }
 
-  register(model: RegisterModel): Observable<boolean> {
-    return this.http.post<unknown | { result?: unknown }>(this.registerUrl, model).pipe(
-      map(response => this.unwrap(response) !== undefined),
-      catchError(() => of(false))
+  register(model: RegisterModel): Observable<{ success: boolean; error?: string }> {
+    return this.http.post<RegisterResultModel | { result?: RegisterResultModel }>(this.registerUrl, model).pipe(
+      map(response => this.unwrap(response)),
+      switchMap(() =>
+        this.login({
+          userNameOrEmailAddress: model.userName,
+          password: model.password,
+          rememberClient: true
+        })
+      ),
+      map(success => ({ success })),
+      catchError(err => {
+        const message = this.extractErrorMessage(err);
+        return of({ success: false, error: message });
+      })
     );
   }
 
@@ -73,5 +97,22 @@ export class AuthService {
       return (response as { result?: T }).result ?? null;
     }
     return response as T;
+  }
+
+  private extractErrorMessage(err: unknown): string {
+    if (!err) {
+      return 'Unknown error';
+    }
+    const error = (err as any)?.error;
+    if (error?.details) {
+      return error.details;
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    if ((err as any)?.message) {
+      return (err as any).message;
+    }
+    return 'Registration failed. Please try again.';
   }
 }
