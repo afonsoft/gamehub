@@ -16,7 +16,7 @@
     <section class="upload-section">
       <h2>Upload build</h2>
       <input type="file" accept=".zip" (change)="uploadFile($event)" [disabled]="uploading" />
-      <p class="hint">Accepted: .zip — max 100 MB</p>
+      <p class="hint">Accepted: .zip — max 100 MB. After upload, approve the build here before submitting the game for review.</p>
       <p class="result" *ngIf="uploadResult">Uploaded build {{ uploadResult.version }} ({{ uploadResult.status }})</p>
     </section>
 
@@ -30,6 +30,7 @@
           <th>Status</th>
           <th>Size</th>
           <th>Created</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -39,6 +40,10 @@
           <td><span class="badge">{{ build.status }}</span></td>
           <td>{{ build.sizeBytes | number }} bytes</td>
           <td>{{ build.createdAt | date:'short' }}</td>
+          <td>
+            <button *ngIf="build.status === 'Validated'" (click)="approveBuild(build)">Approve</button>
+            <button *ngIf="build.status === 'Validated'" (click)="rejectBuild(build)">Reject</button>
+          </td>
         </tr>
       </tbody>
     </table>

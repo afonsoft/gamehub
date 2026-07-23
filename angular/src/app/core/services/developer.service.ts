@@ -25,6 +25,8 @@ export interface GameSummary {
   slug: string;
   status: string;
   publishedBuildVersion?: string;
+  latestBuildStatus?: string;
+  latestBuildId?: string;
   lastUpdated: string;
 }
 
@@ -119,6 +121,18 @@ export class DeveloperService {
 
   submitForReview(gameId: string, notes?: string): Observable<unknown> {
     return this.http.post(`${this.gameUrl}/SubmitForReview`, { gameId, notes });
+  }
+
+  approveBuild(gameBuildId: string): Observable<BuildItem> {
+    return this.http
+      .post<BuildItem | { result?: BuildItem }>(`${this.gameUrl}/ApproveBuild`, { gameBuildId })
+      .pipe(map(response => this.unwrap<BuildItem>(response)));
+  }
+
+  rejectBuild(gameBuildId: string, reason: string): Observable<BuildItem> {
+    return this.http
+      .post<BuildItem | { result?: BuildItem }>(`${this.gameUrl}/RejectBuild`, { gameBuildId, reason })
+      .pipe(map(response => this.unwrap<BuildItem>(response)));
   }
 
   getBuilds(gameId: string): Observable<BuildItem[]> {

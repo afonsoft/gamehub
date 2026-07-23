@@ -34,7 +34,7 @@ export class DeveloperGamesComponent implements OnInit {
   }
 
   canSubmitForReview(game: GameSummary): boolean {
-    return game.status === 'Draft' || game.status === 'Rejected';
+    return (game.status === 'Draft' || game.status === 'Rejected') && game.latestBuildStatus === 'Approved';
   }
 
   submitForReview(game: GameSummary): void {
@@ -42,8 +42,8 @@ export class DeveloperGamesComponent implements OnInit {
       next: () => {
         game.status = 'InReview';
       },
-      error: () => {
-        // Keep existing status; surface nothing for now.
+      error: err => {
+        alert(err?.error?.error?.message || 'Unable to submit for review.');
       },
     });
   }

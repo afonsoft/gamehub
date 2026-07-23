@@ -4,6 +4,38 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_BASE_URL } from '@shared/service-proxies/service-proxies';
 
+export interface BuildListItem {
+  id: string;
+  gameId: string;
+  gameTitle: string;
+  developerName: string;
+  version: string;
+  buildNumber: number;
+  status: string;
+  sizeBytes: number;
+  createdAt: string;
+  publishedAt?: string;
+}
+
+export interface PagedBuildList {
+  totalCount: number;
+  items: BuildListItem[];
+}
+
+export interface BuildFile {
+  name: string;
+  key: string;
+  sizeBytes: number;
+  contentType: string;
+  url: string;
+  lastModified?: string;
+  isIndexHtml: boolean;
+}
+
+export interface BuildFileList {
+  items: BuildFile[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -62,6 +94,24 @@ export class GameHubAdminService {
   getGameDetail(id: string): Observable<any> {
     const params = new HttpParams().set('gameId', id);
     return this.http.get(`${this.baseUrl}/api/services/app/AdminGame/GetDetail`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getBuilds(skipCount: number, maxResultCount: number, status?: string, gameId?: string): Observable<PagedBuildList> {
+    let params = new HttpParams()
+      .set('SkipCount', skipCount.toString())
+      .set('MaxResultCount', maxResultCount.toString());
+    if (status) {
+      params = params.set('Status', status);
+    }
+    if (gameId) {
+      params = params.set('GameId', gameId);
+    }
+    return this.http.get<PagedBuildList>(`${this.baseUrl}/api/services/app/AdminBuild/GetAllBuilds`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getBuildFiles(buildId: string): Observable<BuildFileList> {
+    const params = new HttpParams().set('buildId', buildId);
+    return this.http.get<BuildFileList>(`${this.baseUrl}/api/services/app/AdminBuild/GetBuildFiles`, { params }).pipe(map(this.unwrapResult));
   }
 
   suspendGame(id: string, reason: string): Observable<any> {

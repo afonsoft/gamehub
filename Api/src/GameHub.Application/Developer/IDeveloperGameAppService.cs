@@ -18,5 +18,9 @@ namespace GameHub.Developer
         Task<PagedResultDto<GameSummaryDto>> GetMyGamesAsync(GetGamesInput input);
 
         Task<ListResultDto<BuildDto>> GetBuildsAsync(Guid gameId);
+
+        Task<BuildDto> ApproveBuildAsync(DeveloperApproveBuildInput input);
+
+        Task<BuildDto> RejectBuildAsync(DeveloperRejectBuildInput input);
     }
 }

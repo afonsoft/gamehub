@@ -31,6 +31,12 @@ public class GameSummaryDto
     /// <summary>Currently published build version string.</summary>
     public string PublishedBuildVersion { get; set; }
 
+    /// <summary>Status of the latest build (Uploaded, Validated, Approved, etc.).</summary>
+    public string LatestBuildStatus { get; set; } = string.Empty;
+
+    /// <summary>Identifier of the latest build.</summary>
+    public Guid? LatestBuildId { get; set; }
+
     /// <summary>Total play count.</summary>
     public long TotalPlays { get; set; }
 

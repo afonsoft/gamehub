@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Abp.Domain.Repositories;
+using Abp.UI;
 using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Developer;
@@ -82,9 +83,44 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_JogoComBuild_Quando_SubmeterParaRevisao_Entao_CriaModerationReviewPending()
+        public async Task Dado_BuildValidado_Quando_AprovarPeloDeveloper_Entao_StatusDeveSerApproved()
         {
-            var gameId = await SeedGameWithBuildAsync("Review Game");
+            var (gameId, buildId) = await SeedGameWithBuildAsync("Approve Build Game");
+
+            var result = await _developerGameAppService.ApproveBuildAsync(new DeveloperApproveBuildInput { GameBuildId = buildId });
+
+            result.Status.ShouldBe(GameBuildStatus.Approved.ToString());
+        }
+
+        [Fact]
+        public async Task Dado_BuildValidado_Quando_RejeitarPeloDeveloper_Entao_StatusDeveSerRejected()
+        {
+            var (gameId, buildId) = await SeedGameWithBuildAsync("Reject Build Game");
+
+            var result = await _developerGameAppService.RejectBuildAsync(new DeveloperRejectBuildInput
+            {
+                GameBuildId = buildId,
+                Reason = "Does not meet guidelines."
+            });
+
+            result.Status.ShouldBe(GameBuildStatus.Rejected.ToString());
+        }
+
+        [Fact]
+        public async Task Dado_JogoComBuildNaoAprovado_Quando_SubmeterParaRevisao_Entao_LancaExcecao()
+        {
+            var (gameId, buildId) = await SeedGameWithBuildAsync("Review Game Without Approval");
+
+            await Should.ThrowAsync<UserFriendlyException>(async () =>
+                await _developerGameAppService.SubmitForReviewAsync(new SubmitGameForReviewInput { GameId = gameId, Notes = "" }));
+        }
+
+        [Fact]
+        public async Task Dado_JogoComBuildAprovado_Quando_SubmeterParaRevisao_Entao_CriaModerationReviewPending()
+        {
+            var (gameId, buildId) = await SeedGameWithBuildAsync("Review Game");
+
+            await _developerGameAppService.ApproveBuildAsync(new DeveloperApproveBuildInput { GameBuildId = buildId });
 
             await _developerGameAppService.SubmitForReviewAsync(new SubmitGameForReviewInput { GameId = gameId, Notes = "" });
 
@@ -96,7 +132,7 @@ namespace GameHub.Tests.GameHub.Application
             game.Status.ShouldBe(GameStatus.InReview);
         }
 
-        private async Task<Guid> SeedGameWithBuildAsync(string title)
+        private async Task<(Guid GameId, Guid BuildId)> SeedGameWithBuildAsync(string title)
         {
             var game = await _developerGameAppService.CreateDraftAsync(new CreateGameDraftInput
             {
@@ -119,7 +155,7 @@ namespace GameHub.Tests.GameHub.Application
                 await context.SaveChangesAsync();
             });
 
-            return game.Id;
+            return (game.Id, buildId);
         }
 
         private async Task<Guid> SeedCategoryAsync(string name)

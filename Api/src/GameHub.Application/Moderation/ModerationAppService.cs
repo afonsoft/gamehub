@@ -77,7 +77,7 @@ namespace GameHub.Moderation
             switch (review.Decision)
             {
                 case ModerationDecision.Approved:
-                    build.Approve();
+                    build.Publish();
                     game.Publish(build.Id);
                     break;
                 case ModerationDecision.Rejected:

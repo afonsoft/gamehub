@@ -18,6 +18,7 @@
         <tr>
           <th>Title</th>
           <th>Status</th>
+          <th>Latest Build</th>
           <th>Last Updated</th>
           <th>Actions</th>
         </tr>
@@ -26,6 +27,7 @@
         <tr *ngFor="let game of games">
           <td>{{ game.title }}</td>
           <td><span class="badge">{{ game.status }}</span></td>
+          <td><span class="badge" *ngIf="game.latestBuildStatus">{{ game.latestBuildStatus }}</span></td>
           <td>{{ game.lastUpdated | date:'short' }}</td>
           <td>
             <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>

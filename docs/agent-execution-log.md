@@ -1,5 +1,37 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 13:50 UTC
+
+### Tarefa
+Implementar aprovação de uploads pelo desenvolvedor, painel administrativo de uploads e arquivos extraídos, e ajustar fluxo de moderação para exigir build `Approved` antes da publicação.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Storage/StoredFile.cs` — DTO para arquivos armazenados no MinIO.
+- `Api/src/GameHub.Core/Storage/IGameAssetStorage.cs` — adicionado `ListBuildFilesAsync`.
+- `Api/src/GameHub.Web.Host/Storage/MinioGameAssetStorage.cs` — implementação de listagem paginada de objetos no prefixo `builds/{gameId}/{buildId}/` com inferência de content-type.
+- `Api/src/GameHub.Application/Admin/IAdminBuildAppService.cs`, `AdminBuildAppService.cs`, `AdminBuildListItemDto.cs`, `BuildFileDto.cs`, `GetBuildsInput.cs` — serviço admin para listar builds e arquivos.
+- `Api/src/GameHub.Application/Admin/IAdminGameAppService.cs` e `AdminGameAppService.cs` — removidos métodos `ApproveBuildAsync`/`RejectBuildAsync` (aprovação agora é do desenvolvedor).
+- `Api/src/GameHub.Application/Developer/IDeveloperGameAppService.cs` e `DeveloperGameAppService.cs` — adicionados `ApproveBuildAsync`/`RejectBuildAsync` com verificação de ownership e `SubmitForReviewAsync` exige build `Approved`.
+- `Api/src/GameHub.Application/Developer/Dto/DeveloperApproveBuildInput.cs`, `DeveloperRejectBuildInput.cs`, `BuildDto.cs`, `GameSummaryDto.cs` — DTOs de aprovação e campos `latestBuildStatus`/`latestBuildId`.
+- `Api/src/GameHub.Application/Moderation/ModerationAppService.cs` — `CompleteReviewAsync` aprovado chama `build.Publish()` + `game.Publish(build.Id)` (remove `build.Approve()` redundante).
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — mapeamento de `LatestBuildStatus`/`LatestBuildId` e campos de `BuildDto`.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminBuildAppService_Tests.cs`, `DeveloperGameAppService_Tests.cs`, `ModerationAppService_Tests.cs` — testes de aprovação do desenvolvedor, listagem admin e fluxo de publicação.
+- `angular/src/app/core/services/developer.service.ts`, `angular/src/app/developer/builds/builds.component.ts/.html`, `angular/src/app/developer/games/games.component.ts/.html` — ações Aprovar/Rejeitar no painel do desenvolvedor e submissão apenas com build `Approved`.
+- `angular-admin/GameHub.UI/src/app/shared/layout/nav/app-navigation.service.ts` — menu `Uploads`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/gamehub-routing.module.ts` e `gamehub.module.ts` — rotas `uploads` e `uploads/:id` com componentes.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/uploads/build-list.component.ts/.html` e `build-files.component.ts/.html` — telas de listagem de uploads e arquivos extraídos.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/shared/services/gamehub-admin.service.ts` — `getBuilds` e `getBuildFiles`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/games/game-detail.component.html` — histórico de builds com link para arquivos.
+
+### Motivação
+Garantir que todo upload passe por aprovação do desenvolvedor antes de ir à moderação, e permitir que o admin visualize todos os uploads e os arquivos extraídos de cada build.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 176 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm ci --legacy-peer-deps && npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+
 ## 2026-07-23 03:25 UTC
 
 ### Tarefa

@@ -171,5 +171,47 @@ namespace GameHub.Web.Storage
 
             return $"{endpoint}/{key}";
         }
+
+        public async Task<IReadOnlyList<StoredFile>> ListBuildFilesAsync(Guid gameId, Guid buildId, CancellationToken cancellationToken = default)
+        {
+            var prefix = $"builds/{gameId:N}/{buildId:N}/";
+            var files = new List<StoredFile>();
+            string continuationToken = null;
+
+            do
+            {
+                var response = await _s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                {
+                    BucketName = _options.Minio.Bucket,
+                    Prefix = prefix,
+                    ContinuationToken = continuationToken,
+                    MaxKeys = 1000
+                }, cancellationToken);
+
+                foreach (var s3Object in response.S3Objects)
+                {
+                    if (s3Object.Key.EndsWith("/"))
+                        continue;
+
+                    var name = s3Object.Key.Length > prefix.Length ? s3Object.Key.Substring(prefix.Length) : s3Object.Key;
+                    var extension = Path.GetExtension(name).ToLowerInvariant();
+                    ContentTypes.TryGetValue(extension, out var contentType);
+
+                    files.Add(new StoredFile
+                    {
+                        Key = s3Object.Key,
+                        Name = name,
+                        SizeBytes = s3Object.Size,
+                        LastModified = s3Object.LastModified,
+                        Url = BuildPublicUrl(s3Object.Key),
+                        ContentType = contentType ?? "application/octet-stream"
+                    });
+                }
+
+                continuationToken = response.IsTruncated ? response.NextContinuationToken : null;
+            } while (!string.IsNullOrEmpty(continuationToken));
+
+            return files;
+        }
     }
 }

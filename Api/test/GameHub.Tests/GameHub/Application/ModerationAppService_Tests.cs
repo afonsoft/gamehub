@@ -19,7 +19,6 @@ namespace GameHub.Tests.GameHub.Application
 {
     public class ModerationAppService_Tests : GameHubTestBase
     {
-        private readonly IAdminGameAppService _adminGameAppService;
         private readonly IDeveloperGameAppService _developerGameAppService;
         private readonly IModerationAppService _moderationAppService;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
@@ -27,7 +26,6 @@ namespace GameHub.Tests.GameHub.Application
 
         public ModerationAppService_Tests()
         {
-            _adminGameAppService = LocalIocManager.Resolve<IAdminGameAppService>();
             _developerGameAppService = LocalIocManager.Resolve<IDeveloperGameAppService>();
             _moderationAppService = LocalIocManager.Resolve<IModerationAppService>();
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();
@@ -35,22 +33,22 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_BuildValido_Quando_Aprovar_Entao_StatusDeveSerApproved()
+        public async Task Dado_BuildValidado_Quando_AprovarPeloDeveloper_Entao_StatusDeveSerApproved()
         {
-            var buildId = SeedGameWithBuild("Moderation Game");
+            var buildId = SeedGameWithBuild("Developer Approve Game");
 
-            await _adminGameAppService.ApproveBuildAsync(new ApproveBuildInput { GameBuildId = buildId });
+            await _developerGameAppService.ApproveBuildAsync(new DeveloperApproveBuildInput { GameBuildId = buildId });
 
             var updated = await _buildRepository.GetAsync(buildId);
             updated.Status.ShouldBe(GameBuildStatus.Approved);
         }
 
         [Fact]
-        public async Task Dado_BuildReprovado_Quando_Reprovar_Entao_StatusDeveSerRejected()
+        public async Task Dado_BuildValidado_Quando_RejeitarPeloDeveloper_Entao_StatusDeveSerRejected()
         {
-            var buildId = SeedGameWithBuild("Reject Game");
+            var buildId = SeedGameWithBuild("Developer Reject Game");
 
-            await _adminGameAppService.RejectBuildAsync(new RejectBuildInput
+            await _developerGameAppService.RejectBuildAsync(new DeveloperRejectBuildInput
             {
                 GameBuildId = buildId,
                 Reason = "Does not meet guidelines."
@@ -61,7 +59,7 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_JogoSubmetido_Quando_CompletarReviewComAprovacao_Entao_BuildEAprovadoEJogoPublicado()
+        public async Task Dado_JogoSubmetido_Quando_CompletarReviewComAprovacao_Entao_BuildEPublicadoEJogoPublicado()
         {
             var gameId = await SeedGameAndSubmitForReviewAsync("Approve Review Game");
 
@@ -80,7 +78,27 @@ namespace GameHub.Tests.GameHub.Application
             game.Status.ShouldBe(GameStatus.Published);
 
             var build = await _buildRepository.GetAsync(pending.GameBuildId);
-            build.Status.ShouldBe(GameBuildStatus.Approved);
+            build.Status.ShouldBe(GameBuildStatus.Published);
+        }
+
+        [Fact]
+        public async Task Dado_JogoSubmetido_Quando_CompletarReviewComRejeicao_Entao_JogoFicaRejected()
+        {
+            var gameId = await SeedGameAndSubmitForReviewAsync("Reject Review Game");
+
+            var reviews = await _moderationAppService.GetPendingReviewsAsync();
+            var pending = reviews.Items.FirstOrDefault(r => r.GameId == gameId);
+            pending.ShouldNotBeNull();
+
+            await _moderationAppService.CompleteReviewAsync(new CompleteReviewInput
+            {
+                ReviewId = pending.ReviewId,
+                Decision = ReviewDecision.Rejected,
+                Notes = "Inappropriate content."
+            });
+
+            var game = await _gameRepository.GetAsync(gameId);
+            game.Status.ShouldBe(GameStatus.Rejected);
         }
 
         private Guid SeedGameWithBuild(string title)
@@ -112,13 +130,18 @@ namespace GameHub.Tests.GameHub.Application
                     Status = DeveloperProfileStatus.Active
                 });
 
-                context.Games.Add(new Game(gameId, title, title.ToLowerInvariant().Replace(" ", "-"), "Test game", profileId));
+                context.Games.Add(new Game(gameId, title, title.ToLowerInvariant().Replace(" ", "-"), "Test game", profileId)
+                {
+                    TenantId = AbpSession.TenantId
+                });
 
                 context.GameBuilds.Add(new GameBuild(buildId, gameId, "1.0.0", 1, "/uploads/test.zip", stream.Length, "hash")
                 {
                     TenantId = AbpSession.TenantId,
                     Status = GameBuildStatus.Validated
                 });
+
+                context.SaveChanges();
             });
 
             return buildId;
@@ -145,6 +168,7 @@ namespace GameHub.Tests.GameHub.Application
                 await context.SaveChangesAsync();
             });
 
+            await _developerGameAppService.ApproveBuildAsync(new DeveloperApproveBuildInput { GameBuildId = buildId });
             await _developerGameAppService.SubmitForReviewAsync(new SubmitGameForReviewInput { GameId = draft.Id, Notes = "" });
             return draft.Id;
         }
