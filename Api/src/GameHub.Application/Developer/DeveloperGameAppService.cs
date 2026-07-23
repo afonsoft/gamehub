@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub;
+using GameHub.Authorization;
 using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Catalog.Dto;
@@ -31,6 +33,7 @@ namespace GameHub.Developer
             _catalogCache = catalogCache;
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Create)]
         public async Task<GameDetailDto> CreateDraftAsync(CreateGameDraftInput input)
         {
             var profile = await GetOrCreateProfileAsync();
@@ -53,6 +56,7 @@ namespace GameHub.Developer
             return ObjectMapper.Map<GameDetailDto>(game);
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
         public async Task<GameDetailDto> UpdateMetadataAsync(UpdateGameMetadataInput input)
         {
             var game = await _gameRepository.GetAsync(input.GameId);

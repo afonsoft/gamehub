@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
+using GameHub.Authorization;
 using GameHub.Catalog;
 using GameHub.Developer.Dto;
 using GameHub.Storage;
@@ -29,6 +31,7 @@ namespace GameHub.Builds
             _assetStorage = assetStorage;
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Builds_Upload)]
         public async Task<UploadGameBuildResultDto> UploadBuildAsync(Guid gameId, Stream packageStream, string fileName, string contentType)
         {
             var game = await _gameRepository.GetAsync(gameId);

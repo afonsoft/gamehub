@@ -46,6 +46,9 @@ namespace GameHub.Authorization
             dashboard.CreateChildPermission(GameHubPermissions.Pages_Dashboard_FeatureFlags, L("FeatureFlags"));
             dashboard.CreateChildPermission(GameHubPermissions.Pages_Dashboard_AuditLog, L("AuditLog"));
 
+            var users = pages.CreateChildPermission(GameHubPermissions.Pages_Users, L("Users"));
+            users.CreateChildPermission(GameHubPermissions.Pages_Users_Manage, L("Manage"));
+
             var reports = pages.CreateChildPermission(GameHubPermissions.Pages_Reports, L("Reports"));
             reports.CreateChildPermission(GameHubPermissions.Pages_Reports_View, L("View"));
             reports.CreateChildPermission(GameHubPermissions.Pages_Reports_Manage, L("Manage"));

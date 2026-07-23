@@ -28,6 +28,9 @@ namespace GameHub.Migrations.Seed
 
             //Host seed
             new InitialHostDbBuilder(context).Create();
+
+            //GameHub roles and permissions
+            new GameHubPermissionSeeder(context).Create();
         }
 
         private static void WithDbContext<TDbContext>(IIocResolver iocResolver, Action<TDbContext> contextAction) where TDbContext : DbContext

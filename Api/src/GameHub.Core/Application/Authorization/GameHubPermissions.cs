@@ -41,6 +41,10 @@ namespace GameHub.Authorization
         public const string Pages_Dashboard_FeatureFlags = "Pages.GameHubDashboard.FeatureFlags";
         public const string Pages_Dashboard_AuditLog = "Pages.GameHubDashboard.AuditLog";
 
+        // Users
+        public const string Pages_Users = "Pages.Users";
+        public const string Pages_Users_Manage = "Pages.Users.Manage";
+
         // Reports
         public const string Pages_Reports = "Pages.Reports";
         public const string Pages_Reports_View = "Pages.Reports.View";
