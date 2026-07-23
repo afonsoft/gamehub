@@ -28,6 +28,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.ThumbnailUrl).HasMaxLength(512);
                 b.Property(x => x.HeroImageUrl).HasMaxLength(512);
                 b.Property(x => x.TotalPlays).HasDefaultValue(0L);
+                b.Property(x => x.TotalLikes).HasDefaultValue(0L);
+                b.Property(x => x.TotalDislikes).HasDefaultValue(0L);
 
                 b.HasIndex(x => x.Slug).IsUnique();
                 b.HasIndex(x => x.Status);
@@ -278,6 +280,23 @@ namespace GameHub.EntityFrameworkCore
                     .WithMany()
                     .HasForeignKey(x => x.ReviewerUserId)
                     .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<GameVote>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "GameVotes", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.DeviceId).HasMaxLength(64);
+                b.Property(x => x.VoteType).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.CreatorUserId });
+                b.HasIndex(x => new { x.GameId, x.DeviceId });
+
+                b.HasOne(x => x.Game)
+                    .WithMany(x => x.GameVotes)
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<UserReport>(b =>

@@ -54,6 +54,12 @@ public class GameDetailDto
     /// <summary>Total play count.</summary>
     public long TotalPlays { get; set; }
 
+    /// <summary>Total like votes.</summary>
+    public long TotalLikes { get; set; }
+
+    /// <summary>Total dislike votes.</summary>
+    public long TotalDislikes { get; set; }
+
     /// <summary>Average user rating (0–5).</summary>
     public decimal AverageRating { get; set; }
 

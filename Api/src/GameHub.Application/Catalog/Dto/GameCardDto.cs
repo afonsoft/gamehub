@@ -43,4 +43,10 @@ public class GameCardDto
 
     /// <summary>Total play count across all sessions.</summary>
     public long TotalPlays { get; set; }
+
+    /// <summary>Total like votes.</summary>
+    public long TotalLikes { get; set; }
+
+    /// <summary>Total dislike votes.</summary>
+    public long TotalDislikes { get; set; }
 }

@@ -48,13 +48,25 @@
         <app-button variant="primary" (appClick)="router.navigate(['/play', game.slug])">{{ 'gameDetail.play' | translate }}</app-button>
         <app-button variant="secondary" (appClick)="router.navigate(['/leaderboard', game.slug])">{{ 'gameDetail.leaderboard' | translate }}</app-button>
         <app-button variant="ghost" (appClick)="toggleFavorite()">{{ isFavorite ? '♥' : '♡' }} {{ 'gameDetail.favorite' | translate }}</app-button>
+        <div class="vote-actions">
+          <button class="vote-btn" [class.active]="userVote === 'Like'" (click)="vote('Like')" [disabled]="voting" type="button">
+            {{ 'gameDetail.like' | translate }} {{ game.totalLikes | number }}
+          </button>
+          <button class="vote-btn" [class.active]="userVote === 'Dislike'" (click)="vote('Dislike')" [disabled]="voting" type="button">
+            {{ 'gameDetail.dislike' | translate }} {{ game.totalDislikes | number }}
+          </button>
+        </div>
         <app-button variant="ghost" (appClick)="openReport()">{{ 'gameDetail.report' | translate }}</app-button>
+        <app-button variant="ghost" (appClick)="openReport('Bug')">{{ 'gameDetail.reportBug' | translate }}</app-button>
       </div>
     </div>
 
     <section class="description" *ngIf="game.description">
       <h2>{{ 'gameDetail.about' | translate }}</h2>
-      <div [innerHTML]="game.description"></div>
+      <div class="description-body" [class.collapsed]="!descriptionExpanded" [innerHTML]="game.description"></div>
+      <button class="show-more" (click)="toggleDescription()" type="button">
+        {{ descriptionExpanded ? ('gameDetail.showLess' | translate) : ('gameDetail.showMore' | translate) }}
+      </button>
     </section>
 
     <section class="instructions" *ngIf="game.instructions">

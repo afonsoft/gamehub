@@ -25,7 +25,16 @@ export interface GameCard {
   supportsMobile: boolean;
   supportsDesktop: boolean;
   totalPlays: number;
+  totalLikes: number;
+  totalDislikes: number;
   categories?: Category[];
+}
+
+export interface GameVoteResult {
+  gameId: string;
+  totalLikes: number;
+  totalDislikes: number;
+  userVote?: 'Like' | 'Dislike' | null;
 }
 
 export interface HomeResponse {
@@ -51,6 +60,8 @@ export interface GameDetail {
   developerName: string;
   publishedBuildUrl: string;
   totalPlays: number;
+  totalLikes: number;
+  totalDislikes: number;
   averageRating: number;
   supportsDesktop: boolean;
   supportsMobile: boolean;
@@ -109,6 +120,20 @@ export class GameCatalogService {
   getBySlug(slug: string): Observable<GameDetail | null> {
     return this.http.get<GameDetail>(`${this.apiUrl}/GetBySlug`, { params: { slug } }).pipe(
       map(response => this.unwrap<GameDetail | null>(response)),
+    );
+  }
+
+  getVote(gameId: string, deviceId?: string): Observable<GameVoteResult> {
+    let params = new HttpParams().set('gameId', gameId);
+    if (deviceId) params = params.set('deviceId', deviceId);
+    return this.http.get<GameVoteResult>(`${this.apiUrl}/GetVote`, { params }).pipe(
+      map(response => this.unwrap<GameVoteResult>(response)),
+    );
+  }
+
+  vote(gameId: string, voteType: 'Like' | 'Dislike', deviceId?: string): Observable<GameVoteResult> {
+    return this.http.post<GameVoteResult>(`${this.apiUrl}/Vote`, { gameId, voteType, deviceId }).pipe(
+      map(response => this.unwrap<GameVoteResult>(response)),
     );
   }
 

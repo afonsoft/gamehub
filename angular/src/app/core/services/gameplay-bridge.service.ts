@@ -53,6 +53,12 @@ export class GameplayBridgeService implements GameplayBridge {
   private gameOrigin = environment.gameOrigin;
   private replyHandler?: (message: unknown) => void;
 
+  private isLoadingStarted = false;
+  private isLoadingFinished = false;
+  private isPlaying = false;
+  private isAdRunning = false;
+  private pendingLoadingFinished = false;
+
   constructor(
     private http: HttpClient,
     private adBreak: AdBreakService,
@@ -61,6 +67,11 @@ export class GameplayBridgeService implements GameplayBridge {
   setSession(sessionId: string, gameId: string): void {
     this.sessionId = sessionId;
     this.gameId = gameId;
+
+    if (this.pendingLoadingFinished) {
+      this.pendingLoadingFinished = false;
+      this.sendLoadingFinished();
+    }
   }
 
   setGameOrigin(origin: string): void {
@@ -82,26 +93,45 @@ export class GameplayBridgeService implements GameplayBridge {
   }
 
   gameLoadingStarted(): void {
+    if (this.isLoadingStarted) return;
+    this.isLoadingStarted = true;
     this.sendEvent(GameplayEventType.GameLoadingStarted);
   }
 
   gameLoadingFinished(): void {
-    this.sendEvent(GameplayEventType.GameLoadingFinished);
+    if (this.isLoadingFinished) return;
+    this.isLoadingFinished = true;
+
+    if (this.sessionId && this.gameId) {
+      this.sendLoadingFinished();
+    } else {
+      this.pendingLoadingFinished = true;
+    }
   }
 
   gameplayStart(): void {
+    if (this.isAdRunning || this.isPlaying) return;
+    this.isPlaying = true;
     this.sendEvent(GameplayEventType.GameplayStarted);
   }
 
   gameplayStop(): void {
+    if (this.isAdRunning || !this.isPlaying) return;
+    this.isPlaying = false;
     this.sendEvent(GameplayEventType.GameplayStopped);
   }
 
   async commercialBreakRequested(): Promise<void> {
+    if (this.isAdRunning) return;
+    this.isAdRunning = true;
+    this.isPlaying = false;
     this.sendEvent(GameplayEventType.CommercialBreakRequested);
+
     if (this.gameId) {
       await this.adBreak.requestCommercial(this.gameId).toPromise();
     }
+
+    this.isAdRunning = false;
     this.commercialBreakCompleted();
     this.reply({ channel: 'gamehub-bridge', action: 'commercialBreakCompleted' });
   }
@@ -111,12 +141,18 @@ export class GameplayBridgeService implements GameplayBridge {
   }
 
   async rewardedBreakRequested(): Promise<boolean> {
+    if (this.isAdRunning) return false;
+    this.isAdRunning = true;
+    this.isPlaying = false;
     this.sendEvent(GameplayEventType.RewardedBreakRequested);
+
     let completed = false;
     if (this.gameId) {
       const result = await this.adBreak.requestRewarded(this.gameId).toPromise();
       completed = result?.completed ?? false;
     }
+
+    this.isAdRunning = false;
     this.rewardedBreakCompleted();
     this.reply({ channel: 'gamehub-bridge', action: 'rewardedBreakCompleted', payload: { success: completed } });
     return completed;
@@ -127,10 +163,12 @@ export class GameplayBridgeService implements GameplayBridge {
   }
 
   gameErrorCaptured(error: Error | string): void {
+    if (this.isAdRunning) return;
     this.sendEvent(GameplayEventType.GameErrorCaptured, error.toString());
   }
 
   gameMeasuredEvent(category: string, what: string, action: string): void {
+    if (this.isAdRunning) return;
     this.sendEvent(GameplayEventType.GameMeasuredEvent, JSON.stringify({ category, what, action }));
   }
 
@@ -196,6 +234,10 @@ export class GameplayBridgeService implements GameplayBridge {
       payloadJson: payload,
     };
     this.http.post(`${this.gameplayUrl}/Event`, body).subscribe();
+  }
+
+  private sendLoadingFinished(): void {
+    this.sendEvent(GameplayEventType.GameLoadingFinished);
   }
 
   private unwrap<T>(response: T | { result?: T }): T {

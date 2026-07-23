@@ -93,3 +93,23 @@ iframe {
   text-decoration: underline;
   font-weight: 700;
 }
+
+.fullscreen-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 20;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.fullscreen-btn:hover {
+  opacity: 1;
+}

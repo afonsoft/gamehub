@@ -1,5 +1,33 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 21:15 UTC
+
+### Tarefa
+Executar a Fase 1 da referência Poki (`18-poki-referencia.md`) para o portal público: like/dislike, report de bug, tela cheia, descrição expansível e regras de sequência do SDK.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Catalog/GameVote.cs`, `GameVoteType.cs` — entidade e enum de voto.
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` — `TotalLikes` e `TotalDislikes`.
+- `Api/src/GameHub.Application/Catalog/Dto/GameVoteInput.cs`, `GameVoteResultDto.cs`, `GameDetailDto.cs`, `GameCardDto.cs` — DTOs de voto e contadores.
+- `Api/src/GameHub.Application/Catalog/IGameCatalogAppService.cs` e `GameCatalogAppService.cs` — endpoints `GetVote` e `Vote`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs` e `GameHubModelCreatingExtensions.cs` — DbSet e configuração do `GameVote`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260723215036_AddGameVotes.*` — migração EF Core.
+- `angular/src/app/core/services/game-catalog.service.ts` — métodos `getVote` e `vote`.
+- `angular/src/app/public/game-detail/game-detail.component.ts/.html/.css` — botões de like/dislike, botão "Reportar bug" e "Mostrar mais" na descrição.
+- `angular/src/app/player/game-frame/game-frame.component.ts/.html/.css` — botão de tela cheia e evento `load` para `gameLoadingFinished`.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — máquina de estado que evita eventos duplicados, eventos durante anúncios e buffer de `gameLoadingFinished` antes da sessão.
+- `angular/public/i18n/pt-BR.json` e `en-US.json` — novas chaves de tradução.
+
+### Motivação
+Aplicar na prática os conceitos de UX e SDK da Poki sem copiar marca ou conteúdo, melhorando a página do jogo e a confiabilidade dos eventos do bridge.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 200 passaram, 1 skipped.
+- `dotnet ef migrations add AddGameVotes` gerada com sucesso.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Branch `feature/poki-public-gamepage` criada a partir de `main`.
+
 ## 2026-07-23 20:20 UTC
 
 ### Tarefa

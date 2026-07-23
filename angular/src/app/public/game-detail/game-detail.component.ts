@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { GameCatalogService, GameDetail, GameCard } from '../../core/services/game-catalog.service';
+import { GameCatalogService, GameDetail, GameCard, GameVoteResult } from '../../core/services/game-catalog.service';
 import { ReportService } from '../../core/services/report.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
@@ -21,11 +21,14 @@ export class GameDetailComponent implements OnInit {
   game: GameDetail | null = null;
   loaded = false;
   isFavorite = false;
+  userVote: 'Like' | 'Dislike' | null = null;
+  voting = false;
   reportOpen = false;
   reportReason = '';
   reportDescription = '';
   reportSending = false;
   reportSent = false;
+  descriptionExpanded = false;
 
   private readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
@@ -46,12 +49,33 @@ export class GameDetailComponent implements OnInit {
         this.loaded = true;
         if (g) {
           this.isFavorite = this.checkFavorite(g.id);
+          this.loadVote(g.id);
         }
       },
       error: () => {
         this.loaded = true;
       },
     });
+  }
+
+  vote(type: 'Like' | 'Dislike'): void {
+    if (!this.game || this.voting) return;
+    this.voting = true;
+    this.catalog.vote(this.game.id, type, this.getDeviceId()).subscribe({
+      next: (result: GameVoteResult) => {
+        this.voting = false;
+        this.userVote = result.userVote ?? null;
+        this.game!.totalLikes = result.totalLikes;
+        this.game!.totalDislikes = result.totalDislikes;
+      },
+      error: () => {
+        this.voting = false;
+      },
+    });
+  }
+
+  toggleDescription(): void {
+    this.descriptionExpanded = !this.descriptionExpanded;
   }
 
   toggleFavorite(): void {
@@ -66,9 +90,10 @@ export class GameDetailComponent implements OnInit {
     localStorage.setItem('gamehub-favorites', JSON.stringify([...favorites]));
   }
 
-  openReport(): void {
+  openReport(reason = ''): void {
     this.reportOpen = true;
     this.reportSent = false;
+    this.reportReason = reason;
   }
 
   closeReport(): void {
@@ -115,5 +140,36 @@ export class GameDetailComponent implements OnInit {
     } catch {
       return [];
     }
+  }
+
+  private loadVote(gameId: string): void {
+    this.catalog.getVote(gameId, this.getDeviceId()).subscribe({
+      next: (result: GameVoteResult) => {
+        this.userVote = result.userVote ?? null;
+      },
+      error: () => {
+        this.userVote = null;
+      },
+    });
+  }
+
+  private getDeviceId(): string {
+    try {
+      let id = localStorage.getItem('gamehub-device-id');
+      if (!id) {
+        id = this.generateId();
+        localStorage.setItem('gamehub-device-id', id);
+      }
+      return id;
+    } catch {
+      return '';
+    }
+  }
+
+  private generateId(): string {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
+    }
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 }

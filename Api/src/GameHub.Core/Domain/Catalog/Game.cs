@@ -29,6 +29,8 @@ namespace GameHub.Catalog
             DeveloperProfileId = developerProfileId;
             Status = GameStatus.Draft;
             TotalPlays = 0;
+            TotalLikes = 0;
+            TotalDislikes = 0;
             AgeRating = "E";
             Orientation = GameOrientation.Both;
             SupportsDesktop = true;
@@ -124,6 +126,8 @@ namespace GameHub.Catalog
         public Guid? PublishedBuildId { get; set; }
         [Required]
         public long TotalPlays { get; set; }
+        public long TotalLikes { get; set; }
+        public long TotalDislikes { get; set; }
         public double? AverageRating { get; set; }
 
         public virtual DeveloperProfile DeveloperProfile { get; set; }
@@ -137,6 +141,7 @@ namespace GameHub.Catalog
         public virtual ICollection<LeaderboardEntry> LeaderboardEntries { get; protected set; } = new List<LeaderboardEntry>();
         public virtual ICollection<ModerationReview> ModerationReviews { get; protected set; } = new List<ModerationReview>();
         public virtual ICollection<UserReport> UserReports { get; protected set; } = new List<UserReport>();
+        public virtual ICollection<GameVote> GameVotes { get; protected set; } = new List<GameVote>();
 
         public void SetCategories(IEnumerable<Guid> categoryIds)
         {

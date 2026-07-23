@@ -71,6 +71,11 @@
   "docs.sdk.eventsText": "Call these methods when the game reaches relevant lifecycle moments.",
   "docs.sdk.ads": "Ads",
   "docs.sdk.adsText": "Request commercial or rewarded breaks. The parent decides if they are shown.",
+  "gameDetail.like": "Like",
+  "gameDetail.dislike": "Dislike",
+  "gameDetail.reportBug": "Report a bug",
+  "gameDetail.showMore": "Show more",
+  "gameDetail.showLess": "Show less",
   "gameDetail.report": "Report game",
   "gameDetail.reportReason": "Reason",
   "gameDetail.reportReasonSelect": "Select",
@@ -120,5 +125,7 @@
   "gameFrame.loading": "Loading game...",
   "gameFrame.unavailable": "This game is not available to play right now.",
   "gameFrame.back": "Back to games",
+  "gameFrame.fullscreen": "Fullscreen",
+  "gameFrame.exitFullscreen": "Exit fullscreen",
   "gameFrame.sessionError": "Could not start session. Please try again."
 }

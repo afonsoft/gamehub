@@ -71,6 +71,11 @@
   "docs.sdk.eventsText": "Chame esses métodos quando o jogo alcançar os momentos relevantes do ciclo de vida.",
   "docs.sdk.ads": "Anúncios",
   "docs.sdk.adsText": "Solicite pausas comerciais ou recompensadas. O pai decide se elas são exibidas.",
+  "gameDetail.like": "Gostei",
+  "gameDetail.dislike": "Não gostei",
+  "gameDetail.reportBug": "Reportar bug",
+  "gameDetail.showMore": "Mostrar mais",
+  "gameDetail.showLess": "Mostrar menos",
   "gameDetail.report": "Reportar jogo",
   "gameDetail.reportReason": "Motivo",
   "gameDetail.reportReasonSelect": "Selecione",
@@ -120,5 +125,7 @@
   "gameFrame.loading": "Carregando jogo...",
   "gameFrame.unavailable": "Este jogo não está disponível para jogar agora.",
   "gameFrame.back": "Voltar aos jogos",
+  "gameFrame.fullscreen": "Tela cheia",
+  "gameFrame.exitFullscreen": "Sair da tela cheia",
   "gameFrame.sessionError": "Não foi possível iniciar a sessão. Tente novamente."
 }
