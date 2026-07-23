@@ -75,6 +75,70 @@ export interface BuildItem {
   publishedAt?: string;
 }
 
+export interface DeveloperDashboard {
+  totalGames: number;
+  publishedGames: number;
+  pendingReviewGames: number;
+  draftGames: number;
+  rejectedGames: number;
+  totalPlays: number;
+  recentVersions: DeveloperGameVersion[];
+  pendingActions: DeveloperDashboardAction[];
+  playsOverTime: DashboardDailyPlays[];
+}
+
+export interface DashboardDailyPlays {
+  date: string;
+  plays: number;
+}
+
+export interface DeveloperGameVersion {
+  id: string;
+  gameId: string;
+  gameTitle: string;
+  version: string;
+  status: string;
+  createdAt: string;
+  publishedAt?: string;
+}
+
+export interface DeveloperDashboardAction {
+  gameId: string;
+  title: string;
+  slug: string;
+  status: string;
+  action: string;
+}
+
+export interface GameMetricsFilter {
+  from?: string;
+  to?: string;
+  countryCode?: string;
+  deviceType?: string;
+}
+
+export interface GameMetricsDailyItem {
+  date: string;
+  plays: number;
+  uniquePlayers: number;
+  avgDurationSeconds: number;
+  loadingFinishedCount: number;
+  errorCount: number;
+  commercialBreakCount: number;
+  rewardedBreakCount: number;
+}
+
+export interface GameMetricsResult {
+  totalPlays: number;
+  totalUniquePlayers: number;
+  averageDurationSeconds: number;
+  loadingFinishedCount: number;
+  errorCount: number;
+  commercialBreakCount: number;
+  rewardedBreakCount: number;
+  daily: GameMetricsDailyItem[];
+}
+
 export interface UploadResult {
   buildId: string;
   version: string;
@@ -87,6 +151,8 @@ export class DeveloperService {
   private readonly profileUrl = '/api/services/app/DeveloperProfile';
   private readonly gameUrl = '/api/services/app/DeveloperGame';
   private readonly uploadUrl = '/api/game-builds';
+  private readonly dashboardUrl = '/api/services/app/DeveloperDashboard';
+  private readonly metricsUrl = '/api/services/app/GameMetrics';
 
   constructor(private http: HttpClient) {}
 
@@ -140,6 +206,35 @@ export class DeveloperService {
     return this.http
       .get<BuildItem[] | { result?: BuildItem[] }>(`${this.gameUrl}/GetBuilds`, { params })
       .pipe(map(response => this.unwrap<BuildItem[]>(response)));
+  }
+
+  getGameVersions(gameId: string): Observable<BuildItem[]> {
+    const params = new HttpParams().set('gameId', gameId);
+    return this.http
+      .get<BuildItem[] | { result?: BuildItem[] }>(`${this.gameUrl}/GetVersions`, { params })
+      .pipe(map(response => this.unwrap<BuildItem[]>(response)));
+  }
+
+  getDashboard(): Observable<DeveloperDashboard> {
+    return this.http
+      .get<DeveloperDashboard | { result?: DeveloperDashboard }>(`${this.dashboardUrl}/GetDashboard`)
+      .pipe(map(response => this.unwrap<DeveloperDashboard>(response)));
+  }
+
+  getGameMetrics(gameId: string, filter: GameMetricsFilter = {}): Observable<GameMetricsResult> {
+    const params = new HttpParams({ fromObject: this.toParams(filter) });
+    return this.http
+      .get<GameMetricsResult | { result?: GameMetricsResult }>(`${this.metricsUrl}/GetMetrics`, { params })
+      .pipe(map(response => this.unwrap<GameMetricsResult>(response)));
+  }
+
+  private toParams(filter: GameMetricsFilter): Record<string, string> {
+    const params: Record<string, string> = {};
+    if (filter.from) params['from'] = filter.from;
+    if (filter.to) params['to'] = filter.to;
+    if (filter.countryCode) params['countryCode'] = filter.countryCode;
+    if (filter.deviceType) params['deviceType'] = filter.deviceType;
+    return params;
   }
 
   uploadBuild(gameId: string, file: File): Observable<UploadResult> {
