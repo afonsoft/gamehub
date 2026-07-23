@@ -17,6 +17,7 @@ namespace GameHub.Tests.DependencyInjection
 
             IdentityRegistrar.Register(services);
 
+            services.AddMemoryCache();
             services.AddEntityFrameworkInMemoryDatabase();
 
             var serviceProvider = WindsorRegistrationHelper.CreateServiceProvider(iocManager.IocContainer, services);

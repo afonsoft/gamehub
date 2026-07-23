@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -15,19 +18,28 @@ namespace GameHub.Catalog
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<Category, Guid> _categoryRepository;
+        private readonly IRepository<Tag, Guid> _tagRepository;
         private readonly IGameCatalogCache _catalogCache;
+        private readonly IGameSearchEngine _searchEngine;
+        private readonly ITrendingScoreCalculator _trendingScoreCalculator;
 
         public GameCatalogAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<Category, Guid> categoryRepository,
-            IGameCatalogCache catalogCache)
+            IRepository<Tag, Guid> tagRepository,
+            IGameCatalogCache catalogCache,
+            IGameSearchEngine searchEngine,
+            ITrendingScoreCalculator trendingScoreCalculator)
         {
             _gameRepository = gameRepository;
             _categoryRepository = categoryRepository;
+            _tagRepository = tagRepository;
             _catalogCache = catalogCache;
+            _searchEngine = searchEngine;
+            _trendingScoreCalculator = trendingScoreCalculator;
         }
 
-        public async Task<HomeResponseDto> GetHomeAsync()
+        public async Task<HomeResponseDto> GetHomeAsync(CancellationToken cancellationToken = default)
         {
             var cached = await _catalogCache.GetHomeAsync();
             if (cached != null)
@@ -39,10 +51,12 @@ namespace GameHub.Catalog
                 .Where(g => g.Status == GameStatus.Published && !g.IsDeleted)
                 .Include(g => g.GameCategories)
                     .ThenInclude(gc => gc.Category)
+                .Include(g => g.GamePlacements)
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild)
-                .OrderByDescending(g => g.TotalPlays)
                 .ToListAsync();
+
+            var trendingScores = await _trendingScoreCalculator.CalculateScoresAsync(7);
 
             var highlights = publishedGames
                 .Where(g => g.GamePlacements.Any(p => p.PlacementType == GamePlacementType.Featured && p.IsActive))
@@ -67,7 +81,8 @@ namespace GameHub.Catalog
                 .ToList();
 
             var trending = publishedGames
-                .OrderByDescending(g => g.TotalPlays)
+                .OrderByDescending(g => trendingScores.GetValueOrDefault(g.Id, g.TotalPlays))
+                .ThenByDescending(g => g.TotalPlays)
                 .Take(12)
                 .Select(MapToCard)
                 .ToList();
@@ -91,7 +106,7 @@ namespace GameHub.Catalog
             return result;
         }
 
-        public async Task<PagedResultDto<GameCardDto>> GetGamesAsync(GetGamesInput input)
+        public async Task<PagedResultDto<GameCardDto>> GetGamesAsync(GetGamesInput input, CancellationToken cancellationToken = default)
         {
             System.Linq.IQueryable<Game> query = _gameRepository.GetAll()
                 .Where(g => g.Status == GameStatus.Published && !g.IsDeleted)
@@ -102,21 +117,34 @@ namespace GameHub.Catalog
 
             if (!string.IsNullOrWhiteSpace(input.CategorySlug))
             {
-                query = query.Where(g => g.GameCategories.Any(gc => gc.Category.Slug == input.CategorySlug));
+                var categoryId = await _categoryRepository.GetAll()
+                    .Where(c => c.Slug == input.CategorySlug && !c.IsDeleted)
+                    .Select(c => c.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (categoryId != Guid.Empty)
+                {
+                    query = query.Where(g => g.GameCategories.Any(gc => gc.CategoryId == categoryId));
+                }
             }
 
-            var total = await query.CountAsync();
-            var items = await query
-                .OrderByDescending(g => g.TotalPlays)
+            var total = await query.CountAsync(cancellationToken);
+            var items = await ApplySorting(query, input.Sorting)
                 .Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return new PagedResultDto<GameCardDto>(total, items.Select(MapToCard).ToList());
         }
 
-        public async Task<GameDetailDto> GetBySlugAsync(string slug)
+        public async Task<GameDetailDto> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
         {
+            var cached = await _catalogCache.GetBySlugAsync(slug, cancellationToken);
+            if (cached != null)
+            {
+                return cached;
+            }
+
             var game = await _gameRepository.GetAll()
                 .Where(g => g.Slug == slug && !g.IsDeleted)
                 .Include(g => g.GameCategories)
@@ -125,18 +153,27 @@ namespace GameHub.Catalog
                     .ThenInclude(gt => gt.Tag)
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (game == null)
             {
                 return null;
             }
 
-            return MapToDetail(game);
+            var detail = MapToDetail(game);
+            await _catalogCache.SetBySlugAsync(slug, detail, TimeSpan.FromMinutes(10), cancellationToken);
+            return detail;
         }
 
-        public async Task<SearchResultDto> SearchAsync(SearchInput input)
+        public async Task<SearchResultDto> SearchAsync(SearchInput input, CancellationToken cancellationToken = default)
         {
+            var cacheKey = ComputeSearchCacheKey(input);
+            var cached = await _catalogCache.GetSearchAsync(cacheKey, cancellationToken);
+            if (cached != null)
+            {
+                return cached;
+            }
+
             System.Linq.IQueryable<Game> query = _gameRepository.GetAll()
                 .Where(g => g.Status == GameStatus.Published && !g.IsDeleted)
                 .Include(g => g.GameCategories)
@@ -146,22 +183,34 @@ namespace GameHub.Catalog
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild);
 
-            if (!string.IsNullOrWhiteSpace(input.Query))
-            {
-                var q = input.Query.ToLowerInvariant();
-                query = query.Where(g => g.Title.ToLower().Contains(q) || g.ShortDescription.ToLower().Contains(q));
-            }
+            query = _searchEngine.ApplySearchFilter(query, input.Query);
 
             if (input.Categories != null && input.Categories.Any())
             {
-                var categories = input.Categories.Select(c => c.ToLowerInvariant()).ToList();
-                query = query.Where(g => g.GameCategories.Any(gc => categories.Contains(gc.Category.Slug.ToLower())));
+                var categorySlugs = input.Categories.Select(c => c.ToLowerInvariant()).ToList();
+                var categoryIds = await _categoryRepository.GetAll()
+                    .Where(c => categorySlugs.Contains(c.Slug.ToLower()) && !c.IsDeleted)
+                    .Select(c => c.Id)
+                    .ToListAsync(cancellationToken);
+
+                if (categoryIds.Any())
+                {
+                    query = query.Where(g => g.GameCategories.Any(gc => categoryIds.Contains(gc.CategoryId)));
+                }
             }
 
             if (input.Tags != null && input.Tags.Any())
             {
-                var tags = input.Tags.Select(t => t.ToLowerInvariant()).ToList();
-                query = query.Where(g => g.GameTags.Any(gt => tags.Contains(gt.Tag.Slug.ToLower())));
+                var tagSlugs = input.Tags.Select(t => t.ToLowerInvariant()).ToList();
+                var tagIds = await _tagRepository.GetAll()
+                    .Where(t => tagSlugs.Contains(t.Slug.ToLower()) && !t.IsDeleted)
+                    .Select(t => t.Id)
+                    .ToListAsync(cancellationToken);
+
+                if (tagIds.Any())
+                {
+                    query = query.Where(g => g.GameTags.Any(gt => tagIds.Contains(gt.TagId)));
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(input.Device))
@@ -189,21 +238,24 @@ namespace GameHub.Catalog
                 }
             }
 
-            var total = await query.CountAsync();
+            var total = await query.CountAsync(cancellationToken);
             var items = await query
                 .OrderByDescending(g => g.TotalPlays)
                 .Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
-            return new SearchResultDto
+            var result = new SearchResultDto
             {
                 TotalCount = total,
                 Items = items.Select(MapToCard).ToList()
             };
+
+            await _catalogCache.SetSearchAsync(cacheKey, result, TimeSpan.FromMinutes(2), cancellationToken);
+            return result;
         }
 
-        public async Task<ListResultDto<GameCardDto>> GetRelatedAsync(Guid gameId)
+        public async Task<ListResultDto<GameCardDto>> GetRelatedAsync(Guid gameId, CancellationToken cancellationToken = default)
         {
             var game = await _gameRepository.GetAsync(gameId);
             var categoryIds = game.GameCategories.Select(gc => gc.CategoryId).ToList();
@@ -219,6 +271,46 @@ namespace GameHub.Catalog
                 .ToListAsync();
 
             return new ListResultDto<GameCardDto>(related.Select(MapToCard).ToList());
+        }
+
+        private IQueryable<Game> ApplySorting(IQueryable<Game> query, string sorting)
+        {
+            var sort = sorting?.ToLowerInvariant();
+
+            return sort switch
+            {
+                "newest" => query.OrderByDescending(g => g.CreationTime),
+                "mostplayed" => query.OrderByDescending(g => g.TotalPlays),
+                "toprated" => query.OrderByDescending(g => g.AverageRating ?? 0),
+                "title" => query.OrderBy(g => g.Title),
+                _ => query.OrderByDescending(g => g.TotalPlays)
+            };
+        }
+
+        private static string ComputeSearchCacheKey(SearchInput input)
+        {
+            var builder = new StringBuilder();
+            builder.Append(input.Query?.ToLowerInvariant() ?? string.Empty).Append('|');
+
+            if (input.Categories?.Any() == true)
+            {
+                builder.Append(string.Join(',', input.Categories.OrderBy(c => c))).Append('|');
+            }
+
+            if (input.Tags?.Any() == true)
+            {
+                builder.Append(string.Join(',', input.Tags.OrderBy(t => t))).Append('|');
+            }
+
+            builder
+                .Append(input.Device).Append('|')
+                .Append(input.Orientation).Append('|')
+                .Append(input.SkipCount).Append('|')
+                .Append(input.MaxResultCount);
+
+            var raw = Encoding.UTF8.GetBytes(builder.ToString());
+            var hash = SHA256.HashData(raw);
+            return Convert.ToHexString(hash);
         }
 
         private GameCardDto MapToCard(Game game)

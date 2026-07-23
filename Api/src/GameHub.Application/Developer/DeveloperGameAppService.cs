@@ -96,6 +96,7 @@ namespace GameHub.Developer
 
             await CurrentUnitOfWork.SaveChangesAsync();
             await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
 
             return ObjectMapper.Map<GameDetailDto>(game);
         }
@@ -142,6 +143,7 @@ namespace GameHub.Developer
             await _moderationReviewRepository.InsertAsync(review);
             await CurrentUnitOfWork.SaveChangesAsync();
             await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
 
             return ObjectMapper.Map<GameDetailDto>(game);
         }
