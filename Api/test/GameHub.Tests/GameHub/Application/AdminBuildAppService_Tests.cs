@@ -73,6 +73,39 @@ namespace GameHub.Tests.GameHub.Application
             result.Items[0].ContentType.ShouldBe("text/html");
         }
 
+        [Fact]
+        public async Task Dado_BuildsDeDiferentesJogos_Quando_FiltrarPorTitulo_Entao_RetornaApenasCorrespondente()
+        {
+            await SeedBuildAsync("Alpha Game");
+            await SeedBuildAsync("Beta Game");
+
+            var result = await _adminBuildAppService.GetAllBuildsAsync(new GetBuildsInput
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                SearchText = "Alpha"
+            });
+
+            result.TotalCount.ShouldBe(1);
+            result.Items[0].GameTitle.ShouldBe("Alpha Game");
+        }
+
+        [Fact]
+        public async Task Dado_BuildsDeDiferentesJogos_Quando_FiltrarPorDeveloper_Entao_RetornaCorrespondente()
+        {
+            await SeedBuildAsync("Gamma Game");
+
+            var result = await _adminBuildAppService.GetAllBuildsAsync(new GetBuildsInput
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                SearchText = "Tester"
+            });
+
+            result.TotalCount.ShouldBeGreaterThanOrEqualTo(1);
+            result.Items.ShouldContain(b => b.DeveloperName == "Tester");
+        }
+
         private async Task<Guid> SeedBuildAsync(string title)
         {
             var profileId = Guid.NewGuid();

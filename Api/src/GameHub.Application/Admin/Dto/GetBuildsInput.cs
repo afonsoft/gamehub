@@ -21,5 +21,9 @@ namespace GameHub.Admin.Dto
 
         /// <summary>Optional filter by parent game identifier.</summary>
         public Guid? GameId { get; set; }
+
+        /// <summary>Search by game title or developer display name.</summary>
+        [StringLength(200)]
+        public string SearchText { get; set; }
     }
 }

@@ -1,5 +1,31 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 23:00 UTC
+
+### Tarefa
+Melhorias no painel admin: dashboard com KPIs de uploads, gráfico de plays, atividades recentes; e upload list com filtros de status e busca por jogo/desenvolvedor.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Admin/IAdminDashboardAppService.cs` — adicionados `GetRecentUploadsAsync`, `GetRecentGamesAsync`, `GetTopGamesAsync`, `GetPendingReviewsAsync`.
+- `Api/src/GameHub.Application/Admin/AdminDashboardAppService.cs` — resumo com `TotalBuilds` e `PendingUploads`; endpoints de atividades recentes e `PlaysOverTime`.
+- `Api/src/GameHub.Application/Admin/Dto/AdminDashboardSummaryDto.cs` — campos `TotalBuilds` e `PendingUploads`.
+- `Api/src/GameHub.Application/Admin/AdminBuildAppService.cs` e `GetBuildsInput.cs` — filtro `SearchText` por título do jogo ou nome do desenvolvedor.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminDashboardAppService_Tests.cs` — testes de resumo, série temporal e atividades recentes.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminBuildAppService_Tests.cs` — testes de busca por título e desenvolvedor.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/shared/services/gamehub-admin.service.ts` — métodos de atividades recentes, busca em `getBuilds` e `getPendingReviews` com `count` opcional.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/dashboard/dashboard.component.ts/.html` — cards extras (Total Builds, Pending Uploads), gráfico SVG de plays e painéis de Pending Reviews, Recent Uploads, Top Games e Recent Games.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/uploads/build-list.component.ts/.html` — filtros de status, busca por texto, formatação de tamanho e ações de Game/Files.
+
+### Motivação
+Dar ao administrador visão centralizada dos uploads, jogos e revisões pendentes, facilitando moderação e acompanhamento da plataforma.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release` sucesso.
+- `dotnet test Api/GameHub.sln -c Release` — 199 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker-compose.all.yml config` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+- PR `feature/admin-uploads-dashboard` criado para `main`.
+
 ## 2026-07-23 22:00 UTC
 
 ### Tarefa

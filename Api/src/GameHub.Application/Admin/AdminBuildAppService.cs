@@ -49,6 +49,14 @@ namespace GameHub.Admin
                 query = query.Where(b => b.GameId == input.GameId.Value);
             }
 
+            if (!string.IsNullOrWhiteSpace(input.SearchText))
+            {
+                var search = input.SearchText.Trim().ToLowerInvariant();
+                query = query.Where(b =>
+                    (b.Game != null && b.Game.Title.ToLower().Contains(search)) ||
+                    (b.Game != null && b.Game.DeveloperProfile != null && b.Game.DeveloperProfile.DisplayName.ToLower().Contains(search)));
+            }
+
             var total = await query.CountAsync();
             var items = await query
                 .OrderByDescending(b => b.CreationTime)

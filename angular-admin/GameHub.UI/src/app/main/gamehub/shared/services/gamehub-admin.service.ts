@@ -58,6 +58,21 @@ export class GameHubAdminService {
     return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetPlaysOverTime`, { params }).pipe(map(this.unwrapResult));
   }
 
+  getRecentUploads(count: number): Observable<any> {
+    const params = new HttpParams().set('count', count.toString());
+    return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetRecentUploads`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getRecentGames(count: number): Observable<any> {
+    const params = new HttpParams().set('count', count.toString());
+    return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetRecentGames`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getTopGames(count: number): Observable<any> {
+    const params = new HttpParams().set('count', count.toString());
+    return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetTopGames`, { params }).pipe(map(this.unwrapResult));
+  }
+
   getFeatureFlags(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/services/app/FeatureFlag/GetAll`).pipe(map(this.unwrapResult));
   }
@@ -96,7 +111,7 @@ export class GameHubAdminService {
     return this.http.get(`${this.baseUrl}/api/services/app/AdminGame/GetDetail`, { params }).pipe(map(this.unwrapResult));
   }
 
-  getBuilds(skipCount: number, maxResultCount: number, status?: string, gameId?: string): Observable<PagedBuildList> {
+  getBuilds(skipCount: number, maxResultCount: number, status?: string, gameId?: string, searchText?: string): Observable<PagedBuildList> {
     let params = new HttpParams()
       .set('SkipCount', skipCount.toString())
       .set('MaxResultCount', maxResultCount.toString());
@@ -105,6 +120,9 @@ export class GameHubAdminService {
     }
     if (gameId) {
       params = params.set('GameId', gameId);
+    }
+    if (searchText) {
+      params = params.set('SearchText', searchText);
     }
     return this.http.get<PagedBuildList>(`${this.baseUrl}/api/services/app/AdminBuild/GetAllBuilds`, { params }).pipe(map(this.unwrapResult));
   }
@@ -118,7 +136,11 @@ export class GameHubAdminService {
     return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/Suspend`, { gameId: id, reason }).pipe(map(this.unwrapResult));
   }
 
-  getPendingReviews(): Observable<any> {
+  getPendingReviews(count?: number): Observable<any> {
+    if (count != null) {
+      const params = new HttpParams().set('count', count.toString());
+      return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetPendingReviews`, { params }).pipe(map(this.unwrapResult));
+    }
     return this.http.get(`${this.baseUrl}/api/services/app/Moderation/GetPendingReviews`).pipe(map(this.unwrapResult));
   }
 

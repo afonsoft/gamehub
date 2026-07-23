@@ -13,6 +13,8 @@ export class BuildListComponent implements OnInit {
   loading = false;
   skipCount = 0;
   maxResultCount = 25;
+  status = '';
+  searchText = '';
 
   constructor(private readonly adminService: GameHubAdminService) {}
 
@@ -24,7 +26,7 @@ export class BuildListComponent implements OnInit {
     this.skipCount = event?.first ?? 0;
     this.maxResultCount = event?.rows ?? this.maxResultCount;
     this.loading = true;
-    this.adminService.getBuilds(this.skipCount, this.maxResultCount).subscribe({
+    this.adminService.getBuilds(this.skipCount, this.maxResultCount, this.status, undefined, this.searchText).subscribe({
       next: (result: PagedBuildList) => {
         this.builds = result.items ?? [];
         this.totalCount = result.totalCount ?? 0;
@@ -34,5 +36,27 @@ export class BuildListComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  onSearch(): void {
+    this.skipCount = 0;
+    this.loadBuilds();
+  }
+
+  onStatusChange(): void {
+    this.skipCount = 0;
+    this.loadBuilds();
+  }
+
+  formatBytes(bytes: number): string {
+    if (!bytes) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let value = bytes;
+    let unitIndex = 0;
+    while (value >= 1024 && unitIndex < units.length - 1) {
+      value /= 1024;
+      unitIndex++;
+    }
+    return `${value.toFixed(2)} ${units[unitIndex]}`;
   }
 }
