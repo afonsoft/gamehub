@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AdBreakService } from './ad-break.service';
+import { environment } from '../../../environments/environment';
 
 export enum GameplayEventType {
   GameLoadingStarted = 0,
@@ -129,6 +130,10 @@ export class GameplayBridgeService implements GameplayBridge {
   }
 
   handleMessage(event: MessageEvent<unknown>): void {
+    if (event.origin !== environment.gameOrigin) {
+      return;
+    }
+
     const data = event.data as Record<string, unknown> | undefined;
     if (!data || typeof data !== 'object' || data['channel'] !== 'gamehub-bridge') {
       return;

@@ -1,0 +1,21 @@
+using GameHub.Privacy.Dto;
+using System.Threading.Tasks;
+
+namespace GameHub.Privacy
+{
+    /// <summary>
+    /// LGPD privacy operations for user data export and deletion/anonymization.
+    /// </summary>
+    public interface IPrivacyAppService
+    {
+        /// <summary>
+        /// Exports all personal data for the given user.
+        /// </summary>
+        Task<UserDataExportDto> ExportUserDataAsync(long userId);
+
+        /// <summary>
+        /// Anonymizes or deletes all personal data for the given user.
+        /// </summary>
+        Task DeleteUserDataAsync(long userId);
+    }
+}

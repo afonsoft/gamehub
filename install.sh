@@ -11,15 +11,19 @@ COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 REBUILD=false
 
 usage() {
-    echo "Uso: $0 [-r]" >&2
+    echo "Uso: $0 [-r] [-a]" >&2
     echo "  -r  Força o rebuild das imagens Docker (--no-cache --pull) e recria os containers" >&2
+    echo "  -a  Usa docker-compose.all.yml (full stack: app + PostgreSQL + Redis + MinIO)" >&2
     exit 1
 }
 
-while getopts ":r" opt; do
+while getopts ":ra" opt; do
     case $opt in
         r)
             REBUILD=true
+            ;;
+        a)
+            COMPOSE_FILE="docker-compose.all.yml"
             ;;
         \?)
             echo "Opção inválida: -$OPTARG" >&2

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { GameCatalogService, GameDetail } from '../../core/services/game-catalog.service';
 import { GameplayBridgeService, StartPlaySessionInput } from '../../core/services/gameplay-bridge.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-game-frame',
@@ -22,7 +23,7 @@ import { GameplayBridgeService, StartPlaySessionInput } from '../../core/service
         allow="fullscreen; gamepad"
         referrerpolicy="no-referrer">
       </iframe>
-      <div *ngIf="!safeUrl && loaded" class="error">
+      <div *ngIf="loadingError" class="error">
         <p>This game is not available to play right now.</p>
         <a (click)="back()">Back to games</a>
       </div>
@@ -40,6 +41,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   @ViewChild('frame') frame!: ElementRef<HTMLIFrameElement>;
   safeUrl: SafeResourceUrl | null = null;
   loaded = false;
+  loadingError = false;
   private sessionId: string | null = null;
   private gameId: string | null = null;
   private readonly messageHandler = (event: MessageEvent<unknown>) => this.bridge.handleMessage(event);
@@ -56,6 +58,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
       next: (game: GameDetail | null) => {
         this.loaded = true;
         if (!game?.publishedBuildUrl) {
+          this.loadingError = true;
           return;
         }
         this.gameId = game.id;
@@ -83,6 +86,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.loaded = true;
+        this.loadingError = true;
       },
     });
 
@@ -105,7 +109,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   private postToGame(message: unknown): void {
     const contentWindow = this.frame?.nativeElement?.contentWindow;
     if (contentWindow) {
-      contentWindow.postMessage(message, '*');
+      contentWindow.postMessage(message, environment.gameOrigin);
     }
   }
 }
