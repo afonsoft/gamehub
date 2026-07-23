@@ -1,5 +1,32 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 00:15 UTC
+
+### Tarefa
+Implementar PR-2 do plano de gaps: caches Redis para catálogo (`IGameCatalogCache`) e leaderboard (`ILeaderboardCache`), alinhamento de permissões RBAC com `12-rbac-permissions.md`, `[AbpAuthorize]` em AppServices críticos e seed de permissões para SuperAdmin/Admin/Moderator/Developer/Player.
+
+### Arquivos alterados
+- `Api/src/GameHub.Web.Host/Caching/RedisGameCatalogCache.cs` — implementação Redis do catálogo usando `IDistributedCache`, serialização JSON e chave `gamehub:catalog:home:{tenant}`.
+- `Api/src/GameHub.Web.Host/Caching/RedisLeaderboardCache.cs` — implementação Redis do leaderboard usando `IConnectionMultiplexer` + `SortedSetIncrementAsync`/`SortedSetRangeByRankWithScoresAsync` com chave `leaderboard:{tenant}:{gameId}`.
+- `Api/src/GameHub.Web.Host/Startup/WebHostModule.cs` — registro condicional de `IConnectionMultiplexer` e substituição dos caches in-memory pelas implementações Redis quando `RedisCache:IsEnabled` for `true`.
+- `Api/src/GameHub.Core/Application/Authorization/GameHubPermissions.cs` — adicionadas `Pages_Users` e `Pages_Users_Manage`.
+- `Api/src/GameHub.Core/Application/Authorization/GameHubAuthorizationProvider.cs` — registro das permissões de usuários.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/GameHubPermissionSeeder.cs` — seed de roles `Moderator`, `Developer`, `Player` e permissões padrão para host/default tenant.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/SeedHelper.cs` e `Api/test/GameHub.Tests/GameHubTestBase.cs` — execução do `GameHubPermissionSeeder` durante o seed.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs`, `Builds/GameBuildAppService.cs`, `Developer/DeveloperGameAppService.cs`, `Moderation/ModerationAppService.cs`, `Catalog/CategoryAppService.cs`, `Catalog/TagAppService.cs` — adicionados atributos `[AbpAuthorize(...)]` nos métodos críticos.
+- `Api/test/GameHub.Tests/GameHub/Application/RedisGameCatalogCache_Tests.cs`, `RedisLeaderboardCache_Tests.cs`, `GameHubPermissionSeeder_Tests.cs` — testes dos caches Redis (com `MemoryDistributedCache` e NSubstitute) e do seeder.
+- `Api/test/GameHub.Tests/Authorization/Roles/RoleAppService_Tests.cs` — ajustado para 4 roles no tenant (`Admin`, `Moderator`, `Developer`, `Player`).
+- `docs/abp-documentation-index.md`, `docs/abp/*.md` e `docs/eaf/*` — documentação ABP/EAF salva para contexto.
+
+### Motivação
+O plano de gaps previa a substituição dos caches in-memory por Redis para escala e a criação do RBAC/seed de permissões. As chaves foram escopo de tenant para respeitar multi-tenancy. `[AbpAuthorize]` protege endpoints administrativos sem afetar o catálogo/leaderboard públicos.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 150 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm ci --legacy-peer-deps && npm run build` no `angular-admin/GameHub.UI` sucesso.
+
 ## 2026-07-22 23:45 UTC
 
 ### Tarefa

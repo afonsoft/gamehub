@@ -7,12 +7,16 @@ using Castle.MicroKernel.Registration;
 using Eaf.KeyVault.AspNetCore;
 using Eaf.Middleware.Configuration;
 using Eaf.Middleware.Web;
+using GameHub.Catalog;
+using GameHub.Gameplay;
 using GameHub.Storage;
+using GameHub.Web.Caching;
 using GameHub.Web.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using System.Net;
+using StackExchange.Redis;
+using System;
 
 namespace GameHub.Web.Startup
 {
@@ -52,6 +56,20 @@ namespace GameHub.Web.Startup
             _appConfiguration.GetSection("Storage").Bind(storageOptions);
             IocManager.IocContainer.Register(Component.For<StorageOptions>().Instance(storageOptions));
             IocManager.Register<IGameAssetStorage, MinioGameAssetStorage>(DependencyLifeStyle.Transient);
+
+            // Replace in-memory caches with Redis implementations when Redis is enabled
+            var redisCacheEnabled = bool.TryParse(_appConfiguration["RedisCache:IsEnabled"], out var redisEnabled) && redisEnabled;
+            var redisConnectionString = _appConfiguration["RedisCache:ConnectionString"];
+            if (redisCacheEnabled && !string.IsNullOrWhiteSpace(redisConnectionString))
+            {
+                IocManager.IocContainer.Register(
+                    Component.For<IConnectionMultiplexer>()
+                        .UsingFactoryMethod(() => ConnectionMultiplexer.Connect(redisConnectionString))
+                        .LifestyleSingleton());
+
+                Configuration.ReplaceService<IGameCatalogCache, RedisGameCatalogCache>(DependencyLifeStyle.Transient);
+                Configuration.ReplaceService<ILeaderboardCache, RedisLeaderboardCache>(DependencyLifeStyle.Transient);
+            }
 
             //Create Controllers APIs
             Configuration.Modules.AbpAspNetCore()

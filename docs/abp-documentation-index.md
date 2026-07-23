@@ -1,0 +1,202 @@
+# ASP.NET Boilerplate Documentation Index
+
+Generated from https://aspnetboilerplate.com/Pages/Documents
+
+- [Navigation | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Navigation)
+  - ASP.NET Boilerplate provides a common infrastructure to create and show a menu to users.
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/OWIN)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Timing | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Timing)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/ObjectComparators)
+  - Object Comparator System is a system which allows you to create comparator for any type of object with any compare type.
+- [Caching | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Caching)
+  - Boilerplate provides an abstraction for caching. A cache is a singleton (per cache name). It is created the first time it's requested, and then the same cache ...
+- [Repositories | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Repositories)
+  - Repositories, in practice, are used to perform database operations for domain objects (Entity and Value types).
+- [PerRequestRedisCache | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/PerRequestRedisCache)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Authorization | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Authorization)
+  - Almost all enterprise applications use authorization at some level. Authorization is used to check if a user is allowed to perform some specific operation in ...
+- [Debugging | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Debugging)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Localization | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Localization)
+  - ASP.NET Boilerplate provides extensive support for the development of world-ready and localized applications.
+- [Plugin | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Plugin)
+  - Introduction. In this tutorial, a plugin example will be developed to learn how to create a plugin and use it in an application. This plugin that is named ...
+- [Entities | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Entities)
+  - ASP.NET Boilerplate provides some useful interfaces to make these common properties explicit and expressive. This provides a way of coding common code for ...
+- [Logging | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Logging)
+  - Log4Net is one of the most popular logging libraries for .NET. The ASP.NET Boilerplate templates come with Log4Net properly configured and ready to use. There ...
+- [Specifications | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Specifications)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [NHibernate Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/NHibernate-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Setting Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Setting-Management)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [AspNet Core](https://aspnetboilerplate.com/Pages/Documents/AspNet-Core)
+  - Introduction. This document describes the ASP.NET Core integration for ASP.NET Boilerplate. The ASP.NET Core integration is implemented in the ...
+- [SignalR Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/SignalR-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [OpenIddict | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/OpenIddict)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Overall | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Overall)
+  - The ASP.NET Boilerplate framework is designed to be independent of any database schema and to be as generic as possible. Therefore, it leaves some concepts ...
+- [Nightly Builds | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Nightly-Builds)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [UI Alerts | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/UI-Alerts)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Hangfire Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Hangfire-Integration)
+  - Hangfire is a compherensive background job manager. You can integrate ASP.NET Boilerplate with Hangfire to use it instead of the default background job manager.
+- [Dependency Injection | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Dependency-Injection)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Handling Exceptions | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Handling-Exceptions)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Multi Tenancy | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Multi-Tenancy)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Change-Logs)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/MVC-Views)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Abp Session | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Abp-Session)
+  - Since authentication/authorization is an application layer task, it's advisable to use the IAbpSession in the application layer and upper layers. This is not ...
+- [Application Services | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Application-Services)
+  - Application Services are used to expose domain logic to the presentation layer. An Application Service is called from the presentation layer using a DTO ...
+- [Entity History | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Entity-History)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Value Objects | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Value-Objects)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [BLOB Storing | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/BLOB-Storing)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Data Filters | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Data-Filters)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/EntityFramework-Integration)
+  - ASP.NET Boilerplate can work with any O/RM framework. It has built-in integration with EntityFramework. This document will explain how to use ...
+- [MVC Controllers | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/MVC-Controllers)
+  - You can use the UnitOfWork attribute to control the behaviour of the UOW for an action. You can also use the startup configuration to change the default unit of ...
+- [Javascript API | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API)
+  - Used to make an area (a div, a form, entire page...) blocked for user inputs. Also used to make an area busy (with a busy indicator).
+- [Email Sending | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Email-Sending)
+  - Sending emails is a very common task for most applications. ASP.NET Boilerplate provides the basic infrastructure to send emails in a simple way. It also ...
+- [Dapper Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Dapper-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Module System | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Module-System)
+  - Introduction. ASP.NET Boilerplate provides the infrastructure to build modules and compose them to create an application. A module can depend on another module.
+- [Nuget Packages | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Nuget-Packages)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Audit Logging | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Audit-Logging)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [NLayer Architecture | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/NLayer-Architecture)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Domain Services | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Domain-Services)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Startup Configuration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Startup-Configuration)
+  - ASP.NET Boilerplate provides the infrastructure and a model to configure its modules on startup. Configuring ASP.NET Boilerplate. Configuring ASP.
+- [Feature Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Feature-Management)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Webhook System | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Webhook-System)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Notification System | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Notification-System)
+  - Introduction. Notifications are used to inform users on specific events in the system. ASP.NET Boilerplate provides a pub/sub (publish/subscribe) based ...
+- [OData Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/OData-Integration)
+  - OData is defined as "An open protocol to allow for the creation and consumption of queryable and interoperable RESTful APIs in a simple and standard way". See ...
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Articles-Tutorials)
+  - Edit on GitHub. In this document. Introduction & Step by Step. With ASP.NET Core & Entity Framework Core Part-1 & Part-2 · With ASP.NET MVC, Web API, ...
+- [Quartz Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Quartz-Integration)
+  - Quartz is a full-featured, open-source job scheduling system that can be used from the smallest apps to large-scale enterprise systems.
+- [SignalR AspNetCore Integration](https://aspnetboilerplate.com/Pages/Documents/SignalR-AspNetCore-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Nuget Packages | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Nuget-Packages)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Multi Lingual Entities | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Multi-Lingual-Entities)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [User Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/User-Management)
+  - This interface is used to get the LDAP settings like domain, user name and password to connect to Active Directory. The default implementation (LdapSettings ...
+- [Startup Template | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Startup-Template)
+  - Introduction. The easiest way of starting a new project using ABP with ASP.NET MVC 5.x (and optionally AngularJS frontend) is to create a template on the ...
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API/Logging)
+  - When you want to write a simple log in the client, you can use console.log('...') API as you may already know. However, it's not supported by all browsers ...
+- [EventBus Domain Events | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/EventBus-Domain-Events)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Blob Storing Azure | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Blob-Storing-Azure)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [AJAX | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API/AJAX)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Permission Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Permission-Management)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Tenant Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Tenant-Management)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Message | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API/Message)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Notification | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API/Notification)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Language Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Language-Management)
+  - ASP.NET Boilerplate defines a strong UI localization system which is used both on the server and client sides. It allows us to easily configure application ...
+- [OData AspNetCore Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/OData-AspNetCore-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Web API Controllers | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Web-API-Controllers)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Role Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Role-Management)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [XSRF CSRF Protection | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/XSRF-CSRF-Protection)
+  - "Cross-Site Request Forgery (CSRF) is a type of attack that occurs when a malicious web site, email, blog, instant message, or program causes a user's web ...
+- [Data Transfer Objects | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Data-Transfer-Objects)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Unit Of Work | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work)
+  - Introduction. Connection and transaction management is one of the most important concepts in an application that uses a database. You need to know when to ...
+- [Dynamic Parameter System | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Dynamic-Parameter-System)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Embedded Resource Files | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Embedded-Resource-Files)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Organization Units | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Building Dynamic Web API Controllers](https://aspnetboilerplate.com/Pages/Documents/Dynamic-Web-API)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [EF MySql Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/EF-MySql-Integration)
+  - Introduction. While our default templates are designed to work with SQL Server, you can easily modify them to work with MySql. In order to do that, ...
+- [Edition Management | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Edition-Management)
+  - About Features. See the feature management documentation to better understand how features work. Edition Entity. Edition is a simple entity representing an ...
+- [Swagger UI Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Swagger-UI-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Entity Framework Core | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Entity-Framework-Core)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [EF Core MySql Integration](https://aspnetboilerplate.com/Pages/Documents/EF-Core-MySql-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Authorization | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.0.0/Authorization)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Other Utilities | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API/Other-Utilities)
+  - ASP.NET Boilerplate provides some common utility functions. abp.utils.createNamespace Used to create deep namespaces at once.
+- [Startup Template Core | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Startup-Template-Core)
+  - Introduction. The easiest way of starting a new project using ABP with ASP.NET Core MVC is to create a template on the download page.
+- [Entities | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.0.2/Entities)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Timing | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v3.0.0/Timing)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [OWIN Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v3.0.0/OWIN)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Object To Object Mapping | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Object-To-Object-Mapping)
+  - Introduction. It's common to map a similar object to another object. It's also tedious and repetitive since generally both objects (classes) may have the ...
+- [Documents | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.0.0/Introduction)
+  - Introduction. We are creating different applications based on different needs. But implementing common and similar structures over and over again, ...
+- [Startup Template Angular | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Zero/Startup-Template-Angular)
+  - We used the angular-cli tooling to build an Angular solution. You can use the ng build --prod command to publish your project. It publishes to the dist folder ...
+- [Articles Tutorials | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/EF-Core-Sqlite-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Repositories | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.1.2/Repositories)
+  - "Mediates between the domain and data mapping layers using a collection-like interface for accessing domain objects" (Martin Fowler).
+- [Logging | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v1.5.2/Logging)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Timing | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.0.0/Timing)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Identity Server vNext](https://aspnetboilerplate.com/Pages/Documents/Zero/Identity-Server-vNext)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Caching | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.0.0/Caching)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Validating Data Transfer Objects | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Validating-Data-Transfer-Objects)
+  - ASP.NET Boilerplate provides the infrastructure to automatically validate inputs of an application.
+- [Event Bus | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/Javascript-API/Event-Bus)
+  - The firt argument is the unique name of the event. The second one is a callback function that is called when the specified event is triggered. You can ...
+- [EF Core Oracle Integration | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/EF-Core-Oracle-Integration)
+  - AspNet Boilerplate (ABP) is an open source and well-documented application framework. See the comprehensive tutorials of ABP for technical information.
+- [Navigation | AspNet Boilerplate](https://aspnetboilerplate.com/Pages/Documents/v2.0.0/Navigation)
+  - Every web application has some menu to navigate between pages/screens. ASP.NET Boilerplate provides a common ifrastructure to create and show menu to users.

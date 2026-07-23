@@ -48,6 +48,13 @@ namespace GameHub.Tests
             });
 
             LoginAsDefaultTenantAdmin();
+
+            // Seed GameHub roles and permissions
+            UsingDbContext(null, context =>
+            {
+                NormalizeDbContext(context);
+                new GameHubPermissionSeeder(context).Create();
+            });
         }
 
         #region UsingDbContext

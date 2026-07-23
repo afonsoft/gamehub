@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub.Admin.Dto;
+using GameHub.Authorization;
 using GameHub.Catalog.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +38,7 @@ namespace GameHub.Catalog
             return ObjectMapper.Map<CategoryDto>(category);
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Categories_Manage)]
         public async Task<CategoryDto> CreateOrUpdateAsync(CreateOrUpdateCategoryInput input)
         {
             Category category;
@@ -66,6 +69,7 @@ namespace GameHub.Catalog
             return ObjectMapper.Map<CategoryDto>(category);
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Categories_Manage)]
         public async Task DeleteAsync(Guid id)
         {
             await _categoryRepository.DeleteAsync(id);

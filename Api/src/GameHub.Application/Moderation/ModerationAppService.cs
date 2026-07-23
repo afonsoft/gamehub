@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub.Admin.Dto;
+using GameHub.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Moderation
@@ -23,6 +25,7 @@ namespace GameHub.Moderation
             _reportRepository = reportRepository;
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_View)]
         public async Task<ListResultDto<ModerationReviewDto>> GetPendingReviewsAsync()
         {
             var reviews = await _reviewRepository.GetAll()
@@ -33,6 +36,7 @@ namespace GameHub.Moderation
             return new ListResultDto<ModerationReviewDto>(ObjectMapper.Map<List<ModerationReviewDto>>(reviews));
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_View)]
         public async Task<ModerationReviewDto> GetDetailAsync(Guid reviewId)
         {
             var review = await _reviewRepository.GetAll()
@@ -43,6 +47,7 @@ namespace GameHub.Moderation
             return ObjectMapper.Map<ModerationReviewDto>(review);
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_Complete)]
         public async Task<ModerationReviewDto> CompleteReviewAsync(CompleteReviewInput input)
         {
             var review = await _reviewRepository.GetAsync(input.ReviewId);

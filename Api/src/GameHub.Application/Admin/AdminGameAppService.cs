@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub.Admin.Dto;
+using GameHub.Authorization;
 using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Catalog.Dto;
@@ -31,6 +33,7 @@ namespace GameHub.Admin
             _catalogCache = catalogCache;
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_View)]
         public async Task<PagedResultDto<AdminGameListItemDto>> GetAllAsync(GetGamesInput input)
         {
             IQueryable<Game> query = _gameRepository.GetAll()
@@ -52,6 +55,7 @@ namespace GameHub.Admin
             return new PagedResultDto<AdminGameListItemDto>(total, ObjectMapper.Map<List<AdminGameListItemDto>>(items));
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_View)]
         public async Task<AdminGameDetailDto> GetDetailAsync(Guid gameId)
         {
             var game = await _gameRepository.GetAll()
@@ -75,6 +79,7 @@ namespace GameHub.Admin
             return dto;
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Builds_Approve)]
         public async Task ApproveBuildAsync(ApproveBuildInput input)
         {
             var build = await _buildRepository.GetAsync(input.GameBuildId);
@@ -84,6 +89,7 @@ namespace GameHub.Admin
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Builds_Reject)]
         public async Task RejectBuildAsync(RejectBuildInput input)
         {
             var build = await _buildRepository.GetAsync(input.GameBuildId);
@@ -93,6 +99,7 @@ namespace GameHub.Admin
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Publish)]
         public async Task PublishAsync(PublishGameInput input)
         {
             var game = await _gameRepository.GetAsync(input.GameId);
@@ -105,6 +112,7 @@ namespace GameHub.Admin
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Suspend)]
         public async Task SuspendAsync(SuspendGameInput input)
         {
             var game = await _gameRepository.GetAsync(input.GameId);
