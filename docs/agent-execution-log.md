@@ -1,5 +1,37 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 02:50 UTC
+
+### Tarefa
+Implementar PR-4 do plano de gaps: frontends (hub/admin), observabilidade/LGPD e DevOps.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Application/Jobs/GameMetricsAggregationJob.cs` — job Hangfire que agrega `PlaySession` e `GameplayEvent` por `GameId`/`Date` e persiste `GameMetricSnapshot`.
+- `Api/src/GameHub.Core/Application/Extensions/HangfireExtensions.cs` — agendamento diário do job `metrics-aggregation`.
+- `Api/src/GameHub.Application/Privacy/PrivacyAppService.cs` e `IPrivacyAppService.cs` — exportação (`ExportUserDataAsync`) e anonimização (`DeleteUserDataAsync`) de dados pessoais conforme LGPD.
+- `Api/src/GameHub.Application/Privacy/Dto/UserDataExportDto.cs` — DTOs de exportação de dados.
+- `Api/test/GameHub.Tests/GameHub/Jobs/GameMetricsAggregationJob_Tests.cs` e `PrivacyAppService_Tests.cs` — testes dos jobs e do serviço de privacidade.
+- `angular/src/environments/environment.ts` e `environment.prod.ts` — adicionado `gameOrigin` e `apiUrl`; configurado `fileReplacements` no `angular.json`.
+- `angular/src/app/player/game-frame/game-frame.component.ts` — `postMessage` agora usa `environment.gameOrigin`, tela de erro `loadingError` e validação de origem.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — whitelist de origem no `handleMessage`.
+- `angular/src/app/app.routes.ts` — rotas `games/:slug`, `search` para `SearchPageComponent`, `leaderboard/:gameId` e wildcard `**` para `NotFoundComponent`.
+- `angular/src/app/public/not-found/not-found.component.ts` e `search-page/search-page.component.ts` — componentes novos.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/gamehub-routing.module.ts` — rotas filhas com resolvers para `games/:id`, `moderation/:id`, `categories/create`, `categories/:id/edit`, `tags/create`, `tags/:id/edit`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/resolvers/*.resolver.ts` — `gameDetailResolver`, `moderationDetailResolver`, `categoryEditResolver`, `tagEditResolver`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/shared/services/gamehub-admin.service.ts` — adicionados `getCategoryById` e `getTagById`.
+- `angular-admin/GameHub.UI/src/app/core/guards/admin.guard.ts`, `moderator.guard.ts`, `guest.guard.ts`.
+- `install.sh` — flag `-a` para usar `docker-compose.all.yml` (full stack).
+- `Api/src/GameHub.Web.Host/appsettings*.json` — substituídas connection strings reais por placeholders PostgreSQL, provedor padrão `PostgreSQL` e adicionadas seções `Cors:HubOrigins`/`Cors:AdminOrigins`.
+
+### Motivação
+Fechar os gaps de frontend (rotas, iframe seguro, resolvers/guards), observabilidade (agregação de métricas por jogo) e LGPD (exportação/anonimização de dados pessoais), além de alinhar DevOps para uso do PostgreSQL/Redis/MinIO sem expor secrets.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 162 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+
 ## 2026-07-23 01:20 UTC
 
 ### Tarefa

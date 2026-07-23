@@ -78,6 +78,11 @@ export class GameHubAdminService {
     return this.http.get(`${this.baseUrl}/api/services/app/Category/GetAll`).pipe(map(this.unwrapResult));
   }
 
+  getCategoryById(id: string): Observable<any> {
+    const params = new HttpParams().set('id', id);
+    return this.http.get(`${this.baseUrl}/api/services/app/Category/Get`, { params }).pipe(map(this.unwrapResult));
+  }
+
   createOrUpdateCategory(category: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/services/app/Category/CreateOrUpdate`, category).pipe(map(this.unwrapResult));
   }
@@ -89,6 +94,11 @@ export class GameHubAdminService {
 
   getTags(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/services/app/Tag/GetAll`).pipe(map(this.unwrapResult));
+  }
+
+  getTagById(id: string): Observable<any> {
+    const params = new HttpParams().set('id', id);
+    return this.http.get(`${this.baseUrl}/api/services/app/Tag/Get`, { params }).pipe(map(this.unwrapResult));
   }
 
   createOrUpdateTag(tag: any): Observable<any> {
