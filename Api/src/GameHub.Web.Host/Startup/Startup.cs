@@ -18,6 +18,7 @@ using Eaf.Middleware.Web.Startup;
 using Eaf.Middleware.Web.Swagger;
 using GameHub.Application.Extensions;
 using GameHub.Debugging;
+using GameHub.Web.Configuration;
 using GameHub.Web.Middleware;
 using GameHub.Web.WebHooks;
 using Microsoft.AspNetCore.Builder;
@@ -94,31 +95,8 @@ namespace GameHub.Web.Startup
             });
             // Add OpenTelemetry and configure it to use Azure Monitor.
 
-            //Configure CORS for angular2 UI
-            services.AddCors(options =>
-            {
-                options.AddPolicy(GameHubConsts.DefaultCorsPolicyName, builder =>
-                {
-                    builder.SetIsOriginAllowedToAllowWildcardSubdomains();
-
-                    //App:CorsOrigins in appsettings.json can contain more than one address with splitted by comma.
-                    if (_appConfiguration["App:CorsOrigins"] == "*")
-                        builder
-                            .SetIsOriginAllowed((host) => true);
-                    else
-                        builder.WithOrigins(
-                            _appConfiguration["App:CorsOrigins"]
-                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                                .Select(o => o.RemovePostFix("/"))
-                                .ToArray()
-                        );
-
-                    builder.AllowAnyMethod()
-                           .AllowCredentials()
-                           .AllowAnyHeader()
-                           .Build();
-                });
-            });
+            // Configure CORS for GameHub Hub and Admin frontends
+            services.AddGameHubCors(_appConfiguration);
 
             //Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             services.AddSwaggerGen(options =>
@@ -208,8 +186,11 @@ namespace GameHub.Web.Startup
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
+            {
                 app.UseExceptionHandler("/Error");
-            app.UseCors(GameHubConsts.DefaultCorsPolicyName); //Enable CORS!
+                app.UseHsts();
+            }
+            app.UseCors(GameHubConsts.DefaultCorsPolicyName);
             app.UseJwtTokenMiddleware();
             app.UseAbpRequestLocalization();
             app.UseRouting();
