@@ -403,3 +403,20 @@ O backend usava `http://host.docker.internal:9000` para MinIO mesmo com o contai
 - `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
 - `shellcheck install.sh` sem erros.
 - PR #24 criado.
+
+## 2026-07-23 23:15 UTC
+
+### Tarefa
+Corrigir erro 504 em `Session/GetCurrentLoginInformations` e demais métodos do admin, removendo validações/headers que estavam interferindo no cross-origin e desativando o cache SQL Server incompatível com PostgreSQL.
+
+### Arquivos alterados
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — removido o registro de `SecurityHeadersMiddleware`, `ContentSecurityPolicyMiddleware` e `RateLimitingMiddleware` do pipeline; removido `using GameHub.Web.Middleware`.
+- `Api/src/GameHub.Web.Host/appsettings*.json` — `SqlServerCache:IsEnabled` definido como `false` (o cache SQL Server apontava para a conexão PostgreSQL e causava timeout/gateway 504 em métodos que usam `IAbpCache`/`SettingManager`, como `GetCurrentLoginInformations`); `Cors:AllowAnyOrigin` definido como `true` para eliminar validação de origem enquanto o frontends são validados.
+
+### Motivação
+O `GetAll` funcionava porque não disparava o cache ABP; `GetCurrentLoginInformations` usava `SettingManager` -> `IAbpCache` configurado com `EafSqlServerCacheManager` apontando para a string de conexão PostgreSQL, fazendo o driver SQL Server aguardar/timeout e o gateway retornar 504. Os headers `Referrer-Policy`, CSP e rate limit também estavam sendo reportados como validações impedindo o cross-origin.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 170 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
