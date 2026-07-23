@@ -164,6 +164,7 @@ namespace GameHub.Catalog
             }
 
             var detail = MapToDetail(game);
+            detail.RelatedGames = (await GetRelatedAsync(game.Id, cancellationToken)).Items.ToList();
             await _catalogCache.SetBySlugAsync(slug, detail, TimeSpan.FromMinutes(10), cancellationToken);
             return detail;
         }
@@ -243,6 +244,7 @@ namespace GameHub.Catalog
                 await _gameVoteRepository.InsertAsync(vote);
             }
 
+            game.RecalculateRating();
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return new GameVoteResultDto
@@ -416,6 +418,8 @@ namespace GameHub.Catalog
                 TotalPlays = game.TotalPlays,
                 TotalLikes = game.TotalLikes,
                 TotalDislikes = game.TotalDislikes,
+                AverageRating = (decimal)ComputeAverageRating(game),
+                TotalVotes = ComputeTotalVotes(game),
                 Categories = game.GameCategories
                     .Where(gc => gc.Category != null)
                     .Select(gc => new CategoryDto
@@ -439,6 +443,7 @@ namespace GameHub.Catalog
                 ShortDescription = game.ShortDescription,
                 Description = game.Description,
                 Instructions = game.Instructions,
+                Controls = game.Controls,
                 AgeRating = game.AgeRating,
                 Orientation = game.Orientation.ToString(),
                 ThumbnailUrl = game.ThumbnailUrl,
@@ -450,7 +455,8 @@ namespace GameHub.Catalog
                 TotalPlays = game.TotalPlays,
                 TotalLikes = game.TotalLikes,
                 TotalDislikes = game.TotalDislikes,
-                AverageRating = (decimal)(game.AverageRating ?? 0),
+                AverageRating = (decimal)ComputeAverageRating(game),
+                TotalVotes = ComputeTotalVotes(game),
                 SupportsDesktop = game.SupportsDesktop,
                 SupportsMobile = game.SupportsMobile,
                 SupportsTablet = game.SupportsTablet,
@@ -495,6 +501,27 @@ namespace GameHub.Catalog
         {
             var vote = await FindExistingVoteAsync(gameId, AbpSession.UserId, deviceId);
             return vote?.VoteType;
+        }
+
+        private static double ComputeAverageRating(Game game)
+        {
+            var totalVotes = ComputeTotalVotes(game);
+            if (totalVotes == 0)
+            {
+                return game.AverageRating ?? 0;
+            }
+
+            if (game.AverageRating.HasValue && game.AverageRating.Value > 0)
+            {
+                return game.AverageRating.Value;
+            }
+
+            return (double)game.TotalLikes / totalVotes * 5;
+        }
+
+        private static long ComputeTotalVotes(Game game)
+        {
+            return game.TotalLikes + game.TotalDislikes;
         }
     }
 }

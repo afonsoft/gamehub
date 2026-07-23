@@ -33,6 +33,10 @@ public class CreateGameDraftInput
     [StringLength(10000)]
     public string Instructions { get; set; }
 
+    /// <summary>Control scheme for desktop and mobile (HTML/Markdown).</summary>
+    [StringLength(4000)]
+    public string Controls { get; set; }
+
     /// <summary>Age rating: "E", "E10+", "T", "M".</summary>
     [Required]
     [StringLength(10)]

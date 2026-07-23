@@ -1,5 +1,36 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 23:04 UTC
+
+### Tarefa
+Executar o spec `19.1-poki-pagina-jogo.md`: seção de controles, jogos relacionados, categorias clicáveis e avaliação nos cards.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` — propriedade `Controls` e método `RecalculateRating`.
+- `Api/src/GameHub.Application/Catalog/Dto/GameDetailDto.cs`, `GameCardDto.cs` — `Controls`, `AverageRating` e `TotalVotes`.
+- `Api/src/GameHub.Application/Developer/Dto/CreateGameDraftInput.cs`, `UpdateGameMetadataInput.cs` — campo `Controls`.
+- `Api/src/GameHub.Application/Admin/Dto/AdminGameDetailDto.cs` — `Controls` e `TotalVotes`.
+- `Api/src/GameHub.Application/Catalog/GameCatalogAppService.cs` — `GetBySlugAsync` popula `RelatedGames`, `VoteAsync` recalcula nota, `MapToCard`/`MapToDetail` calculam rating/votos.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — mapeamento de `Controls`, `AverageRating` e `TotalVotes`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubModelCreatingExtensions.cs` — configuração da coluna `Controls`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260723225851_AddGameControlsAndRating.*` — migração EF Core.
+- `angular/src/app/core/services/game-catalog.service.ts` e `developer.service.ts` — propriedades `controls`, `averageRating` e `totalVotes`.
+- `angular/src/app/public/game-detail/game-detail.component.ts/.html/.css` — categorias clicáveis, seção "Controls", badge de votos/nota e jogos relacionados com rating.
+- `angular/src/app/public/home/home.component.ts/.html/.css` e `games/games.component.ts/.html/.css` — cards com plays, estrelas e contagem de votos.
+- `angular/src/app/developer/game-create/game-create.component.html` e `game-edit/game-edit.component.ts/.html` — campo `Controls` no formulário.
+- `angular/public/i18n/pt-BR.json` e `en-US.json` — chaves `gameDetail.controls`, `gameDetail.votes`, `games.rating`, `games.votes`.
+- `Api/test/GameHub.Tests/GameHub/Application/GameCatalogAppService_Tests.cs` — testes de jogos relacionados e recálculo de nota.
+
+### Motivação
+Completar o polimento da página pública do jogo inspirada na Poki, facilitando descoberta por categoria, exibindo controles e tornando a avaliação visível nos cards.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 202 passaram, 1 skipped.
+- `dotnet ef migrations add AddGameControlsAndRating` gerada com sucesso.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Branch `feature/poki-backlog-19` criada a partir de `main`.
+
 ## 2026-07-23 21:15 UTC
 
 ### Tarefa

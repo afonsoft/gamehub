@@ -41,7 +41,9 @@ namespace GameHub
             configuration.CreateMap<Game, GameCardDto>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
                 .ForMember(dest => dest.SupportsMobile, opt => opt.MapFrom(src => src.SupportsMobile))
-                .ForMember(dest => dest.SupportsDesktop, opt => opt.MapFrom(src => src.SupportsDesktop));
+                .ForMember(dest => dest.SupportsDesktop, opt => opt.MapFrom(src => src.SupportsDesktop))
+                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
+                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)));
 
             configuration.CreateMap<Game, GameDetailDto>()
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))
@@ -49,7 +51,8 @@ namespace GameHub
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.GameTags))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
                 .ForMember(dest => dest.PublishedBuildUrl, opt => opt.MapFrom(src => BuildUrl(src.PublishedBuild)))
-                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)(src.AverageRating ?? 0)));
+                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
+                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)));
 
             configuration.CreateMap<Game, GameSummaryDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
@@ -67,7 +70,8 @@ namespace GameHub
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
-                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)(src.AverageRating ?? 0)))
+                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
+                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)))
                 .ForMember(dest => dest.BuildHistory, opt => opt.MapFrom(src => src.GameBuilds))
                 .ForMember(dest => dest.ModerationHistory, opt => opt.MapFrom(src => src.ModerationReviews))
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
@@ -137,6 +141,27 @@ namespace GameHub
             configuration.CreateMap<Abp.Auditing.AuditLog, AuditLogDto>()
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => $"{src.ServiceName}.{src.MethodName}"))
                 .ForMember(dest => dest.Details, opt => opt.MapFrom(src => TruncateAuditDetails(src.Parameters)));
+        }
+
+        private static double ComputeAverageRating(Game game)
+        {
+            var totalVotes = ComputeTotalVotes(game);
+            if (totalVotes == 0)
+            {
+                return game.AverageRating ?? 0;
+            }
+
+            if (game.AverageRating.HasValue && game.AverageRating.Value > 0)
+            {
+                return game.AverageRating.Value;
+            }
+
+            return (double)game.TotalLikes / totalVotes * 5;
+        }
+
+        private static long ComputeTotalVotes(Game game)
+        {
+            return game.TotalLikes + game.TotalDislikes;
         }
 
         private static string TruncateAuditDetails(string parameters)

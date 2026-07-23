@@ -36,6 +36,9 @@ public class GameDetailDto
     /// <summary>Game instructions (HTML/Markdown).</summary>
     public string Instructions { get; set; } = string.Empty;
 
+    /// <summary>Control scheme for desktop and mobile (HTML/Markdown).</summary>
+    public string Controls { get; set; } = string.Empty;
+
     /// <summary>Age rating (e.g., E, E10+, T, M).</summary>
     public string AgeRating { get; set; } = string.Empty;
 
@@ -62,6 +65,9 @@ public class GameDetailDto
 
     /// <summary>Average user rating (0–5).</summary>
     public decimal AverageRating { get; set; }
+
+    /// <summary>Total votes used to compute the average rating.</summary>
+    public long TotalVotes { get; set; }
 
     /// <summary>Supports desktop browsers.</summary>
     public bool SupportsDesktop { get; set; }

@@ -105,6 +105,9 @@ namespace GameHub.Catalog
         public string Description { get; set; }
         [StringLength(2000)]
         public string Instructions { get; set; }
+
+        [StringLength(4000)]
+        public string Controls { get; set; }
         [Required]
         public GameStatus Status { get; set; }
         [Required]
@@ -169,6 +172,21 @@ namespace GameHub.Catalog
             {
                 GameTags.Add(new GameTag { GameId = Id, TagId = id });
             }
+        }
+
+        /// <summary>
+        /// Recalculates the average 0-5 rating from like/dislike votes.
+        /// </summary>
+        public void RecalculateRating()
+        {
+            var totalVotes = TotalLikes + TotalDislikes;
+            if (totalVotes == 0)
+            {
+                AverageRating = null;
+                return;
+            }
+
+            AverageRating = (double)TotalLikes / totalVotes * 5;
         }
     }
 }

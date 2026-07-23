@@ -49,4 +49,10 @@ public class GameCardDto
 
     /// <summary>Total dislike votes.</summary>
     public long TotalDislikes { get; set; }
+
+    /// <summary>Average user rating (0–5).</summary>
+    public decimal AverageRating { get; set; }
+
+    /// <summary>Total votes used to compute the average rating.</summary>
+    public long TotalVotes { get; set; }
 }

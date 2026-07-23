@@ -67,11 +67,16 @@ export class GameDetailComponent implements OnInit {
         this.userVote = result.userVote ?? null;
         this.game!.totalLikes = result.totalLikes;
         this.game!.totalDislikes = result.totalDislikes;
+        this.updateLocalRating();
       },
       error: () => {
         this.voting = false;
       },
     });
+  }
+
+  goToCategory(slug: string): void {
+    void this.router.navigate(['/games'], { queryParams: { category: slug } });
   }
 
   toggleDescription(): void {
@@ -164,6 +169,13 @@ export class GameDetailComponent implements OnInit {
     } catch {
       return '';
     }
+  }
+
+  private updateLocalRating(): void {
+    if (!this.game) return;
+    const totalVotes = this.game.totalLikes + this.game.totalDislikes;
+    this.game.totalVotes = totalVotes;
+    this.game.averageRating = totalVotes > 0 ? (this.game.totalLikes / totalVotes) * 5 : 0;
   }
 
   private generateId(): string {

@@ -27,6 +27,8 @@ export interface GameCard {
   totalPlays: number;
   totalLikes: number;
   totalDislikes: number;
+  averageRating: number;
+  totalVotes: number;
   categories?: Category[];
 }
 
@@ -55,6 +57,7 @@ export interface GameDetail {
   shortDescription: string;
   description: string;
   instructions: string;
+  controls?: string;
   ageRating: string;
   orientation: string;
   developerName: string;
@@ -63,6 +66,7 @@ export interface GameDetail {
   totalLikes: number;
   totalDislikes: number;
   averageRating: number;
+  totalVotes: number;
   supportsDesktop: boolean;
   supportsMobile: boolean;
   supportsTablet: boolean;

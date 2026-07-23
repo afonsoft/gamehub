@@ -37,6 +37,10 @@ public class UpdateGameMetadataInput
     [StringLength(10000)]
     public string Instructions { get; set; }
 
+    /// <summary>Control scheme for desktop and mobile.</summary>
+    [StringLength(4000)]
+    public string Controls { get; set; }
+
     /// <summary>Age rating.</summary>
     [Required]
     [StringLength(10)]
