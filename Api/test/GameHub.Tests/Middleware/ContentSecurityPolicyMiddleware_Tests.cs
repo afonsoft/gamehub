@@ -1,5 +1,8 @@
 using GameHub.Web.Middleware;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
@@ -67,6 +70,29 @@ namespace GameHub.Tests.Middleware
 
             var csp = context.Response.Headers["Content-Security-Policy"].ToString();
             csp.ShouldContain("default-src");
+        }
+
+        [Fact]
+        public async Task Dado_AmbienteDesenvolvimento_Quando_Invocar_Entao_DeveUsarReportOnly()
+        {
+            var context = new DefaultHttpContext();
+            var env = new HostingEnvironment { EnvironmentName = Environments.Development };
+            var middleware = new ContentSecurityPolicyMiddleware(_ => Task.CompletedTask, env);
+
+            await middleware.Invoke(context);
+
+            context.Response.Headers.ContainsKey("Content-Security-Policy").ShouldBeFalse();
+            context.Response.Headers.ContainsKey("Content-Security-Policy-Report-Only").ShouldBeTrue();
+        }
+
+        private class HostingEnvironment : IWebHostEnvironment
+        {
+            public string EnvironmentName { get; set; }
+            public string ApplicationName { get; set; } = "GameHub";
+            public string ContentRootPath { get; set; } = string.Empty;
+            public IFileProvider ContentRootFileProvider { get; set; }
+            public string WebRootPath { get; set; } = string.Empty;
+            public IFileProvider WebRootFileProvider { get; set; }
         }
     }
 }

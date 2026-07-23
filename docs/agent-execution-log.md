@@ -1,5 +1,28 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 01:20 UTC
+
+### Tarefa
+Implementar PR-3 do plano de gaps: security headers, CSP, rate limit e CORS, alinhando com `15-csp-security-headers.md`.
+
+### Arquivos alterados
+- `Api/src/GameHub.Web.Host/Middleware/SecurityHeadersMiddleware.cs` — `X-Content-Type-Options=nosniff`, `X-Frame-Options=DENY` (override para `SAMEORIGIN` em `/play`), `X-XSS-Protection=0`, `Referrer-Policy`, `Permissions-Policy`, HSTS, `X-Permitted-Cross-Domain-Policies`, `Cross-Origin-Resource-Policy`, remoção de `Server`/`X-Powered-By`.
+- `Api/src/GameHub.Web.Host/Middleware/ContentSecurityPolicyMiddleware.cs` — CSP de produção e report-only para desenvolvimento com diretivas `default-src`, `script-src`, `style-src`, `img-src`, `font-src`, `connect-src`, `frame-src`, `frame-ancestors`, `object-src`, `base-uri`, `form-action`, `upgrade-insecure-requests`.
+- `Api/src/GameHub.Web.Host/Middleware/RateLimitingMiddleware.cs` — contador distribuído com regras por caminho/IP/sessão: `default` 100 req/min, `auth` 10 req/min, `gameplay` 60 req/min por `X-Session-Id`, `upload` 5 req/hora por usuário; headers `X-RateLimit-*` e resposta `429`.
+- `Api/src/GameHub.Web.Host/Configuration/CorsConfiguration.cs` — políticas `GameHubCors` e `GameHubAdminCors` com origens configuráveis, métodos, headers, headers expostos de rate limit, `AllowCredentials` e preflight cache de 600s.
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — registro e ordenação dos middlewares, `UseHsts` em produção, `UseCors` com política default.
+- `Api/src/GameHub.Web.Host/appsettings*.json` — adicionadas seções `Cors:HubOrigins` e `Cors:AdminOrigins` por ambiente.
+- `Api/test/GameHub.Tests/Middleware/SecurityHeadersMiddleware_Tests.cs`, `ContentSecurityPolicyMiddleware_Tests.cs`, `RateLimitingMiddleware_Tests.cs`, `CorsConfiguration_Tests.cs`.
+
+### Motivação
+A API e o host precisam emitir headers de segurança adequados, CSP estrito, limitação de taxa por tipo de endpoint e CORS segmentado entre hub e admin, sem expor `*` ou credenciais indevidamente.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release --no-restore` sucesso.
+- `dotnet test Api/GameHub.sln -c Release --no-build` — 158 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm ci --legacy-peer-deps && npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+
 ## 2026-07-23 00:15 UTC
 
 ### Tarefa
