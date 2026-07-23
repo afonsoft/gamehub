@@ -1,5 +1,46 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 22:45 UTC
+
+### Tarefa
+Simulação completa do GameHub via Docker: subir toda a infra (Postgres, Redis, MinIO, API, admin, hub), testar admin, cadastrar novo desenvolvedor, fazer upload de zip com `index.html`, aprovar/submeter/revisar/publicar e verificar no hub.
+
+### Arquivos alterados
+- `docker-compose.override.test.yml` — overrides locais para JWT, CORS, PostgreSQL/MinIO e `PublicEndpoint` (não commitado, uso local).
+- `angular/nginx.conf` (novo) — proxy `/api/` para backend e SPA fallback.
+- `angular/Dockerfile` — copia `nginx.conf` para a imagem.
+- `angular/src/app/app.routes.ts` — move `play/:slug` e `leaderboard/:gameId` antes das rotas públicas lazy.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — `setGameOrigin()` e uso de origem dinâmica.
+- `angular/src/app/player/game-frame/game-frame.component.ts` — deriva `gameOrigin` de `publishedBuildUrl`.
+- `angular/src/environments/environment.ts` — fallback `http://localhost:9000` para origem do jogo.
+- `Api/src/GameHub.Web.Host/Storage/S3ClientFactory.cs` — `AuthenticationRegion` quando endpoint customizado está presente.
+- `Api/src/GameHub.Web.Host/Storage/MinioStorageOptions.cs` — adiciona `PublicEndpoint`.
+- `Api/src/GameHub.Web.Host/Storage/MinioGameAssetStorage.cs` — `BuildPublicUrl` usa `PublicEndpoint`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/GameHubPermissionSeeder.cs` — adiciona `Pages.Developer.Games` e `Pages.Developer.Profile` à role `Developer`.
+
+### Motivação
+Durante a simulação foram encontrados problemas que impediam o fluxo completo: rotas `/play/:slug` caindo em 404, MinIO retornando `AccessDenied`, AWS SDK chamando S3 real, URLs públicas usando endpoint interno e dashboard do desenvolvedor negando acesso por falta de permissão. Os ajustes tornam o fluxo local funcional e preparam a base para ambientes reais com `PublicEndpoint` configurável.
+
+### Fluxo validado
+1. `docker compose -f docker-compose.all.yml -f docker-compose.override.test.yml up -d --build`
+2. Admin em `http://localhost:4602` carregou e login funcionou.
+3. Registro de `devtest03` via `/api/services/app/Registration/Register`.
+4. Criação do jogo `Space Shooter` (`/api/services/app/DeveloperGame/CreateDraft`).
+5. Upload de `space-shooter.zip` com `index.html` (`/api/game-builds/{gameId}/upload`).
+6. Aprovação do build pelo dev (`/api/services/app/DeveloperGame/ApproveBuild`).
+7. Submissão para revisão (`/api/services/app/DeveloperGame/SubmitForReview`).
+8. Aprovação no admin (`/api/services/app/Moderation/CompleteReview`).
+9. Hub `http://localhost:4600` listou `Space Shooter` e detalhe mostrou descrição/instruções.
+10. Execução em `/play/space-shooter` carregou o `index.html` do jogo.
+11. Admin dashboard: 2 jogos, 2 builds, 4 usuários, 3 developers, 2 plays.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release` sucesso.
+- `dotnet test Api/GameHub.sln -c Release` — 199 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker-compose.all.yml config` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+- PR `bugfix/simulation-fixes` (#38) criado para `main`.
+
 ## 2026-07-23 22:00 UTC
 
 ### Tarefa
