@@ -53,6 +53,8 @@ namespace GameHub
             configuration.CreateMap<Game, GameSummaryDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.PublishedBuildVersion, opt => opt.MapFrom(src => src.PublishedBuild != null ? src.PublishedBuild.Version : string.Empty))
+                .ForMember(dest => dest.LatestBuildStatus, opt => opt.MapFrom(src => src.GameBuilds != null ? src.GameBuilds.OrderByDescending(b => b.BuildNumber).Select(b => b.Status.ToString()).FirstOrDefault() : string.Empty))
+                .ForMember(dest => dest.LatestBuildId, opt => opt.MapFrom(src => src.GameBuilds != null ? (Guid?)src.GameBuilds.OrderByDescending(b => b.BuildNumber).Select(b => b.Id).FirstOrDefault() : null))
                 .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => src.LastModificationTime ?? src.CreationTime));
 
             configuration.CreateMap<Game, AdminGameListItemDto>()

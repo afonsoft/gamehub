@@ -34,6 +34,15 @@ public class BuildDto
     /// <summary>Validation result summary (JSON or structured).</summary>
     public string ValidationSummary { get; set; }
 
+    /// <summary>Public base URL where extracted files are accessible.</summary>
+    public string PublicBaseUrl { get; set; } = string.Empty;
+
+    /// <summary>Path of the index.html inside the package.</summary>
+    public string IndexHtmlPath { get; set; } = string.Empty;
+
+    /// <summary>URL of the original uploaded package (ZIP).</summary>
+    public string OriginalPackageUrl { get; set; } = string.Empty;
+
     /// <summary>UTC timestamp when the build was uploaded.</summary>
     public DateTime CreatedAt { get; set; }
 

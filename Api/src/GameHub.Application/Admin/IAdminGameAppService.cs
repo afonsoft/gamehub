@@ -13,10 +13,6 @@ namespace GameHub.Admin
 
         Task<AdminGameDetailDto> GetDetailAsync(Guid gameId);
 
-        Task ApproveBuildAsync(ApproveBuildInput input);
-
-        Task RejectBuildAsync(RejectBuildInput input);
-
         Task PublishAsync(PublishGameInput input);
 
         Task SuspendAsync(SuspendGameInput input);

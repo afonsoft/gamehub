@@ -79,26 +79,6 @@ namespace GameHub.Admin
             return dto;
         }
 
-        [AbpAuthorize(GameHubPermissions.Pages_Builds_Approve)]
-        public async Task ApproveBuildAsync(ApproveBuildInput input)
-        {
-            var build = await _buildRepository.GetAsync(input.GameBuildId);
-            build.Approve();
-
-            await _buildRepository.UpdateAsync(build);
-            await CurrentUnitOfWork.SaveChangesAsync();
-        }
-
-        [AbpAuthorize(GameHubPermissions.Pages_Builds_Reject)]
-        public async Task RejectBuildAsync(RejectBuildInput input)
-        {
-            var build = await _buildRepository.GetAsync(input.GameBuildId);
-            build.Reject(input.Reason);
-
-            await _buildRepository.UpdateAsync(build);
-            await CurrentUnitOfWork.SaveChangesAsync();
-        }
-
         [AbpAuthorize(GameHubPermissions.Pages_Games_Publish)]
         public async Task PublishAsync(PublishGameInput input)
         {

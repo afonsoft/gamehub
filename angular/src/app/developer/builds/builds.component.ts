@@ -41,6 +41,22 @@ export class DeveloperBuildsComponent implements OnInit {
     });
   }
 
+  approveBuild(build: BuildItem): void {
+    this.developerService.approveBuild(build.id).subscribe({
+      next: () => this.loadBuilds(),
+      error: err => alert(err?.error?.error?.message || 'Unable to approve build.'),
+    });
+  }
+
+  rejectBuild(build: BuildItem): void {
+    const reason = window.prompt('Rejection reason:');
+    if (!reason) return;
+    this.developerService.rejectBuild(build.id, reason).subscribe({
+      next: () => this.loadBuilds(),
+      error: err => alert(err?.error?.error?.message || 'Unable to reject build.'),
+    });
+  }
+
   uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];

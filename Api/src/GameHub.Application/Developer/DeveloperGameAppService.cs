@@ -107,8 +107,10 @@ namespace GameHub.Developer
 
             if (game.Status != GameStatus.Draft && game.Status != GameStatus.Rejected)
             {
-                throw new InvalidOperationException($"Game cannot be submitted for review from status {game.Status}.");
+                throw new UserFriendlyException($"Game cannot be submitted for review from status {game.Status}.");
             }
+
+            await EnsureCurrentUserOwnsGameAsync(game);
 
             var latestBuild = await _gameBuildRepository.GetAll()
                 .Where(b => b.GameId == input.GameId && !b.IsDeleted)
@@ -118,6 +120,11 @@ namespace GameHub.Developer
             if (latestBuild == null)
             {
                 throw new UserFriendlyException("Upload a build before submitting for review.");
+            }
+
+            if (latestBuild.Status != GameBuildStatus.Approved)
+            {
+                throw new UserFriendlyException("Approve the build in your developer panel before submitting for review.");
             }
 
             game.Status = GameStatus.InReview;
@@ -137,6 +144,34 @@ namespace GameHub.Developer
             await _catalogCache.InvalidateHomeAsync();
 
             return ObjectMapper.Map<GameDetailDto>(game);
+        }
+
+        [AbpAuthorize]
+        public async Task<BuildDto> ApproveBuildAsync(DeveloperApproveBuildInput input)
+        {
+            var build = await _gameBuildRepository.GetAsync(input.GameBuildId);
+            var game = await _gameRepository.GetAsync(build.GameId);
+
+            await EnsureCurrentUserOwnsGameAsync(game);
+
+            build.Approve();
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return ObjectMapper.Map<BuildDto>(build);
+        }
+
+        [AbpAuthorize]
+        public async Task<BuildDto> RejectBuildAsync(DeveloperRejectBuildInput input)
+        {
+            var build = await _gameBuildRepository.GetAsync(input.GameBuildId);
+            var game = await _gameRepository.GetAsync(build.GameId);
+
+            await EnsureCurrentUserOwnsGameAsync(game);
+
+            build.Reject(input.Reason);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return ObjectMapper.Map<BuildDto>(build);
         }
 
         [AbpAuthorize]
@@ -167,6 +202,15 @@ namespace GameHub.Developer
                 .FirstAsync();
 
             return new ListResultDto<BuildDto>(ObjectMapper.Map<List<BuildDto>>(game.GameBuilds.ToList()));
+        }
+
+        private async Task EnsureCurrentUserOwnsGameAsync(Game game)
+        {
+            var profile = await _developerProfileRepository.GetAsync(game.DeveloperProfileId);
+            if (profile.UserId != AbpSession.UserId)
+            {
+                throw new AbpAuthorizationException("You can only manage builds of your own games.");
+            }
         }
 
         private async Task<DeveloperProfile> GetOrCreateProfileAsync()

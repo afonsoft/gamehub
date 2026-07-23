@@ -1,48 +1,43 @@
 <div class="content">
   <div class="m-portlet m-portlet--mobile">
-    <div class="m-portlet__head" *ngIf="game">
+    <div class="m-portlet__head">
       <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">{{ game.title }}</h3>
+          <h3 class="m-portlet__head-text">Uploads</h3>
         </div>
       </div>
     </div>
-    <div class="m-portlet__body" *ngIf="game">
-      <p><strong>Slug:</strong> {{ game.slug }}</p>
-      <p><strong>Status:</strong> <span class="m-badge m-badge--info">{{ game.status }}</span></p>
-      <p><strong>Developer:</strong> {{ game.developerName }}</p>
-      <p><strong>Age Rating:</strong> {{ game.ageRating }}</p>
-      <p><strong>Orientation:</strong> {{ game.orientation }}</p>
-      <p><strong>Total Plays:</strong> {{ game.totalPlays | number }}</p>
-      <p><strong>Description:</strong></p>
-      <p>{{ game.shortDescription }}</p>
-
-      <h4>Build History</h4>
-      <p-table [value]="game.buildHistory" *ngIf="game.buildHistory?.length">
+    <div class="m-portlet__body">
+      <p-table [value]="builds" [lazy]="true" (onLazyLoad)="loadBuilds($event)" [paginator]="true"
+               [rows]="maxResultCount" [totalRecords]="totalCount" [loading]="loading"
+               [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
+               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} uploads">
         <ng-template pTemplate="header">
           <tr>
+            <th>Game</th>
+            <th>Developer</th>
             <th>Version</th>
             <th>Status</th>
             <th>Size</th>
-            <th>Public URL</th>
             <th>Uploaded</th>
             <th>Actions</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-build>
           <tr>
+            <td>{{ build.gameTitle }}</td>
+            <td>{{ build.developerName }}</td>
             <td>{{ build.version }}</td>
             <td><span class="m-badge m-badge--info">{{ build.status }}</span></td>
             <td>{{ build.sizeBytes | number }} bytes</td>
-            <td>{{ build.publicBaseUrl || '-' }}</td>
             <td>{{ build.createdAt | date:'short' }}</td>
             <td>
               <a [routerLink]="['/app/main/gamehub/uploads', build.id]" class="btn btn-sm btn-primary">Files</a>
+              <a [routerLink]="['/app/main/gamehub/games', build.gameId]" class="btn btn-sm btn-secondary">Game</a>
             </td>
           </tr>
         </ng-template>
       </p-table>
-      <p *ngIf="!game.buildHistory?.length">No builds uploaded.</p>
     </div>
   </div>
 </div>
