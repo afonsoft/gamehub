@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { DeveloperService, DeveloperDashboard, DeveloperGameVersion, DeveloperDashboardAction, DashboardDailyPlays } from '../../core/services/developer.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { BadgeComponent } from '../../shared/ui/badge/badge.component';
 
 @Component({
   selector: 'app-developer-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe, BadgeComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })

@@ -1,11 +1,53 @@
-/* GameHub global styles */
+/* GameHub design system tokens */
+:root {
+  --gh-primary: #ff5e57;
+  --gh-primary-dark: #e84c45;
+  --gh-secondary: #3b3b98;
+  --gh-success: #2ecc71;
+  --gh-warning: #f1c40f;
+  --gh-danger: #e74c3c;
+  --gh-info: #3498db;
+  --gh-text: #111111;
+  --gh-text-secondary: #666666;
+  --gh-muted: #e0e0e0;
+  --gh-background: #f6f7fb;
+  --gh-surface: #ffffff;
+  --gh-surface-elevated: #1e1e2f;
+  --gh-border: #dddddd;
+  --gh-radius: 0.5rem;
+  --gh-radius-lg: 0.75rem;
+  --gh-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --gh-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --gh-spacing-xs: 0.25rem;
+  --gh-spacing-sm: 0.5rem;
+  --gh-spacing-md: 1rem;
+  --gh-spacing-lg: 1.5rem;
+  --gh-spacing-xl: 2rem;
+  --gh-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --gh-font-size-sm: 0.875rem;
+  --gh-font-size-md: 1rem;
+  --gh-font-size-lg: 1.25rem;
+  --gh-font-size-xl: 1.75rem;
+  --gh-line-height: 1.5;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: #f6f7fb;
-  color: #111;
+  font-family: var(--gh-font-family);
+  background: var(--gh-background);
+  color: var(--gh-text);
+  line-height: var(--gh-line-height);
+}
+
+a {
+  color: var(--gh-primary);
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }

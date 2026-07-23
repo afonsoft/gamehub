@@ -1,75 +1,75 @@
 <div class="dashboard" *ngIf="dashboard$ | async as dashboard">
   <header class="dashboard-header">
-    <h1>Developer Dashboard</h1>
-    <a routerLink="/developer/games" class="btn">My Games</a>
+    <h1>{{ 'dashboard.title' | translate }}</h1>
+    <a routerLink="/developer/games" class="btn">{{ 'dashboard.myGames' | translate }}</a>
   </header>
 
   <section class="cards">
     <div class="card">
       <span class="card-value">{{ dashboard.totalGames }}</span>
-      <span class="card-label">Total Games</span>
+      <span class="card-label">{{ 'dashboard.totalGames' | translate }}</span>
     </div>
     <div class="card">
       <span class="card-value">{{ dashboard.publishedGames }}</span>
-      <span class="card-label">Published</span>
+      <span class="card-label">{{ 'dashboard.published' | translate }}</span>
     </div>
     <div class="card">
       <span class="card-value">{{ dashboard.pendingReviewGames }}</span>
-      <span class="card-label">In Review</span>
+      <span class="card-label">{{ 'dashboard.inReview' | translate }}</span>
     </div>
     <div class="card">
       <span class="card-value">{{ dashboard.draftGames }}</span>
-      <span class="card-label">Drafts</span>
+      <span class="card-label">{{ 'dashboard.drafts' | translate }}</span>
     </div>
     <div class="card">
       <span class="card-value">{{ dashboard.rejectedGames }}</span>
-      <span class="card-label">Rejected</span>
+      <span class="card-label">{{ 'dashboard.rejected' | translate }}</span>
     </div>
     <div class="card">
       <span class="card-value">{{ dashboard.totalPlays | number }}</span>
-      <span class="card-label">Total Plays</span>
+      <span class="card-label">{{ 'dashboard.totalPlays' | translate }}</span>
     </div>
   </section>
 
   <section class="panel" *ngIf="dashboard.playsOverTime?.length">
-    <h2>Plays (last 7 days)</h2>
+    <h2>{{ 'dashboard.playsChart' | translate }}</h2>
     <svg viewBox="0 0 600 200" class="plays-chart" preserveAspectRatio="none">
       <polyline fill="none" stroke="#ff5e57" stroke-width="3" [attr.points]="buildChartPoints(dashboard.playsOverTime)" />
     </svg>
   </section>
 
   <section class="panel" *ngIf="dashboard.pendingActions?.length">
-    <h2>Pending Actions</h2>
+    <h2>{{ 'dashboard.pendingActions' | translate }}</h2>
     <ul class="action-list">
       <li *ngFor="let action of dashboard.pendingActions; trackBy: trackByAction">
         <div class="action-title">{{ action.title }}</div>
         <div class="action-meta">
-          <span class="status">{{ action.status }}</span>
+          <app-badge [label]="action.status" variant="warning"></app-badge>
           <span class="suggestion">{{ action.action }}</span>
         </div>
         <div class="action-link">
-          <a [routerLink]="['/developer/games', action.gameId]">Edit</a>
+          <a [routerLink]="['/developer/games', action.gameId]">{{ 'common.edit' | translate }}</a>
         </div>
       </li>
     </ul>
   </section>
 
   <section class="panel" *ngIf="dashboard.recentVersions?.length">
-    <h2>Recent Versions</h2>
+    <h2>{{ 'dashboard.recentVersions' | translate }}</h2>
     <table class="version-table">
       <thead>
         <tr>
-          <th>Game</th>
-          <th>Version</th>
-          <th>Status</th>
-          <th>Uploaded</th>
+          <th>{{ 'common.game' | translate }}</th>
+          <th>{{ 'common.version' | translate }}</th>
+          <th>{{ 'common.status' | translate }}</th>
+          <th>{{ 'common.uploaded' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let version of dashboard.recentVersions; trackBy: trackByVersion">
           <td>{{ version.gameTitle }}</td>
           <td>{{ version.version }}</td>
-          <td><span class="status-badge">{{ version.status }}</span></td>
+          <td><app-badge [label]="version.status"></app-badge></td>
           <td>{{ version.createdAt | date:'short' }}</td>
         </tr>
       </tbody>
