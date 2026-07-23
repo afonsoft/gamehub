@@ -80,21 +80,40 @@
   font-weight: 600;
 }
 
+.categories,
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
+.categories {
+  margin-bottom: 0.5rem;
+}
+
+.category-chip,
 .tags a {
   color: #ff5e57;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
+  cursor: pointer;
 }
 
+.category-chip:hover,
 .tags a:hover {
   text-decoration: underline;
+}
+
+.controls {
+  margin-bottom: 2rem;
+}
+
+.controls h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a1b2e;
+  margin: 0 0 0.75rem;
 }
 
 .detail-actions {
@@ -207,6 +226,38 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.game-card .plays {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.game-card .rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+  font-size: 0.8rem;
+  color: #f59e0b;
+}
+
+.game-card .stars-empty {
+  color: #d1d5db;
+}
+
+.game-card .stars-filled {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.game-card .rating-text {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-left: 4.5rem;
 }
 
 .empty-state {

@@ -58,6 +58,11 @@
         <h3>{{ game.title }}</h3>
         <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
         <span class="plays">{{ game.totalPlays | number }} plays</span>
+        <div class="rating" *ngIf="game.totalVotes">
+          <span class="stars-empty">★★★★★</span>
+          <span class="stars-filled" [style.width.%]="(game.averageRating / 5) * 100">★★★★★</span>
+          <span class="rating-text">{{ game.averageRating | number:'1.1-1' }} ({{ game.totalVotes | number }} {{ 'games.votes' | translate }})</span>
+        </div>
       </div>
     </a>
   </div>

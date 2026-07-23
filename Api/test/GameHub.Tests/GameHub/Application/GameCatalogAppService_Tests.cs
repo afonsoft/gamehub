@@ -166,6 +166,50 @@ namespace GameHub.Tests.GameHub.Application
 
             home.Trending.First().Slug.ShouldBe(highScoreSlug);
             home.Trending.Last().Slug.ShouldBe(lowScoreSlug);
+            home.PopularThisWeek.First().Slug.ShouldBe(highScoreSlug);
+            home.PopularThisWeek.Last().Slug.ShouldBe(lowScoreSlug);
+            home.TopFree.ShouldNotBeEmpty();
+        }
+
+        [Fact]
+        public async Task Dado_JogoPublicado_Quando_BuscarPorSlug_Entao_RetornaJogosRelacionados()
+        {
+            var categoryId = await SeedCategoryAsync("Action");
+            var slug = await SeedPublishedGameAsync("Action One", categoryIds: new List<Guid> { categoryId });
+            await SeedPublishedGameAsync("Action Two", categoryIds: new List<Guid> { categoryId });
+
+            var detail = await _catalogAppService.GetBySlugAsync(slug);
+
+            detail.ShouldNotBeNull();
+            detail.RelatedGames.ShouldNotBeEmpty();
+            detail.RelatedGames.Count.ShouldBeLessThanOrEqualTo(6);
+        }
+
+        [Fact]
+        public async Task Dado_VotoEmJogo_Quando_Recalcular_Entao_AverageRatingAtualizado()
+        {
+            var slug = await SeedPublishedGameAsync("Rated Game");
+            var gameId = await UsingDbContextAsync(async context =>
+            {
+                var game = await context.Games.FirstAsync(g => g.Slug == slug);
+                return game.Id;
+            });
+
+            await _catalogAppService.VoteAsync(new GameVoteInput
+            {
+                GameId = gameId,
+                VoteType = GameVoteType.Like,
+                DeviceId = "test-device"
+            });
+
+            var rating = await UsingDbContextAsync(async context =>
+            {
+                var game = await context.Games.FirstAsync(g => g.Id == gameId);
+                return game.AverageRating;
+            });
+
+            rating.ShouldNotBeNull();
+            rating.Value.ShouldBe(5.0, 0.01);
         }
 
         private async Task<string> SeedPublishedGameAsync(string title, long totalPlays = 0, List<Guid> categoryIds = null)

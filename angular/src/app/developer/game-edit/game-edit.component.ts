@@ -210,6 +210,7 @@ export class GameEditComponent implements OnInit {
       shortDescription: detail.shortDescription,
       description: detail.description,
       instructions: detail.instructions,
+      controls: detail.controls ?? '',
       ageRating: detail.ageRating || 'E',
       orientation: detail.orientation,
       supportsDesktop: detail.supportsDesktop,

@@ -25,6 +25,12 @@ public class HomeResponseDto
     /// <summary>Games trending by recent play growth.</summary>
     public List<GameCardDto> Trending { get; set; } = new();
 
+    /// <summary>Most played games in the last seven days.</summary>
+    public List<GameCardDto> PopularThisWeek { get; set; } = new();
+
+    /// <summary>Top free-to-play games.</summary>
+    public List<GameCardDto> TopFree { get; set; } = new();
+
     /// <summary>All active categories for the sidebar/chips.</summary>
     public List<CategoryDto> Categories { get; set; } = new();
 }

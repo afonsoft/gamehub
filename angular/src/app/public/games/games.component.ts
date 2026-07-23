@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { GameCatalogService, GameCard, Category, PagedGames } from '../../core/services/game-catalog.service';
@@ -35,6 +36,8 @@ export class GamesComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly catalog = inject(GameCatalogService);
+  private readonly titleService = inject(Title);
+  private readonly metaService = inject(Meta);
   private subscription?: Subscription;
 
   get title(): string {
@@ -76,11 +79,13 @@ export class GamesComponent implements OnInit, OnDestroy {
   loadCategories(): void {
     this.catalog.getHome().subscribe(h => {
       this.categories = h?.categories ?? [];
+      this.setSeo();
     });
   }
 
   loadPage(): void {
     this.loading = true;
+    this.setSeo();
     const hasSearch = this.query.trim() || this.tag || this.category || this.device || this.orientation;
     const request$ = hasSearch
       ? this.catalog.search(
@@ -133,5 +138,31 @@ export class GamesComponent implements OnInit, OnDestroy {
   loadMore(): void {
     this.skipCount += this.pageSize;
     this.loadPage();
+  }
+
+  private setSeo(): void {
+    const title = this.buildSeoTitle();
+    this.titleService.setTitle(title);
+    this.metaService.updateTag({ name: 'description', content: this.buildSeoDescription() });
+  }
+
+  private buildSeoTitle(): string {
+    if (this.query) return `GameHub - Search: ${this.query}`;
+    if (this.category) {
+      const cat = this.categories.find(c => c.slug === this.category);
+      return cat ? `GameHub - ${cat.name} Games` : 'GameHub - Games by Category';
+    }
+    if (this.tag) return `GameHub - #${this.tag} Games`;
+    return 'GameHub - Free Online Games';
+  }
+
+  private buildSeoDescription(): string {
+    if (this.category) {
+      const cat = this.categories.find(c => c.slug === this.category);
+      return cat ? `Play the best ${cat.name} games on GameHub. No downloads, no login required.` : '';
+    }
+    if (this.tag) return `Explore free games tagged #${this.tag} on GameHub.`;
+    if (this.query) return `Search results for "${this.query}" on GameHub.`;
+    return 'Discover and play free HTML5 games on GameHub. No downloads required.';
   }
 }

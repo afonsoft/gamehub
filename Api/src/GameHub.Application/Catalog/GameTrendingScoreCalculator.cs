@@ -40,5 +40,46 @@ namespace GameHub.Catalog
 
             return scores;
         }
+
+        public async Task<Dictionary<Guid, double>> CalculateGrowthScoresAsync(int days, CancellationToken cancellationToken = default)
+        {
+            var currentWindowStart = Clock.Now.AddDays(-days).Date;
+            var previousWindowStart = Clock.Now.AddDays(-days * 2).Date;
+
+            var current = await _metricSnapshotRepository.GetAll()
+                .Where(m => m.Date >= currentWindowStart)
+                .GroupBy(m => m.GameId)
+                .Select(g => new
+                {
+                    GameId = g.Key,
+                    Score = g.Sum(m => (double?)m.Plays) ?? 0
+                })
+                .ToDictionaryAsync(x => x.GameId, x => x.Score, cancellationToken);
+
+            var previous = await _metricSnapshotRepository.GetAll()
+                .Where(m => m.Date >= previousWindowStart && m.Date < currentWindowStart)
+                .GroupBy(m => m.GameId)
+                .Select(g => new
+                {
+                    GameId = g.Key,
+                    Score = g.Sum(m => (double?)m.Plays) ?? 0
+                })
+                .ToDictionaryAsync(x => x.GameId, x => x.Score, cancellationToken);
+
+            var gameIds = current.Keys.Union(previous.Keys);
+            var growthScores = new Dictionary<Guid, double>();
+
+            foreach (var gameId in gameIds)
+            {
+                var currentScore = current.GetValueOrDefault(gameId);
+                var previousScore = previous.GetValueOrDefault(gameId);
+
+                growthScores[gameId] = previousScore > 0
+                    ? currentScore / previousScore
+                    : currentScore;
+            }
+
+            return growthScores;
+        }
     }
 }

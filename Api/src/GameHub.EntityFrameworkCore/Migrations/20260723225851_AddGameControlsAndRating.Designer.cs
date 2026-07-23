@@ -3,6 +3,7 @@ using System;
 using GameHub.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameHub.Migrations
 {
     [DbContext(typeof(GameHubDbContext))]
-    partial class GameHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260723225851_AddGameControlsAndRating")]
+    partial class AddGameControlsAndRating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2455,50 +2458,6 @@ namespace GameHub.Migrations
                     b.ToTable("gh_DeveloperProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("GameHub.Gameplay.CloudSave", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Data")
-                        .HasMaxLength(4000000)
-                        .HasColumnType("character varying(4000000)");
-
-                    b.Property<string>("DeviceIdHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<Guid>("GameId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("TenantId")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("UncompressedSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("GameId", "DeviceIdHash");
-
-                    b.HasIndex("GameId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("gh_CloudSaves", (string)null);
-                });
-
             modelBuilder.Entity("GameHub.Gameplay.GameMetricSnapshot", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3176,24 +3135,6 @@ namespace GameHub.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GameHub.Gameplay.CloudSave", b =>
-                {
-                    b.HasOne("GameHub.Catalog.Game", "Game")
-                        .WithMany()
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Eaf.Middleware.Authorization.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Game");
 
                     b.Navigation("User");
                 });

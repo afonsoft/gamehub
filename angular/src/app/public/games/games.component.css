@@ -188,6 +188,34 @@
   margin-top: 0.2rem;
 }
 
+.game-card .rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  position: relative;
+  font-size: 0.9rem;
+  color: #f59e0b;
+  margin-top: 0.2rem;
+}
+
+.game-card .stars-empty {
+  color: #d1d5db;
+}
+
+.game-card .stars-filled {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.game-card .rating-text {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-left: 5rem;
+}
+
 .load-more {
   display: flex;
   justify-content: center;

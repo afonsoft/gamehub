@@ -32,8 +32,19 @@
         <div class="badges">
           <app-badge *ngIf="game.ageRating" [label]="game.ageRating" variant="default"></app-badge>
           <app-badge [label]="(game.totalPlays | number) + ' plays'" variant="primary"></app-badge>
-          <app-badge *ngIf="game.averageRating" [label]="(game.averageRating | number:'1.1-1') + ' / 5'" variant="success"></app-badge>
+          <app-badge *ngIf="game.totalVotes" [label]="(game.averageRating | number:'1.1-1') + ' / 5'" variant="success"></app-badge>
+          <app-badge *ngIf="game.totalVotes" [label]="(game.totalVotes | number) + ' ' + ('gameDetail.votes' | translate)" variant="default"></app-badge>
           <app-badge *ngIf="game.orientation" [label]="game.orientation" variant="default"></app-badge>
+        </div>
+        <div class="categories" *ngIf="game.categories?.length">
+          <a
+            *ngFor="let category of game.categories"
+            (click)="goToCategory(category.slug)"
+            class="category-chip"
+            role="link"
+            tabindex="0">
+            {{ category.name }}
+          </a>
         </div>
         <div class="tags" *ngIf="game.tags?.length">
           <a
@@ -74,6 +85,11 @@
       <div [innerHTML]="game.instructions"></div>
     </section>
 
+    <section class="controls" *ngIf="game.controls">
+      <h2>{{ 'gameDetail.controls' | translate }}</h2>
+      <div [innerHTML]="game.controls"></div>
+    </section>
+
     <section class="related" *ngIf="game.relatedGames?.length">
       <h2>{{ 'gameDetail.related' | translate }}</h2>
       <div class="related-grid">
@@ -83,6 +99,12 @@
           </div>
           <div class="meta">
             <h3>{{ related.title }}</h3>
+            <span class="plays">{{ related.totalPlays | number }} plays</span>
+            <div class="rating" *ngIf="related.totalVotes">
+              <span class="stars-empty">★★★★★</span>
+              <span class="stars-filled" [style.width.%]="(related.averageRating / 5) * 100">★★★★★</span>
+              <span class="rating-text">{{ related.averageRating | number:'1.1-1' }} ({{ related.totalVotes | number }})</span>
+            </div>
           </div>
         </a>
       </div>

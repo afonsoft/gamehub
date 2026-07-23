@@ -56,7 +56,9 @@ export class HomeComponent implements OnInit {
       this.home?.highlights?.length ||
       this.home?.mostPlayed?.length ||
       this.home?.trending?.length ||
-      this.home?.newGames?.length
+      this.home?.newGames?.length ||
+      this.home?.popularThisWeek?.length ||
+      this.home?.topFree?.length
     );
   }
 }

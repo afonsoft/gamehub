@@ -40,10 +40,9 @@
       </div>
     </section>
 
-    <section class="game-section" *ngIf="home?.highlights?.length">
-      <h2 class="section-title">{{ 'section.highlights' | translate }}</h2>
+    <ng-template #largeGameGrid let-games="games">
       <div class="game-grid large">
-        <a class="game-card" *ngFor="let game of home?.highlights" [routerLink]="['/play', game.slug]">
+        <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
           <div class="thumb">
             <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
           </div>
@@ -51,54 +50,64 @@
             <h3>{{ game.title }}</h3>
             <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
             <span class="plays">{{ game.totalPlays | number }} plays</span>
+            <div class="rating" *ngIf="game.totalVotes">
+              <span class="stars-empty">★★★★★</span>
+              <span class="stars-filled" [style.width.%]="(game.averageRating / 5) * 100">★★★★★</span>
+              <span class="rating-text">{{ game.averageRating | number:'1.1-1' }} ({{ game.totalVotes | number }} {{ 'games.votes' | translate }})</span>
+            </div>
           </div>
         </a>
       </div>
+    </ng-template>
+
+    <ng-template #gameGrid let-games="games">
+      <div class="game-grid">
+        <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
+          <div class="thumb">
+            <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+          </div>
+          <div class="meta">
+            <h3>{{ game.title }}</h3>
+            <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
+            <span class="plays">{{ game.totalPlays | number }} plays</span>
+            <div class="rating" *ngIf="game.totalVotes">
+              <span class="stars-empty">★★★★★</span>
+              <span class="stars-filled" [style.width.%]="(game.averageRating / 5) * 100">★★★★★</span>
+              <span class="rating-text">{{ game.averageRating | number:'1.1-1' }} ({{ game.totalVotes | number }} {{ 'games.votes' | translate }})</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </ng-template>
+
+    <section class="game-section" *ngIf="home?.highlights?.length">
+      <h2 class="section-title">{{ 'section.highlights' | translate }}</h2>
+      <ng-container *ngTemplateOutlet="largeGameGrid; context: { games: home?.highlights }"></ng-container>
     </section>
 
     <section class="game-section" *ngIf="home?.mostPlayed?.length">
       <h2 class="section-title">{{ 'section.mostPlayed' | translate }}</h2>
-      <div class="game-grid">
-        <a class="game-card" *ngFor="let game of home?.mostPlayed" [routerLink]="['/play', game.slug]">
-          <div class="thumb">
-            <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
-          </div>
-          <div class="meta">
-            <h3>{{ game.title }}</h3>
-            <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
-          </div>
-        </a>
-      </div>
+      <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.mostPlayed }"></ng-container>
+    </section>
+
+    <section class="game-section" *ngIf="home?.popularThisWeek?.length">
+      <h2 class="section-title">{{ 'section.popularThisWeek' | translate }}</h2>
+      <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.popularThisWeek }"></ng-container>
+    </section>
+
+    <section class="game-section" *ngIf="home?.topFree?.length">
+      <h2 class="section-title">{{ 'section.topFree' | translate }}</h2>
+      <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.topFree }"></ng-container>
     </section>
 
     <section class="game-section" *ngIf="home?.trending?.length">
       <h2 class="section-title">{{ 'section.trending' | translate }}</h2>
-      <div class="game-grid">
-        <a class="game-card" *ngFor="let game of home?.trending" [routerLink]="['/play', game.slug]">
-          <div class="thumb">
-            <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
-          </div>
-          <div class="meta">
-            <h3>{{ game.title }}</h3>
-            <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
-          </div>
-        </a>
-      </div>
+      <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.trending }"></ng-container>
     </section>
 
     <section class="game-section" *ngIf="home?.newGames?.length">
       <h2 class="section-title">{{ 'section.newGames' | translate }}</h2>
-      <div class="game-grid">
-        <a class="game-card" *ngFor="let game of home?.newGames" [routerLink]="['/play', game.slug]">
-          <div class="thumb">
-            <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
-          </div>
-          <div class="meta">
-            <h3>{{ game.title }}</h3>
-            <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
-          </div>
-        </a>
-      </div>
+      <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.newGames }"></ng-container>
     </section>
 
     <section class="empty-state" *ngIf="loaded && !hasAnyGames()">

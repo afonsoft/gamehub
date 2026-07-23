@@ -31,6 +31,9 @@ public class AdminGameDetailDto
     /// <summary>Game instructions.</summary>
     public string Instructions { get; set; } = string.Empty;
 
+    /// <summary>Control scheme for desktop and mobile.</summary>
+    public string Controls { get; set; } = string.Empty;
+
     /// <summary>Age rating.</summary>
     public string AgeRating { get; set; } = string.Empty;
 
@@ -54,6 +57,9 @@ public class AdminGameDetailDto
 
     /// <summary>Average rating.</summary>
     public decimal AverageRating { get; set; }
+
+    /// <summary>Total votes used to compute the average rating.</summary>
+    public long TotalVotes { get; set; }
 
     /// <summary>Full build history.</summary>
     public List<BuildDto> BuildHistory { get; set; } = new();
