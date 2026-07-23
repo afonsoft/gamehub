@@ -4,10 +4,6 @@ import { NotFoundComponent } from './public/not-found/not-found.component';
 
 export const routes: Routes = [
   {
-    path: '',
-    loadChildren: () => import('./public/public.routes').then(m => m.publicRoutes),
-  },
-  {
     path: 'play/:slug',
     component: GameFrameComponent,
   },
@@ -18,6 +14,10 @@ export const routes: Routes = [
   {
     path: 'developer',
     loadChildren: () => import('./developer/developer.routes').then(m => m.developerRoutes),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./public/public.routes').then(m => m.publicRoutes),
   },
   { path: '**', component: NotFoundComponent },
 ];

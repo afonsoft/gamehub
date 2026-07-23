@@ -44,6 +44,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   loadingError = false;
   private sessionId: string | null = null;
   private gameId: string | null = null;
+  private gameOrigin = environment.gameOrigin;
   private readonly messageHandler = (event: MessageEvent<unknown>) => this.bridge.handleMessage(event);
 
   private readonly route = inject(ActivatedRoute);
@@ -62,7 +63,9 @@ export class GameFrameComponent implements OnInit, OnDestroy {
           return;
         }
         this.gameId = game.id;
+        this.gameOrigin = new URL(game.publishedBuildUrl).origin;
         this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(game.publishedBuildUrl);
+        this.bridge.setGameOrigin(this.gameOrigin);
         this.bridge.setReplyHandler(msg => this.postToGame(msg));
 
         const input: StartPlaySessionInput = {
@@ -108,7 +111,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   private postToGame(message: unknown): void {
     const contentWindow = this.frame?.nativeElement?.contentWindow;
     if (contentWindow) {
-      contentWindow.postMessage(message, environment.gameOrigin);
+      contentWindow.postMessage(message, this.gameOrigin);
     }
   }
 }

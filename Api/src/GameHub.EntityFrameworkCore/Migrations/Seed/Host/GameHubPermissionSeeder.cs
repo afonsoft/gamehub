@@ -251,6 +251,9 @@ namespace GameHub.Migrations.Seed.Host
                 GameHubPermissions.Pages_Builds,
                 GameHubPermissions.Pages_Builds_Upload,
                 GameHubPermissions.Pages_Builds_View,
+                GameHubPermissions.Pages_Developer,
+                GameHubPermissions.Pages_Developer_Profile,
+                GameHubPermissions.Pages_Developer_Games,
                 GameHubPermissions.Pages_Gameplay,
                 GameHubPermissions.Pages_Leaderboard
             };

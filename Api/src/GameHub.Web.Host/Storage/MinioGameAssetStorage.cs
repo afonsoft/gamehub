@@ -162,7 +162,7 @@ namespace GameHub.Web.Storage
 
         private string BuildPublicUrl(string key)
         {
-            var endpoint = _options.Minio.Endpoint?.TrimEnd('/');
+            var endpoint = (_options.Minio.PublicEndpoint ?? _options.Minio.Endpoint)?.TrimEnd('/');
             if (string.IsNullOrWhiteSpace(endpoint))
                 throw new InvalidOperationException("MinIO endpoint is not configured.");
 

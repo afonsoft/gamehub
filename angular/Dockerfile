@@ -8,5 +8,6 @@ RUN npx ng build --configuration=production --output-hashing=all --output-path /
 
 FROM nginx
 EXPOSE 80
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=ng-builder /app/dist/publish/browser /usr/share/nginx/html
 CMD ["nginx", "-g", "daemon off;"]
