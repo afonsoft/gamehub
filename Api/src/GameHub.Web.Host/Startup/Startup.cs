@@ -19,7 +19,6 @@ using Eaf.Middleware.Web.Swagger;
 using GameHub.Application.Extensions;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
-using GameHub.Web.Middleware;
 using GameHub.Web.WebHooks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -180,9 +179,6 @@ namespace GameHub.Web.Startup
 
             app.UseResponseCompression();
             app.UseEafHealthChecks();
-            app.UseMiddleware<SecurityHeadersMiddleware>();
-            app.UseMiddleware<ContentSecurityPolicyMiddleware>();
-            app.UseMiddleware<RateLimitingMiddleware>();
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
