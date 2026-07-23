@@ -1,5 +1,38 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 21:00 UTC
+
+### Tarefa
+Implementar Fase D do plano aprovado: dashboard estilo Poki para o desenvolvedor, SDK JavaScript para jogos e serviço de métricas por jogo.
+
+### Arquivos alterados (backend)
+- `Api/src/GameHub.Application/Developer/IDeveloperDashboardAppService.cs` e `DeveloperDashboardAppService.cs` — resumo de jogos, builds, ações pendentes e gráfico de plays dos últimos 7 dias.
+- `Api/src/GameHub.Application/Developer/Dto/DeveloperDashboardDto.cs`, `DeveloperGameVersionDto.cs`, `DeveloperDashboardActionDto.cs` — DTOs do dashboard.
+- `Api/src/GameHub.Application/Gameplay/IGameMetricsAppService.cs` e `GameMetricsAppService.cs` — métricas de plays, jogadores únicos, duração e eventos (loading, errors, comerciais, rewarded), com filtros de data, país e device.
+- `Api/src/GameHub.Application/Gameplay/Dto/GameMetricsFilter.cs`, `GameMetricsResult.cs`, `GameMetricsDailyItemDto.cs` — contratos do serviço de métricas.
+- `Api/src/GameHub.Application/Developer/IDeveloperGameAppService.cs` e `DeveloperGameAppService.cs` — adicionado `GetVersionsAsync` (alias para `GetBuildsAsync`).
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/Seed/Host/GameHubPermissionSeeder.cs` — permissões `Pages.Developer`, `Pages.Developer.Profile` e `Pages.Developer.Games` concedidas ao papel Admin.
+
+### Arquivos alterados (frontend)
+- `angular/public/gamehub-sdk.js` — SDK global `GameHubSDK` com `init`, `gameLoadingStarted/Finished`, `gameplayStart/Stop`, `commercialBreakRequested`, `rewardedBreakRequested`, `captureError` e `gameMeasuredEvent`.
+- `angular/src/app/player/game-frame/game-frame.component.ts` — remove chamada automática de `gameplayStart()` no carregamento; aguarda evento do jogo/SDK.
+- `angular/src/app/core/services/developer.service.ts` — adicionados `getDashboard`, `getGameMetrics`, `getGameVersions` e interfaces correspondentes.
+- `angular/src/app/developer/dashboard/dashboard.component.ts/.html/.css` — cards de resumo, gráfico SVG simples de plays, lista de versões e ações pendentes.
+
+### Testes
+- `Api/test/GameHub.Tests/GameHub/Application/DeveloperDashboardAppService_Tests.cs` — resumo, builds recentes e `PlaysOverTime`.
+- `Api/test/GameHub.Tests/GameHub/Application/GameMetricsAppService_Tests.cs` — totais/diário e filtro por país.
+
+### Motivação
+Oferecer ao desenvolvedor visibilidade dos seus jogos e métricas, e padronizar a comunicação do iframe via SDK próprio, como em plataformas de distribuição de jogos HTML5.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release` sucesso.
+- `dotnet test Api/GameHub.sln -c Release` — 194 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker-compose.all.yml config` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+- PR `feature/developer-dashboard-sdk` criado para `main`.
+
 ## 2026-07-23 17:20 UTC
 
 ### Tarefa

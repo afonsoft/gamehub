@@ -76,7 +76,6 @@ export class GameFrameComponent implements OnInit, OnDestroy {
             this.sessionId = session?.sessionId ?? null;
             if (this.sessionId && this.gameId) {
               this.bridge.setSession(this.sessionId, this.gameId);
-              this.bridge.gameplayStart();
             }
           },
           error: () => {

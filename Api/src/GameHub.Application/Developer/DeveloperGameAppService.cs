@@ -206,6 +206,12 @@ namespace GameHub.Developer
             return new ListResultDto<BuildDto>(ObjectMapper.Map<List<BuildDto>>(game.GameBuilds.ToList()));
         }
 
+        [AbpAuthorize]
+        public async Task<ListResultDto<BuildDto>> GetVersionsAsync(Guid gameId)
+        {
+            return await GetBuildsAsync(gameId);
+        }
+
         private async Task EnsureCurrentUserOwnsGameAsync(Game game)
         {
             var profile = await _developerProfileRepository.GetAsync(game.DeveloperProfileId);
