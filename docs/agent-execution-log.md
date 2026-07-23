@@ -1,5 +1,29 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 23:08 UTC
+
+### Tarefa
+Executar o spec `19.2-poki-home-descoberta.md`: seções "Popular this week" e "Top free games", cálculo de crescimento para trending e SEO de páginas de categoria.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Catalog/ITrendingScoreCalculator.cs` — novo método `CalculateGrowthScoresAsync`.
+- `Api/src/GameHub.Application/Catalog/GameTrendingScoreCalculator.cs` — implementação de crescimento entre janelas de 7 dias.
+- `Api/src/GameHub.Application/Catalog/Dto/HomeResponseDto.cs` — propriedades `PopularThisWeek` e `TopFree`.
+- `Api/src/GameHub.Application/Catalog/GameCatalogAppService.cs` — `GetHomeAsync` retorna `PopularThisWeek` e `TopFree`; `Trending` passa a usar crescimento relativo.
+- `Api/test/GameHub.Tests/GameHub/Application/GameCatalogAppService_Tests.cs` — assertivas para `PopularThisWeek` e `TopFree`.
+- `angular/src/app/core/services/game-catalog.service.ts` — interface `HomeResponse` com `popularThisWeek` e `topFree`.
+- `angular/src/app/public/home/home.component.ts/.html` — seções "Popular this week" e "Top free games" com templates reutilizáveis.
+- `angular/src/app/public/games/games.component.ts` — `Title` e `Meta` ajustam título/descrição dinamicamente por categoria/tag/busca.
+- `angular/public/i18n/pt-BR.json` e `en-US.json` — chaves `section.popularThisWeek` e `section.topFree`.
+
+### Motivação
+Reforçar a página inicial com seções de descoberta inspiradas na Poki e melhorar indexação das páginas de categoria.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 202 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+
 ## 2026-07-23 23:04 UTC
 
 ### Tarefa

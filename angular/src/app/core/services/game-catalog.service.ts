@@ -44,6 +44,8 @@ export interface HomeResponse {
   newGames: GameCard[];
   mostPlayed: GameCard[];
   trending: GameCard[];
+  popularThisWeek: GameCard[];
+  topFree: GameCard[];
   categories: Category[];
 }
 

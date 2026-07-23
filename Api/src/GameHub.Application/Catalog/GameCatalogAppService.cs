@@ -59,7 +59,8 @@ namespace GameHub.Catalog
                 .Include(g => g.PublishedBuild)
                 .ToListAsync();
 
-            var trendingScores = await _trendingScoreCalculator.CalculateScoresAsync(7);
+            var popularScores = await _trendingScoreCalculator.CalculateScoresAsync(7);
+            var trendingScores = await _trendingScoreCalculator.CalculateGrowthScoresAsync(7);
 
             var highlights = publishedGames
                 .Where(g => g.GamePlacements.Any(p => p.PlacementType == GamePlacementType.Featured && p.IsActive))
@@ -84,7 +85,14 @@ namespace GameHub.Catalog
                 .ToList();
 
             var trending = publishedGames
-                .OrderByDescending(g => trendingScores.GetValueOrDefault(g.Id, g.TotalPlays))
+                .OrderByDescending(g => trendingScores.GetValueOrDefault(g.Id, 0))
+                .ThenByDescending(g => g.TotalPlays)
+                .Take(12)
+                .Select(MapToCard)
+                .ToList();
+
+            var popularThisWeek = publishedGames
+                .OrderByDescending(g => popularScores.GetValueOrDefault(g.Id, 0))
                 .ThenByDescending(g => g.TotalPlays)
                 .Take(12)
                 .Select(MapToCard)
@@ -102,6 +110,8 @@ namespace GameHub.Catalog
                 NewGames = newGames,
                 MostPlayed = mostPlayed,
                 Trending = trending,
+                PopularThisWeek = popularThisWeek,
+                TopFree = mostPlayed,
                 Categories = categories
             };
 

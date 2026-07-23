@@ -166,6 +166,9 @@ namespace GameHub.Tests.GameHub.Application
 
             home.Trending.First().Slug.ShouldBe(highScoreSlug);
             home.Trending.Last().Slug.ShouldBe(lowScoreSlug);
+            home.PopularThisWeek.First().Slug.ShouldBe(highScoreSlug);
+            home.PopularThisWeek.Last().Slug.ShouldBe(lowScoreSlug);
+            home.TopFree.ShouldNotBeEmpty();
         }
 
         [Fact]
