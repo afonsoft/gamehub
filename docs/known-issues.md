@@ -1,22 +1,31 @@
 # GameHub — Known Issues
 
-## EF Core Migrations
+## Migrations
 
-- The PostgreSQL initial migration (`Migrations/20260721121054_Initial`) was generated and replaces the previous SQL Server-only migration.
-- At runtime the API applies the migration automatically via `GameHubDbContext.MigrateDatabase`.
-- For SQL Server deployments a provider-specific migration must be generated with `Database__Provider=SqlServer`.
+- A migration inicial do PostgreSQL (`Migrations/20260721121054_Initial`) foi gerada e substituiu a migration anterior SQL Server-only.
+- A API aplica a migration automaticamente em runtime via `GameHubDbContext.MigrateDatabase`.
+- Para deploys SQL Server é necessário gerar uma migration específica com `Database__Provider=SqlServer`.
 
-## Runtime Caches
+## Caches
 
-- `IGameCatalogCache` and `ILeaderboardCache` are currently implemented as in-memory caches.
-- Redis-backed implementations should be added when moving to production.
+- `IGameCatalogCache` e `ILeaderboardCache` possuem implementações Redis (`RedisGameCatalogCache` e `RedisLeaderboardCache`) registradas quando `RedisCache:IsEnabled=true`.
+- Em desenvolvimento sem Redis, caem para as implementações in-memory padrão.
 
-## Angular Admin
+## Storage
 
-- The `angular-admin` EAF application builds and already contains the standard administration module.
-- GameHub-specific administration screens (games, categories, tags, moderation) can be added incrementally as lazy-loaded modules under `src/app/admin`.
+- `MinioGameAssetStorage` é a implementação concreta de `IGameAssetStorage`. Extraí o ZIP para `builds/{gameId}/{buildId}/` e armazena também o pacote original.
+- O endpoint público dos jogos ainda usa o próprio endpoint do MinIO; um domínio dedicado `games.afonsoft.dev` (CDN/proxy) ainda não foi configurado.
 
-## Upload Storage
+## Segurança
 
-- `GameBuildAppService` validates and registers build metadata but stores packages in a configurable `OriginalPackageUrl`.
-- A concrete `IBlobStorage` provider (MinIO/S3) integration is reserved for a follow-up task.
+- `SecurityHeadersMiddleware`, `ContentSecurityPolicyMiddleware` e `RateLimitingMiddleware` foram removidos do pipeline para resolver erros 504/CORS no admin Angular/EAF.
+- JWT ainda usa `localStorage` no frontend. Refresh token `HttpOnly` e movimentação do access token para `sessionStorage` ainda estão pendentes.
+
+## Admin
+
+- As telas GameHub (games, moderação, categorias, tags, uploads, usuários, dashboard, feature flags, audit logs) foram criadas, mas a navegação ainda convive com o menu padrão do template EAF.
+
+## Frontends
+
+- O hub e o admin não possuem design system próprio nem i18n pt-BR/en-US implementados.
+- `GameplayBridgeService` dispara `gameplayStart` automaticamente no carregamento; a correta é o jogo disparar no primeiro input do jogador.

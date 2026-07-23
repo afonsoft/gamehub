@@ -1,286 +1,162 @@
-# Análise de `.specs` vs Implementação Atual — Oportunidades de Melhoria
+# Análise de `.specs` + Poki — O que falta e o que podemos melhorar
 
-> Baseado no estado do repositório após os ajustes iniciais de build (commit `19be040` em `main`).
-
-## 1. Resumo executivo
-
-A pasta `.specs` descreve uma plataforma completa de catálogo, distribuição e moderação de jogos web. A implementação atual ainda é essencialmente o template EAF/ABP renomeado, com o domínio de exemplo `Airplane` e muitos placeholders `GameHub`. As maiores oportunidades estão em: modelar o domínio GameHub, substituir/renamear artefatos do template, implementar os contratos da API, reescrever os frontends conforme as rotas e, por fim, reforçar segurança, observabilidade e DevOps.
+> Estado de referência: repositório `afonsoft/gamehub` após os PRs #26 a #33 (`main`).
 
 ---
 
-## 2. Backend — API / Domínio
+## 1. Resumo do que já está funcional
 
-### 2.1 Substituição do domínio de exemplo
-
-**Especificação:** `04-modelagem-dados.md` define entidades `Game`, `GameBuild`, `DeveloperProfile`, `Category`, `Tag`, `PlaySession`, `GameMetricSnapshot`, `GamePlacement`, `ModerationReview`.
-
-**Implementação atual:**
-- `Api/src/GameHub.Core/Airplanes/*` — domínio de exemplo.
-- `Api/src/GameHub.Application/Airplanes/*` — AppService de exemplo.
-- Migrations iniciais contêm tabelas do template.
-
-**Oportunidade:**
-- Remover `Airplanes` e criar as entidades/aggregates do GameHub em `GameHub.Core`.
-- Criar DbSets em `GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`.
-- Gerar nova migration inicial (`dotnet ef migrations add Initial_GameHub`).
-- Aplicar soft-delete, `TenantId` e índices conforme a modelagem (ex: `IX_Game_Slug`, `IX_GameBuild_GameId_Version`).
-
-### 2.2 Renomear artefatos `GameHub`
-
-**Implementação atual:** ainda existem `GameHubConsts`, `GameHubAuthorizationProvider`, `GameHubPermissions`, `GameHubApplicationModule`, `GameHubDbContext`, etc.
-
-**Oportunidade:**
-- Renomear tudo para `GameHub*` (ex: `GameHubConsts`, `GameHubAuthorizationProvider`, `GameHubDbContext`) para manter consistência e evitar confusão no namespace.
-
-### 2.3 Permissões RBAC
-
-**Especificação:** `12-rbac-permissions.md` define hierarquias `Pages.Games.*`, `Pages.Builds.*`, `Pages.Moderation.*` etc.
-
-**Implementação atual:** `GameHubPermissions` contém permissões genéricas do template.
-
-**Oportunidade:**
-- Criar `GameHubPermissions` com as constantes e descrições do spec.
-- Registrar no `AuthorizationProvider`.
-- Seed de roles (`Player`, `Developer`, `Moderator`, `Admin`) e atribuições no `HostRoleAndUserCreator`/`TenantRoleAndUserBuilder`.
-
-### 2.4 DTOs e Application Services
-
-**Especificação:** `05-api-contratos.md` + `14-dto-complete-reference.md` definem DTOs de catalog, builds, auth, moderation, leaderboard.
-
-**Implementação atual:** nenhum DTO ou AppService do GameHub.
-
-**Oportunidade:**
-- Criar `GameHub.Application/*` por contexto: `Catalog`, `Games`, `Builds`, `Moderation`, `Developer`, `Leaderboard`.
-- Usar `PagedAndSortedResultRequestDto` para listagens.
-- Adicionar DataAnnotations; evitar FluentValidation (conforme spec).
-- Expor via Dynamic API (`/api/services/app`) e controllers explícitos para upload/download (`/api/build/upload`, `/api/build/download`).
-
-### 2.5 Upload e validação de builds
-
-**Especificação:** `10-checklist-validacao.md` exige validador de build: `index.html`, tamanho máximo, SHA-256, tipos permitidos, sem executáveis.
-
-**Implementação atual:** nenhum endpoint de upload.
-
-**Oportunidade:**
-- Implementar `GameBuildAppService`/`BuildValidator` que:
-  - Recebe pacote `.zip`.
-  - Verifica `.exe`, `.dll`, `.bat`, `.cmd`, `.ps1`.
-  - Exige `index.html`.
-  - Calcula SHA-256.
-  - Armazena em MinIO/S3 ou filesystem e persiste URL no `GameBuild`.
-
-### 2.6 Leaderboards e Redis
-
-**Especificação:** leaderboards em Redis Sorted Sets com snapshots no banco.
-
-**Implementação atual:** Redis apenas configurável; sem implementação.
-
-**Oportunidade:**
-- Criar `LeaderboardService` usando `StackExchange.Redis`/`IDistributedCache`.
-- Implementar `ZADD`, `ZREVRANGE` e snapshots periódicos.
-
-### 2.7 Health checks e observabilidade
-
-**Especificação:** `07-runtime-devops-observabilidade.md` e `10-checklist-validacao.md` pedem endpoint `/health`, Serilog estruturado e OpenTelemetry.
-
-**Implementação atual:** pacotes `Eaf.OpenTelemetry` e `Eaf.Castle.Serilog` referenciados, mas sem configuração explícita no `Program.cs` além do padrão EAF.
-
-**Oportunidade:**
-- Adicionar `/health` com checks de PostgreSQL, Redis e MinIO.
-- Enriquecer logs com `CorrelationId`, `TenantId`, `UserId`, `GameId`, `BuildId`, `RequestPath`, `ElapsedMs`.
-- Configurar exportação de traces/metrics OpenTelemetry.
+- **Backend**: domínio `Game`, `GameBuild`, `Category`, `Tag`, `DeveloperProfile`, `PlaySession`, `GameplayEvent`, `GameMetricSnapshot`, `LeaderboardEntry`, `ModerationReview`, `UserReport`.
+- **Cadastro**: registro público com roles `Player` e `Developer` e criação automática de `DeveloperProfile`.
+- **Fluxo desenvolvedor**: criação de rascunho, edição de metadados (com categorias/tags), upload de build `.zip`, aprovação/rejeição do build pelo dev, submissão para revisão, moderação e publicação.
+- **Upload**: validação de `index.html`, SHA-256, tamanho máximo 100 MB, extração e armazenamento no MinIO/S3, listagem de arquivos extraídos para o admin.
+- **Catálogo**: home, listagem, busca por texto/categoria/tag/dispositivo/orientação, detalhe por slug, jogos relacionados.
+- **Gameplay**: sessão de play, eventos (10 tipos), `postMessage` bridge com origem validada, leaderboard em Redis Sorted Sets.
+- **Admin**: dashboard com total de jogos/revisões pendentes/plays/usuários/desenvolvedores, fila de moderação, games, categorias, tags, uploads/arquivos, usuários, feature flags, audit logs.
+- **Infra**: Redis substitui cache in-memory quando habilitado, Docker Compose full stack, CORS configurado para hub/admin e wildcard `*.afonsoft.dev`.
+- **Testes**: 176 testes passando (1 skipped), builds Angular e Docker configs validados.
 
 ---
 
-## 3. Segurança e Compliance
+## 2. Gaps em relação à pasta `.specs`
 
-### 3.1 Content Security Policy
+### 2.1 Segurança e compliance (Fase 3 ainda incompleta)
 
-**Especificação:** `15-csp-security-headers.md` define CSP restritiva, headers `X-Content-Type-Options`, `X-Frame-Options`, `Strict-Transport-Security`, `Permissions-Policy`, `Referrer-Policy` e `Cross-Origin-Resource-Policy`.
+- `SecurityHeadersMiddleware`, `ContentSecurityPolicyMiddleware` e `RateLimitingMiddleware` foram removidos do pipeline por causarem erros 504/CORS. Precisam ser reintroduzidos sem conflitar com o admin Angular/EAF.
+- JWT ainda usa `localStorage` no frontend e `UseJwtTokenMiddleware` do EAF. O spec `08-seguranca-lgpd-compliance.md` exige:
+  - Access token 30 min (memory/`sessionStorage`).
+  - Refresh token 7 dias em cookie `HttpOnly`, `Secure`, `SameSite=Strict`.
+  - Endpoint `POST /api/TokenAuth/RefreshToken` e blacklist no Redis.
+- LGPD: `PrivacyAppService` existe, mas ainda falta consentimento explícito de cookies/analytics e política de privacidade no frontend.
+- Rate limiting: nenhum no pipeline. Deve retornar `429` com headers `X-RateLimit-*`.
 
-**Implementação atual:** `ContentSecurityPolicyMiddleware.cs` tem CSP muito permissiva (`default-src * ... 'unsafe-inline' 'unsafe-eval'`) e utiliza header legado `X-Content-Security-Policy`. Faltam os demais headers.
+### 2.2 Frontend Game Hub (`angular/`)
 
-**Oportunidade:**
-- Reescrever o middleware para aplicar a CSP do spec, separando dev (`Content-Security-Policy-Report-Only`) e produção (`Content-Security-Policy`).
-- Adicionar todos os security headers listados.
-- Ajustar `frame-src` para o domínio de jogos (`https://games.afonsoft.dev` ou CDN).
+- Não há design system próprio (componentes `button`, `card`, `table`, `badge`, `skeleton`, `toast`, `pagination` etc.) — a UI ainda é mínima/placeholder.
+- Lazy loading está com `loadComponent` direto, não segue estritamente os módulos `public.routes.ts`, `player.routes.ts`, `developer.routes.ts` do spec.
+- Faltam interceptors `JwtInterceptor`, `ErrorInterceptor`, `CorrelationIdInterceptor` alinhados com o spec.
+- `GameplayBridgeService` não implementa confirmação de `gameplayStart` no primeiro input do jogador (Poki exige que o jogo dispare, não a plataforma no load).
+- i18n pt-BR/en-US ainda não implementada no frontend (`@angular/localize` ou `ngx-translate`).
 
-### 3.2 JWT e refresh tokens
+### 2.3 Frontend Admin (`angular-admin/GameHub.UI`)
 
-**Especificação:** `08-seguranca-lgpd-compliance.md` — HS256 em dev, RS256 em prod, access token 30 min, refresh token 7 dias em cookie `HttpOnly`, blacklist no Redis.
+- O menu GameHub foi criado, mas o template EAF ainda domina a navegação (users, roles, tenants, languages). A experiência ideal seria o menu GameHub como primário e EAF como secundário/configurações.
+- Telas de dashboard carecem de gráfico de plays ao longo do tempo (`chart.js` ou similar).
+- Faltam tela de feature flags funcional e filtros avançados na fila de moderação.
+- Ações de `Publish`/`Suspend` no admin game list não estão necessariamente ligadas a confirmação modal.
 
-**Implementação atual:** autenticação EAF/ABP padrão, sem refresh token customizado e com `UseEafKeyVault(opt => opt.Provider = EnumKeyVault.None)`.
+### 2.4 Backend / API
 
-**Oportunidade:**
-- Configurar `JwtBearer` conforme o spec (claim `sub` = UserId, `role` array).
-- Implementar `TokenAuthController` com refresh/revogação.
-- Substituir `localStorage` por `sessionStorage` (access) + cookie `HttpOnly` (refresh).
-- Criar interceptor de refresh silencioso no Angular.
+- **Busca full-text**: `SearchAsync` usa `ToLower().Contains`, não o full-text search do PostgreSQL (`tsvector`/`tsquery`) previsto no spec.
+- **Trending**: home usa `TotalPlays` como proxy de trending. Deveria usar crescimento recente (últimas 24h/7d) a partir de `GameMetricSnapshot`.
+- **Recomendações**: fora do escopo MVP, mas o spec menciona recomendações simples.
+- **Cache TTL**: home 5 min, categorias/tags 30 min, detalhe 10 min, leaderboard 1 min, busca 2 min — a implementação atual invalida home em mudanças, mas não aplica TTL granular.
+- **Caching de detalhe/busca**: `GameCatalogAppService.GetBySlugAsync` e `SearchAsync` não usam cache.
+- **Gameplay eventos brutos**: são persistidos todos os eventos. O spec sugere agregação para evitar volume excessivo. Já existe `GameMetricsAggregationJob`, mas os eventos brutos continuam no banco (retention 6 meses é aceitável).
+- **PlaySession heartbeat**: sessão é encerrada em `ngOnDestroy`, mas não há timeout automático de 30s sem heartbeat.
 
-### 3.3 Rate limiting
+### 2.5 DevOps / Infra
 
-**Especificação:** `05-api-contratos.md` define limites por recurso e headers `X-RateLimit-*`.
+- **Domínio isolado para jogos**: o spec exige `games.afonsoft.dev` servindo os builds. Hoje o `MinIO` endpoint é usado diretamente; falta um proxy/CDN (Nginx/CloudFront) para `games.afonsoft.dev` com `Cache-Control` imutável e CSP adequada.
+- **Health checks**: `UseEafHealthChecks` existe, mas não há endpoint `/health` retornando PostgreSQL/Redis/MinIO individualmente.
+- **Scripts de bootstrap**: `install.sh` existe, mas `scripts/bootstrap.sh`, `run-local.sh`, `test-all.sh`, `lint-all.sh`, `migrate-db.sh`, `seed-dev.sh` do spec ainda não foram criados.
+- **CI/CD**: workflows de build/teste existem, mas faltam publicação de imagens Docker e deploy.
 
-**Implementação atual:** ausente.
+### 2.6 Qualidade e UX
 
-**Oportunidade:**
-- Usar `AspNetCoreRateLimit` ou `Microsoft.AspNetCore.RateLimiting`.
-- Configurar políticas distintas para catalog, gameplay events, leaderboard submit, upload, login e reports.
-- Garantir retorno `429` com envelope padrão.
-
-### 3.4 CORS
-
-**Especificação:** `08-seguranca-lgpd-compliance.md` — CORS configurado para os dois frontends.
-
-**Implementação atual:** precisa ser revisado em `Startup.cs`/`Program.cs`.
-
-**Oportunidade:**
-- Configurar `Cors` para origens `https://gamehub.afonsoft.dev` e `https://gamehub-admin.afonsoft.dev` em produção, e `http://localhost:4200`/`http://localhost:4201` em dev.
-
-### 3.5 LGPD
-
-**Especificação:** `08-seguranca-lgpd-compliance.md` menciona consentimento, anonimização e retenção.
-
-**Implementação atual:** não implementado.
-
-**Oportunidade:**
-- Adicionar consent tracking (`UserConsent`).
-- Implementar endpoint `DELETE /api/profile/me` para anonimização.
-- Endpoint `GET /api/profile/export` para dados pessoais.
-- Política de retenção para logs e eventos.
+- **Thumbnails**: o spec fala em upload de thumbnail e hero image, mas não há endpoint de upload de imagens para jogos.
+- **Imagens/animated thumbnails**: Poki exige thumbnail estático e animado (`.mp4`, 4-6s, 1080x1080). Hoje só existe `ThumbnailUrl`/`HeroImageUrl` como string sem upload.
+- **Classificação indicativa**: `AgeRating` usa string livre (`"E"` padrão). Poderia ser value object `AgeRating` com valores padronizados (`E`, `E10+`, `T`, `M`).
+- **Slug**: `Slug` value object existe, mas a lógica de `ToLowerInvariant().Replace(" ", "-")` é inglesa; poderia remover acentos e caracteres especiais.
 
 ---
 
-## 4. Frontend Game Hub (`angular/`)
+## 3. Oportunidades inspiradas no Poki
 
-### 4.1 Estrutura e rotas
+### 3.1 Developer Portal (Poki for Developers)
 
-**Especificação:** `06-frontend-angular.md` e `13-frontend-routing.md` definem módulos `core/`, `shared/`, `public/`, `player/`, `developer/` com lazy loading.
+- **Dashboard do dev com métricas reais**: DAU, DAU jogando vs não-jogando, engagement (tempo por DAU), earnings, ad performance, player feedback, erros, filtráveis por país e dispositivo.
+- **Wizard de 5 passos**: progresso visual do jogo pelas fases de teste até publicação.
+- **Versões e Preview**: listar todas as builds, com botão "Preview" para abrir o jogo como no ambiente real, e "Inspector" para QA.
+- **Poki Inspector / QA checklist**: tela com módulos de QA (desktop/mobile, scaling, eventos, external resources, performance) e log de eventos do SDK.
+- **Playtests**: solicitar/playtest recordings de moderadores/QA.
+- **Thumbnails**: upload de thumbnail estático e animado, com status de revisão (`Pending`/`Approved`/`Rejected`).
+- **Billing**: cadastro de dados bancários, moeda preferida e relatório de earnings.
+- **Team/Usuários**: múltiplos usuários por time de desenvolvedor com roles `Developer` e `Developer Support`.
 
-**Implementação atual:** app Angular 20 standalone recém-gerado, apenas um `App` component com hello world.
+### 3.2 Gameplay / SDK
 
-**Oportunidade:**
-- Criar estrutura modular (mesmo que standalone) com pastas `core`, `shared`, `public`, `player`, `developer`.
-- Configurar lazy routes para `/games`, `/play/:slug`, `/leaderboard/:gameId`, `/developer/*`, `/login`, `/register`.
-- Implementar `AuthGuard`, `DeveloperGuard`, `GuestGuard`.
-- Implementar `JwtInterceptor`, `ErrorInterceptor`, `CorrelationIdInterceptor`.
-- Criar `GameplayBridgeService` com os 10 eventos (`gameLoadingFinished`, `gameplayStart`, `gameplayStop`, `commercialBreak`, `rewardedBreak`, `captureError`, `measure`, etc.).
-- Criar `GameShellComponent` com `<iframe sandbox>` para o jogo.
+- **SDK JavaScript oficial**: fornecer `gamehub-sdk.js` que os jogos importam e chamam `GameHubSDK.gameplayStart()`, `GameHubSDK.commercialBreak()` etc. Hoje a comunicação é por `postMessage` bruto.
+- **Eventos do SDK alinhados com Poki**:
+  - `gameLoadingFinished()` → conversion to play.
+  - `gameplayStart()` no **primeiro input** do jogador.
+  - `gameplayStop()` em pausa, game over, menu, cutscene.
+  - `commercialBreak()` apenas em pausas naturais (ex: entre fases, ao sair de menu).
+  - `rewardedBreak()` com prompt claro e recompensa única.
+- **Mobile mode**: no inspector/preview, alternar para mobile exibe QR code para teste em dispositivo real.
+- **Scaling tests**: simular dimensões 640x360, 836x470, 1031x580 e dispositivos populares.
+- **Fullscreen**: permitir fullscreen quando apropriado (plataforma decide).
 
-### 4.2 Design system
+### 3.3 Monetização
 
-**Especificação:** design system próprio, **não** Angular Material.
+- **IAdProvider real**: hoje é `FakeAdProvider` (delay fixo). No futuro integrar com Google AdSense/AdMob for Games, ironSource, ou outro sem acoplar domínio.
+- **Revenue share**: rastrear impressões/cliques por jogo e calcular split (ex: 50/50 quando o usuário vem da plataforma, 100% quando vem direto).
+- **Relatório de earnings**: por jogo, por país, por dispositivo, por tipo de anúncio.
+- **Ad policy**: bloquear anúncios próprios dentro do jogo (exceto os da plataforma), não exigir desbloqueio de adblocker, não recompensar quando adblocker detectado.
 
-**Implementação atual:** nenhum design system.
+### 3.4 Segurança / Privacidade
 
-**Oportunidade:**
-- Criar componentes base em `shared/components`: `button`, `card`, `input`, `modal`, `table`, `badge`, `skeleton`, `toast`, `pagination`, `dropdown`, `tabs`.
-- Definir tokens CSS de cores/tipografia em `styles.css`.
+- **External resources policy**: como Poki, bloquear por padrão requests de terceiros vindos do iframe do jogo. Jogos que precisarem de multiplayer/analytics devem declarar URLs e ter uma Privacy Statement.
+- **Incognito support**: documentar que jogos não devem depender de `localStorage` sem `try/catch`.
+- **CSP restritiva**: reativar com `frame-src https://games.afonsoft.dev` e `frame-ancestors` permitindo apenas os frontends.
 
-### 4.3 Serviços e modelos
+### 3.5 User Accounts (jogador)
 
-**Oportunidade:**
-- `GameService`, `BuildService`, `DeveloperService`, `LeaderboardService`.
-- Modelos `GameCardDto`, `GameDetailDto`, `BuildDto`, `PagedResult<T>` etc.
-- Pipes `date`, `truncate`, `safe-html`.
-
----
-
-## 5. Frontend Admin (`angular-admin/GameHub.UI`)
-
-### 5.1 Módulos
-
-**Especificação:** `06b-frontend-admin.md` — módulos `games/`, `moderation/`, `categories/`, `tags/`, `dashboard/`.
-
-**Implementação atual:** template EAF com User/Roles/Tenants, mas sem módulos GameHub.
-
-**Oportunidade:**
-- Criar modules/routes para `games`, `moderation`, `categories`, `tags`, `dashboard`.
-- Criar `AdminGuard` e `ModeratorGuard`.
-- Tabelas com paginação e filtros.
-- Fila de moderação (`review-queue`, `review-detail`).
-- Dashboard de métricas.
-
-### 5.2 Ajustes do template EAF
-
-**Implementação atual:** o `eaf-ng2-module` estava com `LogService` ausente (corrigido provisoriamente com stub). O nome do package ainda é `eaf-gamehub-ui`.
-
-**Oportunidade:**
-- Renomear package e referências de `GameHub` para `GameHub` no admin.
-- Revisar e substituir o `LogService` stub por implementação alinhada à estratégia de logging do EAF/Serilog.
+- **Login/avatar**: Poki User Accounts retorna `username` e `avatarUrl`. Podemos oferecer perfil público mínimo com avatar.
+- **Cloud saves**: sincronizar `localStorage`/`IndexedDB` do jogo com backend para usuários logados, respeitando limite de 1MB.
+- **Favoritos e ratings**: jogador salva jogos favoritos e dá nota/comentário.
 
 ---
 
-## 6. DevOps e Infraestrutura
+## 4. Priorização sugerida
 
-### 6.1 Docker Compose local
+### 4.1 Curto prazo (próxima PR)
 
-**Especificação:** `07-runtime-devops-observabilidade.md` — compose com Postgres 16, Redis 7, MinIO, backend, angular-hub e angular-admin.
+1. **Segurança sem quebrar o admin**:
+   - Reintroduzir `SecurityHeadersMiddleware` e `ContentSecurityPolicyMiddleware` de forma condicional (desativáveis via config até estabilizar).
+   - Reintroduzir `RateLimitingMiddleware` com políticas por recurso e headers `X-RateLimit-*`.
+   - Manter `Cors:AllowAnyOrigin` como escape hatch, mas habilitar origens explícitas em produção.
+2. **JWT HttpOnly + refresh token** (PR separado, exige interceptação do `TokenAuth` do EAF).
+3. **Frontend Game Hub**:
+   - Criar design system mínimo (botões, cards, tabela, badge).
+   - Implementar `JwtInterceptor`, `ErrorInterceptor`, `CorrelationIdInterceptor`.
+   - Melhorar `GameFrameComponent` para não chamar `gameplayStart()` automaticamente; deixar o jogo disparar via SDK/bridge.
+   - i18n pt-BR/en-US.
 
-**Implementação atual:** existe `Api/docker-compose.yml` apenas para a API; não há compose na raiz com todos os serviços.
+### 4.2 Médio prazo
 
-**Oportunidade:**
-- Criar `docker-compose.yml` na raiz do repo.
-- Adicionar `.env.example` com `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `MINIO_*`, `JWT_SECRET`.
-- Validar Dockerfiles do EAF para API e admin; criar Dockerfile para `angular/` (hub).
+4. **Busca full-text no PostgreSQL**: substituir `.Contains` por `tsvector`/`tsquery`.
+5. **Trending real** com `GameMetricSnapshot` (últimas 24h/7d).
+6. **Upload de thumbnails/hero images** para jogos.
+7. **Domínio isolado `games.afonsoft.dev`** para servir builds com cache imutável.
+8. **Health check endpoint `/health`** detalhado.
 
-### 6.2 CI/CD GitHub Actions
+### 4.3 Longo prazo
 
-**Implementação atual:** criados `ci-build-test.yml`, `angular-ci.yml`, `code-quality.yml`, `delete-branch-on-merge.yml`.
-
-**Oportunidade:**
-- Adicionar workflow de `docker build` e `docker compose config` para validar a stack local.
-- Adicionar workflow de publicação de imagens (`publish.yml`) e deploy.
-- Configurar secrets `SONARQUBE_TOKEN`, `SNYK_TOKEN`, `QODANA_TOKEN` para ativar as ferramentas de qualidade.
-- Adicionar testes no Angular (`ng test --no-watch --browsers=ChromeHeadlessNoSandbox`) quando existirem.
-
----
-
-## 7. Testes
-
-### 7.1 Cobertura e domínio
-
-**Implementação atual:** testes do template passam (211 passed), mas são do domínio `Airplane`.
-
-**Oportunidade:**
-- Substituir por testes de domínio (`GameTests`, `GameBuildTests`, `BuildValidatorTests`).
-- Testes de integração nos Application Services e controllers.
-- Testes de build/upload.
-- Alinhar com xUnit + FluentAssertions/Moq (conforme AGENTS) ou manter Shouldly/NSubstitute se for a intenção do projeto.
+9. **SDK JavaScript oficial** (`gamehub-sdk.js`) e Poki-style QA/Inspector.
+10. **Métricas de developer** e relatório de earnings.
+11. **Cloud saves e user accounts**.
+12. **Integração real de ads** e revenue share.
 
 ---
 
-## 8. Priorização sugerida
+## 5. Arquivos de referência
 
-1. **Crítico — build e estrutura base:**
-   - Renomear `GameHub*` para `GameHub*`.
-   - Criar entidades do spec e gerar nova migration.
-   - Criar DTOs e Application Services mínimos para `Game`/`GameBuild`.
-   - Substituição do `Airplane` de exemplo.
-
-2. **Alto — segurança:**
-   - Reescrever `ContentSecurityPolicyMiddleware`.
-   - Configurar CORS, rate limiting e refresh tokens/JWT.
-
-3. **Alto — frontend:**
-   - Estruturar `angular/` com rotas, guards e gameplay bridge.
-   - Criar módulos admin para games/moderation/categories/tags.
-
-4. **Médio — DevOps:**
-   - Criar root `docker-compose.yml` e `.env.example`.
-   - Adicionar secrets e ativar Sonar/Snyk/Qodana.
-
-5. **Médio/Baixo — qualidade:**
-   - Cobertura de testes > 80%.
-   - XML docs em APIs públicas.
-   - i18n pt-BR/en-US nos frontends.
-   - Documentação de LGPD.
-
----
-
-## 9. Notas técnicas
-
-- O backend já compila com .NET 10, EAF 9.2.0 e ABP 10.4.0; a base está saudável para evolução.
-- O admin Angular compila após a inclusão do `LogService`, mas ainda usa metadados/rotas do template EAF; uma refatoração para os módulos do GameHub será necessária.
-- O hub Angular foi criado em Angular 20 com componentes standalone. As specs usam módulos lazy (`loadChildren`). Recomenda-se migrar para `loadComponent`/`loadChildren` com standalone ou criar feature modules dependendo do padrão que a equipe preferir.
-- Os workflows estão ativos; recomenda-se validar os secrets de qualidade antes de habilitar os jobs opcionais.
+- `.specs/16-plano-implementacao-gaps.md`
+- `.specs/15-csp-security-headers.md`
+- `.specs/08-seguranca-lgpd-compliance.md`
+- `.specs/05-api-contratos.md`
+- `.specs/06-frontend-angular.md`
+- `.specs/06b-frontend-admin.md`
+- `docs/agent-execution-log.md`
+- Poki docs: https://sdk.poki.com/new-requirements.html, https://sdk.poki.com/what-is-p4d.html, https://sdk.poki.com/poki-inspector.html, https://sdk.poki.com/sdk-documentation

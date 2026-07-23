@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -8,14 +9,14 @@ namespace GameHub.Catalog
 {
     public interface IGameCatalogAppService : IApplicationService
     {
-        Task<HomeResponseDto> GetHomeAsync();
+        Task<HomeResponseDto> GetHomeAsync(CancellationToken cancellationToken = default);
 
-        Task<PagedResultDto<GameCardDto>> GetGamesAsync(GetGamesInput input);
+        Task<PagedResultDto<GameCardDto>> GetGamesAsync(GetGamesInput input, CancellationToken cancellationToken = default);
 
-        Task<GameDetailDto> GetBySlugAsync(string slug);
+        Task<GameDetailDto> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
 
-        Task<SearchResultDto> SearchAsync(SearchInput input);
+        Task<SearchResultDto> SearchAsync(SearchInput input, CancellationToken cancellationToken = default);
 
-        Task<ListResultDto<GameCardDto>> GetRelatedAsync(Guid gameId);
+        Task<ListResultDto<GameCardDto>> GetRelatedAsync(Guid gameId, CancellationToken cancellationToken = default);
     }
 }

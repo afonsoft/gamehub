@@ -15,21 +15,33 @@ namespace GameHub.Catalog
 {
     public class CategoryAppService : GameHubAppServiceBase, ICategoryAppService
     {
-        private readonly IRepository<Category, Guid> _categoryRepository;
+        private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(30);
 
-        public CategoryAppService(IRepository<Category, Guid> categoryRepository)
+        private readonly IRepository<Category, Guid> _categoryRepository;
+        private readonly IGameCatalogCache _catalogCache;
+
+        public CategoryAppService(IRepository<Category, Guid> categoryRepository, IGameCatalogCache catalogCache)
         {
             _categoryRepository = categoryRepository;
+            _catalogCache = catalogCache;
         }
 
         public async Task<ListResultDto<CategoryDto>> GetAllAsync()
         {
+            var cached = await _catalogCache.GetCategoriesAsync();
+            if (cached != null)
+            {
+                return cached;
+            }
+
             var categories = await _categoryRepository.GetAll()
                 .Where(c => !c.IsDeleted)
                 .OrderBy(c => c.SortOrder)
                 .ToListAsync();
 
-            return new ListResultDto<CategoryDto>(ObjectMapper.Map<List<CategoryDto>>(categories));
+            var result = new ListResultDto<CategoryDto>(ObjectMapper.Map<List<CategoryDto>>(categories));
+            await _catalogCache.SetCategoriesAsync(result, CacheTtl);
+            return result;
         }
 
         public async Task<CategoryDto> GetAsync(Guid id)
@@ -65,6 +77,8 @@ namespace GameHub.Catalog
             }
 
             await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateCategoriesAsync();
+            await _catalogCache.InvalidateHomeAsync();
 
             return ObjectMapper.Map<CategoryDto>(category);
         }
@@ -73,6 +87,8 @@ namespace GameHub.Catalog
         public async Task DeleteAsync(Guid id)
         {
             await _categoryRepository.DeleteAsync(id);
+            await _catalogCache.InvalidateCategoriesAsync();
+            await _catalogCache.InvalidateHomeAsync();
         }
     }
 }

@@ -1,5 +1,56 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-23 17:20 UTC
+
+### Tarefa
+Implementar Fase C do plano aprovado: busca full-text, trending real e cache granular no catálogo.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Catalog/IGameCatalogCache.cs` — estendido com operações de cache para detalhe por slug, busca, categorias e tags, com invalidação e TTL.
+- `Api/src/GameHub.Application/Catalog/InMemoryGameCatalogCache.cs` — reescrito para usar `IMemoryCache` singleton e `IAbpSession` com chaves por tenant.
+- `Api/src/GameHub.Web.Host/Caching/RedisGameCatalogCache.cs` — implementação `IDistributedCache` para todas as operações de `IGameCatalogCache`.
+- `Api/src/GameHub.Core/Catalog/IGameSearchEngine.cs` e `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/Catalog/GameSearchEngine.cs` — motor de busca provider-aware: full-text `EF.Functions.ToTsVector/PlainToTsQuery` para PostgreSQL e fallback `Contains` para InMemory/SQL Server.
+- `Api/src/GameHub.Core/Catalog/ITrendingScoreCalculator.cs` e `Api/src/GameHub.Application/Catalog/GameTrendingScoreCalculator.cs` — cálculo de trending a partir de `GameMetricSnapshot` dos últimos N dias.
+- `Api/src/GameHub.Application/Catalog/GameCatalogAppService.cs` — usa `IGameSearchEngine`, `ITrendingScoreCalculator` e `IGameCatalogCache`; `GetHomeAsync` ordena trending por pontuação real, `GetBySlugAsync` e `SearchAsync` leem/escrevem cache; filtros de categoria/tag usam IDs para evitar joins em InMemory.
+- `Api/src/GameHub.Application/Catalog/CategoryAppService.cs` e `TagAppService.cs` — usam cache do catálogo e invalidam home/detalhes/listagens em criação/edição/remoção.
+- `Api/src/GameHub.Application/Developer/DeveloperGameAppService.cs`, `Admin/AdminGameAppService.cs`, `Moderation/ModerationAppService.cs` — invalidam slug e home em alterações de estado dos jogos.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — mapeamento de `GameDetailDto.Categories`.
+- `Api/src/GameHub.Application/Catalog/Dto/GameDetailDto.cs` — adicionada `List<CategoryDto> Categories`.
+- `Api/src/GameHub.Application/Catalog/Dto/IGameCatalogAppService.cs` — parâmetros `CancellationToken` em todos os métodos.
+- `Api/test/GameHub.Tests/DependencyInjection/ServiceCollectionRegistrar.cs` — `services.AddMemoryCache()` para testes do cache in-memory.
+- `Api/test/GameHub.Tests/GameHub/Application/GameCatalogAppService_Tests.cs` — testes de slug, busca, home, ordenação, filtro por categoria e trending por métricas.
+- `Api/test/GameHub.Tests/GameHub/Application/InMemoryGameCatalogCache_Tests.cs` — testes unitários das operações de cache.
+- `Api/test/GameHub.Tests/GameHub/Application/RedisGameCatalogCache_Tests.cs` — testes estendidos para detalhe, busca e categorias no Redis.
+- `Api/test/GameHub.Tests/GameHub/Application/GameSearchEngine_Tests.cs` e `GameTrendingScoreCalculator_Tests.cs` — removidos (cenários cobertos por testes de integração do `GameCatalogAppService`).
+
+### Motivação
+Substituir busca por `Contains` e trending por `TotalPlays` por mecanismos reais (full-text PostgreSQL + scores de `GameMetricSnapshot`) e adicionar cache granular para melhorar latência e escalabilidade do catálogo.
+
+### Resultado
+- `dotnet build Api/GameHub.sln -c Release` sucesso.
+- `dotnet test Api/GameHub.sln -c Release` — 189 passaram, 1 skipped.
+- `docker compose -f docker-compose.yml config` e `docker compose -f docker-compose.all.yml config` válidos.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI` sucesso.
+- PR `feature/search-trending-cache` criado para `main`.
+
+## 2026-07-22 22:45 UTC
+
+### Tarefa
+Analisar `.specs/`, documentação do Poki e docs ABP/EAF para mapear gaps e oportunidades de melhoria após os PRs #26 a #33.
+
+### Arquivos alterados
+- `docs/specs-improvements.md` — análise atualizada do estado funcional, gaps em relação aos specs e oportunidades inspiradas no Poki.
+- `docs/known-issues.md` — ajustado para refletir que Redis, MinIO e telas GameHub já foram implementados; mantidos os pontos de segurança e frontend pendentes.
+
+### Principais conclusões
+- Segurança: CSP/rate-limit/headers foram removidos para resolver CORS/504; JWT ainda usa `localStorage`; espec exige refresh `HttpOnly` e reintrodução controlada dos middlewares.
+- Backend: busca ainda usa `Contains` em vez de full-text PostgreSQL; trending é `TotalPlays`; faltam TTL de cache granular e domínio isolado para builds.
+- Frontend: falta design system, i18n, interceptors, lazy modules conforme spec e SDK próprio (`gamehub-sdk.js`); `gameplayStart` dispara no load ao invés do primeiro input.
+- Poki: oportunidades claras em dashboard do dev, QA/Inspector, versions/preview/playtests, thumbnails (estático e animado), métricas, earnings, cloud saves e ad policy.
+
+### Resultado
+- Análise consolidada em `docs/specs-improvements.md` para apoiar a escolha da próxima fase de implementação.
+
 ## 2026-07-23 13:50 UTC
 
 ### Tarefa

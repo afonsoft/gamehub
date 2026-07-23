@@ -21,17 +21,20 @@ namespace GameHub.Moderation
         private readonly IRepository<UserReport, Guid> _reportRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IGameCatalogCache _catalogCache;
 
         public ModerationAppService(
             IRepository<ModerationReview, Guid> reviewRepository,
             IRepository<UserReport, Guid> reportRepository,
             IRepository<GameBuild, Guid> buildRepository,
-            IRepository<Game, Guid> gameRepository)
+            IRepository<Game, Guid> gameRepository,
+            IGameCatalogCache catalogCache)
         {
             _reviewRepository = reviewRepository;
             _reportRepository = reportRepository;
             _buildRepository = buildRepository;
             _gameRepository = gameRepository;
+            _catalogCache = catalogCache;
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Moderation_View)]
@@ -92,6 +95,8 @@ namespace GameHub.Moderation
             }
 
             await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
 
             return ObjectMapper.Map<ModerationReviewDto>(review);
         }

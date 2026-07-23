@@ -89,6 +89,7 @@ namespace GameHub.Admin
             game.SetPublishedBuild(build);
 
             await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
@@ -98,6 +99,7 @@ namespace GameHub.Admin
             var game = await _gameRepository.GetAsync(input.GameId);
             game.Status = GameStatus.Suspended;
             await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
         }
     }
 }
