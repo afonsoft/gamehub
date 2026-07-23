@@ -22,6 +22,7 @@ namespace GameHub.Catalog
         private readonly IGameCatalogCache _catalogCache;
         private readonly IGameSearchEngine _searchEngine;
         private readonly ITrendingScoreCalculator _trendingScoreCalculator;
+        private readonly IRepository<GameVote, Guid> _gameVoteRepository;
 
         public GameCatalogAppService(
             IRepository<Game, Guid> gameRepository,
@@ -29,7 +30,8 @@ namespace GameHub.Catalog
             IRepository<Tag, Guid> tagRepository,
             IGameCatalogCache catalogCache,
             IGameSearchEngine searchEngine,
-            ITrendingScoreCalculator trendingScoreCalculator)
+            ITrendingScoreCalculator trendingScoreCalculator,
+            IRepository<GameVote, Guid> gameVoteRepository)
         {
             _gameRepository = gameRepository;
             _categoryRepository = categoryRepository;
@@ -37,6 +39,7 @@ namespace GameHub.Catalog
             _catalogCache = catalogCache;
             _searchEngine = searchEngine;
             _trendingScoreCalculator = trendingScoreCalculator;
+            _gameVoteRepository = gameVoteRepository;
         }
 
         public async Task<HomeResponseDto> GetHomeAsync(CancellationToken cancellationToken = default)
@@ -163,6 +166,92 @@ namespace GameHub.Catalog
             var detail = MapToDetail(game);
             await _catalogCache.SetBySlugAsync(slug, detail, TimeSpan.FromMinutes(10), cancellationToken);
             return detail;
+        }
+
+        public async Task<GameVoteResultDto> GetVoteAsync(Guid gameId, string deviceId = null)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            var userVote = await GetCurrentVoteTypeAsync(gameId, deviceId);
+
+            return new GameVoteResultDto
+            {
+                GameId = gameId,
+                TotalLikes = game.TotalLikes,
+                TotalDislikes = game.TotalDislikes,
+                UserVote = userVote
+            };
+        }
+
+        public async Task<GameVoteResultDto> VoteAsync(GameVoteInput input)
+        {
+            var game = await _gameRepository.GetAsync(input.GameId);
+
+            if (game.Status != GameStatus.Published)
+            {
+                throw new InvalidOperationException("Cannot vote on an unpublished game.");
+            }
+
+            var userId = AbpSession.UserId;
+            var existingVote = await FindExistingVoteAsync(input.GameId, userId, input.DeviceId);
+
+            if (existingVote != null)
+            {
+                if (existingVote.VoteType == input.VoteType)
+                {
+                    return new GameVoteResultDto
+                    {
+                        GameId = input.GameId,
+                        TotalLikes = game.TotalLikes,
+                        TotalDislikes = game.TotalDislikes,
+                        UserVote = existingVote.VoteType
+                    };
+                }
+
+                if (existingVote.VoteType == GameVoteType.Like)
+                {
+                    game.TotalLikes = Math.Max(0, game.TotalLikes - 1);
+                    game.TotalDislikes++;
+                }
+                else
+                {
+                    game.TotalDislikes = Math.Max(0, game.TotalDislikes - 1);
+                    game.TotalLikes++;
+                }
+
+                existingVote.VoteType = input.VoteType;
+            }
+            else
+            {
+                var vote = new GameVote
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    GameId = input.GameId,
+                    DeviceId = input.DeviceId,
+                    VoteType = input.VoteType
+                };
+
+                if (input.VoteType == GameVoteType.Like)
+                {
+                    game.TotalLikes++;
+                }
+                else
+                {
+                    game.TotalDislikes++;
+                }
+
+                await _gameVoteRepository.InsertAsync(vote);
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return new GameVoteResultDto
+            {
+                GameId = input.GameId,
+                TotalLikes = game.TotalLikes,
+                TotalDislikes = game.TotalDislikes,
+                UserVote = input.VoteType
+            };
         }
 
         public async Task<SearchResultDto> SearchAsync(SearchInput input, CancellationToken cancellationToken = default)
@@ -325,6 +414,8 @@ namespace GameHub.Catalog
                 SupportsDesktop = game.SupportsDesktop,
                 SupportsMobile = game.SupportsMobile,
                 TotalPlays = game.TotalPlays,
+                TotalLikes = game.TotalLikes,
+                TotalDislikes = game.TotalDislikes,
                 Categories = game.GameCategories
                     .Where(gc => gc.Category != null)
                     .Select(gc => new CategoryDto
@@ -357,6 +448,8 @@ namespace GameHub.Catalog
                     ? $"{game.PublishedBuild.PublicBaseUrl?.TrimEnd('/')}/{game.PublishedBuild.IndexHtmlPath?.TrimStart('/')}"
                     : null,
                 TotalPlays = game.TotalPlays,
+                TotalLikes = game.TotalLikes,
+                TotalDislikes = game.TotalDislikes,
                 AverageRating = (decimal)(game.AverageRating ?? 0),
                 SupportsDesktop = game.SupportsDesktop,
                 SupportsMobile = game.SupportsMobile,
@@ -381,6 +474,27 @@ namespace GameHub.Catalog
                     })
                     .ToList()
             };
+        }
+
+        private async Task<GameVote> FindExistingVoteAsync(Guid gameId, long? userId, string deviceId)
+        {
+            if (userId.HasValue)
+            {
+                return await _gameVoteRepository.FirstOrDefaultAsync(v => v.GameId == gameId && v.CreatorUserId == userId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(deviceId))
+            {
+                return await _gameVoteRepository.FirstOrDefaultAsync(v => v.GameId == gameId && v.DeviceId == deviceId);
+            }
+
+            return null;
+        }
+
+        private async Task<GameVoteType?> GetCurrentVoteTypeAsync(Guid gameId, string deviceId)
+        {
+            var vote = await FindExistingVoteAsync(gameId, AbpSession.UserId, deviceId);
+            return vote?.VoteType;
         }
     }
 }

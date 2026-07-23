@@ -20,11 +20,13 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   starting = false;
   loadingError = false;
   startError: string | null = null;
+  isFullscreen = false;
   game: GameDetail | null = null;
   private sessionId: string | null = null;
   private gameId: string | null = null;
   private gameOrigin = '*';
   private readonly messageHandler = (event: MessageEvent<unknown>) => this.bridge.handleMessage(event);
+  private readonly fullscreenHandler = () => this.onFullscreenChange();
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -54,6 +56,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     });
 
     window.addEventListener('message', this.messageHandler);
+    document.addEventListener('fullscreenchange', this.fullscreenHandler);
   }
 
   startGame(): void {
@@ -63,7 +66,6 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
     this.starting = true;
     this.startError = null;
-    this.bridge.gameplayStart();
 
     const input: StartPlaySessionInput = {
       gameId: this.game.id,
@@ -79,6 +81,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
         this.sessionId = session?.sessionId ?? null;
         if (this.sessionId && this.gameId) {
           this.bridge.setSession(this.sessionId, this.gameId);
+          this.bridge.gameplayStart();
         }
       },
       error: () => {
@@ -91,6 +94,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('message', this.messageHandler);
+    document.removeEventListener('fullscreenchange', this.fullscreenHandler);
     if (this.sessionId) {
       this.bridge.gameplayStop();
       this.bridge.stopSession(this.sessionId).subscribe();
@@ -100,6 +104,21 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
   back(): void {
     void this.router.navigate(['/games']);
+  }
+
+  toggleFullscreen(): void {
+    const frame = this.frame?.nativeElement;
+    if (!frame) return;
+
+    if (!document.fullscreenElement) {
+      frame.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }
+
+  onFrameLoad(): void {
+    this.bridge.gameLoadingFinished();
   }
 
   private postToGame(message: unknown): void {
@@ -114,5 +133,9 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     if (/Mobi/i.test(ua)) return 'Mobile';
     if (/Tablet/i.test(ua) || /iPad/i.test(ua)) return 'Tablet';
     return 'Desktop';
+  }
+
+  private onFullscreenChange(): void {
+    this.isFullscreen = !!document.fullscreenElement;
   }
 }

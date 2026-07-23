@@ -24,8 +24,18 @@
     height="100%"
     sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-forms"
     allow="fullscreen; gamepad"
-    referrerpolicy="no-referrer">
+    referrerpolicy="no-referrer"
+    (load)="onFrameLoad()">
   </iframe>
+
+  <button
+    *ngIf="started && safeUrl"
+    class="fullscreen-btn"
+    (click)="toggleFullscreen()"
+    [attr.aria-label]="'gameFrame.fullscreen' | translate"
+    type="button">
+    {{ isFullscreen ? ('gameFrame.exitFullscreen' | translate) : ('gameFrame.fullscreen' | translate) }}
+  </button>
 
   <div *ngIf="loadingError" class="error">
     <p>{{ 'gameFrame.unavailable' | translate }}</p>
