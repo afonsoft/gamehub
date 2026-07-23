@@ -21,6 +21,7 @@ namespace GameHub.Tests.GameHub.Application
         private readonly IRepository<GameBuild, Guid> _buildRepository;
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
+        private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
 
         public AdminDashboardAppService_Tests()
         {
@@ -29,6 +30,7 @@ namespace GameHub.Tests.GameHub.Application
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();
             _reviewRepository = LocalIocManager.Resolve<IRepository<ModerationReview, Guid>>();
             _playSessionRepository = LocalIocManager.Resolve<IRepository<PlaySession, Guid>>();
+            _gameplayEventRepository = LocalIocManager.Resolve<IRepository<GameplayEvent, Guid>>();
         }
 
         [Fact]
@@ -75,6 +77,33 @@ namespace GameHub.Tests.GameHub.Application
 
             var reviews = await _adminDashboardAppService.GetPendingReviewsAsync(5);
             reviews.Items.Count.ShouldBeGreaterThanOrEqualTo(1);
+        }
+
+        [Fact]
+        public async Task Dado_EventosEPlays_Quando_Metricas_Entao_RetornaAgregadosEAlertas()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Metrics Game");
+            await SeedPlaySessionAsync(gameId, DateTime.UtcNow, DateTime.UtcNow.AddSeconds(45), "Desktop", "BR", "Chrome");
+            await SeedGameplayEventAsync(gameId, GameplayEventType.GameLoadingStarted, DateTime.UtcNow);
+            await SeedGameplayEventAsync(gameId, GameplayEventType.GameLoadingStarted, DateTime.UtcNow);
+            await SeedGameplayEventAsync(gameId, GameplayEventType.GameLoadingStarted, DateTime.UtcNow);
+            await SeedGameplayEventAsync(gameId, GameplayEventType.GameLoadingFinished, DateTime.UtcNow);
+            await SeedGameplayEventAsync(gameId, GameplayEventType.GameplayStarted, DateTime.UtcNow);
+            await SeedGameplayEventAsync(gameId, GameplayEventType.GameErrorCaptured, DateTime.UtcNow);
+
+            var metrics = await _adminDashboardAppService.GetMetricsAsync(null, null);
+
+            metrics.ShouldNotBeNull();
+            metrics.TotalPlays.ShouldBe(1);
+            metrics.AverageSessionDurationSeconds.ShouldBeGreaterThan(40);
+            metrics.Devices.Count.ShouldBe(1);
+            metrics.Countries.Count.ShouldBe(1);
+            metrics.Browsers.Count.ShouldBe(1);
+            metrics.LoadConversionRate.ShouldBe(0.33, 0.02);
+
+            var alerts = await _adminDashboardAppService.GetHealthAlertsAsync();
+            alerts.ShouldContain(a => a.GameId == gameId && a.Reason == "Load conversion below 50%");
         }
 
         private async Task SeedDashboardDataAsync()
@@ -131,7 +160,7 @@ namespace GameHub.Tests.GameHub.Application
             });
         }
 
-        private async Task SeedPlaySessionAsync(Guid gameId, DateTime startedAt)
+        private async Task SeedPlaySessionAsync(Guid gameId, DateTime startedAt, DateTime? endedAt = null, string deviceType = "Desktop", string countryCode = "BR", string browser = "TestBrowser")
         {
             await UsingDbContextAsync(async context =>
             {
@@ -142,9 +171,27 @@ namespace GameHub.Tests.GameHub.Application
                     TenantId = AbpSession.TenantId,
                     UserId = AbpSession.UserId,
                     StartedAt = startedAt,
-                    DeviceType = "Desktop",
-                    Browser = "TestBrowser",
-                    CountryCode = "BR"
+                    EndedAt = endedAt,
+                    DeviceType = deviceType,
+                    Browser = browser,
+                    CountryCode = countryCode
+                });
+
+                await context.SaveChangesAsync();
+            });
+        }
+
+        private async Task SeedGameplayEventAsync(Guid gameId, GameplayEventType eventType, DateTime occurredAt)
+        {
+            await UsingDbContextAsync(async context =>
+            {
+                await context.GameplayEvents.AddAsync(new GameplayEvent
+                {
+                    Id = Guid.NewGuid(),
+                    GameId = gameId,
+                    TenantId = AbpSession.TenantId,
+                    EventType = eventType,
+                    OccurredAt = occurredAt
                 });
 
                 await context.SaveChangesAsync();

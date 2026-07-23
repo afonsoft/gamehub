@@ -1,5 +1,24 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 00:45 UTC
+
+### Tarefa
+Executar o início do spec `19.7-poki-metricas-observabilidade.md`: adicionar agregações de métricas (DAU, MAU, conversão de loading, taxa de erro, distribuições) e alertas de saúde no dashboard administrativo.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Admin/IAdminDashboardAppService.cs` — assinaturas `GetMetricsAsync` e `GetHealthAlertsAsync`.
+- `Api/src/GameHub.Application/Admin/AdminDashboardAppService.cs` — implementação de métricas e alertas usando `PlaySession` e `GameplayEvent`.
+- `Api/src/GameHub.Application/Admin/Dto/AdminMetricsSummaryDto.cs` e `AdminHealthAlertDto.cs` — novos DTOs.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminDashboardAppService_Tests.cs` — teste de agregação e alerta.
+
+### Motivação
+Fornecer visibilidade operacional para moderadores/administradores sobre engajamento e problemas de qualidade dos jogos, requisito da Fase 6 da referência Poki.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 206 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+
 ## 2026-07-24 00:05 UTC
 
 ### Tarefa
