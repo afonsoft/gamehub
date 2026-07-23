@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using GameHub.Admin.Dto;
 
 namespace GameHub.Admin
@@ -12,5 +13,13 @@ namespace GameHub.Admin
         Task<AdminDashboardSummaryDto> GetSummaryAsync();
 
         Task<PlaysOverTimeResultDto> GetPlaysOverTimeAsync(int days);
+
+        Task<ListResultDto<AdminBuildListItemDto>> GetRecentUploadsAsync(int count);
+
+        Task<ListResultDto<AdminGameListItemDto>> GetRecentGamesAsync(int count);
+
+        Task<ListResultDto<AdminGameListItemDto>> GetTopGamesAsync(int count);
+
+        Task<ListResultDto<ModerationReviewDto>> GetPendingReviewsAsync(int count);
     }
 }

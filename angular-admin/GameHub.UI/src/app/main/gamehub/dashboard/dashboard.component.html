@@ -1,11 +1,28 @@
 <div class="gamehub-dashboard">
   <h1>Dashboard</h1>
+
   <div class="row">
     <div class="col-md-3">
       <div class="card">
         <div class="card-body">
           <h5>Total Games</h5>
           <p>{{ summary.totalGames }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Total Builds</h5>
+          <p>{{ summary.totalBuilds }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5>Pending Uploads</h5>
+          <p>{{ summary.pendingUploads }}</p>
         </div>
       </div>
     </div>
@@ -21,7 +38,7 @@
       <div class="card">
         <div class="card-body">
           <h5>Total Plays</h5>
-          <p>{{ summary.totalPlays }}</p>
+          <p>{{ summary.totalPlays | number }}</p>
         </div>
       </div>
     </div>
@@ -50,9 +67,96 @@
       </div>
     </div>
   </div>
-  <h3>Plays over time</h3>
-  <p *ngIf="!playsOverTime?.length">No data available.</p>
-  <ul>
-    <li *ngFor="let item of playsOverTime">{{ item.date | date }} - {{ item.plays }}</li>
-  </ul>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <h3>Plays over time</h3>
+          <p *ngIf="!playsOverTime?.length">No data available.</p>
+          <svg *ngIf="playsOverTime?.length" viewBox="0 0 600 200" class="plays-chart" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#ff5e57" stroke-width="3" [attr.points]="buildChartPoints(playsOverTime)" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h3>Pending Reviews</h3>
+          <p *ngIf="!pendingReviews?.length">No pending reviews.</p>
+          <ul class="list-group" *ngIf="pendingReviews?.length">
+            <li class="list-group-item" *ngFor="let review of pendingReviews">
+              <a [routerLink]="['/app/main/gamehub/moderation', review.reviewId]">{{ review.gameTitle }}</a>
+              <span class="badge badge-warning">{{ review.status }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h3>Recent Uploads</h3>
+          <p *ngIf="!recentUploads?.length">No uploads yet.</p>
+          <ul class="list-group" *ngIf="recentUploads?.length">
+            <li class="list-group-item" *ngFor="let build of recentUploads">
+              <a [routerLink]="['/app/main/gamehub/games', build.gameId]">{{ build.gameTitle }}</a>
+              <small>v{{ build.version }} — {{ build.developerName }}</small>
+              <span class="badge" [class.badge-warning]="build.status === 'Uploaded'" [class.badge-success]="build.status === 'Published'">{{ build.status }}</span>
+            </li>
+          </ul>
+          <a [routerLink]="['/app/main/gamehub/uploads']" class="btn btn-sm btn-primary mt-2">View all uploads</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h3>Top Games</h3>
+          <p *ngIf="!topGames?.length">No games yet.</p>
+          <ul class="list-group" *ngIf="topGames?.length">
+            <li class="list-group-item" *ngFor="let game of topGames">
+              <a [routerLink]="['/app/main/gamehub/games', game.id]">{{ game.title }}</a>
+              <span class="badge badge-info">{{ game.totalPlays | number }} plays</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3>Recent Games</h3>
+          <p *ngIf="!recentGames?.length">No games yet.</p>
+          <table class="table table-striped" *ngIf="recentGames?.length">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Developer</th>
+                <th>Status</th>
+                <th>Plays</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let game of recentGames">
+                <td><a [routerLink]="['/app/main/gamehub/games', game.id]">{{ game.title }}</a></td>
+                <td>{{ game.developerName }}</td>
+                <td><span class="badge badge-secondary">{{ game.status }}</span></td>
+                <td>{{ game.totalPlays | number }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -24,5 +24,11 @@ namespace GameHub.Admin.Dto
 
         /// <summary>Total de desenvolvedores cadastrados.</summary>
         public long TotalDevelopers { get; set; }
+
+        /// <summary>Total de builds (uploads) enviados.</summary>
+        public long TotalBuilds { get; set; }
+
+        /// <summary>Builds aguardando aprovação do desenvolvedor.</summary>
+        public long PendingUploads { get; set; }
     }
 }

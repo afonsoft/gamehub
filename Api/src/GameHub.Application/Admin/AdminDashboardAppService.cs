@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Eaf.Middleware.Authorization.Users;
 using GameHub.Admin.Dto;
 using GameHub.Authorization;
+using GameHub.Builds;
 using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
@@ -23,6 +25,7 @@ namespace GameHub.Admin
     public class AdminDashboardAppService : GameHubAppServiceBase, IAdminDashboardAppService
     {
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IRepository<GameBuild, Guid> _buildRepository;
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
@@ -31,6 +34,7 @@ namespace GameHub.Admin
 
         public AdminDashboardAppService(
             IRepository<Game, Guid> gameRepository,
+            IRepository<GameBuild, Guid> buildRepository,
             IRepository<ModerationReview, Guid> reviewRepository,
             IRepository<PlaySession, Guid> playSessionRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
@@ -38,6 +42,7 @@ namespace GameHub.Admin
             IRepository<DeveloperProfile, Guid> developerProfileRepository)
         {
             _gameRepository = gameRepository;
+            _buildRepository = buildRepository;
             _reviewRepository = reviewRepository;
             _playSessionRepository = playSessionRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
@@ -62,6 +67,8 @@ namespace GameHub.Admin
 
             var totalUsers = await _userRepository.CountAsync(u => !u.IsDeleted);
             var totalDevelopers = await _developerProfileRepository.CountAsync();
+            var totalBuilds = await _buildRepository.CountAsync(b => !b.IsDeleted);
+            var pendingUploads = await _buildRepository.CountAsync(b => b.Status == GameBuildStatus.Uploaded && !b.IsDeleted);
 
             return new AdminDashboardSummaryDto
             {
@@ -71,6 +78,8 @@ namespace GameHub.Admin
                 ActiveUsers7d = activeUsers,
                 TotalUsers = totalUsers,
                 TotalDevelopers = totalDevelopers,
+                TotalBuilds = totalBuilds,
+                PendingUploads = pendingUploads,
             };
         }
 
@@ -119,6 +128,85 @@ namespace GameHub.Admin
                 .ToList();
 
             return new PlaysOverTimeResultDto { Items = result };
+        }
+
+        public async Task<ListResultDto<AdminBuildListItemDto>> GetRecentUploadsAsync(int count)
+        {
+            if (count < 1) count = 5;
+            if (count > 50) count = 50;
+
+            var items = await _buildRepository.GetAll()
+                .Where(b => !b.IsDeleted)
+                .Include(b => b.Game)
+                    .ThenInclude(g => g.DeveloperProfile)
+                .OrderByDescending(b => b.CreationTime)
+                .Take(count)
+                .ToListAsync();
+
+            return new ListResultDto<AdminBuildListItemDto>(items.Select(MapToBuildListItem).ToList());
+        }
+
+        public async Task<ListResultDto<AdminGameListItemDto>> GetRecentGamesAsync(int count)
+        {
+            if (count < 1) count = 5;
+            if (count > 50) count = 50;
+
+            var items = await _gameRepository.GetAll()
+                .Where(g => !g.IsDeleted)
+                .Include(g => g.DeveloperProfile)
+                .OrderByDescending(g => g.CreationTime)
+                .Take(count)
+                .ToListAsync();
+
+            return new ListResultDto<AdminGameListItemDto>(ObjectMapper.Map<List<AdminGameListItemDto>>(items));
+        }
+
+        public async Task<ListResultDto<AdminGameListItemDto>> GetTopGamesAsync(int count)
+        {
+            if (count < 1) count = 5;
+            if (count > 50) count = 50;
+
+            var items = await _gameRepository.GetAll()
+                .Where(g => !g.IsDeleted)
+                .Include(g => g.DeveloperProfile)
+                .OrderByDescending(g => g.TotalPlays)
+                .Take(count)
+                .ToListAsync();
+
+            return new ListResultDto<AdminGameListItemDto>(ObjectMapper.Map<List<AdminGameListItemDto>>(items));
+        }
+
+        public async Task<ListResultDto<ModerationReviewDto>> GetPendingReviewsAsync(int count)
+        {
+            if (count < 1) count = 5;
+            if (count > 50) count = 50;
+
+            var items = await _reviewRepository.GetAll()
+                .Where(r => r.Status == ModerationReviewStatus.Pending && !r.IsDeleted)
+                .Include(r => r.Game)
+                .OrderByDescending(r => r.CreationTime)
+                .Take(count)
+                .ToListAsync();
+
+            return new ListResultDto<ModerationReviewDto>(ObjectMapper.Map<List<ModerationReviewDto>>(items));
+        }
+
+        private static AdminBuildListItemDto MapToBuildListItem(GameBuild build)
+        {
+            return new AdminBuildListItemDto
+            {
+                Id = build.Id,
+                GameId = build.GameId,
+                GameTitle = build.Game?.Title ?? string.Empty,
+                DeveloperName = build.Game?.DeveloperProfile?.DisplayName ?? string.Empty,
+                Version = build.Version,
+                BuildNumber = build.BuildNumber,
+                Status = build.Status.ToString(),
+                SizeBytes = build.SizeBytes,
+                HashSha256 = build.HashSha256,
+                CreatedAt = build.CreationTime,
+                PublishedAt = build.PublishedTime
+            };
         }
     }
 }
