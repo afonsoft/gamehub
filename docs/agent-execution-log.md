@@ -23,6 +23,8 @@ Resolver o bug de registro que não exibia mensagens da API, e avançar as entre
 - `dotnet build Api/GameHub.sln` sucesso.
 - `dotnet test Api/GameHub.sln --no-build` — 216 passaram, 1 skipped.
 - `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Criado `.specs/20-proxima-sessao-poki.md` com instruções para implementar 19.10 e 19.12.
+- Criado `.specs/21-poki-quality-and-compliance.md` com requisitos de qualidade baseados na documentação da Poki.
 
 ## 2026-07-24 02:40 UTC
 
