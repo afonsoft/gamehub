@@ -2127,6 +2127,9 @@ namespace GameHub.Migrations
                     b.Property<double?>("AverageRating")
                         .HasColumnType("double precision");
 
+                    b.Property<int>("ControlScheme")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Controls")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
@@ -2136,6 +2139,13 @@ namespace GameHub.Migrations
 
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("CutscenesSkippable")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("DefaultLanguage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<long?>("DeleterUserId")
                         .HasColumnType("bigint");
@@ -2197,6 +2207,13 @@ namespace GameHub.Migrations
                     b.Property<string>("SuggestedDescription")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("SupportedLanguages")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<bool>("SupportsCloudSaves")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("SupportsDesktop")
                         .HasColumnType("boolean");
@@ -3222,6 +3239,37 @@ namespace GameHub.Migrations
                     b.ToTable("gh_PlayerFavorites", (string)null);
                 });
 
+            modelBuilder.Entity("GameHub.Player.PlayerPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("gh_PlayerPreferences", (string)null);
+                });
+
             modelBuilder.Entity("GameHub.Player.PlayerRecentGame", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3274,6 +3322,41 @@ namespace GameHub.Migrations
                     b.HasIndex("UserId", "LastPlayedAt");
 
                     b.ToTable("gh_PlayerRecentGames", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Privacy.PlayerPrivacyConsent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ConsentedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PolicyVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("GameId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("gh_PlayerPrivacyConsents", (string)null);
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -3850,6 +3933,17 @@ namespace GameHub.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GameHub.Player.PlayerPreference", b =>
+                {
+                    b.HasOne("Eaf.Middleware.Authorization.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GameHub.Player.PlayerRecentGame", b =>
                 {
                     b.HasOne("GameHub.Catalog.Game", "Game")
@@ -3862,6 +3956,25 @@ namespace GameHub.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Game");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GameHub.Privacy.PlayerPrivacyConsent", b =>
+                {
+                    b.HasOne("GameHub.Catalog.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Eaf.Middleware.Authorization.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Game");
 
