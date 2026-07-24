@@ -86,6 +86,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<UserReport> UserReports { get; set; }
         public virtual DbSet<GameVote> GameVotes { get; set; }
         public virtual DbSet<FeatureFlag> FeatureFlags { get; set; }
+        public virtual DbSet<BuildValidationReport> BuildValidationReports { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -23,6 +23,7 @@ import { UserListComponent } from './users/user-list.component';
 import { BuildListComponent } from './uploads/build-list.component';
 import { BuildFilesComponent } from './uploads/build-files.component';
 import { ReportListComponent } from './reports/report-list.component';
+import { InspectorComponent } from './inspector/inspector.component';
 
 @NgModule({
   imports: [
@@ -52,6 +53,7 @@ import { ReportListComponent } from './reports/report-list.component';
     BuildListComponent,
     BuildFilesComponent,
     ReportListComponent,
+    InspectorComponent,
   ],
   providers: [],
 })

@@ -1,5 +1,32 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 00:55 UTC
+
+### Tarefa
+Executar o início do spec `19.5-poki-inspector-qualidade.md`: validação de builds, relatório de warnings persistido e página do Inspector no admin.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Builds/BuildValidationReport.cs` — entidade para persistir resultados de validação.
+- `Api/src/GameHub.Core/GameHubConsts.cs` — constantes de warning de tamanho do pacote e arquivos grandes.
+- `Api/src/GameHub.Application/Builds/GameBuildPackageValidator.cs` — validações reforçadas: arquivos bloqueados, arquivos grandes, artifacts de desenvolvimento, URLs externos e viewport.
+- `Api/src/GameHub.Application/Builds/GameBuildAppService.cs` — persiste `BuildValidationReport` após upload.
+- `Api/src/GameHub.Application/Builds/IBuildValidationAppService.cs` e `BuildValidationAppService.cs` — endpoints para consultar relatórios.
+- `Api/src/GameHub.Application/Builds/Dto/BuildValidationReportDto.cs` e `BuildValidationReportListItemDto.cs`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs` e `GameHubModelCreatingExtensions.cs` — `DbSet` e configuração da entidade.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260724001242_AddBuildValidationReport.cs` — migração.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/inspector/inspector.component.ts/.html` — página de listagem de relatórios.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/shared/services/gamehub-admin.service.ts` — método `getValidationReports`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/gamehub.module.ts`, `gamehub-routing.module.ts` e `app-navigation.service.ts` — rota e menu "Inspector".
+- `Api/test/GameHub.Tests/GameHub/Application/GameBuildAppService_Tests.cs` — testes de persistência, warning de URL externa e listagem.
+
+### Motivação
+Criar um processo de QA automatizado para builds HTML5, identificando problemas comuns (pacotes grandes, requests externos, artifacts de dev) e dando visibilidade aos moderadores via relatório persistido e tela no admin.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 209 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+
 ## 2026-07-24 00:45 UTC
 
 ### Tarefa

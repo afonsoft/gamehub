@@ -36,6 +36,18 @@ export interface BuildFileList {
   items: BuildFile[];
 }
 
+export interface ValidationReport {
+  id: string;
+  gameBuildId: string;
+  gameTitle: string;
+  version: string;
+  isValid: boolean;
+  warningsCount: number;
+  errorsCount: number;
+  warnings: string[];
+  createdAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -191,6 +203,11 @@ export class GameHubAdminService {
 
   getReports(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/services/app/UserReport/GetAll`).pipe(map(this.unwrapResult));
+  }
+
+  getValidationReports(maxResultCount: number = 50): Observable<ValidationReport[]> {
+    const params = new HttpParams().set('maxResultCount', maxResultCount.toString());
+    return this.http.get<ValidationReport[]>(`${this.baseUrl}/api/services/app/BuildValidation/GetReports`, { params }).pipe(map(this.unwrapResult));
   }
 
   private unwrapResult = (response: any): any => {

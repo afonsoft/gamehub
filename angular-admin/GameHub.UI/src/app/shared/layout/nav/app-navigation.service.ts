@@ -22,6 +22,7 @@ export class AppNavigationService {
       new AppMenuItem('GameHub', 'Pages.GameHubDashboard.View', 'flaticon-game', '/app/main/gamehub/dashboard'),
       new AppMenuItem('Games', 'Pages.Games.View', 'flaticon-layers', '/app/main/gamehub/games'),
       new AppMenuItem('Uploads', 'Pages.Builds.View', 'flaticon-upload', '/app/main/gamehub/uploads'),
+      new AppMenuItem('Inspector', 'Pages.Builds.View', 'flaticon-search', '/app/main/gamehub/inspector'),
       new AppMenuItem('Moderation', 'Pages.Moderation.View', 'flaticon-shield', '/app/main/gamehub/moderation'),
       new AppMenuItem('Categories', 'Pages.Categories.Manage', 'flaticon-list', '/app/main/gamehub/categories'),
       new AppMenuItem('Tags', 'Pages.Tags.Manage', 'flaticon-tags', '/app/main/gamehub/tags'),

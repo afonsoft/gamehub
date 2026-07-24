@@ -18,14 +18,18 @@ namespace GameHub.Tests.GameHub.Application
     public class GameBuildAppService_Tests : GameHubTestBase
     {
         private readonly IGameBuildAppService _gameBuildAppService;
+        private readonly IBuildValidationAppService _buildValidationAppService;
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
+        private readonly IRepository<BuildValidationReport, Guid> _reportRepository;
 
         public GameBuildAppService_Tests()
         {
             _gameBuildAppService = LocalIocManager.Resolve<IGameBuildAppService>();
+            _buildValidationAppService = LocalIocManager.Resolve<IBuildValidationAppService>();
             _gameRepository = LocalIocManager.Resolve<IRepository<Game, Guid>>();
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();
+            _reportRepository = LocalIocManager.Resolve<IRepository<BuildValidationReport, Guid>>();
         }
 
         [Fact]
@@ -66,6 +70,48 @@ namespace GameHub.Tests.GameHub.Application
             result.ValidationSummary.Errors.ShouldContain(e => e.Contains("index.html"));
         }
 
+        [Fact]
+        public async Task Dado_PackageValido_Quando_UploadBuild_Entao_PersisteRelatorioDeValidacao()
+        {
+            var gameId = await SeedGameAsync();
+            using var stream = CreateZipStream();
+
+            var result = await _gameBuildAppService.UploadBuildAsync(gameId, stream, "build.zip", "application/zip");
+
+            var report = await _buildValidationAppService.GetReportAsync(result.BuildId);
+            report.ShouldNotBeNull();
+            report.IsValid.ShouldBeTrue();
+            report.GameBuildId.ShouldBe(result.BuildId);
+            report.Errors.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public async Task Dado_PackageComUrlExterna_Quando_UploadBuild_Entao_GeraWarning()
+        {
+            var gameId = await SeedGameAsync();
+            using var stream = CreateZipWithExternalUrl();
+
+            var result = await _gameBuildAppService.UploadBuildAsync(gameId, stream, "build.zip", "application/zip");
+
+            result.Status.ShouldBe(GameBuildStatus.Validated.ToString());
+            result.ValidationSummary.Warnings.ShouldContain(w => w.Contains("External requests found"));
+
+            var report = await _buildValidationAppService.GetReportAsync(result.BuildId);
+            report.Warnings.ShouldContain(w => w.Contains("External requests found"));
+        }
+
+        [Fact]
+        public async Task Dado_PackageValido_Quando_UploadBuild_Entao_RelatorioApareceNaLista()
+        {
+            var gameId = await SeedGameAsync();
+            using var stream = CreateZipStream();
+
+            var result = await _gameBuildAppService.UploadBuildAsync(gameId, stream, "build.zip", "application/zip");
+
+            var reports = await _buildValidationAppService.GetReportsAsync(10);
+            reports.ShouldContain(r => r.GameBuildId == result.BuildId && r.GameTitle == "Build Test Game");
+        }
+
         private static Stream CreateZipStream()
         {
             var stream = new MemoryStream();
@@ -92,6 +138,22 @@ namespace GameHub.Tests.GameHub.Application
                 using (var writer = new StreamWriter(s))
                 {
                     writer.Write("No index here");
+                }
+            }
+            stream.Position = 0;
+            return stream;
+        }
+
+        private static Stream CreateZipWithExternalUrl()
+        {
+            var stream = new MemoryStream();
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                var entry = zip.CreateEntry("index.html");
+                using (var s = entry.Open())
+                using (var writer = new StreamWriter(s))
+                {
+                    writer.Write("<html><script src=\"https://example.com/script.js\"></script></html>");
                 }
             }
             stream.Position = 0;

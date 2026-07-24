@@ -71,6 +71,24 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<BuildValidationReport>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "BuildValidationReports", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameBuildId).IsRequired();
+                b.Property(x => x.IsValid).IsRequired();
+                b.Property(x => x.ErrorsJson).HasMaxLength(4000);
+                b.Property(x => x.WarningsJson).HasMaxLength(4000);
+                b.Property(x => x.CreatedAt).IsRequired();
+
+                b.HasIndex(x => x.GameBuildId);
+
+                b.HasOne(x => x.GameBuild)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameBuildId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<Category>(b =>
             {
                 b.ToTable(GameHubConsts.DbTablePrefix + "Categories", GameHubConsts.DbSchema);
