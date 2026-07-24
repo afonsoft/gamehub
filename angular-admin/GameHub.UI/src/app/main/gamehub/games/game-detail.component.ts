@@ -10,6 +10,7 @@ import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
 export class GameDetailComponent implements OnInit {
   game: any = {};
   suspending = false;
+  thumbnailAction = false;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -47,5 +48,33 @@ export class GameDetailComponent implements OnInit {
 
   canSuspend(): boolean {
     return this.game && (this.game.status === 'Published' || this.game.status === 'InReview');
+  }
+
+  approveThumbnail(): void {
+    if (!this.game.id) return;
+    this.thumbnailAction = true;
+    this.adminService.approveThumbnail(this.game.id).subscribe({
+      next: () => {
+        this.thumbnailAction = false;
+        this.loadGame(this.game.id);
+      },
+      error: () => {
+        this.thumbnailAction = false;
+      },
+    });
+  }
+
+  rejectThumbnail(): void {
+    if (!this.game.id) return;
+    this.thumbnailAction = true;
+    this.adminService.rejectThumbnail(this.game.id).subscribe({
+      next: () => {
+        this.thumbnailAction = false;
+        this.loadGame(this.game.id);
+      },
+      error: () => {
+        this.thumbnailAction = false;
+      },
+    });
   }
 }

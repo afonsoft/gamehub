@@ -196,10 +196,25 @@
 }
 
 .game-card .thumb img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.game-card .thumb img.animated {
+  opacity: 0;
+}
+
+.game-card .thumb.animated:hover img.animated {
+  opacity: 1;
+}
+
+.game-card .thumb.animated:hover img.static {
+  opacity: 0;
 }
 
 .game-card .meta {

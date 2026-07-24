@@ -24,6 +24,16 @@
       <p><strong>SEO Description:</strong></p>
       <p>{{ game.seoDescription || '-' }}</p>
 
+      <p><strong>Aspect Ratio:</strong> {{ game.aspectRatio || '-' }}</p>
+
+      <p><strong>Animated Thumbnail:</strong></p>
+      <p>{{ game.animatedThumbnailUrl || '-' }}</p>
+      <p><strong>Thumbnail Status:</strong> <span class="m-badge m-badge--info">{{ game.thumbnailStatus || '-' }}</span></p>
+      <div class="btn-group" *ngIf="game.animatedThumbnailUrl">
+        <button class="btn btn-success" (click)="approveThumbnail()" [disabled]="thumbnailAction">Approve Thumbnail</button>
+        <button class="btn btn-danger" (click)="rejectThumbnail()" [disabled]="thumbnailAction">Reject Thumbnail</button>
+      </div>
+
       <div class="btn-group">
         <button class="btn btn-danger" (click)="suspend()" [disabled]="suspending || !canSuspend()">{{ suspending ? 'Suspending...' : 'Suspend' }}</button>
       </div>

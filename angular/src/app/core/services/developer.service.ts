@@ -40,6 +40,7 @@ export interface CreateGameDraftInput {
   seoDescription?: string;
   ageRating: string;
   orientation: string;
+  aspectRatio?: string;
   supportsDesktop?: boolean;
   supportsMobile?: boolean;
   supportsTablet?: boolean;
@@ -58,6 +59,7 @@ export interface UpdateGameMetadataInput {
   seoDescription?: string;
   ageRating: string;
   orientation: string;
+  aspectRatio?: string;
   supportsDesktop?: boolean;
   supportsMobile?: boolean;
   supportsTablet?: boolean;
@@ -317,6 +319,14 @@ export class DeveloperService {
     form.append('file', file);
     return this.http
       .post<UploadImageResult | { result?: UploadImageResult }>(`${this.assetUrl}/${gameId}/thumbnail`, form)
+      .pipe(map(response => this.unwrap<UploadImageResult>(response)));
+  }
+
+  uploadAnimatedThumbnail(gameId: string, file: File): Observable<UploadImageResult> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http
+      .post<UploadImageResult | { result?: UploadImageResult }>(`${this.assetUrl}/${gameId}/animated-thumbnail`, form)
       .pipe(map(response => this.unwrap<UploadImageResult>(response)));
   }
 

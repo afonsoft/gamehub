@@ -49,6 +49,9 @@ namespace GameHub
                 .ForMember(dest => dest.SupportsMobile, opt => opt.MapFrom(src => src.SupportsMobile))
                 .ForMember(dest => dest.SupportsDesktop, opt => opt.MapFrom(src => src.SupportsDesktop))
                 .ForMember(dest => dest.SupportsCloudSaves, opt => opt.MapFrom(src => src.SupportsCloudSaves))
+                .ForMember(dest => dest.AnimatedThumbnailUrl, opt => opt.MapFrom(src => GetApprovedAnimatedThumbnailUrl(src)))
+                .ForMember(dest => dest.ThumbnailStatus, opt => opt.MapFrom(src => src.ThumbnailStatus.ToString()))
+                .ForMember(dest => dest.AspectRatio, opt => opt.MapFrom(src => src.AspectRatio.ToString()))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
                 .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)))
                 .ForMember(dest => dest.IsWebExclusive, opt => opt.MapFrom(src => IsWebExclusive(src)));
@@ -59,6 +62,9 @@ namespace GameHub
                 .ForMember(dest => dest.CutscenesSkippable, opt => opt.MapFrom(src => src.CutscenesSkippable))
                 .ForMember(dest => dest.DefaultLanguage, opt => opt.MapFrom(src => src.DefaultLanguage))
                 .ForMember(dest => dest.SupportedLanguages, opt => opt.MapFrom(src => ParseSupportedLanguages(src.SupportedLanguages)))
+                .ForMember(dest => dest.AnimatedThumbnailUrl, opt => opt.MapFrom(src => GetApprovedAnimatedThumbnailUrl(src)))
+                .ForMember(dest => dest.ThumbnailStatus, opt => opt.MapFrom(src => src.ThumbnailStatus.ToString()))
+                .ForMember(dest => dest.AspectRatio, opt => opt.MapFrom(src => src.AspectRatio.ToString()))
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.GameTags))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
@@ -85,6 +91,9 @@ namespace GameHub
                 .ForMember(dest => dest.CutscenesSkippable, opt => opt.MapFrom(src => src.CutscenesSkippable))
                 .ForMember(dest => dest.DefaultLanguage, opt => opt.MapFrom(src => src.DefaultLanguage))
                 .ForMember(dest => dest.SupportedLanguages, opt => opt.MapFrom(src => ParseSupportedLanguages(src.SupportedLanguages)))
+                .ForMember(dest => dest.AnimatedThumbnailUrl, opt => opt.MapFrom(src => src.AnimatedThumbnailUrl))
+                .ForMember(dest => dest.ThumbnailStatus, opt => opt.MapFrom(src => src.ThumbnailStatus.ToString()))
+                .ForMember(dest => dest.AspectRatio, opt => opt.MapFrom(src => src.AspectRatio.ToString()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
@@ -100,8 +109,11 @@ namespace GameHub
 
             // Inspector
             configuration.CreateMap<InspectorSession, InspectorSessionDto>();
+            configuration.CreateMap<InspectorSession, InspectorSessionDetailDto>();
             configuration.CreateMap<InspectorSdkEvent, InspectorSdkEventDto>();
             configuration.CreateMap<InspectorWarning, InspectorWarningDto>();
+            configuration.CreateMap<InspectorChecklistAnswer, InspectorChecklistAnswerDto>();
+            configuration.CreateMap<SaveChecklistAnswerInput, InspectorChecklistAnswer>();
 
             // Developer / Build
             configuration.CreateMap<GameBuild, BuildDto>()
@@ -115,12 +127,14 @@ namespace GameHub
                 .ForMember(dest => dest.AgeRating, opt => opt.MapFrom(src => src.AgeRating))
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => ParseOrientation(src.Orientation)))
                 .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => ParseControlScheme(src.ControlScheme)))
+                .ForMember(dest => dest.AspectRatio, opt => opt.MapFrom(src => ParseAspectRatio(src.AspectRatio)))
                 .ForMember(dest => dest.TotalPlays, opt => opt.Ignore());
 
             configuration.CreateMap<UpdateGameMetadataInput, Game>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => ParseOrientation(src.Orientation)))
-                .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => ParseControlScheme(src.ControlScheme)));
+                .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => ParseControlScheme(src.ControlScheme)))
+                .ForMember(dest => dest.AspectRatio, opt => opt.MapFrom(src => ParseAspectRatio(src.AspectRatio)));
 
             configuration.CreateMap<DeveloperProfile, DeveloperProfileDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
@@ -250,6 +264,26 @@ namespace GameHub
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct()
                 .ToList();
+        }
+
+        private static GameAspectRatio ParseAspectRatio(string value)
+        {
+            if (Enum.TryParse<GameAspectRatio>(value, true, out var result))
+            {
+                return result;
+            }
+
+            return GameAspectRatio.Aspect16x9;
+        }
+
+        private static string GetApprovedAnimatedThumbnailUrl(Game game)
+        {
+            if (game.ThumbnailStatus == GameThumbnailStatus.Approved)
+            {
+                return game.AnimatedThumbnailUrl ?? string.Empty;
+            }
+
+            return string.Empty;
         }
     }
 }

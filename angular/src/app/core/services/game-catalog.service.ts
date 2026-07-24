@@ -23,6 +23,9 @@ export interface GameCard {
   title: string;
   slug: string;
   thumbnailUrl: string;
+  animatedThumbnailUrl?: string;
+  thumbnailStatus?: string;
+  aspectRatio?: string;
   shortDescription: string;
   supportsMobile: boolean;
   supportsDesktop: boolean;
@@ -60,7 +63,10 @@ export interface GameDetail {
   slug: string;
   status?: string;
   thumbnailUrl: string;
+  animatedThumbnailUrl?: string;
+  thumbnailStatus?: string;
   heroImageUrl: string;
+  aspectRatio?: string;
   shortDescription: string;
   description: string;
   instructions: string;
@@ -96,10 +102,17 @@ export interface PagedGames {
   items: GameCard[];
 }
 
+export interface ValidatePreviewResult {
+  isValid: boolean;
+  previewUrl: string;
+  error: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GameCatalogService {
   private readonly apiUrl = '/api/services/app/GameCatalog';
   private readonly tagUrl = '/api/services/app/Tag';
+  private readonly previewUrl = '/api/services/app/GamePreview';
 
   constructor(private http: HttpClient) {}
 
@@ -182,6 +195,12 @@ export class GameCatalogService {
     tags.forEach(t => (params = params.append('Tags', t)));
     return this.http.get<PagedGames>(`${this.apiUrl}/Search`, { params }).pipe(
       map(response => this.unwrap<PagedGames>(response)),
+    );
+  }
+
+  validatePreview(token: string): Observable<ValidatePreviewResult> {
+    return this.http.post<ValidatePreviewResult>(`${this.previewUrl}/ValidatePreview`, { token }).pipe(
+      map(response => this.unwrap<ValidatePreviewResult>(response)),
     );
   }
 

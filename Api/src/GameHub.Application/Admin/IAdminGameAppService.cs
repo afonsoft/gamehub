@@ -16,5 +16,9 @@ namespace GameHub.Admin
         Task PublishAsync(PublishGameInput input);
 
         Task SuspendAsync(SuspendGameInput input);
+
+        Task ApproveThumbnailAsync(Guid gameId);
+
+        Task RejectThumbnailAsync(Guid gameId);
     }
 }

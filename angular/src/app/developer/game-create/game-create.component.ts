@@ -20,6 +20,7 @@ export class GameCreateComponent implements OnInit {
     instructions: '',
     ageRating: 'E',
     orientation: 'Both',
+    aspectRatio: 'Aspect16x9',
     supportsDesktop: true,
     supportsMobile: true,
     supportsTablet: true,

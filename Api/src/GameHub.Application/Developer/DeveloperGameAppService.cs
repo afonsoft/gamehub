@@ -280,16 +280,22 @@ namespace GameHub.Developer
         [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
         public async Task<UploadImageResultDto> UploadThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType)
         {
-            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "thumbnails", g => g.ThumbnailUrl);
+            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "thumbnails", "static", (game, url) => game.SetThumbnail(url));
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
         public async Task<UploadImageResultDto> UploadHeroAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType)
         {
-            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "heroes", g => g.HeroImageUrl);
+            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "heroes", "hero", (game, url) => game.HeroImageUrl = url);
         }
 
-        private async Task<UploadImageResultDto> UploadImageAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType, string assetKind, System.Func<Game, string> urlSetter)
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Edit)]
+        public async Task<UploadImageResultDto> UploadAnimatedThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType)
+        {
+            return await UploadImageAsync(gameId, fileBytes, fileName, contentType, "thumbnails", "animated", (game, url) => game.SetAnimatedThumbnail(url));
+        }
+
+        private async Task<UploadImageResultDto> UploadImageAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType, string assetKind, string assetName, System.Action<Game, string> urlSetter)
         {
             if (fileBytes == null || fileBytes.Length == 0)
             {
@@ -316,21 +322,14 @@ namespace GameHub.Developer
             {
                 GameId = gameId,
                 AssetKind = assetKind,
-                FileName = $"{Guid.NewGuid():N}{extension}",
+                FileName = $"{assetName}{extension}",
                 ContentType = contentType,
                 Content = stream,
             };
 
             var stored = await _assetStorage.StoreAssetAsync(input);
 
-            if (assetKind == "thumbnails")
-            {
-                game.ThumbnailUrl = stored.Url;
-            }
-            else
-            {
-                game.HeroImageUrl = stored.Url;
-            }
+            urlSetter(game, stored.Url);
 
             await CurrentUnitOfWork.SaveChangesAsync();
             await _catalogCache.InvalidateBySlugAsync(game.Slug);

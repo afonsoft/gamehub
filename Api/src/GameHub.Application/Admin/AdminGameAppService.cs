@@ -115,5 +115,23 @@ namespace GameHub.Admin
             await _catalogCache.InvalidateHomeAsync();
             await _catalogCache.InvalidateBySlugAsync(game.Slug);
         }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Publish)]
+        public async Task ApproveThumbnailAsync(Guid gameId)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            game.ApproveThumbnail();
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Suspend)]
+        public async Task RejectThumbnailAsync(Guid gameId)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            game.RejectThumbnail();
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
+        }
     }
 }

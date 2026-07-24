@@ -102,6 +102,15 @@ public class GameDetailDto
     /// <summary>List of supported language codes.</summary>
     public List<string> SupportedLanguages { get; set; } = new();
 
+    /// <summary>Animated thumbnail URL (GIF/WebP/MP4).</summary>
+    public string AnimatedThumbnailUrl { get; set; } = string.Empty;
+
+    /// <summary>Thumbnail moderation status.</summary>
+    public string ThumbnailStatus { get; set; } = string.Empty;
+
+    /// <summary>Preferred aspect ratio for scaling tests.</summary>
+    public string AspectRatio { get; set; } = string.Empty;
+
     /// <summary>Assigned categories.</summary>
     public List<CategoryDto> Categories { get; set; } = new();
 

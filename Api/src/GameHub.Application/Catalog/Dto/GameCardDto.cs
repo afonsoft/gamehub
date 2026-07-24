@@ -44,6 +44,15 @@ public class GameCardDto
     /// <summary>Whether the game persists progress to the cloud.</summary>
     public bool SupportsCloudSaves { get; set; }
 
+    /// <summary>Animated thumbnail URL used for hover effects when approved.</summary>
+    public string AnimatedThumbnailUrl { get; set; } = string.Empty;
+
+    /// <summary>Thumbnail moderation status.</summary>
+    public string ThumbnailStatus { get; set; } = string.Empty;
+
+    /// <summary>Preferred aspect ratio for scaling tests.</summary>
+    public string AspectRatio { get; set; } = string.Empty;
+
     /// <summary>Total play count across all sessions.</summary>
     public long TotalPlays { get; set; }
 

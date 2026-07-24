@@ -478,8 +478,12 @@ namespace GameHub.Catalog
                 Slug = game.Slug,
                 ShortDescription = game.ShortDescription,
                 ThumbnailUrl = game.ThumbnailUrl,
+                AnimatedThumbnailUrl = game.ThumbnailStatus == GameThumbnailStatus.Approved ? game.AnimatedThumbnailUrl : string.Empty,
+                ThumbnailStatus = game.ThumbnailStatus.ToString(),
+                AspectRatio = game.AspectRatio.ToString(),
                 SupportsDesktop = game.SupportsDesktop,
                 SupportsMobile = game.SupportsMobile,
+                SupportsCloudSaves = game.SupportsCloudSaves,
                 TotalPlays = game.TotalPlays,
                 TotalLikes = game.TotalLikes,
                 TotalDislikes = game.TotalDislikes,
@@ -515,6 +519,9 @@ namespace GameHub.Catalog
                 AgeRating = game.AgeRating,
                 Orientation = game.Orientation.ToString(),
                 ThumbnailUrl = game.ThumbnailUrl,
+                AnimatedThumbnailUrl = game.ThumbnailStatus == GameThumbnailStatus.Approved ? game.AnimatedThumbnailUrl : string.Empty,
+                ThumbnailStatus = game.ThumbnailStatus.ToString(),
+                AspectRatio = game.AspectRatio.ToString(),
                 HeroImageUrl = game.HeroImageUrl,
                 DeveloperName = game.DeveloperProfile?.DisplayName,
                 PublishedBuildUrl = game.PublishedBuild != null
@@ -528,6 +535,11 @@ namespace GameHub.Catalog
                 SupportsDesktop = game.SupportsDesktop,
                 SupportsMobile = game.SupportsMobile,
                 SupportsTablet = game.SupportsTablet,
+                SupportsCloudSaves = game.SupportsCloudSaves,
+                ControlScheme = game.ControlScheme.ToString(),
+                CutscenesSkippable = game.CutscenesSkippable,
+                DefaultLanguage = game.DefaultLanguage,
+                SupportedLanguages = ParseSupportedLanguages(game.SupportedLanguages),
                 Categories = game.GameCategories
                     .Where(gc => gc.Category != null)
                     .Select(gc => new CategoryDto
@@ -598,6 +610,19 @@ namespace GameHub.Catalog
         private static bool IsWebExclusive(Game game)
         {
             return game.RevenueContracts?.Any(c => c.IsActive && c.ContractType == RevenueContractType.WebExclusive) == true;
+        }
+
+        private static List<string> ParseSupportedLanguages(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return new List<string>();
+            }
+
+            return value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Distinct()
+                .ToList();
         }
     }
 }

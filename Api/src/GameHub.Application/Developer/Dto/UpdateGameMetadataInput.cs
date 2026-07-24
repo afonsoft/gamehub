@@ -90,6 +90,10 @@ public class UpdateGameMetadataInput
     [StringLength(512)]
     public string SupportedLanguages { get; set; } = "en-US";
 
+    /// <summary>Preferred aspect ratio: Aspect16x9, Aspect4x3, Any.</summary>
+    [StringLength(20)]
+    public string AspectRatio { get; set; } = "Aspect16x9";
+
     /// <summary>Category identifiers to assign.</summary>
     public List<Guid> CategoryIds { get; set; }
 
