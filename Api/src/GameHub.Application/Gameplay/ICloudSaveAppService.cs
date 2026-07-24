@@ -12,5 +12,8 @@ namespace GameHub.Gameplay
 
         /// <summary>Persists a cloud save, replacing any previous save for the player/device.</summary>
         Task<CloudSaveDto> SaveAsync(SaveCloudSaveInput input);
+
+        /// <summary>Deletes the cloud save for the current player/device and game.</summary>
+        Task DeleteAsync(GetCloudSaveInput input);
     }
 }
