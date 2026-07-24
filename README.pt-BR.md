@@ -41,7 +41,7 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 | Persona | Capacidades |
 |---------|-------------|
 | Jogador Anônimo | Navegar, buscar, jogar, votar e denunciar jogos. |
-| Jogador Autenticado | Perfil, **favoritos**, **jogos recentes**, saves na nuvem, leaderboards e recomendações. |
+| Jogador Autenticado | Perfil, **favoritos**, **jogos recentes**, **saves na nuvem**, leaderboards, recomendações e tokens curtos de jogo. |
 | Desenvolvedor | Criar e submeter jogos, fazer upload de builds e ver métricas. |
 | Moderador | Revisar, aprovar/rejeitar builds e tratar denúncias. |
 | Administrador | Gerenciar usuários, roles, feature flags, métricas e auditoria. |
@@ -54,7 +54,12 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 - Conta opcional do jogador com favoritos e jogos recentes; dados anônimos ficam no `localStorage` e são mesclados no login.
 - Leaderboards com Redis Sorted Sets.
 - Ad breaks (comerciais/recompensados) com abstração de provider, mute automático de áudio e tratamento de ad block.
+- Save/load na nuvem com fallback em `localStorage` para anônimos e chaves `gamehub_ignore_` locais.
+- SDK login, `getUser` e `getToken` para jogos que precisam de identidade do jogador.
+- Controles adaptativos (dicas de teclado/touch) e pausa/resume via ESC/Space.
+- Cutscenes puláveis quando `cutscenesSkippable` está habilitado.
 - Exibição de política de privacidade e consentimento na página do jogo.
+- Seletor de idioma in-game e preferência de idioma do jogador (`getLanguage`/`setLanguage`).
 
 ### Gameplay SDK / Bridge
 
@@ -74,6 +79,12 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 | `GameErrorCaptured` | Erro capturado. |
 | `GameMeasuredEvent` | Evento de medição ou timing. |
 | `FpsMeasured` | Telemetria de FPS para monitoramento de performance. |
+| `save` / `load` | Persistência de dados do jogador na nuvem/local. |
+| `getUser` / `getToken` | Perfil do jogador autenticado e JWT curto. |
+| `getPrivacyPolicy` | Política de privacidade hospedada do jogo. |
+| `controlScheme` | Esquema de controle primário enviado ao jogo. |
+| `pauseRequested` / `resumeRequested` | Eventos de teclado ESC/Space. |
+| `getLanguage` / `setLanguage` | Preferência de idioma do jogador e mudança de idioma do jogo. |
 
 ### Portal do Desenvolvedor
 
