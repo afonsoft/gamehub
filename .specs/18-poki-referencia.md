@@ -219,25 +219,26 @@ Ferramenta de teste que permite:
 ### 7.1 Já implementado
 
 - Catálogo com home, busca, filtros por categoria/tag/dispositivo/orientação.
-- Página de detalhe do jogo com execução em iframe sandbox.
+- Página de detalhe do jogo com execução em iframe sandbox, like/dislike, reportar bug, fullscreen, descrição expansível, controles e jogos relacionados.
 - SDK/bridge com eventos: `gameLoadingStarted`, `gameLoadingFinished`, `gameplayStart`, `gameplayStop`, `commercialBreak`, `rewardedBreak`, `gameErrorCaptured`, `gameMeasuredEvent`.
-- Validação de build (index.html obrigatório, sem executáveis, sha-256, tamanho máximo).
+- Validação de build (index.html obrigatório, sem executáveis, sha-256, tamanho máximo, warnings de arquivos grandes e requests externos).
 - Moderação, categorias, tags, reports e suspensão.
 - Leaderboard via Redis Sorted Sets.
-- Painel admin com dashboard, jogos, uploads, revisões, reports e CRUD de categorias/tags.
+- Cloud saves para usuários logados (1 MB, fallback local).
+- Painel admin com dashboard, jogos, uploads, revisões, reports, CRUD de categorias/tags e inspector/QA.
+- Métricas de player (DAU, plays, tempo médio, erros, distribuições) e alertas de saúde.
+- Contratos de monetização (`WebExclusive`/`NonExclusive`), split de receita e painel de earnings no portal do desenvolvedor.
 
-### 7.2 Conceitos a considerar
+### 7.2 Conceitos a considerar / próximas specs
 
-- **Página de jogo:** like/dislike, report bug, botão tela cheia, seção de controles, descrição expandida e jogos relacionados.
-- **Contas de jogador:** autenticação opcional, salvamento na nuvem, favoritos e progresso entre dispositivos.
+- **Contas de jogador:** autenticação opcional, salvamento na nuvem, favoritos, histórico recente e progresso entre dispositivos (spec `19.8`).
+- **Web exclusives e descoberta:** seção dedicada na home, SEO de categorias, filtro por exclusividade e nota mínima (spec `19.11`).
+- **Integração do Ad Provider:** provider realista, regras de UX, ad block detection, mute de áudio (spec `19.9`).
+- **Inspector v2:** scaling tests, log de eventos do SDK em tempo real, checklist de QA e detalhamento de warnings (spec `19.10`).
+- **Privacidade, UGC e performance:** política de privacidade obrigatória para jogos com requests externos, filtro de profanidade, métricas de FPS e tolerância a modo anônimo/incognito (spec `19.12`).
 - **Sugestões do desenvolvedor:** permitir que o dev sugira até 4 categorias e descrição otimizada para SEO.
 - **Revisão de thumbnails:** thumbnail/hero passam por fila de aprovação após o jogo publicado.
-- **Poki Inspector interno:** página de QA com checklist, log de eventos, scaling tests e warnings.
-- **Métricas de qualidade:** tamanho do build, performance FPS, erros, recursos externos, otimização de imagens.
-- **Monetização:** contratos de exclusividade, divisão de receita, ad provider, breaks comerciais e recompensados.
-- **Filtro de profanidade:** em UGC, nicknames e comentários.
-- **Anonimato/incognito:** SDK e jogos devem tolerar `localStorage` indisponível.
-- **Política de privacidade no jogo:** quando o jogo fizer requests externos.
+- **Times e billing:** múltiplos usuários por time de desenvolvedor e dados de pagamento.
 
 ### 7.3 Diferenciação
 

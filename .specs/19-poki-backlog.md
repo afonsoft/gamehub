@@ -1,8 +1,9 @@
 # 19 - Backlog Inspirado na Poki
 
-> **Status:** Backlog de melhorias  
+> **Status:** Em evolução  
 > **Base:** `.specs/18-poki-referencia.md` e análise do site/documentação Poki  
 > **Objetivo:** Direcionar próximas fases do GameHub com conceitos comprovados em uma plataforma de jogos web, sem copiar marca, layout ou conteúdo.
+> **Última re-análise:** 2026-07-24
 
 ---
 
@@ -171,18 +172,34 @@ O GameHub já possui o fluxo beta funcional: catálogo, player, developer portal
 
 ---
 
-## 8. Ordem sugerida de implementação
+## 8. Estado por spec filho
 
-1. Fase 1 - polimento da página de jogo e home.
-2. Fase 3 - alinhamento do SDK e regras de eventos (pode rodar junto com Fase 1).
-3. Fase 2 - melhorias no developer portal.
-4. Fase 5 - Inspector e requisitos de qualidade.
-5. Fase 4 - monetização (após ads provider definido).
-6. Fase 6 - métricas e alertas avançados.
+| Spec | Foco | Status |
+|------|------|--------|
+| `19.1` | Página de jogo (controls, related, rating) | Parcialmente implementado (PR #42) |
+| `19.2` | Home e descoberta | Parcialmente implementado (home com seções) |
+| `19.3` | SDK, cloud saves e incognito | Base implementada |
+| `19.4` | Portal do desenvolvedor (SEO/campos) | Implementado (PR #44) |
+| `19.5` | Inspector e relatório de validação | Base implementada (PR #45) |
+| `19.6` | Monetização e earnings | Implementado (PR #46 e #47) |
+| `19.7` | Métricas e alertas admin | Implementado (PR #44) |
+| `19.8` | Contas de jogador e favoritos | Planejado |
+| `19.9` | Integração do Ad Provider | Planejado |
+| `19.10` | Inspector de QA v2 | Planejado |
+| `19.11` | Web exclusives e descoberta avançada | Planejado |
+| `19.12` | Privacidade, UGC e performance | Planejado |
+
+## 9. Ordem sugerida de implementação (pós re-análise)
+
+1. `19.11` - Web exclusives e descoberta (baixo risco, destaca contratos existentes).
+2. `19.8` - Contas de jogador e favoritos (aumenta retenção).
+3. `19.10` - Inspector de QA v2 (melhora qualidade antes de escalar).
+4. `19.9` - Integração do Ad Provider (habilita receita real).
+5. `19.12` - Privacidade, UGC e performance (conformidade e saúde da plataforma).
 
 ---
 
-## 9. Critérios de aceite gerais
+## 10. Critérios de aceite gerais
 
 - Cada feature deve ter testes backend e/ou frontend.
 - Build e testes devem passar.
@@ -192,7 +209,7 @@ O GameHub já possui o fluxo beta funcional: catálogo, player, developer portal
 
 ---
 
-## 10. Links úteis
+## 11. Links úteis
 
 - `.specs/18-poki-referencia.md`
 - `https://sdk.poki.com/html5`
