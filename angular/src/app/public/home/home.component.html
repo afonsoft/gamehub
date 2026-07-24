@@ -45,6 +45,7 @@
         <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
           <div class="thumb">
             <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+            <span class="web-exclusive-badge" *ngIf="game.isWebExclusive">{{ 'gameDetail.webExclusive' | translate }}</span>
           </div>
           <div class="meta">
             <h3>{{ game.title }}</h3>
@@ -65,6 +66,7 @@
         <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
           <div class="thumb">
             <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+            <span class="web-exclusive-badge" *ngIf="game.isWebExclusive">{{ 'gameDetail.webExclusive' | translate }}</span>
           </div>
           <div class="meta">
             <h3>{{ game.title }}</h3>
@@ -98,6 +100,11 @@
     <section class="game-section" *ngIf="home?.topFree?.length">
       <h2 class="section-title">{{ 'section.topFree' | translate }}</h2>
       <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.topFree }"></ng-container>
+    </section>
+
+    <section class="game-section" *ngIf="home?.webExclusives?.length">
+      <h2 class="section-title">{{ 'section.webExclusives' | translate }}</h2>
+      <ng-container *ngTemplateOutlet="gameGrid; context: { games: home?.webExclusives }"></ng-container>
     </section>
 
     <section class="game-section" *ngIf="home?.trending?.length">

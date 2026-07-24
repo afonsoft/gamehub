@@ -10,7 +10,7 @@
         [placeholder]="'games.searchPlaceholder' | translate"
         [attr.aria-label]="'games.searchPlaceholder' | translate" />
       <app-button variant="primary" (appClick)="reload()">{{ 'games.search' | translate }}</app-button>
-      <app-button variant="ghost" (appClick)="clear()" *ngIf="query || category || device || orientation">{{ 'games.clear' | translate }}</app-button>
+      <app-button variant="ghost" (appClick)="clear()" *ngIf="query || category || device || orientation || exclusivity !== 'All' || minRating">{{ 'games.clear' | translate }}</app-button>
     </div>
     <div class="filters">
       <label *ngIf="categories?.length">
@@ -38,6 +38,24 @@
           <option value="Both">{{ 'games.both' | translate }}</option>
         </select>
       </label>
+      <label>
+        {{ 'games.exclusivity' | translate }}
+        <select [(ngModel)]="exclusivity" (change)="reload()">
+          <option value="All">{{ 'games.allExclusivities' | translate }}</option>
+          <option value="WebExclusive">{{ 'games.webExclusive' | translate }}</option>
+          <option value="NonExclusive">{{ 'games.nonExclusive' | translate }}</option>
+        </select>
+      </label>
+      <label>
+        {{ 'games.minRating' | translate }}
+        <select [(ngModel)]="minRating" (change)="reload()">
+          <option [value]="0">-</option>
+          <option [value]="1">1+</option>
+          <option [value]="2">2+</option>
+          <option [value]="3">3+</option>
+          <option [value]="4">4+</option>
+        </select>
+      </label>
     </div>
   </div>
 
@@ -52,6 +70,7 @@
     <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
       <div class="thumb">
         <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+        <app-badge *ngIf="game.isWebExclusive" class="web-exclusive-badge" [label]="'gameDetail.webExclusive' | translate" variant="primary"></app-badge>
         <app-badge *ngIf="!game.supportsMobile" class="desktop-only" label="Desktop" variant="primary"></app-badge>
       </div>
       <div class="meta">
@@ -72,7 +91,7 @@
   </div>
 
   <div class="empty-state" *ngIf="!loading && !games?.length">
-    <p *ngIf="query || category || device || orientation; else noGames">{{ 'games.noResults' | translate }}</p>
+    <p *ngIf="query || category || device || orientation || exclusivity !== 'All' || minRating; else noGames">{{ 'games.noResults' | translate }}</p>
     <ng-template #noGames>
       <p>{{ 'emptyState.home' | translate }}</p>
     </ng-template>

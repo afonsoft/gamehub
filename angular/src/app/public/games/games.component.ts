@@ -28,6 +28,8 @@ export class GamesComponent implements OnInit, OnDestroy {
   tag = '';
   device = '';
   orientation = '';
+  exclusivity: 'All' | 'WebExclusive' | 'NonExclusive' = 'All';
+  minRating = 0;
   searchPage = false;
   skipCount = 0;
   readonly pageSize = 24;
@@ -60,6 +62,8 @@ export class GamesComponent implements OnInit, OnDestroy {
       this.tag = params['tag'] || '';
       this.device = params['device'] || '';
       this.orientation = params['orientation'] || '';
+      this.exclusivity = params['exclusivity'] || 'All';
+      this.minRating = Number(params['minRating'] || 0);
       this.skipCount = 0;
       this.games = [];
       this.loadCategories();
@@ -86,7 +90,7 @@ export class GamesComponent implements OnInit, OnDestroy {
   loadPage(): void {
     this.loading = true;
     this.setSeo();
-    const hasSearch = this.query.trim() || this.tag || this.category || this.device || this.orientation;
+    const hasSearch = this.query.trim() || this.tag || this.category || this.device || this.orientation || this.exclusivity !== 'All' || this.minRating > 0;
     const request$ = hasSearch
       ? this.catalog.search(
           this.query.trim(),
@@ -103,6 +107,8 @@ export class GamesComponent implements OnInit, OnDestroy {
           this.tag || undefined,
           this.device || undefined,
           this.orientation || undefined,
+          this.exclusivity,
+          this.minRating,
         );
 
     request$.subscribe({
@@ -126,6 +132,8 @@ export class GamesComponent implements OnInit, OnDestroy {
         tag: this.tag || null,
         device: this.device || null,
         orientation: this.orientation || null,
+        exclusivity: this.exclusivity === 'All' ? null : this.exclusivity,
+        minRating: this.minRating || null,
       },
       queryParamsHandling: 'merge',
     });
@@ -144,6 +152,7 @@ export class GamesComponent implements OnInit, OnDestroy {
     const title = this.buildSeoTitle();
     this.titleService.setTitle(title);
     this.metaService.updateTag({ name: 'description', content: this.buildSeoDescription() });
+    this.metaService.updateTag({ name: 'keywords', content: this.buildSeoKeywords() });
   }
 
   private buildSeoTitle(): string {
@@ -159,10 +168,19 @@ export class GamesComponent implements OnInit, OnDestroy {
   private buildSeoDescription(): string {
     if (this.category) {
       const cat = this.categories.find(c => c.slug === this.category);
+      if (cat?.description) return cat.description;
       return cat ? `Play the best ${cat.name} games on GameHub. No downloads, no login required.` : '';
     }
     if (this.tag) return `Explore free games tagged #${this.tag} on GameHub.`;
     if (this.query) return `Search results for "${this.query}" on GameHub.`;
     return 'Discover and play free HTML5 games on GameHub. No downloads required.';
+  }
+
+  private buildSeoKeywords(): string {
+    if (this.category) {
+      const cat = this.categories.find(c => c.slug === this.category);
+      return cat?.keywords ?? '';
+    }
+    return '';
   }
 }

@@ -5,6 +5,7 @@ using Abp.Application.Services;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub.Authorization;
+using GameHub.Catalog;
 using GameHub.Monetization.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +18,12 @@ namespace GameHub.Monetization
     public class RevenueContractAppService : GameHubAppServiceBase, IRevenueContractAppService
     {
         private readonly IRepository<RevenueContract, Guid> _contractRepository;
+        private readonly IGameCatalogCache _catalogCache;
 
-        public RevenueContractAppService(IRepository<RevenueContract, Guid> contractRepository)
+        public RevenueContractAppService(IRepository<RevenueContract, Guid> contractRepository, IGameCatalogCache catalogCache)
         {
             _contractRepository = contractRepository;
+            _catalogCache = catalogCache;
         }
 
         public async Task<RevenueContractDto> GetByGameAsync(Guid gameId)
@@ -61,6 +64,9 @@ namespace GameHub.Monetization
             };
             await _contractRepository.InsertAsync(contract);
             await CurrentUnitOfWork.SaveChangesAsync();
+
+            await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateSearchAsync();
 
             return Map(contract);
         }

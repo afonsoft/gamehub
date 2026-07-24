@@ -30,6 +30,7 @@
         <h1>{{ game.title }}</h1>
         <p class="developer" *ngIf="game.developerName">by {{ game.developerName }}</p>
         <div class="badges">
+          <app-badge *ngIf="game.isWebExclusive" [label]="'gameDetail.webExclusive' | translate" variant="primary"></app-badge>
           <app-badge *ngIf="game.ageRating" [label]="game.ageRating" variant="default"></app-badge>
           <app-badge [label]="(game.totalPlays | number) + ' plays'" variant="primary"></app-badge>
           <app-badge *ngIf="game.totalVotes" [label]="(game.averageRating | number:'1.1-1') + ' / 5'" variant="success"></app-badge>

@@ -31,7 +31,9 @@ namespace GameHub
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Category.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Category.Slug))
-                .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.Category.SortOrder));
+                .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.Category.SortOrder))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Category.Description))
+                .ForMember(dest => dest.Keywords, opt => opt.MapFrom(src => src.Category.Keywords));
 
             configuration.CreateMap<GameTag, TagDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Tag.Id))

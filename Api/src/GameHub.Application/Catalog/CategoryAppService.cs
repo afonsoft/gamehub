@@ -61,6 +61,8 @@ namespace GameHub.Catalog
                 category.Slug = input.Slug ?? input.Name.ToLowerInvariant().Replace(" ", "-");
                 category.SortOrder = input.SortOrder;
                 category.IsActive = input.IsActive;
+                category.Description = input.Description;
+                category.Keywords = input.Keywords;
             }
             else
             {
@@ -70,7 +72,9 @@ namespace GameHub.Catalog
                     Name = input.Name,
                     Slug = input.Slug ?? input.Name.ToLowerInvariant().Replace(" ", "-"),
                     SortOrder = input.SortOrder,
-                    IsActive = input.IsActive
+                    IsActive = input.IsActive,
+                    Description = input.Description,
+                    Keywords = input.Keywords
                 };
 
                 await _categoryRepository.InsertAsync(category);

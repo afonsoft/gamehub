@@ -10,6 +10,7 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using GameHub.Builds;
 using GameHub.Catalog.Dto;
+using GameHub.Monetization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Catalog
@@ -57,6 +58,7 @@ namespace GameHub.Catalog
                 .Include(g => g.GamePlacements)
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild)
+                .Include(g => g.RevenueContracts)
                 .ToListAsync();
 
             var popularScores = await _trendingScoreCalculator.CalculateScoresAsync(7);
@@ -98,10 +100,25 @@ namespace GameHub.Catalog
                 .Select(MapToCard)
                 .ToList();
 
+            var webExclusives = publishedGames
+                .Where(IsWebExclusive)
+                .OrderByDescending(g => g.TotalPlays)
+                .Take(12)
+                .Select(MapToCard)
+                .ToList();
+
             var categories = await _categoryRepository.GetAll()
                 .Where(c => c.IsActive && !c.IsDeleted)
                 .OrderBy(c => c.SortOrder)
-                .Select(c => new CategoryDto { Id = c.Id, Name = c.Name, Slug = c.Slug, SortOrder = c.SortOrder })
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Slug = c.Slug,
+                    SortOrder = c.SortOrder,
+                    Description = c.Description,
+                    Keywords = c.Keywords
+                })
                 .ToListAsync();
 
             var result = new HomeResponseDto
@@ -112,6 +129,7 @@ namespace GameHub.Catalog
                 Trending = trending,
                 PopularThisWeek = popularThisWeek,
                 TopFree = mostPlayed,
+                WebExclusives = webExclusives,
                 Categories = categories
             };
 
@@ -126,7 +144,8 @@ namespace GameHub.Catalog
                 .Include(g => g.GameCategories)
                     .ThenInclude(gc => gc.Category)
                 .Include(g => g.DeveloperProfile)
-                .Include(g => g.PublishedBuild);
+                .Include(g => g.PublishedBuild)
+                .Include(g => g.RevenueContracts);
 
             if (!string.IsNullOrWhiteSpace(input.CategorySlug))
             {
@@ -141,6 +160,21 @@ namespace GameHub.Catalog
                 }
             }
 
+            if (input.MinRating > 0)
+            {
+                query = query.Where(g => g.AverageRating.HasValue && (decimal)g.AverageRating.Value >= input.MinRating);
+            }
+
+            var exclusivity = input.Exclusivity?.ToLowerInvariant();
+            if (exclusivity == "webexclusive")
+            {
+                query = query.Where(g => g.RevenueContracts.Any(c => c.IsActive && c.ContractType == RevenueContractType.WebExclusive));
+            }
+            else if (exclusivity == "nonexclusive")
+            {
+                query = query.Where(g => g.RevenueContracts.Any(c => c.IsActive && c.ContractType == RevenueContractType.NonExclusive));
+            }
+
             var total = await query.CountAsync(cancellationToken);
             var items = await ApplySorting(query, input.Sorting)
                 .Skip(input.SkipCount)
@@ -148,6 +182,24 @@ namespace GameHub.Catalog
                 .ToListAsync(cancellationToken);
 
             return new PagedResultDto<GameCardDto>(total, items.Select(MapToCard).ToList());
+        }
+
+        public async Task<CategoryDto> GetCategoryBySlugAsync(string slug, CancellationToken cancellationToken = default)
+        {
+            var category = await _categoryRepository.GetAll()
+                .Where(c => c.Slug == slug && c.IsActive && !c.IsDeleted)
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Slug = c.Slug,
+                    SortOrder = c.SortOrder,
+                    Description = c.Description,
+                    Keywords = c.Keywords
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return category;
         }
 
         public async Task<GameDetailDto> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
@@ -166,6 +218,7 @@ namespace GameHub.Catalog
                     .ThenInclude(gt => gt.Tag)
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild)
+                .Include(g => g.RevenueContracts)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (game == null)
@@ -282,7 +335,8 @@ namespace GameHub.Catalog
                 .Include(g => g.GameTags)
                     .ThenInclude(gt => gt.Tag)
                 .Include(g => g.DeveloperProfile)
-                .Include(g => g.PublishedBuild);
+                .Include(g => g.PublishedBuild)
+                .Include(g => g.RevenueContracts);
 
             query = _searchEngine.ApplySearchFilter(query, input.Query);
 
@@ -368,6 +422,7 @@ namespace GameHub.Catalog
                     .ThenInclude(gc => gc.Category)
                 .Include(g => g.DeveloperProfile)
                 .Include(g => g.PublishedBuild)
+                .Include(g => g.RevenueContracts)
                 .Take(6)
                 .ToListAsync();
 
@@ -430,6 +485,7 @@ namespace GameHub.Catalog
                 TotalDislikes = game.TotalDislikes,
                 AverageRating = (decimal)ComputeAverageRating(game),
                 TotalVotes = ComputeTotalVotes(game),
+                IsWebExclusive = IsWebExclusive(game),
                 Categories = game.GameCategories
                     .Where(gc => gc.Category != null)
                     .Select(gc => new CategoryDto
@@ -437,7 +493,9 @@ namespace GameHub.Catalog
                         Id = gc.Category.Id,
                         Name = gc.Category.Name,
                         Slug = gc.Category.Slug,
-                        SortOrder = gc.Category.SortOrder
+                        SortOrder = gc.Category.SortOrder,
+                        Description = gc.Category.Description,
+                        Keywords = gc.Category.Keywords
                     })
                     .ToList()
             };
@@ -477,7 +535,9 @@ namespace GameHub.Catalog
                         Id = gc.Category.Id,
                         Name = gc.Category.Name,
                         Slug = gc.Category.Slug,
-                        SortOrder = gc.Category.SortOrder
+                        SortOrder = gc.Category.SortOrder,
+                        Description = gc.Category.Description,
+                        Keywords = gc.Category.Keywords
                     })
                     .ToList(),
                 Tags = game.GameTags
@@ -488,7 +548,8 @@ namespace GameHub.Catalog
                         Name = gt.Tag.Name,
                         Slug = gt.Tag.Slug
                     })
-                    .ToList()
+                    .ToList(),
+                IsWebExclusive = IsWebExclusive(game)
             };
         }
 
@@ -532,6 +593,11 @@ namespace GameHub.Catalog
         private static long ComputeTotalVotes(Game game)
         {
             return game.TotalLikes + game.TotalDislikes;
+        }
+
+        private static bool IsWebExclusive(Game game)
+        {
+            return game.RevenueContracts?.Any(c => c.IsActive && c.ContractType == RevenueContractType.WebExclusive) == true;
         }
     }
 }

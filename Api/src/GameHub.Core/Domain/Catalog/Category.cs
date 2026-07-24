@@ -29,6 +29,12 @@ namespace GameHub.Catalog
         [Required]
         public bool IsActive { get; set; }
 
+        [StringLength(500)]
+        public string Description { get; set; }
+
+        [StringLength(256)]
+        public string Keywords { get; set; }
+
         public virtual ICollection<GameCategory> GameCategories { get; protected set; } = new List<GameCategory>();
     }
 }

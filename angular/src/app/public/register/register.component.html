@@ -17,6 +17,7 @@
 
     <label for="password">Password</label>
     <input id="password" type="password" [(ngModel)]="model.password" name="password" required />
+    <p class="hint">{{ 'register.passwordHint' | translate }}</p>
 
     <label for="confirmPassword">Confirm password</label>
     <input id="confirmPassword" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required />
