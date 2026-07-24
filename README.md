@@ -41,17 +41,19 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 | Persona | Capabilities |
 |---------|--------------|
 | Anonymous Player | Browse, search, play, vote, and report games. |
-| Authenticated Player | Profile, favorites, cloud saves, leaderboards, and recommendations. |
+| Authenticated Player | Profile, **favorites**, **recent games**, cloud saves, leaderboards, and recommendations. |
 | Developer | Create and submit games, upload builds, and view metrics. |
 | Moderator | Review, approve/reject builds, and handle user reports. |
 | Administrator | Manage users, roles, feature flags, metrics, and audit logs. |
 
 ### Public Features (Game Hub)
 
-- Home page with sections: highlights, new releases, most played, trending, recommendations, and categories.
-- Game detail page with execution in a sandboxed iframe.
-- Search with filters by category, tag, device, and orientation.
+- Home page with sections: highlights, new releases, most played, trending, recommendations, **web exclusives**, and categories.
+- Game detail page with execution in a sandboxed iframe, like/dislike, report, favorite toggle, and fullscreen support.
+- Search and catalog filters by category, tag, device, orientation, **exclusivity**, and **minimum rating**.
+- Optional player account with favorites and recent games; anonymous data stays in `localStorage` and merges on login.
 - Leaderboards backed by Redis Sorted Sets.
+- Ad breaks (commercial/rewarded) with provider abstraction, automatic audio muting, and ad-block handling.
 
 ### Gameplay SDK / Bridge
 
@@ -67,6 +69,7 @@ The iframe-hosted game communicates with the platform through ten events:
 | `CommercialBreakCompleted` | Commercial break finished. |
 | `RewardedBreakRequested` | Rewarded ad requested. |
 | `RewardedBreakCompleted` | Rewarded ad finished. |
+| `AdBreakMute` / `AdBreakUnmute` | Audio muting around ad breaks. |
 | `GameErrorCaptured` | Error captured. |
 | `GameMeasuredEvent` | Measurement event. |
 
@@ -170,7 +173,7 @@ Web  ← Application
 3. **Gameplay Analytics** — `PlaySession`, `GameplayEvent`, `GameMetricSnapshot`
 4. **Developer Portal** — `DeveloperProfile`, game submission
 5. **Moderation** — `ModerationReview`, `UserReport`
-6. **Monetization** — `IAdProvider`, revenue share (prepared)
+6. **Monetization** — `IAdProvider`, `AdBreakResult`, revenue share, and `WebExclusive` discovery
 
 ### System Flow
 
@@ -369,7 +372,7 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 
 ## Project Status
 
-In active development. The domain model, application layer, EF Core infrastructure, security middleware, and initial Angular frontends are implemented. Remaining work includes full admin screens, Redis-backed production caches, and MinIO/S3 integration for build storage.
+In active development. The domain model, application layer, EF Core infrastructure, security middleware, public Angular frontend, player accounts, web-exclusives discovery, and ad-provider abstraction are implemented. Remaining work includes Inspector QA v2, privacy/UGC/performance features, Redis-backed production caches, and full MinIO/S3 integration for build storage.
 
 ---
 

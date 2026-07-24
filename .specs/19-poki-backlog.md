@@ -183,11 +183,11 @@ O GameHub já possui o fluxo beta funcional: catálogo, player, developer portal
 | `19.5` | Inspector e relatório de validação | Base implementada (PR #45) |
 | `19.6` | Monetização e earnings | Implementado (PR #46 e #47) |
 | `19.7` | Métricas e alertas admin | Implementado (PR #44) |
-| `19.8` | Contas de jogador e favoritos | Planejado |
-| `19.9` | Integração do Ad Provider | Planejado |
-| `19.10` | Inspector de QA v2 | Planejado |
-| `19.11` | Web exclusives e descoberta avançada | Planejado |
-| `19.12` | Privacidade, UGC e performance | Planejado |
+| `19.8` | Contas de jogador e favoritos | Implementado |
+| `19.9` | Integração do Ad Provider | Implementado |
+| `19.10` | Inspector de QA v2 | Planejado — criar prompt para sessão dedicada |
+| `19.11` | Web exclusives e descoberta avançada | Implementado |
+| `19.12` | Privacidade, UGC e performance | Planejado — criar prompt para sessão dedicada |
 
 ## 9. Ordem sugerida de implementação (pós re-análise)
 

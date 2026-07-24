@@ -9,7 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `FeatureFlag` domain entity, EF Core configuration, and `AddFeatureFlag` PostgreSQL migration.
+- **Web Exclusives and discovery**: `Category.Description`/`Keywords` for SEO, `IsWebExclusive` flag on game cards, `GetCategoryBySlugAsync`, and catalog filters for `Exclusivity` and `MinRating`. Angular public home, catalog, detail, and admin category forms updated.
+- **Player accounts**: `PlayerFavorite` and `PlayerRecentGame` entities, `IPlayerAccountAppService`, `/player` page with favorites/recent tabs, localStorage fallback for anonymous users, and merge on login.
+- **Ad provider integration**: `AdBreakResult` value object, `IAdProvider` returns structured results, `FakeAdProvider` with `SimulateAdBlocked`, `StaticVastAdProvider` example, `ConfigurableAdProvider` routed by `AdBreakOptions.Provider`, and `AdBreakAppService` metrics increment for `PlaySession` and `GameMetricSnapshot`.
+- **Registration UX**: password requirements hint and display of API error messages (e.g. password policy).
+- Tests for `PlayerAccountAppService`, `AdBreakAppService`, `GameCatalogAppService` web exclusives/filters, and `FakeAdProvider` ad-block scenarios.
+
+### Changed
+
+- `GameplayBridgeService` now sends `adBreakMute`/`adBreakUnmute` events around ad breaks and passes the play `sessionId` to ad requests.
+- `IAdProvider` method signatures changed from `Task`/`Task<bool>` to `Task<AdBreakResult>`.
+- `PlaySession` now tracks `CommercialBreakCount` and `RewardedBreakCount` for reconciliation.
+
+### Fixed
+
+- Registration screen now surfaces ABP `success: false` API error messages instead of attempting to log in.
+
+### Security
+
+- No custom ad-block messages are displayed; `AdBlocked` flag is propagated to the game without exposing provider details.
+
+## [0.9.0] - 2026-07-21
+
+### Added
+
 - Admin application services: `AdminDashboardAppService`, `FeatureFlagAppService`, `AuditLogAppService`, `AdminReportAppService`.
 - Developer and moderation services: `DeveloperProfileAppService`, `UserReportAppService`.
 - `GameBuildsController` for multipart game build uploads (`POST /api/game-builds/{gameId}/upload`).
