@@ -162,7 +162,7 @@ export class GameplayBridgeService implements GameplayBridge {
     let rewardGranted = false;
     if (this.gameId) {
       const result = await this.adBreak.requestRewarded(this.gameId, this.sessionId ?? undefined).toPromise();
-      rewardGranted = result?.completed && result?.rewardGranted && !result?.adBlocked;
+      rewardGranted = Boolean(result?.completed && result?.rewardGranted && !result?.adBlocked);
       if (result?.adBlocked) {
         this.reply({ channel: 'gamehub-bridge', action: 'adBreakUnmute' });
       }
