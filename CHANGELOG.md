@@ -9,25 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Inspector de QA v2**: `InspectorSession`, `InspectorSdkEvent` e `InspectorWarning` entities; `IInspectorAppService` with SDK event validation (duplicates, order, `gameplayStart` before `gameLoadingFinished`, events during ad breaks); scaling tests and warnings; admin page `/app/main/gamehub/inspector/session/:id` with sandboxed iframe, event timeline, and re-run validation.
+- **Privacy, UGC and Performance**: `Game.PrivacyPolicyUrl` with publish gate for builds with external requests; `ProfanityFilter` domain service with pt-BR/en-US word lists and leet support; `UserContent` entity with moderation fields and `IUserContentAppService` for comments/reviews; `PlaySession.FpsAverage`/`FpsMin` and `GameMetricSnapshot.AvgFps`/`MinFps`; FPS aggregation and admin health alerts for low FPS.
 - **Web Exclusives and discovery**: `Category.Description`/`Keywords` for SEO, `IsWebExclusive` flag on game cards, `GetCategoryBySlugAsync`, and catalog filters for `Exclusivity` and `MinRating`. Angular public home, catalog, detail, and admin category forms updated.
 - **Player accounts**: `PlayerFavorite` and `PlayerRecentGame` entities, `IPlayerAccountAppService`, `/player` page with favorites/recent tabs, localStorage fallback for anonymous users, and merge on login.
 - **Ad provider integration**: `AdBreakResult` value object, `IAdProvider` returns structured results, `FakeAdProvider` with `SimulateAdBlocked`, `StaticVastAdProvider` example, `ConfigurableAdProvider` routed by `AdBreakOptions.Provider`, and `AdBreakAppService` metrics increment for `PlaySession` and `GameMetricSnapshot`.
 - **Registration UX**: password requirements hint and display of API error messages (e.g. password policy).
-- Tests for `PlayerAccountAppService`, `AdBreakAppService`, `GameCatalogAppService` web exclusives/filters, and `FakeAdProvider` ad-block scenarios.
+- Tests for `InspectorAppService`, `ProfanityFilter`, `UserContentAppService`, `AdminGameAppService` publish gate, `BuildPackageValidator` external request detection, `GameplayAppService` FPS aggregation, `PlayerAccountAppService`, `AdBreakAppService`, `GameCatalogAppService` web exclusives/filters, and `FakeAdProvider` ad-block scenarios.
 
 ### Changed
 
-- `GameplayBridgeService` now sends `adBreakMute`/`adBreakUnmute` events around ad breaks and passes the play `sessionId` to ad requests.
+- `GameplayBridgeService` now sends `adBreakMute`/`adBreakUnmute` events around ad breaks, exposes `measureFps` for performance telemetry, and supports inspector mode routing.
 - `IAdProvider` method signatures changed from `Task`/`Task<bool>` to `Task<AdBreakResult>`.
 - `PlaySession` now tracks `CommercialBreakCount` and `RewardedBreakCount` for reconciliation.
+- `UpdateFpsAsync` overwrites session FPS values and aggregates daily `AvgFps`/`MinFps` into `GameMetricSnapshot`.
+- `RevenueContract` relationship now points to `Game.RevenueContracts` inverse collection, removing the shadow `GameId1` foreign key.
 
 ### Fixed
 
 - Registration screen now surfaces ABP `success: false` API error messages instead of attempting to log in.
+- `GameCatalogAppService` web-exclusives logic now loads `Game.RevenueContracts` correctly after EF Core relationship mapping fix.
 
 ### Security
 
+- Builds with external requests are blocked from publishing unless a privacy policy URL is provided.
 - No custom ad-block messages are displayed; `AdBlocked` flag is propagated to the game without exposing provider details.
+- Profanity filtering applied to display names, reports, reviews, and UGC before persistence.
 
 ## [0.9.0] - 2026-07-21
 

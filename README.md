@@ -54,6 +54,7 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - Optional player account with favorites and recent games; anonymous data stays in `localStorage` and merges on login.
 - Leaderboards backed by Redis Sorted Sets.
 - Ad breaks (commercial/rewarded) with provider abstraction, automatic audio muting, and ad-block handling.
+- Privacy policy display and consent on game detail pages.
 
 ### Gameplay SDK / Bridge
 
@@ -71,7 +72,8 @@ The iframe-hosted game communicates with the platform through ten events:
 | `RewardedBreakCompleted` | Rewarded ad finished. |
 | `AdBreakMute` / `AdBreakUnmute` | Audio muting around ad breaks. |
 | `GameErrorCaptured` | Error captured. |
-| `GameMeasuredEvent` | Measurement event. |
+| `GameMeasuredEvent` | Measurement or timing event. |
+| `FpsMeasured` | FPS telemetry for performance monitoring. |
 
 ### Developer Portal
 
@@ -85,6 +87,10 @@ The iframe-hosted game communicates with the platform through ten events:
 - Review queue with approve/reject actions.
 - Game publish/suspend workflow.
 - Report queue and auditable moderation history.
+- Build validation warnings for external requests, large files, and outgoing links.
+- **Inspector de QA v2**: SDK event timeline, warnings, and scaling tests per session.
+- FPS-based performance alerts and daily metric snapshots.
+- UGC moderation with profanity filtering.
 
 ---
 
@@ -315,7 +321,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Count |
 |-------|--------|-------|
-| GameHub.Tests | Pass | 224 passed, 1 skipped |
+| GameHub.Tests | Pass | 242 passed, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passed, 1 skipped |
 | Angular Hub Build | Pass | production build OK |
 | Angular Admin Build | Pass | production build OK |
@@ -372,7 +378,7 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 
 ## Project Status
 
-In active development. The domain model, application layer, EF Core infrastructure, security middleware, public Angular frontend, player accounts, web-exclusives discovery, and ad-provider abstraction are implemented. Remaining work includes Inspector QA v2, privacy/UGC/performance features, Redis-backed production caches, and full MinIO/S3 integration for build storage.
+In active development. The domain model, application layer, EF Core infrastructure, security middleware, public Angular frontend, player accounts, web-exclusives discovery, ad-provider abstraction, inspector QA v2, privacy/UGC/performance features, and FPS telemetry are implemented. Remaining work includes Redis-backed production caches, full MinIO/S3 integration for build storage, and advanced recommendation algorithms.
 
 ---
 
