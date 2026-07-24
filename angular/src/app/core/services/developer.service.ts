@@ -145,6 +145,45 @@ export interface GameMetricsResult {
   daily: GameMetricsDailyItem[];
 }
 
+export interface DailyEarnings {
+  date: string;
+  commercialBreaks: number;
+  rewardedBreaks: number;
+  grossEstimatedRevenue: number;
+  developerEstimatedRevenue: number;
+}
+
+export interface GameEarnings {
+  gameId: string;
+  gameTitle: string;
+  totalPlays: number;
+  commercialBreaks: number;
+  rewardedBreaks: number;
+  grossEstimatedRevenue: number;
+  developerEstimatedRevenue: number;
+  platformEstimatedRevenue: number;
+  developerShare: number;
+  contractType: number;
+  daily: DailyEarnings[];
+}
+
+export interface DeveloperEarnings {
+  from: string;
+  to: string;
+  totalGrossEstimatedRevenue: number;
+  totalDeveloperEstimatedRevenue: number;
+  totalPlatformEstimatedRevenue: number;
+  totalCommercialBreaks: number;
+  totalRewardedBreaks: number;
+  games: GameEarnings[];
+}
+
+export interface DeveloperEarningsFilter {
+  from?: string;
+  to?: string;
+  maxResultCount?: number;
+}
+
 export interface UploadResult {
   buildId: string;
   version: string;
@@ -166,6 +205,7 @@ export class DeveloperService {
   private readonly assetUrl = '/api/game-assets';
   private readonly dashboardUrl = '/api/services/app/DeveloperDashboard';
   private readonly metricsUrl = '/api/services/app/GameMetrics';
+  private readonly earningsUrl = '/api/services/app/DeveloperEarnings';
 
   constructor(private http: HttpClient) {}
 
@@ -239,6 +279,20 @@ export class DeveloperService {
     return this.http
       .get<GameMetricsResult | { result?: GameMetricsResult }>(`${this.metricsUrl}/GetMetrics`, { params })
       .pipe(map(response => this.unwrap<GameMetricsResult>(response)));
+  }
+
+  getEarnings(filter: DeveloperEarningsFilter = {}): Observable<DeveloperEarnings> {
+    const params = new HttpParams({ fromObject: this.toEarningsParams(filter) });
+    return this.http
+      .get<DeveloperEarnings | { result?: DeveloperEarnings }>(`${this.earningsUrl}/GetEarnings`, { params })
+      .pipe(map(response => this.unwrap<DeveloperEarnings>(response)));
+  }
+
+  private toEarningsParams(filter: DeveloperEarningsFilter): Record<string, string> {
+    const params: Record<string, string> = { maxResultCount: (filter.maxResultCount ?? 50).toString() };
+    if (filter.from) params['from'] = filter.from;
+    if (filter.to) params['to'] = filter.to;
+    return params;
   }
 
   private toParams(filter: GameMetricsFilter): Record<string, string> {

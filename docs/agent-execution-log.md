@@ -1,5 +1,29 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 02:14 UTC
+
+### Tarefa
+Implementar painel de earnings no portal do desenvolvedor (Angular) e backend de cálculo estimado de receita.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Developer/IDeveloperEarningsAppService.cs` e `DeveloperEarningsAppService.cs` — endpoint `GetEarningsAsync` que calcula receita bruta e share do dev por jogo.
+- `Api/src/GameHub.Application/Developer/Dto/DeveloperEarningsDto.cs`, `GameEarningsDto.cs`, `DailyEarningsDto.cs`, `GetDeveloperEarningsInput.cs`.
+- `Api/src/GameHub.Core/GameHubConsts.cs` — constantes de receita estimada por ad break.
+- `Api/test/GameHub.Tests/GameHub/Application/DeveloperEarningsAppService_Tests.cs` — testes de cálculo e split.
+- `angular/src/app/core/services/developer.service.ts` — interfaces e método `getEarnings`.
+- `angular/src/app/developer/earnings/earnings.component.ts/.html/.css` — novo painel de earnings.
+- `angular/src/app/developer/developer.routes.ts` — rota `/developer/earnings`.
+- `angular/src/app/developer/games/games.component.html`, `builds/builds.component.html`, `game-create/game-create.component.html`, `game-edit/game-edit.component.html`, `profile/profile.component.html` — link "Earnings" no menu lateral.
+- `angular/src/app/developer/dashboard/dashboard.component.html` — botão "Earnings" no header.
+
+### Motivação
+Fechar a base de monetização (spec 19.6) com uma interface visível para o desenvolvedor acompanhar receita estimada por jogo e por dia, respeitando o contrato (`WebExclusive`/`NonExclusive`) e a origem do tráfego.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 217 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+
 ## 2026-07-24 00:59 UTC
 
 ### Tarefa

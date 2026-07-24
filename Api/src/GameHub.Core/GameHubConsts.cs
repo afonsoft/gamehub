@@ -16,6 +16,12 @@ namespace GameHub
 
         public const long LargeFileWarningSizeBytes = 1L * 1024 * 1024;
 
+        /// <summary>Estimated gross revenue per commercial break (USD).</summary>
+        public const decimal EstimatedCommercialBreakRevenue = 0.002m;
+
+        /// <summary>Estimated gross revenue per rewarded break completion (USD).</summary>
+        public const decimal EstimatedRewardedBreakRevenue = 0.01m;
+
         public const string LocalizationSourceName = "GameHub";
 
         public const string ConnectionStringName = "Default";
