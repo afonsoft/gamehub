@@ -68,6 +68,24 @@ public class CreateGameDraftInput
     /// <summary>Supports tablet devices.</summary>
     public bool SupportsTablet { get; set; }
 
+    /// <summary>Whether the game persists progress to the cloud.</summary>
+    public bool SupportsCloudSaves { get; set; } = true;
+
+    /// <summary>Primary input scheme supported by the game.</summary>
+    [StringLength(20)]
+    public string ControlScheme { get; set; } = "Both";
+
+    /// <summary>Whether cutscenes can be skipped.</summary>
+    public bool CutscenesSkippable { get; set; }
+
+    /// <summary>Default language code.</summary>
+    [StringLength(16)]
+    public string DefaultLanguage { get; set; } = "en-US";
+
+    /// <summary>Comma-separated list of supported language codes.</summary>
+    [StringLength(512)]
+    public string SupportedLanguages { get; set; } = "en-US";
+
     /// <summary>Category identifiers to assign.</summary>
     public List<Guid> CategoryIds { get; set; }
 

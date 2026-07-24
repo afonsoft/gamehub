@@ -26,6 +26,7 @@ export interface GameCard {
   shortDescription: string;
   supportsMobile: boolean;
   supportsDesktop: boolean;
+  supportsCloudSaves?: boolean;
   totalPlays: number;
   totalLikes: number;
   totalDislikes: number;
@@ -67,6 +68,7 @@ export interface GameDetail {
   suggestedDescription?: string;
   seoDescription?: string;
   ageRating: string;
+  privacyPolicyUrl?: string;
   orientation: string;
   developerName: string;
   publishedBuildUrl: string;
@@ -78,6 +80,11 @@ export interface GameDetail {
   supportsDesktop: boolean;
   supportsMobile: boolean;
   supportsTablet: boolean;
+  supportsCloudSaves?: boolean;
+  controlScheme?: string;
+  cutscenesSkippable?: boolean;
+  defaultLanguage?: string;
+  supportedLanguages?: string[];
   categories: { id: string; name: string; slug: string }[];
   tags: { id: string; name: string; slug: string }[];
   relatedGames: GameCard[];

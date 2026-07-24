@@ -37,6 +37,10 @@ namespace GameHub.Catalog
             SupportsDesktop = true;
             SupportsMobile = true;
             SupportsTablet = true;
+            SupportsCloudSaves = true;
+            ControlScheme = GameControlScheme.Both;
+            CutscenesSkippable = false;
+            DefaultLanguage = "en-US";
         }
 
         public void Publish(Guid? buildId = null)
@@ -135,6 +139,16 @@ namespace GameHub.Catalog
         public bool SupportsMobile { get; set; }
         [Required]
         public bool SupportsTablet { get; set; }
+        [Required]
+        public bool SupportsCloudSaves { get; set; }
+        [Required]
+        public GameControlScheme ControlScheme { get; set; }
+        [Required]
+        public bool CutscenesSkippable { get; set; }
+        [StringLength(16)]
+        public string DefaultLanguage { get; set; }
+        [StringLength(512)]
+        public string SupportedLanguages { get; set; }
         [StringLength(512)]
         public string ThumbnailUrl { get; set; }
         [StringLength(512)]
