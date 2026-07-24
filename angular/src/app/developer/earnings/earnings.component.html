@@ -1,0 +1,99 @@
+<div class="dev-page">
+  <aside class="dev-sidebar">
+    <h2>Developer</h2>
+    <nav>
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
+      <a routerLink="/developer/earnings" routerLinkActive="active">Earnings</a>
+      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
+    </nav>
+  </aside>
+
+  <main class="dev-main">
+    <div class="dev-header">
+      <h1>Earnings</h1>
+    </div>
+
+    <div class="loading" *ngIf="loading">Loading...</div>
+
+    <ng-container *ngIf="!loading && earnings">
+      <section class="cards" *ngIf="earnings.games.length">
+        <div class="card">
+          <span class="card-value">{{ formatCurrency(earnings.totalGrossEstimatedRevenue) }}</span>
+          <span class="card-label">Gross Estimated Revenue</span>
+        </div>
+        <div class="card">
+          <span class="card-value">{{ formatCurrency(earnings.totalDeveloperEstimatedRevenue) }}</span>
+          <span class="card-label">Developer Estimated Revenue</span>
+        </div>
+        <div class="card">
+          <span class="card-value">{{ formatCurrency(earnings.totalPlatformEstimatedRevenue) }}</span>
+          <span class="card-label">Platform Estimated Revenue</span>
+        </div>
+        <div class="card">
+          <span class="card-value">{{ earnings.totalCommercialBreaks | number }}</span>
+          <span class="card-label">Commercial Breaks</span>
+        </div>
+        <div class="card">
+          <span class="card-value">{{ earnings.totalRewardedBreaks | number }}</span>
+          <span class="card-label">Rewarded Breaks</span>
+        </div>
+      </section>
+
+      <section class="panel" *ngIf="earnings.games.length">
+        <h2>Per Game</h2>
+        <table class="games-table">
+          <thead>
+            <tr>
+              <th>Game</th>
+              <th>Plays</th>
+              <th>Commercial</th>
+              <th>Rewarded</th>
+              <th>Gross</th>
+              <th>Dev Share</th>
+              <th>Developer Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let game of earnings.games; trackBy: trackByGame">
+              <td>{{ game.gameTitle }}</td>
+              <td>{{ game.totalPlays | number }}</td>
+              <td>{{ game.commercialBreaks | number }}</td>
+              <td>{{ game.rewardedBreaks | number }}</td>
+              <td>{{ formatCurrency(game.grossEstimatedRevenue) }}</td>
+              <td>{{ formatPercent(game.developerShare) }}</td>
+              <td>{{ formatCurrency(game.developerEstimatedRevenue) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel" *ngFor="let game of earnings.games; trackBy: trackByGame">
+        <h2>Daily: {{ game.gameTitle }}</h2>
+        <table class="games-table" *ngIf="game.daily.length">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Commercial</th>
+              <th>Rewarded</th>
+              <th>Gross</th>
+              <th>Developer Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let day of game.daily; trackBy: trackByDay">
+              <td>{{ day.date | date:'shortDate' }}</td>
+              <td>{{ day.commercialBreaks | number }}</td>
+              <td>{{ day.rewardedBreaks | number }}</td>
+              <td>{{ formatCurrency(day.grossEstimatedRevenue) }}</td>
+              <td>{{ formatCurrency(day.developerEstimatedRevenue) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty" *ngIf="!game.daily.length">No daily data in the selected range.</p>
+      </section>
+
+      <p class="empty" *ngIf="!earnings.games.length">No earnings data yet. Publish a game and wait for ad events to appear.</p>
+    </ng-container>
+  </main>
+</div>

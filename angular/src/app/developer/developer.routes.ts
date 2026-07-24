@@ -25,6 +25,10 @@ export const developerRoutes: Routes = [
     path: 'profile',
     loadComponent: () => import('./profile/profile.component').then(m => m.DeveloperProfileComponent),
   },
+  {
+    path: 'earnings',
+    loadComponent: () => import('./earnings/earnings.component').then(m => m.DeveloperEarningsComponent),
+  },
 ];
 
 export const developerRootRoute = {

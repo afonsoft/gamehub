@@ -1,0 +1,7 @@
+@import '../dashboard/dashboard.component.css';
+@import '../games/games.component.css';
+
+.earnings-empty {
+  color: #5f6368;
+  padding: 24px 0;
+}
