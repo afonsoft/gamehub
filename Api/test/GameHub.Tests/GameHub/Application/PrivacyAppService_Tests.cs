@@ -3,6 +3,7 @@ using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Moderation;
 using GameHub.Privacy;
+using GameHub.Privacy.Dto;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using System;
@@ -161,6 +162,85 @@ namespace GameHub.Tests.GameHub.Application
 
                 var reports = await context.UserReports.Where(r => r.UserId == userId).ToListAsync();
                 reports.Count.ShouldBe(0);
+            });
+        }
+
+        [Fact]
+        public async Task Dado_JogoComPolitica_Quando_GetForGame_Entao_RetornaUrlERequerConsentimento()
+        {
+            var userId = AbpSession.UserId.Value;
+            var profileId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.DeveloperProfiles.AddAsync(new DeveloperProfile
+                {
+                    Id = profileId,
+                    TenantId = AbpSession.TenantId,
+                    UserId = userId,
+                    DisplayName = "Dev User",
+                    Status = DeveloperProfileStatus.Active
+                });
+
+                await context.Games.AddAsync(new Game(gameId, "Policy Game", "policy-game", "Test", profileId)
+                {
+                    TenantId = AbpSession.TenantId,
+                    Status = GameStatus.Published,
+                    PrivacyPolicyUrl = "https://example.com/privacy"
+                });
+
+                await context.SaveChangesAsync();
+            });
+
+            var policy = await _privacyAppService.GetForGameAsync("policy-game");
+
+            policy.ShouldNotBeNull();
+            policy.GameSlug.ShouldBe("policy-game");
+            policy.Url.ShouldBe("https://example.com/privacy");
+            policy.RequiresConsent.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioAutenticado_Quando_SaveConsent_Entao_RegistraConsentimento()
+        {
+            var userId = AbpSession.UserId.Value;
+            var profileId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.DeveloperProfiles.AddAsync(new DeveloperProfile
+                {
+                    Id = profileId,
+                    TenantId = AbpSession.TenantId,
+                    UserId = userId,
+                    DisplayName = "Dev User",
+                    Status = DeveloperProfileStatus.Active
+                });
+
+                await context.Games.AddAsync(new Game(gameId, "Consent Game", "consent-game", "Test", profileId)
+                {
+                    TenantId = AbpSession.TenantId,
+                    Status = GameStatus.Published
+                });
+
+                await context.SaveChangesAsync();
+            });
+
+            await _privacyAppService.SaveConsentAsync(new SavePrivacyConsentInput
+            {
+                GameId = gameId,
+                PolicyVersion = "v1"
+            });
+
+            await UsingDbContextAsync(async context =>
+            {
+                var consent = await context.PlayerPrivacyConsents
+                    .FirstOrDefaultAsync(c => c.GameId == gameId && c.UserId == userId);
+
+                consent.ShouldNotBeNull();
+                consent.PolicyVersion.ShouldBe("v1");
             });
         }
     }
