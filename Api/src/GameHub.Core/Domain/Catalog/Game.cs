@@ -118,6 +118,10 @@ namespace GameHub.Catalog
         [StringLength(500)]
         public string SeoDescription { get; set; }
 
+        /// <summary>URL of the privacy policy. Required when the build contains external requests.</summary>
+        [StringLength(512)]
+        public string PrivacyPolicyUrl { get; set; }
+
         [Required]
         public GameStatus Status { get; set; }
         [Required]

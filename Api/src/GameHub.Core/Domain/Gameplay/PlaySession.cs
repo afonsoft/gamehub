@@ -61,6 +61,12 @@ namespace GameHub.Gameplay
 
         public long RewardedBreakCount { get; set; }
 
+        /// <summary>Average FPS reported by the game during the session.</summary>
+        public double? FpsAverage { get; set; }
+
+        /// <summary>Minimum FPS reported by the game during the session.</summary>
+        public double? FpsMin { get; set; }
+
         public virtual Game Game { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<GameplayEvent> GameplayEvents { get; protected set; } = new List<GameplayEvent>();

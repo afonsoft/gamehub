@@ -3,6 +3,7 @@ using System;
 using GameHub.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameHub.Migrations
 {
     [DbContext(typeof(GameHubDbContext))]
-    partial class GameHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260724121009_AddPrivacyUgcAndPerformance")]
+    partial class AddPrivacyUgcAndPerformance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3154,6 +3157,9 @@ namespace GameHub.Migrations
                     b.Property<Guid>("GameId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("GameId1")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -3170,6 +3176,8 @@ namespace GameHub.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GameId1");
 
                     b.HasIndex("GameId", "IsActive", "EffectiveDate");
 
@@ -3824,10 +3832,14 @@ namespace GameHub.Migrations
             modelBuilder.Entity("GameHub.Monetization.RevenueContract", b =>
                 {
                     b.HasOne("GameHub.Catalog.Game", "Game")
-                        .WithMany("RevenueContracts")
+                        .WithMany()
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("GameHub.Catalog.Game", null)
+                        .WithMany("RevenueContracts")
+                        .HasForeignKey("GameId1");
 
                     b.Navigation("Game");
                 });

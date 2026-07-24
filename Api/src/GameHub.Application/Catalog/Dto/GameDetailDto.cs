@@ -45,6 +45,9 @@ public class GameDetailDto
     /// <summary>SEO-friendly description used in public meta tags.</summary>
     public string SeoDescription { get; set; } = string.Empty;
 
+    /// <summary>URL of the privacy policy.</summary>
+    public string PrivacyPolicyUrl { get; set; } = string.Empty;
+
     /// <summary>Age rating (e.g., E, E10+, T, M).</summary>
     public string AgeRating { get; set; } = string.Empty;
 

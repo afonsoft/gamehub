@@ -21,15 +21,18 @@ namespace GameHub.Admin
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
+        private readonly IRepository<BuildValidationReport, Guid> _validationReportRepository;
         private readonly IGameCatalogCache _catalogCache;
 
         public AdminGameAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<GameBuild, Guid> buildRepository,
+            IRepository<BuildValidationReport, Guid> validationReportRepository,
             IGameCatalogCache catalogCache)
         {
             _gameRepository = gameRepository;
             _buildRepository = buildRepository;
+            _validationReportRepository = validationReportRepository;
             _catalogCache = catalogCache;
         }
 
@@ -84,6 +87,16 @@ namespace GameHub.Admin
         {
             var game = await _gameRepository.GetAsync(input.GameId);
             var build = await _buildRepository.GetAsync(input.GameBuildId);
+
+            var latestReport = await _validationReportRepository.GetAll()
+                .Where(r => r.GameBuildId == build.Id)
+                .OrderByDescending(r => r.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (latestReport != null && latestReport.HasExternalRequests && string.IsNullOrWhiteSpace(game.PrivacyPolicyUrl))
+            {
+                throw new InvalidOperationException("This build contains external requests. A privacy policy URL is required before publishing.");
+            }
 
             build.Publish();
             game.SetPublishedBuild(build);

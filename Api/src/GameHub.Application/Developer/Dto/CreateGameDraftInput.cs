@@ -45,6 +45,10 @@ public class CreateGameDraftInput
     [StringLength(500)]
     public string SeoDescription { get; set; }
 
+    /// <summary>URL of the privacy policy. Required if the build contains external requests.</summary>
+    [StringLength(512)]
+    public string PrivacyPolicyUrl { get; set; }
+
     /// <summary>Age rating: "E", "E10+", "T", "M".</summary>
     [Required]
     [StringLength(10)]

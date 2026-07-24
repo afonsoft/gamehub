@@ -205,7 +205,7 @@ namespace GameHub.Admin
 
             var sessions = await _playSessionRepository.GetAll()
                 .Where(s => s.StartedAt >= startAt && s.StartedAt <= endAt)
-                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt, s.EndedAt, s.DeviceType, s.Browser, s.CountryCode })
+                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt, s.EndedAt, s.DeviceType, s.Browser, s.CountryCode, s.FpsAverage, s.FpsMin })
                 .ToListAsync();
 
             var events = await _gameplayEventRepository.GetAll()
@@ -241,6 +241,10 @@ namespace GameHub.Admin
             var errors = events.Count(e => e.EventType == GameplayEventType.GameErrorCaptured);
             var errorRate = gameplayStarted > 0 ? (double)errors / gameplayStarted : 0;
 
+            var fpsSessions = sessions.Where(s => s.FpsAverage.HasValue).ToList();
+            var averageFps = fpsSessions.Any() ? fpsSessions.Average(s => s.FpsAverage.Value) : (double?)null;
+            var minFps = fpsSessions.Any() ? fpsSessions.Min(s => s.FpsMin ?? s.FpsAverage.Value) : (double?)null;
+
             return new AdminMetricsSummaryDto
             {
                 StartDate = start,
@@ -253,7 +257,9 @@ namespace GameHub.Admin
                 ErrorRate = errorRate,
                 Devices = BuildDistribution(sessions.Select(s => s.DeviceType)),
                 Countries = BuildDistribution(sessions.Select(s => s.CountryCode ?? "Unknown")),
-                Browsers = BuildDistribution(sessions.Select(s => s.Browser))
+                Browsers = BuildDistribution(sessions.Select(s => s.Browser)),
+                AverageFps = averageFps,
+                MinimumFps = minFps
             };
         }
 
@@ -297,6 +303,46 @@ namespace GameHub.Admin
                         Reason = "Error rate above 10%",
                         Severity = "Warning",
                         MetricValue = (double)errors / gameplay
+                    });
+                }
+            }
+
+            var fpsSessions = await _playSessionRepository.GetAll()
+                .Where(s => s.StartedAt >= since)
+                .Where(s => s.FpsAverage.HasValue || s.FpsMin.HasValue)
+                .Select(s => new { s.GameId, s.Game.Title, s.FpsAverage, s.FpsMin })
+                .ToListAsync();
+
+            var fpsGroups = fpsSessions.GroupBy(s => s.GameId);
+            foreach (var group in fpsGroups)
+            {
+                var title = group.First().Title;
+                var sessionsWithMinFps = group.Where(s => s.FpsMin.HasValue).ToList();
+                var lowMinCount = sessionsWithMinFps.Count(s => s.FpsMin < 30);
+                var totalMin = sessionsWithMinFps.Count;
+                if (totalMin > 0 && (double)lowMinCount / totalMin > 0.05)
+                {
+                    alerts.Add(new AdminHealthAlertDto
+                    {
+                        GameId = group.Key,
+                        GameTitle = title,
+                        Reason = "Min FPS below 30 in more than 5% of sessions",
+                        Severity = "Warning",
+                        MetricValue = (double)lowMinCount / totalMin
+                    });
+                }
+
+                var lowAvgCount = group.Count(s => s.FpsAverage < 50);
+                var totalAvg = group.Count();
+                if (totalAvg > 0 && (double)lowAvgCount / totalAvg > 0.2)
+                {
+                    alerts.Add(new AdminHealthAlertDto
+                    {
+                        GameId = group.Key,
+                        GameTitle = title,
+                        Reason = "Average FPS below 50 in more than 20% of sessions",
+                        Severity = "Warning",
+                        MetricValue = (double)lowAvgCount / totalAvg
                     });
                 }
             }

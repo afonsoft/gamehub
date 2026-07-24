@@ -14,6 +14,8 @@ namespace GameHub.Builds.Dto
 
         public bool IsValid { get; set; }
 
+        public bool HasExternalRequests { get; set; }
+
         public List<string> Errors { get; set; } = new();
 
         public List<string> Warnings { get; set; } = new();

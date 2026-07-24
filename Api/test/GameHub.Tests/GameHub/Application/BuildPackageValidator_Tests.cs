@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -45,6 +46,45 @@ namespace GameHub.Tests.GameHub.Application
             var result = await validator.ValidateAsync(stream);
 
             result.IsValid.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task Dado_ZipComUrlExterna_Quando_Validar_Entao_DeveTerExternalRequests()
+        {
+            var stream = CreateZipWithContent("index.html", "<script src=\"https://external.example.com/lib.js\"></script>");
+            var validator = new GameBuildPackageValidator();
+
+            var result = await validator.ValidateAsync(stream);
+
+            result.HasExternalRequests.ShouldBeTrue();
+            result.ExternalDomains.ShouldContain("external.example.com");
+        }
+
+        [Fact]
+        public async Task Dado_ZipComLinkSaida_Quando_Validar_Entao_DeveGerarWarning()
+        {
+            var stream = CreateZipWithContent("index.html", "<a href=\"https://external.example.com\">link</a>");
+            var validator = new GameBuildPackageValidator();
+
+            var result = await validator.ValidateAsync(stream);
+
+            result.Warnings.ShouldContain(w => w.Contains("Outgoing link", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static MemoryStream CreateZipWithContent(string entryName, string content)
+        {
+            var stream = new MemoryStream();
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var zipEntry = archive.CreateEntry(entryName);
+                using (var writer = new StreamWriter(zipEntry.Open(), Encoding.UTF8))
+                {
+                    writer.Write(content);
+                }
+            }
+
+            stream.Position = 0;
+            return stream;
         }
 
         private static MemoryStream CreateZip(string[] entries)

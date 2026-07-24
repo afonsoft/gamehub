@@ -60,6 +60,8 @@ export class GameplayBridgeService implements GameplayBridge {
   private isPlaying = false;
   private isAdRunning = false;
   private pendingLoadingFinished = false;
+  private isInspectorMode = false;
+  private inspectorSessionId: string | null = null;
   private readonly localSavePrefix = 'gamehub_save_';
   private readonly ignorePrefix = 'gamehub_ignore_';
   private readonly cloudSaveUrl = '/api/services/app/CloudSave';
@@ -87,6 +89,11 @@ export class GameplayBridgeService implements GameplayBridge {
 
   setReplyHandler(handler?: (message: unknown) => void): void {
     this.replyHandler = handler;
+  }
+
+  setInspectorMode(enabled: boolean, sessionId?: string): void {
+    this.isInspectorMode = enabled;
+    this.inspectorSessionId = sessionId ?? null;
   }
 
   startSession(input: StartPlaySessionInput): Observable<PlaySession> {
@@ -187,6 +194,11 @@ export class GameplayBridgeService implements GameplayBridge {
   gameMeasuredEvent(category: string, what: string, action: string): void {
     if (this.isAdRunning) return;
     this.sendEvent(GameplayEventType.GameMeasuredEvent, JSON.stringify({ category, what, action }));
+  }
+
+  measureFps(average: number, min: number): void {
+    if (!this.sessionId) return;
+    this.http.post(`${this.gameplayUrl}/UpdateFps`, { sessionId: this.sessionId, average, min }).subscribe();
   }
 
   async getPlayerData(requestId: string, keys?: string[]): Promise<void> {
@@ -305,6 +317,12 @@ export class GameplayBridgeService implements GameplayBridge {
           (payload?.['category'] as string) ?? '',
           (payload?.['what'] as string) ?? '',
           (payload?.['action'] as string) ?? '',
+        );
+        break;
+      case 'measureFps':
+        this.measureFps(
+          (payload?.['average'] as number) ?? 0,
+          (payload?.['min'] as number) ?? 0,
         );
         break;
       case 'getPlayerData':
@@ -434,6 +452,15 @@ export class GameplayBridgeService implements GameplayBridge {
       payloadJson: payload,
     };
     this.http.post(`${this.gameplayUrl}/Event`, body).subscribe();
+
+    if (this.isInspectorMode && this.inspectorSessionId) {
+      this.http.post('/api/services/app/Inspector/LogSdkEvent', {
+        sessionId: this.inspectorSessionId,
+        eventType: GameplayEventType[eventType],
+        payload,
+        sequenceNumber: Date.now(),
+      }).subscribe();
+    }
   }
 
   private sendLoadingFinished(): void {

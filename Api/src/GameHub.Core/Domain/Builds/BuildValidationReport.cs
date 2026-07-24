@@ -18,6 +18,9 @@ namespace GameHub.Builds
 
         public bool IsValid { get; set; }
 
+        /// <summary>Whether the validator detected external requests in the build package.</summary>
+        public bool HasExternalRequests { get; set; }
+
         [StringLength(4000)]
         public string ErrorsJson { get; set; }
 

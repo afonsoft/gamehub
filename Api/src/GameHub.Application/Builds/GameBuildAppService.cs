@@ -102,6 +102,7 @@ namespace GameHub.Builds
                 Id = Guid.NewGuid(),
                 GameBuildId = buildId,
                 IsValid = summary.IsValid,
+                HasExternalRequests = summary.HasExternalRequests,
                 ErrorsJson = JsonSerializer.Serialize(summary.Errors ?? new System.Collections.Generic.List<string>()),
                 WarningsJson = JsonSerializer.Serialize(summary.Warnings ?? new System.Collections.Generic.List<string>()),
                 CreatedAt = DateTime.UtcNow,

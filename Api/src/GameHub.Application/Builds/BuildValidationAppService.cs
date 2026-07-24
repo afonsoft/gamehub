@@ -50,6 +50,7 @@ namespace GameHub.Builds
                 Id = report.Id,
                 GameBuildId = report.GameBuildId,
                 IsValid = report.IsValid,
+                HasExternalRequests = report.HasExternalRequests,
                 Errors = DeserializeList(report.ErrorsJson),
                 Warnings = DeserializeList(report.WarningsJson),
                 CreatedAt = report.CreatedAt
@@ -68,9 +69,11 @@ namespace GameHub.Builds
                                  {
                                      report.Id,
                                      report.GameBuildId,
+                                     GameId = game.Id,
                                      GameTitle = game.Title,
                                      Version = build.Version,
                                      report.IsValid,
+                                     report.HasExternalRequests,
                                      report.WarningsJson,
                                      report.ErrorsJson,
                                      report.CreatedAt
@@ -81,10 +84,12 @@ namespace GameHub.Builds
             return reports.Select(r => new BuildValidationReportListItemDto
             {
                 Id = r.Id,
+                GameId = r.GameId,
                 GameBuildId = r.GameBuildId,
                 GameTitle = r.GameTitle,
                 Version = r.Version,
                 IsValid = r.IsValid,
+                HasExternalRequests = r.HasExternalRequests,
                 WarningsCount = string.IsNullOrEmpty(r.WarningsJson) ? 0 : DeserializeList(r.WarningsJson).Count,
                 ErrorsCount = string.IsNullOrEmpty(r.ErrorsJson) ? 0 : DeserializeList(r.ErrorsJson).Count,
                 Warnings = string.IsNullOrEmpty(r.WarningsJson) ? new List<string>() : DeserializeList(r.WarningsJson),

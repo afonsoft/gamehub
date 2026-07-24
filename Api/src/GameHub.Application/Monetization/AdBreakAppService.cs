@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
@@ -103,8 +104,10 @@ namespace GameHub.Monetization
             }
 
             var today = Clock.Now.Date;
-            var metric = await _metricSnapshotRepository.FirstOrDefaultAsync(
-                m => m.GameId == gameId && m.Date == today);
+            var metric = (await _metricSnapshotRepository.GetAll()
+                .Where(m => m.GameId == gameId && m.Date.Year == today.Year && m.Date.Month == today.Month && m.Date.Day == today.Day)
+                .ToListAsync())
+                .FirstOrDefault();
 
             if (metric == null)
             {
