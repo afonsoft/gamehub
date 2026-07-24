@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Authorization;
@@ -17,17 +18,20 @@ namespace GameHub.Builds
     {
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
+        private readonly IRepository<BuildValidationReport, Guid> _reportRepository;
         private readonly IGameBuildPackageValidator _validator;
         private readonly IGameAssetStorage _assetStorage;
 
         public GameBuildAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<GameBuild, Guid> buildRepository,
+            IRepository<BuildValidationReport, Guid> reportRepository,
             IGameBuildPackageValidator validator,
             IGameAssetStorage assetStorage)
         {
             _gameRepository = gameRepository;
             _buildRepository = buildRepository;
+            _reportRepository = reportRepository;
             _validator = validator;
             _assetStorage = assetStorage;
         }
@@ -79,6 +83,7 @@ namespace GameHub.Builds
             };
 
             await _buildRepository.InsertAsync(build);
+            await SaveValidationReportAsync(buildId, validation);
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return new UploadGameBuildResultDto
@@ -88,6 +93,22 @@ namespace GameHub.Builds
                 Status = build.Status.ToString(),
                 ValidationSummary = validation
             };
+        }
+
+        private async Task SaveValidationReportAsync(Guid buildId, ValidationSummaryDto summary)
+        {
+            var report = new BuildValidationReport
+            {
+                Id = Guid.NewGuid(),
+                GameBuildId = buildId,
+                IsValid = summary.IsValid,
+                ErrorsJson = JsonSerializer.Serialize(summary.Errors ?? new System.Collections.Generic.List<string>()),
+                WarningsJson = JsonSerializer.Serialize(summary.Warnings ?? new System.Collections.Generic.List<string>()),
+                CreatedAt = DateTime.UtcNow,
+                TenantId = AbpSession.TenantId
+            };
+
+            await _reportRepository.InsertAsync(report);
         }
 
         private async Task<int> GetNextBuildNumberAsync(Guid gameId)

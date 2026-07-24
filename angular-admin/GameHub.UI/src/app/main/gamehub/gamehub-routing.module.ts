@@ -16,6 +16,7 @@ import { UserListComponent } from './users/user-list.component';
 import { BuildListComponent } from './uploads/build-list.component';
 import { BuildFilesComponent } from './uploads/build-files.component';
 import { ReportListComponent } from './reports/report-list.component';
+import { InspectorComponent } from './inspector/inspector.component';
 import { gameDetailResolver } from './resolvers/game-detail.resolver';
 import { moderationDetailResolver } from './resolvers/moderation-detail.resolver';
 import { categoryEditResolver } from './resolvers/category-edit.resolver';
@@ -40,6 +41,7 @@ const routes: Routes = [
   { path: 'users', component: UserListComponent, data: { permission: 'Pages.Users.Manage' } },
   { path: 'uploads', component: BuildListComponent, data: { permission: 'Pages.Builds.View' } },
   { path: 'uploads/:id', component: BuildFilesComponent, data: { permission: 'Pages.Builds.View' } },
+  { path: 'inspector', component: InspectorComponent, data: { permission: 'Pages.Builds.View' } },
   { path: 'reports', component: ReportListComponent, data: { permission: 'Pages.Reports.Manage' } },
   { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];

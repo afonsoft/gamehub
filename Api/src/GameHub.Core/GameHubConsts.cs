@@ -12,6 +12,10 @@ namespace GameHub
 
         public const long MaxBuildPackageSizeBytes = 100L * 1024 * 1024;
 
+        public const long BuildPackageWarningSizeBytes = 8L * 1024 * 1024;
+
+        public const long LargeFileWarningSizeBytes = 1L * 1024 * 1024;
+
         public const string LocalizationSourceName = "GameHub";
 
         public const string ConnectionStringName = "Default";
