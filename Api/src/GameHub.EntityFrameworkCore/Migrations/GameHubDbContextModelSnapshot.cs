@@ -1938,6 +1938,9 @@ namespace GameHub.Migrations
                     b.Property<Guid>("GameBuildId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("HasExternalRequests")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -2064,11 +2067,19 @@ namespace GameHub.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("timestamp with time zone");
@@ -2158,6 +2169,10 @@ namespace GameHub.Migrations
 
                     b.Property<int>("Orientation")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PrivacyPolicyUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.Property<Guid?>("PublishedBuildId")
                         .HasColumnType("uuid");
@@ -2572,6 +2587,9 @@ namespace GameHub.Migrations
                         .HasColumnType("double precision")
                         .HasDefaultValue(0.0);
 
+                    b.Property<double?>("AvgFps")
+                        .HasColumnType("double precision");
+
                     b.Property<long>("CommercialBreakCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
@@ -2592,6 +2610,9 @@ namespace GameHub.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasDefaultValue(0L);
+
+                    b.Property<double?>("MinFps")
+                        .HasColumnType("double precision");
 
                     b.Property<long>("Plays")
                         .ValueGeneratedOnAdd()
@@ -2717,6 +2738,11 @@ namespace GameHub.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<long>("CommercialBreakCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
                     b.Property<string>("CountryCode")
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)");
@@ -2729,12 +2755,23 @@ namespace GameHub.Migrations
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<double?>("FpsAverage")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("FpsMin")
+                        .HasColumnType("double precision");
+
                     b.Property<Guid>("GameId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Referrer")
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
+
+                    b.Property<long>("RewardedBreakCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
 
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2769,6 +2806,132 @@ namespace GameHub.Migrations
                     b.HasIndex("GameId", "StartedAt");
 
                     b.ToTable("gh_PlaySessions", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Inspector.InspectorSdkEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Payload")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<long>("SequenceNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId", "SequenceNumber");
+
+                    b.ToTable("gh_InspectorSdkEvents", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Inspector.InspectorSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DevicePreset")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("GameBuildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Resolution")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "StartedAt");
+
+                    b.ToTable("gh_InspectorSessions", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Inspector.InspectorWarning", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("gh_InspectorWarnings", (string)null);
                 });
 
             modelBuilder.Entity("GameHub.Moderation.ModerationReview", b =>
@@ -2833,6 +2996,67 @@ namespace GameHub.Migrations
                     b.HasIndex("GameId", "Status");
 
                     b.ToTable("gh_ModerationReviews", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Moderation.UserContent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ContentType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ModerationReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("RequiresModeration")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "IsApproved", "RequiresModeration");
+
+                    b.ToTable("gh_UserContents", (string)null);
                 });
 
             modelBuilder.Entity("GameHub.Moderation.UserReport", b =>
@@ -2950,6 +3174,106 @@ namespace GameHub.Migrations
                     b.HasIndex("GameId", "IsActive", "EffectiveDate");
 
                     b.ToTable("gh_RevenueContracts", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Player.PlayerFavorite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "UserId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "CreationTime");
+
+                    b.ToTable("gh_PlayerFavorites", (string)null);
+                });
+
+            modelBuilder.Entity("GameHub.Player.PlayerRecentGame", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("LastPlayedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("TotalSessions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "UserId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "LastPlayedAt");
+
+                    b.ToTable("gh_PlayerRecentGames", (string)null);
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -3402,6 +3726,39 @@ namespace GameHub.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GameHub.Inspector.InspectorSdkEvent", b =>
+                {
+                    b.HasOne("GameHub.Inspector.InspectorSession", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("GameHub.Inspector.InspectorSession", b =>
+                {
+                    b.HasOne("GameHub.Catalog.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("GameHub.Inspector.InspectorWarning", b =>
+                {
+                    b.HasOne("GameHub.Inspector.InspectorSession", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
             modelBuilder.Entity("GameHub.Moderation.ModerationReview", b =>
                 {
                     b.HasOne("GameHub.Builds.GameBuild", "GameBuild")
@@ -3426,6 +3783,17 @@ namespace GameHub.Migrations
                     b.Navigation("GameBuild");
 
                     b.Navigation("Reviewer");
+                });
+
+            modelBuilder.Entity("GameHub.Moderation.UserContent", b =>
+                {
+                    b.HasOne("GameHub.Catalog.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
                 });
 
             modelBuilder.Entity("GameHub.Moderation.UserReport", b =>
@@ -3456,12 +3824,48 @@ namespace GameHub.Migrations
             modelBuilder.Entity("GameHub.Monetization.RevenueContract", b =>
                 {
                     b.HasOne("GameHub.Catalog.Game", "Game")
-                        .WithMany()
+                        .WithMany("RevenueContracts")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("GameHub.Player.PlayerFavorite", b =>
+                {
+                    b.HasOne("GameHub.Catalog.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Eaf.Middleware.Authorization.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Game");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GameHub.Player.PlayerRecentGame", b =>
+                {
+                    b.HasOne("GameHub.Catalog.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Eaf.Middleware.Authorization.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Game");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -3569,6 +3973,8 @@ namespace GameHub.Migrations
                     b.Navigation("ModerationReviews");
 
                     b.Navigation("PlaySessions");
+
+                    b.Navigation("RevenueContracts");
 
                     b.Navigation("UserReports");
                 });

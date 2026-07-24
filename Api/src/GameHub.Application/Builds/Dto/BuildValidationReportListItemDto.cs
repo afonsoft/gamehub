@@ -10,6 +10,8 @@ namespace GameHub.Builds.Dto
     {
         public Guid Id { get; set; }
 
+        public Guid GameId { get; set; }
+
         public Guid GameBuildId { get; set; }
 
         public string GameTitle { get; set; } = string.Empty;
@@ -17,6 +19,8 @@ namespace GameHub.Builds.Dto
         public string Version { get; set; } = string.Empty;
 
         public bool IsValid { get; set; }
+
+        public bool HasExternalRequests { get; set; }
 
         public int WarningsCount { get; set; }
 

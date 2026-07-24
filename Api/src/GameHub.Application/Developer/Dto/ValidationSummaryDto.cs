@@ -27,5 +27,11 @@ namespace GameHub.Developer.Dto
 
         /// <summary>Relative path of the index.html entry inside the ZIP.</summary>
         public string IndexHtmlPath { get; set; } = string.Empty;
+
+        /// <summary>Whether the package contains external HTTP(S) requests.</summary>
+        public bool HasExternalRequests { get; set; }
+
+        /// <summary>List of external domains detected in the package.</summary>
+        public List<string> ExternalDomains { get; set; } = new List<string>();
     }
 }

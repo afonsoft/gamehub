@@ -16,7 +16,10 @@ namespace GameHub.Builds
         private static readonly string[] BlockedExtensions = { ".exe", ".dll", ".bat", ".cmd", ".ps1", ".sh" };
         private static readonly string[] DebugFolders = { "node_modules", ".git", "__macosx", "__MACOSX", "test", "tests", "debug", "coverage" };
         private static readonly Regex ExternalUrlRegex = new(@"https?://[^\s""'<>]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SplashScreenRegex = new(@"\bsplash\b|intro\.html|loading[_\-]?screen|boot[_\-]?screen", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex OutgoingLinkRegex = new(@"(window\.open\s*\(|location\.href\s*=|<a\s+[^>]*href\s*=\s*[ ""']?https?://)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private const long MaxTextScanBytes = 100L * 1024;
+        private static readonly string[] TextExtensions = { ".html", ".htm", ".js", ".json", ".css", ".txt" };
 
         public async Task<ValidationSummaryDto> ValidateAsync(Stream packageStream, CancellationToken cancellationToken = default)
         {
@@ -72,6 +75,8 @@ namespace GameHub.Builds
                     {
                         await ScanEntryForExternalUrlsAsync(indexEntry, summary, cancellationToken);
                     }
+
+                    summary.HasExternalRequests = summary.ExternalDomains.Any();
                 }
             }
             catch (InvalidDataException)
@@ -101,6 +106,29 @@ namespace GameHub.Builds
             {
                 summary.Warnings.Add($"Package contains development/debug artifact: {entry.FullName}");
             }
+
+            if (SplashScreenRegex.IsMatch(entry.FullName))
+            {
+                summary.Warnings.Add($"Possible splash screen file detected: {entry.FullName}. Remove splash screens before publishing.");
+            }
+
+            if (TextExtensions.Contains(extension) && entry.Length <= MaxTextScanBytes)
+            {
+                DetectOutgoingLinksAsync(entry, summary, CancellationToken.None).GetAwaiter().GetResult();
+            }
+        }
+
+        private static async Task DetectOutgoingLinksAsync(ZipArchiveEntry entry, ValidationSummaryDto summary, CancellationToken cancellationToken)
+        {
+            using (var stream = entry.Open())
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                var content = await reader.ReadToEndAsync(cancellationToken);
+                if (OutgoingLinkRegex.IsMatch(content))
+                {
+                    summary.Warnings.Add($"Outgoing link or navigation detected in {entry.FullName}. Remove external links before publishing.");
+                }
+            }
         }
 
         private static async Task ScanEntryForExternalUrlsAsync(ZipArchiveEntry entry, ValidationSummaryDto summary, CancellationToken cancellationToken)
@@ -122,6 +150,7 @@ namespace GameHub.Builds
 
                 if (matches.Any())
                 {
+                    summary.ExternalDomains.AddRange(matches.Select(m => new Uri(m).Host).Where(h => !string.IsNullOrWhiteSpace(h)).Distinct());
                     summary.Warnings.Add($"External requests found in {entry.FullName}: {string.Join(", ", matches)}");
                 }
 

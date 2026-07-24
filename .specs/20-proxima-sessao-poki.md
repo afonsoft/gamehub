@@ -1,37 +1,39 @@
 # Prompt para Próxima Sessão — GameHub Poki Phase
 
-## Estado atual (feito nesta sessão)
+## Estado atual (feito nas sessões anteriores)
 
-A branch `feature/poki-next-phase` já contém:
+A branch `feature/poki-next-phase` / `feature/poki-inspector-privacy` já contém:
 
 - **19.11** — Web Exclusives, SEO de categoria e filtros de descoberta.
 - **19.8** — Contas opcionais de jogador, favoritos e histórico recente.
 - **19.9** — `IAdProvider` com `AdBreakResult`, `ConfigurableAdProvider`, opções por `appsettings.json` e regras de UX (mute/unmute, ad block, uma recompensa por rewarded break).
+- **19.10** — Inspector de QA v2 com `InspectorSession`, `InspectorSdkEvent`, `InspectorWarning` e validações de sequência SDK.
+- **19.12** — Privacidade, UGC e Performance (`PrivacyPolicyUrl`, `ProfanityFilter`, `UserContent`, FPS, alertas de saúde).
 - Correção do bug de registro: mensagens de erro da API agora são exibidas, com hint de requisitos de senha.
-- Testes para `PlayerAccountAppService`, `AdBreakAppService`, `GameCatalogAppService` (web exclusives/filters) e `FakeAdProvider`.
-- `README.md`, `README.pt-BR.md` e `CHANGELOG.md` atualizados.
-- Migrações EF Core geradas:
-  - `AddCategorySeoAndGameRevenueRelation`
-  - `AddPlayerFavoritesAndRecent`
-  - `AddPlaySessionAdBreakCounts`
+- Correção do relacionamento `RevenueContract`/`Game` removendo a coluna shadow `GameId1`.
+- Testes para `InspectorAppService`, `ProfanityFilter`, `UserContentAppService`, `AdminGameAppService`, `BuildPackageValidator`, `GameplayAppService`, `PlayerAccountAppService`, `AdBreakAppService`, `GameCatalogAppService` e `FakeAdProvider`.
+- `README.md`, `README.pt-BR.md`, `CHANGELOG.md` e `docs/agent-execution-log.md` atualizados.
+- Novo spec de próxima fase: `.specs/22-poki-proxima-fase.md`.
 
 Validação:
 - `dotnet build Api/GameHub.sln` ✅
-- `dotnet test Api/GameHub.sln --no-build` ✅ (216 passed, 1 skipped)
+- `dotnet test Api/GameHub.sln --no-build` ✅ (242 passed, 2 skipped)
 - `npm run build` em `angular/` e `angular-admin/GameHub.UI/` ✅
-
-> **Push ainda não foi feito.** O push final desta fase deve ser executado ao término da próxima sessão (ou quando o usuário confirmar).
 
 ---
 
 ## Próximas entregas prioritárias
 
-Implementar **19.10** e **19.12**, seguindo a ordem:
+Os specs 19.10 e 19.12 estão implementados. A próxima fase está documentada em `.specs/22-poki-proxima-fase.md`:
 
-1. `19.10-poki-inspector-qa-v2.md` — Inspector de QA v2 (scaling tests, log de eventos SDK, warnings detalhados).
-2. `19.12-poki-privacidade-ugc-performance.md` — política de privacidade, filtro de profanidade, FPS e modo anônimo.
+1. **22.1** — Cloud saves / Save System.
+2. **22.2** — User Accounts no SDK (`login`, `getUser`, `getToken`).
+3. **22.4 + 22.5** — Scroll lock, controles adaptativos, teclado ESC/espaço e cutscenes skippables.
+4. **22.3** — Thumbnails estáticos e animados.
+5. **22.9** — Privacy consent in-game.
+6. **22.7 + 22.8** — Portal do desenvolvedor v2 (P4D) e Inspector v3.
 
-Depois disso, abrir PR para `main` a partir de `feature/poki-next-phase` e fazer o push.
+Depois disso, abrir PR para `main` e fazer o push.
 
 ---
 

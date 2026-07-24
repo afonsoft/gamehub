@@ -36,6 +36,12 @@ namespace GameHub.Gameplay
         [Required]
         public long RewardedBreakCount { get; set; }
 
+        /// <summary>Average FPS aggregated across sessions for this date.</summary>
+        public double? AvgFps { get; set; }
+
+        /// <summary>Minimum FPS recorded for this date.</summary>
+        public double? MinFps { get; set; }
+
         public virtual Game Game { get; set; }
     }
 }

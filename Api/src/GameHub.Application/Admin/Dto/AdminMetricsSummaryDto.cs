@@ -40,6 +40,12 @@ public class AdminMetricsSummaryDto
 
     /// <summary>Distribuição por navegador.</summary>
     public List<MetricDistributionItemDto> Browsers { get; set; } = new();
+
+    /// <summary>FPS médio agregado das sessões.</summary>
+    public double? AverageFps { get; set; }
+
+    /// <summary>FPS mínimo agregado das sessões.</summary>
+    public double? MinimumFps { get; set; }
 }
 
 /// <summary>Item de distribuição de uma métrica por dimensão.</summary>

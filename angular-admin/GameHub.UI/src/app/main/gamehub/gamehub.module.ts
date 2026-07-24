@@ -24,6 +24,7 @@ import { BuildListComponent } from './uploads/build-list.component';
 import { BuildFilesComponent } from './uploads/build-files.component';
 import { ReportListComponent } from './reports/report-list.component';
 import { InspectorComponent } from './inspector/inspector.component';
+import { InspectorSessionComponent } from './inspector/inspector-session.component';
 
 @NgModule({
   imports: [
@@ -54,6 +55,7 @@ import { InspectorComponent } from './inspector/inspector.component';
     BuildFilesComponent,
     ReportListComponent,
     InspectorComponent,
+    InspectorSessionComponent,
   ],
   providers: [],
 })

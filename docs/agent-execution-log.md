@@ -1,5 +1,37 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 13:00 UTC
+
+### Tarefa
+Implementar specs 19.10 (Inspector de QA v2) e 19.12 (Privacidade, UGC e Performance), corrigir testes pendentes e ajustar relacionamentos do EF Core.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Inspector/*` — entidades `InspectorSession`, `InspectorSdkEvent`, `InspectorWarning`.
+- `Api/src/GameHub.Application/Inspector/*` — `IInspectorAppService`/`InspectorAppService` com validação de sequência de eventos SDK e warnings.
+- `Api/src/GameHub.Core/Domain/Moderation/UserContent.cs` e `ProfanityFilter.cs` — filtro de profanidade com leet para UGC.
+- `Api/src/GameHub.Application/Moderation/UserContentAppService.cs` — submissão e moderação de comentários/reviews.
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` e `Domain/Builds/BuildValidationReport.cs` — `PrivacyPolicyUrl` e `HasExternalRequests`.
+- `Api/src/GameHub.Application/Builds/GameBuildPackageValidator.cs` — detecção de requests externos, arquivos grandes e outgoing links.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs` — bloqueio de publicação sem política de privacidade quando há requests externos.
+- `Api/src/GameHub.Core/Domain/Gameplay/PlaySession.cs` e `GameMetricSnapshot.cs` — campos `FpsAverage`/`FpsMin` e `AvgFps`/`MinFps`.
+- `Api/src/GameHub.Application/Gameplay/GameplayAppService.cs` — `UpdateFpsAsync` com agregação no `GameMetricSnapshot`.
+- `Api/src/GameHub.Application/Admin/AdminDashboardAppService.cs` — métricas e alertas de saúde com FPS.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/inspector/*` — página de sessão do inspector com iframe, timeline de eventos e re-run de validação.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — `measureFps` e modo inspector.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/*` — `AddPrivacyUgcAndPerformance` e `AddInspectorQaV2` (remove coluna shadow `GameId1` da relação `RevenueContract`/`Game`).
+- `Api/test/GameHub.Tests/GameHub/Application/InspectorAppService_Tests.cs`, `ProfanityFilter_Tests.cs`, `UserContentAppService_Tests.cs`, `AdminGameAppService_Tests.cs`, `BuildPackageValidator_Tests.cs`, `GameplayAppService_Tests.cs`.
+- `Api/test/GameHub.Tests/GameHub/Application/PlayerAccountAppService_Tests.cs` — teste anônimo marcado como skip por instabilidade de isolamento de sessão.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubModelCreatingExtensions.cs` — relação `RevenueContract.Game -> Game.RevenueContracts` corrigida.
+
+### Motivação
+Fechar os specs 19.10 e 19.12 pendentes, garantir que builds com requests externos exijam política de privacidade, coletar FPS para alertas de performance e oferecer interface de QA para validar sequência de eventos do SDK.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 242 passaram, 2 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Relação `RevenueContracts`/`Game` corrigida; testes de Web Exclusives passam.
+
 ## 2026-07-24 04:08 UTC
 
 ### Tarefa

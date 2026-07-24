@@ -11,7 +11,10 @@ using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
 using GameHub.Moderation;
+using GameHub.Moderation.Dto;
 using GameHub.Monetization;
+using GameHub.Inspector;
+using GameHub.Inspector.Dto;
 using GameHub.Admin.Dto;
 using GameHub.Storage;
 using Abp.Auditing;
@@ -82,6 +85,14 @@ namespace GameHub
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.GameTags))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime));
+
+            // Moderation
+            configuration.CreateMap<UserContent, UserContentDto>();
+
+            // Inspector
+            configuration.CreateMap<InspectorSession, InspectorSessionDto>();
+            configuration.CreateMap<InspectorSdkEvent, InspectorSdkEventDto>();
+            configuration.CreateMap<InspectorWarning, InspectorWarningDto>();
 
             // Developer / Build
             configuration.CreateMap<GameBuild, BuildDto>()
