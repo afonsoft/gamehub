@@ -29,5 +29,11 @@
 	<!-- Suppress AutoMapper 14.0.0 vulnerability (GHSA-rvv3-g6hj-g44x) - no patched free 14.x exists; Abp.AutoMapper 10.4.0 is binary-incompatible with AutoMapper >= 15.0.0. -->
 	<ItemGroup>
 		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+		<!-- System.Security.Cryptography.Xml 10.0.7 is pulled by the .NET 10 runtime ref pack; no stable 10.x servicing fix is available yet. Suppress until Microsoft ships a patched runtime package. -->
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-23rf-6693-g89p" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-8q5v-6pqq-x66h" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-cvvh-rhrc-wg4q" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-g8r8-53c2-pm3f" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-mmjf-rqrv-855v" />
 	</ItemGroup>
 </Project>

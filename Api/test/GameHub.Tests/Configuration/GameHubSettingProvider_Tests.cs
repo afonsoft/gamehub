@@ -20,10 +20,10 @@ namespace GameHub.Tests.Configuration
             // Dado (Given)
             var manager = LocalIocManager.Resolve<Abp.Configuration.ISettingDefinitionManager>();
             var context = new Abp.Configuration.SettingDefinitionProviderContext(manager);
-            
+
             // Quando (When)
             var settings = _settingProvider.GetSettingDefinitions(context);
-            
+
             // Então (Then)
             settings.ShouldNotBeNull();
             settings.Count().ShouldBeGreaterThan(0);

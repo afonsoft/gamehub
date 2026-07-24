@@ -1,5 +1,40 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 14:40 UTC
+
+### Tarefa
+Implementar specs 23.1, 23.3, 23.4 e preview mode do 23.2 do backlog Poki (thumbnails animados, Inspector v3, novos requisitos de qualidade e tokens de preview de builds).
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs`, `GameAspectRatio.cs`, `GameThumbnailStatus.cs` — aspect ratio e status de moderação de thumbnail.
+- `Api/src/GameHub.Core/Domain/Builds/PreviewToken.cs` — entidade de token de preview.
+- `Api/src/GameHub.Core/Domain/Inspector/InspectorChecklistAnswer.cs`, `InspectorSession.cs` — respostas do checklist de QA.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs`, `IAdminGameAppService.cs`, `Dto/AdminGameDetailDto.cs` — aprovação/rejeição de thumbnail.
+- `Api/src/GameHub.Application/Builds/GamePreviewAppService.cs`, `IGamePreviewAppService.cs`, `Dto/*` — criação e validação de tokens de preview.
+- `Api/src/GameHub.Application/Builds/GameBuildPackageValidator.cs` — validações de clean build, outgoing links, splash screens e file size.
+- `Api/src/GameHub.Application/Inspector/InspectorAppService.cs`, `IInspectorAppService.cs`, `Dto/*` — checklist persistente e completion percentage.
+- `Api/src/GameHub.Application/Catalog/GameCatalogAppService.cs`, `Dto/GameCardDto.cs`, `Dto/GameDetailDto.cs`, `GameHubCustomDtoMapper.cs` — mapeamento de animated thumbnail, status e aspect ratio.
+- `Api/src/GameHub.Application/Developer/DeveloperGameAppService.cs`, `IDeveloperGameAppService.cs`, `Dto/CreateGameDraftInput.cs`, `Dto/UpdateGameMetadataInput.cs` — upload/campos de thumbnail e aspect ratio.
+- `Api/src/GameHub.Application/Security/IGameTokenProvider.cs`, `Api/src/GameHub.Web.Host/Security/GameTokenProvider.cs` — `CreatePreviewTokenAsync`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`, `GameHubModelCreatingExtensions.cs` — `DbSet` e configurações EF Core para `InspectorChecklistAnswer` e `PreviewToken`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260724142631_AddThumbnailsInspectorChecklistPreviewToken.*` — migração.
+- `Api/src/GameHub.Web.Host/Controllers/GameAssetsController.cs` — upload de thumbnail estático/animado para MinIO/S3.
+- `Api/test/GameHub.Tests/GameHub/Application/InspectorAppService_Tests.cs`, `ThumbnailModerationAppService_Tests.cs`, `GamePreviewAppService_Tests.cs`, `BuildPackageValidator_Tests.cs`, `DependencyInjection/FakeGameTokenProvider.cs` — testes.
+- `angular/src/app/core/services/developer.service.ts`, `game-catalog.service.ts`; `angular/src/app/developer/game-create/*`, `game-edit/*`; `angular/src/app/public/home/*`, `games/*` — upload e exibição de thumbnails e aspect ratio.
+- `angular/src/app/app.routes.ts`, `angular/src/app/player/game-frame/game-frame.component.ts` — rota `/preview/:slug/:version` e carregamento de preview.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/inspector/*`, `games/game-detail.component.*`, `shared/services/gamehub-admin.service.ts` — scaling presets, checklist e preview no inspector.
+- `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `.specs/23-proxima-sessao-poki.md`, `Api/common.props` — documentação e supressão de advisories transitórios do runtime .NET 10.
+
+### Motivação
+Aproximar o GameHub dos requisitos de qualidade e publicação da Poki: thumbnails de catálogo, validação de builds limpos, Inspector de QA com checklist e preview seguro de builds não publicados.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` — 0 warnings, 0 erros.
+- `dotnet test Api/GameHub.sln --no-build` — 261 passaram, 2 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` — sucesso.
+- Cobertura gerada em `TestResults/Report/Summary.txt`.
+- Itens pendentes do spec 23: QR code no Inspector, equipes/billing/playtests no P4D v2 e CLI parity.
+
 ## 2026-07-24 13:20 UTC
 
 ### Tarefa

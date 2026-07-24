@@ -18,7 +18,7 @@ namespace GameHub.Tests.Notifications
         {
             // Dado (Given) & Quando (When)
             var provider = _notificationProvider;
-            
+
             // Então (Then)
             provider.ShouldNotBeNull();
         }

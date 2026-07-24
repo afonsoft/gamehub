@@ -1,6 +1,6 @@
 # 23 — Próxima Sessão: Poki Thumbnails, P4D v2 e Inspector v3
 
-> **Status:** pendente
+> **Status:** em andamento (23.1, 23.3 e 23.4 entregues; 23.2 equipes/billing/playtests pendentes)
 > **Base:** análise de `https://sdk.poki.com/new-requirements.html`, `https://sdk.poki.com/what-is-p4d.html`, `https://sdk.poki.com/poki-inspector.html` e `https://github.com/poki/poki-cli`
 > **Objetivo:** fechar os itens remanescentes do spec 22 e incorporar requisitos de qualidade/publicação da Poki.
 
@@ -18,9 +18,9 @@ A sessão anterior (`feature/poki-cloud-accounts`) entregou:
 
 Restam:
 
-- 🔄 22.3 — Thumbnails estáticos e animados.
-- 🔄 22.7 — Portal do Desenvolvedor v2 (P4D): equipes, billing, versions, playtests, preview mode.
-- 🔄 22.8 — Inspector v3: preview, QR code, checklist persistente, scaling tests.
+- ✅ 22.3 — Thumbnails estáticos e animados (entregue).
+- 🔄 22.7 — Portal do Desenvolvedor v2 (P4D): preview mode entregue; equipes, billing e playtests pendentes.
+- ✅ 22.8 — Inspector v3: checklist persistente, scaling tests e preview entregues; QR code pendente.
 
 Novos requisitos identificados na documentação Poki para incluir nessa ou em sessões futuras:
 
@@ -30,7 +30,7 @@ Novos requisitos identificados na documentação Poki para incluir nessa ou em s
 4. **Clean build** — detectar e bloquear artifacts de desenvolvimento (source maps desnecessários, debuggers, logs de console).
 5. **Incognito / first-party cookies** — garantir que cloud saves e preferências funcionem sem third-party cookies.
 6. **Poki CLI parity** — endpoint/API key para upload de builds via CLI/CI, gerando `gamehub.json` similar ao `poki.json`.
-7. **Audit log de eventos do SDK** — Event Log persistente por sessão de Inspector para análise posterior.
+7. **Audit log de eventos do SDK** — Event Log persistente por sessão de Inspector para análise posterior (parcial: `InspectorSdkEvent` já existe e é exposto na timeline; faltam filtros/avaliação programática).
 
 ---
 

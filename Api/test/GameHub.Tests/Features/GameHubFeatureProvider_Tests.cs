@@ -18,7 +18,7 @@ namespace GameHub.Tests.Features
         {
             // Dado (Given) & Quando (When)
             var provider = _featureProvider;
-            
+
             // Então (Then)
             provider.ShouldNotBeNull();
         }

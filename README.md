@@ -60,6 +60,9 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - Skippable cutscenes when `cutscenesSkippable` is enabled.
 - In-game language selector and player language preference (`getLanguage`/`setLanguage`).
 - Privacy policy display and consent on game detail pages.
+- Animated thumbnails with moderation status on home/catalog cards; static fallback when not approved.
+- Game aspect ratio metadata (`16:9`, `4:3` or `Any`).
+- Public preview URLs for unpublished game builds (`/preview/:slug/:version?token=...`) with short-lived JWT tokens.
 
 ### Gameplay SDK / Bridge
 
@@ -332,7 +335,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Count |
 |-------|--------|-------|
-| GameHub.Tests | Pass | 242 passed, 2 skipped |
+| GameHub.Tests | Pass | 261 passed, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passed, 1 skipped |
 | Angular Hub Build | Pass | production build OK |
 | Angular Admin Build | Pass | production build OK |
@@ -343,11 +346,10 @@ Measured with `dotnet test --collect:"XPlat Code Coverage"` and `GameHub.*` asse
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 56.23% | — |
-| GameHub.Application | 29.03% | — |
-| GameHub.EntityFrameworkCore | 5.93% | — |
-| GameHub.Web.Host | 4.88% | — |
-| **Overall** | **10.22%** | **28.84%** |
+| GameHub.Core | 82.0% | — |
+| GameHub.Application | 76.3% | — |
+| GameHub.EntityFrameworkCore | 1.4% | — |
+| **Overall** | **6.9%** | **49.1%** |
 
 > The overall rate is low because the platform is in early development. The coverage target is 90% line/branch; new domain and application tests should be added incrementally.
 

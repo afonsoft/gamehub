@@ -222,12 +222,12 @@ namespace GameHub.Web.Startup
             // SQL Server provider -> SQL Server storage
             // Non-SQL Server + Redis enabled -> Redis storage
             // Non-SQL Server + Redis disabled -> InMemory storage
-            var hangfireEnabled = _appConfiguration["Hangfire:IsEnabled"] != null && 
+            var hangfireEnabled = _appConfiguration["Hangfire:IsEnabled"] != null &&
                                   bool.Parse(_appConfiguration["Hangfire:IsEnabled"]);
-            
+
             if (_appConfiguration["Hangfire:IsEnabled"] != null)
             {
-                app.UseEafHangfire(opt => 
+                app.UseEafHangfire(opt =>
                 {
                     opt.IsEnabled = hangfireEnabled;
                     opt.StorageType = Eaf.Middleware.Web.Startup.HangFireConfigurer.ResolveStorageType(_appConfiguration);
