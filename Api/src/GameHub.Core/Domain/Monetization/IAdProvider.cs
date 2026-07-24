@@ -10,10 +10,10 @@ namespace GameHub.Monetization
     /// </summary>
     public interface IAdProvider
     {
-        /// <summary>Exibe um break comercial e aguarda a conclusão.</summary>
-        Task ShowCommercialBreakAsync(Guid gameId, CancellationToken cancellationToken = default);
+        /// <summary>Shows a commercial break and returns the interaction result.</summary>
+        Task<AdBreakResult> ShowCommercialBreakAsync(Guid gameId, CancellationToken cancellationToken = default);
 
-        /// <summary>Exibe um rewarded ad e retorna true se o usuário completou.</summary>
-        Task<bool> ShowRewardedBreakAsync(Guid gameId, CancellationToken cancellationToken = default);
+        /// <summary>Shows a rewarded ad and returns the interaction result.</summary>
+        Task<AdBreakResult> ShowRewardedBreakAsync(Guid gameId, CancellationToken cancellationToken = default);
     }
 }

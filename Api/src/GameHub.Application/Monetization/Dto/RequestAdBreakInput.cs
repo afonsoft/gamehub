@@ -11,5 +11,8 @@ namespace GameHub.Monetization.Dto
         /// <summary>Jogo que solicitou o anúncio.</summary>
         [Required]
         public Guid GameId { get; set; }
+
+        /// <summary>Sessão de gameplay associada ao anúncio.</summary>
+        public Guid? SessionId { get; set; }
     }
 }

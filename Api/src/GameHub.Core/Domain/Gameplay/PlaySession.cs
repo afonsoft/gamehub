@@ -57,6 +57,10 @@ namespace GameHub.Gameplay
         [StringLength(64)]
         public string ClientRequestId { get; set; }
 
+        public long CommercialBreakCount { get; set; }
+
+        public long RewardedBreakCount { get; set; }
+
         public virtual Game Game { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<GameplayEvent> GameplayEvents { get; protected set; } = new List<GameplayEvent>();

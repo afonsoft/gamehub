@@ -196,6 +196,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.UtmMedium).HasMaxLength(128);
                 b.Property(x => x.UtmCampaign).HasMaxLength(128);
                 b.Property(x => x.ClientRequestId).HasMaxLength(64);
+                b.Property(x => x.CommercialBreakCount).HasDefaultValue(0L);
+                b.Property(x => x.RewardedBreakCount).HasDefaultValue(0L);
 
                 b.HasIndex(x => new { x.GameId, x.StartedAt });
                 b.HasIndex(x => x.UserId);

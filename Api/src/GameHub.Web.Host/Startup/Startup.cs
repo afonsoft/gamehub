@@ -17,6 +17,7 @@ using Eaf.Middleware.Web.Serilog;
 using Eaf.Middleware.Web.Startup;
 using Eaf.Middleware.Web.Swagger;
 using GameHub.Application.Extensions;
+using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
 using GameHub.Web.WebHooks;
@@ -96,6 +97,10 @@ namespace GameHub.Web.Startup
 
             // Configure CORS for GameHub Hub and Admin frontends
             services.AddGameHubCors(_appConfiguration);
+
+            // Ad break configuration
+            services.Configure<AdBreakOptions>(_appConfiguration.GetSection("AdBreak"));
+            services.Configure<StaticVastAdOptions>(_appConfiguration.GetSection("AdBreak:StaticVast"));
 
             //Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             services.AddSwaggerGen(options =>
