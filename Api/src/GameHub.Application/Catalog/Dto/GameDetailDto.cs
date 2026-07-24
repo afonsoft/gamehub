@@ -39,6 +39,12 @@ public class GameDetailDto
     /// <summary>Control scheme for desktop and mobile (HTML/Markdown).</summary>
     public string Controls { get; set; } = string.Empty;
 
+    /// <summary>Developer-suggested detailed description for moderator review.</summary>
+    public string SuggestedDescription { get; set; } = string.Empty;
+
+    /// <summary>SEO-friendly description used in public meta tags.</summary>
+    public string SeoDescription { get; set; } = string.Empty;
+
     /// <summary>Age rating (e.g., E, E10+, T, M).</summary>
     public string AgeRating { get; set; } = string.Empty;
 

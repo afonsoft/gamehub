@@ -15,8 +15,14 @@
       <p><strong>Orientation:</strong> {{ game.orientation }}</p>
       <p><strong>Total Plays:</strong> {{ game.totalPlays | number }}</p>
       <p><strong>Average Rating:</strong> {{ game.averageRating | number:'1.1-1' }}</p>
-      <p><strong>Description:</strong></p>
+      <p><strong>Short Description:</strong></p>
       <p>{{ game.shortDescription }}</p>
+
+      <p><strong>Suggested Description:</strong></p>
+      <p>{{ game.suggestedDescription || '-' }}</p>
+
+      <p><strong>SEO Description:</strong></p>
+      <p>{{ game.seoDescription || '-' }}</p>
 
       <div class="btn-group">
         <button class="btn btn-danger" (click)="suspend()" [disabled]="suspending || !canSuspend()">{{ suspending ? 'Suspending...' : 'Suspend' }}</button>

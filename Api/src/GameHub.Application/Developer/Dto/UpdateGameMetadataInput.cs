@@ -41,6 +41,14 @@ public class UpdateGameMetadataInput
     [StringLength(4000)]
     public string Controls { get; set; }
 
+    /// <summary>Developer-suggested detailed description for moderator review.</summary>
+    [StringLength(4000)]
+    public string SuggestedDescription { get; set; }
+
+    /// <summary>SEO-friendly description used in public meta tags.</summary>
+    [StringLength(500)]
+    public string SeoDescription { get; set; }
+
     /// <summary>Age rating.</summary>
     [Required]
     [StringLength(10)]

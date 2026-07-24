@@ -26,6 +26,12 @@
       <label for="controls">Controls</label>
       <textarea id="controls" [(ngModel)]="input.controls" name="controls" rows="3"></textarea>
 
+      <label for="suggestedDescription">Suggested description</label>
+      <textarea id="suggestedDescription" [(ngModel)]="input.suggestedDescription" name="suggestedDescription" rows="4"></textarea>
+
+      <label for="seoDescription">SEO description</label>
+      <input id="seoDescription" type="text" [(ngModel)]="input.seoDescription" name="seoDescription" maxlength="500" />
+
       <label for="ageRating">Age rating *</label>
       <select id="ageRating" [(ngModel)]="input.ageRating" name="ageRating" required>
         <option value="E">E — Everyone</option>

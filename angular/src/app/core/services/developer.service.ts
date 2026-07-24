@@ -36,6 +36,8 @@ export interface CreateGameDraftInput {
   description?: string;
   instructions?: string;
   controls?: string;
+  suggestedDescription?: string;
+  seoDescription?: string;
   ageRating: string;
   orientation: string;
   supportsDesktop?: boolean;
@@ -52,6 +54,8 @@ export interface UpdateGameMetadataInput {
   description?: string;
   instructions?: string;
   controls?: string;
+  suggestedDescription?: string;
+  seoDescription?: string;
   ageRating: string;
   orientation: string;
   supportsDesktop?: boolean;

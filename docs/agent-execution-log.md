@@ -1,5 +1,50 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 00:45 UTC
+
+### Tarefa
+Executar o início do spec `19.7-poki-metricas-observabilidade.md`: adicionar agregações de métricas (DAU, MAU, conversão de loading, taxa de erro, distribuições) e alertas de saúde no dashboard administrativo.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Admin/IAdminDashboardAppService.cs` — assinaturas `GetMetricsAsync` e `GetHealthAlertsAsync`.
+- `Api/src/GameHub.Application/Admin/AdminDashboardAppService.cs` — implementação de métricas e alertas usando `PlaySession` e `GameplayEvent`.
+- `Api/src/GameHub.Application/Admin/Dto/AdminMetricsSummaryDto.cs` e `AdminHealthAlertDto.cs` — novos DTOs.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminDashboardAppService_Tests.cs` — teste de agregação e alerta.
+
+### Motivação
+Fornecer visibilidade operacional para moderadores/administradores sobre engajamento e problemas de qualidade dos jogos, requisito da Fase 6 da referência Poki.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 206 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+
+## 2026-07-24 00:05 UTC
+
+### Tarefa
+Executar o início do spec `19.4-poki-developer-portal.md`: adicionar campos `SuggestedDescription` e `SeoDescription` ao jogo, permitir edição pelo desenvolvedor e exibição no admin, e usar `SeoDescription` na meta tag da página pública.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` — propriedades `SuggestedDescription` e `SeoDescription`.
+- `Api/src/GameHub.Application/Catalog/Dto/GameDetailDto.cs` e `Admin/Dto/AdminGameDetailDto.cs` — expõem os novos campos.
+- `Api/src/GameHub.Application/Developer/Dto/CreateGameDraftInput.cs` e `UpdateGameMetadataInput.cs` — permitem envio dos campos.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubModelCreatingExtensions.cs` — configurações de tamanho.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/2026072400*_AddGameSeoFields.*` — migração gerada.
+- `Api/test/GameHub.Tests/GameHub/Application/DeveloperGameAppService_Tests.cs` — teste de persistência.
+- `angular/src/app/core/services/game-catalog.service.ts` e `developer.service.ts` — interfaces atualizadas.
+- `angular/src/app/developer/game-create/game-create.component.html` e `game-edit/game-edit.component.ts/.html` — campos no formulário.
+- `angular/src/app/public/game-detail/game-detail.component.ts` — `Title`/`Meta` usando `seoDescription`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/games/game-detail.component.html` — exibe campos no admin.
+
+### Motivação
+Preparar o fluxo de submissão para que o desenvolvedor sugira descrições e SEO, e o moderador/admin possa visualizar essas sugestões antes de aprovar.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 205 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- `dotnet ef migrations add AddGameSeoFields` gerada com sucesso.
+
 ## 2026-07-23 23:25 UTC
 
 ### Tarefa

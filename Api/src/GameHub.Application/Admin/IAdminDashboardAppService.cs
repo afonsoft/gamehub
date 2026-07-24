@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -21,5 +23,9 @@ namespace GameHub.Admin
         Task<ListResultDto<AdminGameListItemDto>> GetTopGamesAsync(int count);
 
         Task<ListResultDto<ModerationReviewDto>> GetPendingReviewsAsync(int count);
+
+        Task<AdminMetricsSummaryDto> GetMetricsAsync(DateTime? startDate, DateTime? endDate);
+
+        Task<List<AdminHealthAlertDto>> GetHealthAlertsAsync();
     }
 }

@@ -23,6 +23,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Description).HasMaxLength(4000);
                 b.Property(x => x.Instructions).HasMaxLength(2000);
                 b.Property(x => x.Controls).HasMaxLength(4000);
+                b.Property(x => x.SuggestedDescription).HasMaxLength(4000);
+                b.Property(x => x.SeoDescription).HasMaxLength(500);
                 b.Property(x => x.AgeRating).IsRequired().HasMaxLength(32);
                 b.Property(x => x.Status).IsRequired();
                 b.Property(x => x.Orientation).IsRequired();

@@ -6,6 +6,7 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Timing;
 using Eaf.Middleware.Authorization.Users;
 using GameHub.Admin.Dto;
 using GameHub.Authorization;
@@ -28,6 +29,7 @@ namespace GameHub.Admin
         private readonly IRepository<GameBuild, Guid> _buildRepository;
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
+        private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
@@ -37,6 +39,7 @@ namespace GameHub.Admin
             IRepository<GameBuild, Guid> buildRepository,
             IRepository<ModerationReview, Guid> reviewRepository,
             IRepository<PlaySession, Guid> playSessionRepository,
+            IRepository<GameplayEvent, Guid> gameplayEventRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
             IRepository<User, long> userRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository)
@@ -45,6 +48,7 @@ namespace GameHub.Admin
             _buildRepository = buildRepository;
             _reviewRepository = reviewRepository;
             _playSessionRepository = playSessionRepository;
+            _gameplayEventRepository = gameplayEventRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
             _userRepository = userRepository;
             _developerProfileRepository = developerProfileRepository;
@@ -189,6 +193,136 @@ namespace GameHub.Admin
                 .ToListAsync();
 
             return new ListResultDto<ModerationReviewDto>(ObjectMapper.Map<List<ModerationReviewDto>>(items));
+        }
+
+        public async Task<AdminMetricsSummaryDto> GetMetricsAsync(DateTime? startDate, DateTime? endDate)
+        {
+            var end = endDate?.Date ?? Clock.Now.Date;
+            var start = startDate?.Date ?? end.AddDays(-29);
+
+            var startAt = start;
+            var endAt = end.AddDays(1).AddTicks(-1);
+
+            var sessions = await _playSessionRepository.GetAll()
+                .Where(s => s.StartedAt >= startAt && s.StartedAt <= endAt)
+                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt, s.EndedAt, s.DeviceType, s.Browser, s.CountryCode })
+                .ToListAsync();
+
+            var events = await _gameplayEventRepository.GetAll()
+                .Where(e => e.OccurredAt >= startAt && e.OccurredAt <= endAt)
+                .Select(e => new { e.GameId, e.EventType })
+                .ToListAsync();
+
+            var totalPlays = sessions.Count;
+            var avgDuration = sessions
+                .Where(s => s.EndedAt.HasValue)
+                .Select(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
+                .DefaultIfEmpty(0)
+                .Average();
+
+            var today = Clock.Now.Date;
+            var monthlySince = today.AddDays(-30);
+            var dailyActiveUsers = sessions
+                .Where(s => s.StartedAt.Date == today)
+                .Select(s => s.UserId?.ToString() ?? s.AnonymousIdHash)
+                .Distinct()
+                .Count();
+            var monthlyActiveUsers = sessions
+                .Where(s => s.StartedAt.Date >= monthlySince)
+                .Select(s => s.UserId?.ToString() ?? s.AnonymousIdHash)
+                .Distinct()
+                .Count();
+
+            var loadingStarted = events.Count(e => e.EventType == GameplayEventType.GameLoadingStarted);
+            var loadingFinished = events.Count(e => e.EventType == GameplayEventType.GameLoadingFinished);
+            var conversionRate = loadingStarted > 0 ? (double)loadingFinished / loadingStarted : 0;
+
+            var gameplayStarted = events.Count(e => e.EventType == GameplayEventType.GameplayStarted);
+            var errors = events.Count(e => e.EventType == GameplayEventType.GameErrorCaptured);
+            var errorRate = gameplayStarted > 0 ? (double)errors / gameplayStarted : 0;
+
+            return new AdminMetricsSummaryDto
+            {
+                StartDate = start,
+                EndDate = end,
+                TotalPlays = totalPlays,
+                DailyActiveUsers = dailyActiveUsers,
+                MonthlyActiveUsers = monthlyActiveUsers,
+                AverageSessionDurationSeconds = avgDuration,
+                LoadConversionRate = conversionRate,
+                ErrorRate = errorRate,
+                Devices = BuildDistribution(sessions.Select(s => s.DeviceType)),
+                Countries = BuildDistribution(sessions.Select(s => s.CountryCode ?? "Unknown")),
+                Browsers = BuildDistribution(sessions.Select(s => s.Browser))
+            };
+        }
+
+        public async Task<List<AdminHealthAlertDto>> GetHealthAlertsAsync()
+        {
+            var since = Clock.Now.AddDays(-7);
+            var events = await _gameplayEventRepository.GetAll()
+                .Where(e => e.OccurredAt >= since)
+                .Select(e => new { e.GameId, e.Game.Title, e.EventType })
+                .ToListAsync();
+
+            var alerts = new List<AdminHealthAlertDto>();
+            var grouped = events.GroupBy(e => e.GameId);
+
+            foreach (var group in grouped)
+            {
+                var title = group.First().Title;
+                var started = group.Count(e => e.EventType == GameplayEventType.GameLoadingStarted);
+                var finished = group.Count(e => e.EventType == GameplayEventType.GameLoadingFinished);
+                var gameplay = group.Count(e => e.EventType == GameplayEventType.GameplayStarted);
+                var errors = group.Count(e => e.EventType == GameplayEventType.GameErrorCaptured);
+
+                if (started > 0 && finished * 2 < started)
+                {
+                    alerts.Add(new AdminHealthAlertDto
+                    {
+                        GameId = group.Key,
+                        GameTitle = title,
+                        Reason = "Load conversion below 50%",
+                        Severity = "Critical",
+                        MetricValue = started > 0 ? (double)finished / started : 0
+                    });
+                }
+
+                if (gameplay > 0 && errors * 10 > gameplay)
+                {
+                    alerts.Add(new AdminHealthAlertDto
+                    {
+                        GameId = group.Key,
+                        GameTitle = title,
+                        Reason = "Error rate above 10%",
+                        Severity = "Warning",
+                        MetricValue = (double)errors / gameplay
+                    });
+                }
+            }
+
+            return alerts.OrderByDescending(a => a.MetricValue).ToList();
+        }
+
+        private static List<MetricDistributionItemDto> BuildDistribution(IEnumerable<string> values)
+        {
+            var filtered = values.Select(v => string.IsNullOrWhiteSpace(v) ? "Unknown" : v).ToList();
+            var total = filtered.Count;
+            if (total == 0)
+            {
+                return new List<MetricDistributionItemDto>();
+            }
+
+            return filtered
+                .GroupBy(v => v)
+                .Select(g => new MetricDistributionItemDto
+                {
+                    Name = g.Key,
+                    Count = g.Count(),
+                    Percentage = (double)g.Count() / total
+                })
+                .OrderByDescending(x => x.Count)
+                .ToList();
         }
 
         private static AdminBuildListItemDto MapToBuildListItem(GameBuild build)
