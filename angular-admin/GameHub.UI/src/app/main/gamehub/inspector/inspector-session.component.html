@@ -1,0 +1,79 @@
+<div class="m-content" *ngIf="!session && !loading">
+  <p>Session not found.</p>
+</div>
+
+<div class="m-content" *ngIf="session">
+  <div class="m-portlet m-portlet--mobile">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text">Inspector Session</h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row">
+        <div class="col-md-3">
+          <label>Device Preset</label>
+          <select class="form-control" [ngModel]="devicePreset" (ngModelChange)="selectPreset($event)">
+            <option *ngFor="let p of presets" [value]="p.value">{{ p.label }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label>Resolution</label>
+          <input class="form-control" [(ngModel)]="resolution" />
+        </div>
+        <div class="col-md-3">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary btn-block" (click)="rerunValidation()" [disabled]="validating">
+            Re-run validation
+          </button>
+        </div>
+      </div>
+
+      <hr />
+
+      <h5>Sandbox</h5>
+      <div class="inspector-frame-wrapper" [style.width]="getResolutionStyle()?.width" [style.height]="getResolutionStyle()?.height">
+        <iframe
+          *ngIf="session?.gameId"
+          [src]="'/play/' + session.gameId + '?inspector=1&inspectorSession=' + session.id"
+          class="inspector-frame"
+          sandbox="allow-scripts allow-same-origin allow-pointer-lock"
+        ></iframe>
+      </div>
+
+      <hr />
+
+      <h5>SDK Events</h5>
+      <p-table [value]="session.events" [paginator]="true" [rows]="25">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>Event</th>
+            <th>Payload</th>
+            <th>Timestamp</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-event>
+          <tr>
+            <td>{{ event.sequenceNumber }}</td>
+            <td>{{ event.eventType }}</td>
+            <td>{{ event.payload || '-' }}</td>
+            <td>{{ event.timestamp | date:'short' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <hr />
+
+      <h5>Warnings</h5>
+      <p *ngIf="!session.warnings?.length">No warnings.</p>
+      <ul class="list-group" *ngIf="session.warnings?.length">
+        <li *ngFor="let warning of session.warnings" class="list-group-item" [class.list-group-item-danger]="warning.severity === 'Critical'">
+          <strong>{{ warning.severity }}</strong> — {{ warning.category }}: {{ warning.message }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

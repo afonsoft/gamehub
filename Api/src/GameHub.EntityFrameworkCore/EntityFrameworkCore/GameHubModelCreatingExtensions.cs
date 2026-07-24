@@ -4,6 +4,7 @@ using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Configuration;
+using GameHub.Inspector;
 using GameHub.Moderation;
 using GameHub.Monetization;
 using GameHub.Player;
@@ -27,6 +28,7 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Controls).HasMaxLength(4000);
                 b.Property(x => x.SuggestedDescription).HasMaxLength(4000);
                 b.Property(x => x.SeoDescription).HasMaxLength(500);
+                b.Property(x => x.PrivacyPolicyUrl).HasMaxLength(512);
                 b.Property(x => x.AgeRating).IsRequired().HasMaxLength(32);
                 b.Property(x => x.Status).IsRequired();
                 b.Property(x => x.Orientation).IsRequired();
@@ -79,6 +81,7 @@ namespace GameHub.EntityFrameworkCore
 
                 b.Property(x => x.GameBuildId).IsRequired();
                 b.Property(x => x.IsValid).IsRequired();
+                b.Property(x => x.HasExternalRequests).IsRequired();
                 b.Property(x => x.ErrorsJson).HasMaxLength(4000);
                 b.Property(x => x.WarningsJson).HasMaxLength(4000);
                 b.Property(x => x.CreatedAt).IsRequired();
@@ -198,6 +201,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.ClientRequestId).HasMaxLength(64);
                 b.Property(x => x.CommercialBreakCount).HasDefaultValue(0L);
                 b.Property(x => x.RewardedBreakCount).HasDefaultValue(0L);
+                b.Property(x => x.FpsAverage);
+                b.Property(x => x.FpsMin);
 
                 b.HasIndex(x => new { x.GameId, x.StartedAt });
                 b.HasIndex(x => x.UserId);
@@ -249,6 +254,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.ErrorCount).HasDefaultValue(0L);
                 b.Property(x => x.CommercialBreakCount).HasDefaultValue(0L);
                 b.Property(x => x.RewardedBreakCount).HasDefaultValue(0L);
+                b.Property(x => x.AvgFps);
+                b.Property(x => x.MinFps);
 
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => new { x.GameId, x.Date }).IsUnique();
@@ -401,7 +408,7 @@ namespace GameHub.EntityFrameworkCore
                 b.HasIndex(x => new { x.GameId, x.IsActive, x.EffectiveDate });
 
                 b.HasOne(x => x.Game)
-                    .WithMany()
+                    .WithMany(g => g.RevenueContracts)
                     .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -445,6 +452,78 @@ namespace GameHub.EntityFrameworkCore
                 b.HasOne(x => x.User)
                     .WithMany()
                     .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserContent>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "UserContents", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.ContentType).IsRequired();
+                b.Property(x => x.Text).IsRequired().HasMaxLength(4000);
+                b.Property(x => x.IsApproved).IsRequired();
+                b.Property(x => x.RequiresModeration).IsRequired();
+                b.Property(x => x.ModerationReason).HasMaxLength(1000);
+
+                b.HasIndex(x => new { x.GameId, x.IsApproved, x.RequiresModeration });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<InspectorSession>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "InspectorSessions", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.StartedAt).IsRequired();
+                b.Property(x => x.DevicePreset).HasMaxLength(32);
+                b.Property(x => x.Resolution).HasMaxLength(32);
+                b.Property(x => x.Status).HasMaxLength(32);
+
+                b.HasIndex(x => new { x.GameId, x.StartedAt });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<InspectorSdkEvent>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "InspectorSdkEvents", GameHubConsts.DbSchema);
+
+                b.Property(x => x.SessionId).IsRequired();
+                b.Property(x => x.EventType).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Payload).HasMaxLength(2000);
+                b.Property(x => x.SequenceNumber).IsRequired();
+                b.Property(x => x.Timestamp).IsRequired();
+
+                b.HasIndex(x => new { x.SessionId, x.SequenceNumber });
+
+                b.HasOne(x => x.Session)
+                    .WithMany()
+                    .HasForeignKey(x => x.SessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<InspectorWarning>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "InspectorWarnings", GameHubConsts.DbSchema);
+
+                b.Property(x => x.SessionId).IsRequired();
+                b.Property(x => x.Category).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Message).IsRequired().HasMaxLength(500);
+                b.Property(x => x.Severity).IsRequired().HasMaxLength(32);
+
+                b.HasIndex(x => x.SessionId);
+
+                b.HasOne(x => x.Session)
+                    .WithMany()
+                    .HasForeignKey(x => x.SessionId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

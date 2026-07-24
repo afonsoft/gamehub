@@ -38,14 +38,48 @@ export interface BuildFileList {
 
 export interface ValidationReport {
   id: string;
+  gameId: string;
   gameBuildId: string;
   gameTitle: string;
   version: string;
   isValid: boolean;
+  hasExternalRequests: boolean;
   warningsCount: number;
   errorsCount: number;
   warnings: string[];
   createdAt: string;
+}
+
+export interface InspectorSession {
+  id: string;
+  gameId: string;
+  gameBuildId?: string;
+  startedAt: string;
+  devicePreset?: string;
+  resolution?: string;
+  status: string;
+}
+
+export interface InspectorSessionDetail extends InspectorSession {
+  events: InspectorSdkEvent[];
+  warnings: InspectorWarning[];
+}
+
+export interface InspectorSdkEvent {
+  id: string;
+  sessionId: string;
+  eventType: string;
+  payload?: string;
+  sequenceNumber: number;
+  timestamp: string;
+}
+
+export interface InspectorWarning {
+  id: string;
+  sessionId: string;
+  category: string;
+  message: string;
+  severity: string;
 }
 
 @Injectable({
@@ -208,6 +242,27 @@ export class GameHubAdminService {
   getValidationReports(maxResultCount: number = 50): Observable<ValidationReport[]> {
     const params = new HttpParams().set('maxResultCount', maxResultCount.toString());
     return this.http.get<ValidationReport[]>(`${this.baseUrl}/api/services/app/BuildValidation/GetReports`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getInspectorSessions(gameId: string, maxResultCount: number = 20): Observable<InspectorSession[]> {
+    const params = new HttpParams()
+      .set('gameId', gameId)
+      .set('maxResultCount', maxResultCount.toString());
+    return this.http.get<InspectorSession[]>(`${this.baseUrl}/api/services/app/Inspector/GetSessions`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getInspectorSession(sessionId: string): Observable<InspectorSessionDetail> {
+    const params = new HttpParams().set('sessionId', sessionId);
+    return this.http.get<InspectorSessionDetail>(`${this.baseUrl}/api/services/app/Inspector/GetSession`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  startInspectorSession(input: Partial<InspectorSession>): Observable<InspectorSession> {
+    return this.http.post<InspectorSession>(`${this.baseUrl}/api/services/app/Inspector/StartSession`, input).pipe(map(this.unwrapResult));
+  }
+
+  validateInspectorSession(sessionId: string): Observable<InspectorWarning[]> {
+    const params = new HttpParams().set('sessionId', sessionId);
+    return this.http.get<InspectorWarning[]>(`${this.baseUrl}/api/services/app/Inspector/ValidateSession`, { params }).pipe(map(this.unwrapResult));
   }
 
   private unwrapResult = (response: any): any => {
