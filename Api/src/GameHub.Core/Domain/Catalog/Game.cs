@@ -41,6 +41,8 @@ namespace GameHub.Catalog
             ControlScheme = GameControlScheme.Both;
             CutscenesSkippable = false;
             DefaultLanguage = "en-US";
+            AspectRatio = GameAspectRatio.Aspect16x9;
+            ThumbnailStatus = GameThumbnailStatus.Approved;
         }
 
         public void Publish(Guid? buildId = null)
@@ -152,6 +154,12 @@ namespace GameHub.Catalog
         [StringLength(512)]
         public string ThumbnailUrl { get; set; }
         [StringLength(512)]
+        public string AnimatedThumbnailUrl { get; set; }
+        [Required]
+        public GameThumbnailStatus ThumbnailStatus { get; set; }
+        [Required]
+        public GameAspectRatio AspectRatio { get; set; }
+        [StringLength(512)]
         public string HeroImageUrl { get; set; }
         public Guid DeveloperProfileId { get; set; }
         public Guid? PublishedBuildId { get; set; }
@@ -201,6 +209,27 @@ namespace GameHub.Catalog
             {
                 GameTags.Add(new GameTag { GameId = Id, TagId = id });
             }
+        }
+
+        public void SetThumbnail(string url)
+        {
+            ThumbnailUrl = url ?? throw new ArgumentNullException(nameof(url));
+        }
+
+        public void SetAnimatedThumbnail(string url)
+        {
+            AnimatedThumbnailUrl = url ?? throw new ArgumentNullException(nameof(url));
+            ThumbnailStatus = GameThumbnailStatus.Pending;
+        }
+
+        public void ApproveThumbnail()
+        {
+            ThumbnailStatus = GameThumbnailStatus.Approved;
+        }
+
+        public void RejectThumbnail()
+        {
+            ThumbnailStatus = GameThumbnailStatus.Rejected;
         }
 
         /// <summary>

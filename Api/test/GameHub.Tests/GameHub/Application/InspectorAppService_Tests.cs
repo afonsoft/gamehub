@@ -96,6 +96,41 @@ namespace GameHub.Tests.GameHub.Application
             warnings.ShouldContain(w => w.Category == "Duplicate");
         }
 
+        [Fact]
+        public async Task Dado_ChecklistRespondido_Quando_ObterCompletion_Entao_DeveRetornarPercentualCorreto()
+        {
+            var (gameId, _) = await CriarJogoAsync();
+
+            var session = await _inspectorAppService.StartSessionAsync(new StartInspectorSessionInput
+            {
+                GameId = gameId
+            });
+
+            await _inspectorAppService.SaveChecklistAnswerAsync(new SaveChecklistAnswerInput
+            {
+                SessionId = session.Id,
+                QuestionId = "indexHtml",
+                Answer = "pass"
+            });
+
+            await _inspectorAppService.SaveChecklistAnswerAsync(new SaveChecklistAnswerInput
+            {
+                SessionId = session.Id,
+                QuestionId = "viewport",
+                Answer = "fail"
+            });
+
+            var completion = await _inspectorAppService.GetChecklistCompletionAsync(session.Id);
+
+            completion.ShouldNotBeNull();
+            completion.TotalQuestions.ShouldBe(8);
+            completion.AnsweredQuestions.ShouldBe(2);
+            completion.CompletionPercentage.ShouldBe(25);
+
+            var detail = await _inspectorAppService.GetSessionAsync(session.Id);
+            detail.ChecklistAnswers.Count.ShouldBe(2);
+        }
+
         private async Task<(Guid gameId, Guid buildId)> CriarJogoAsync()
         {
             var userId = AbpSession.UserId.Value;

@@ -30,5 +30,19 @@ namespace GameHub.Web.Security
 
             return await _tokenAuthenticationService.CreateAccessTokenAsync(claims, expiration);
         }
+
+        public async Task<string> CreatePreviewTokenAsync(long userId, int? tenantId, Guid gameId, string version, TimeSpan expiration)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim("sub", userId.ToString()),
+                new Claim("gameId", gameId.ToString()),
+                new Claim("tenantId", tenantId?.ToString() ?? "0"),
+                new Claim("version", version),
+                new Claim("preview", "true")
+            };
+
+            return await _tokenAuthenticationService.CreateAccessTokenAsync(claims, expiration);
+        }
     }
 }

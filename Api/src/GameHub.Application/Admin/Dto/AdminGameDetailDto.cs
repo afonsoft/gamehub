@@ -85,6 +85,15 @@ public class AdminGameDetailDto
     /// <summary>List of supported language codes.</summary>
     public List<string> SupportedLanguages { get; set; } = new();
 
+    /// <summary>Animated thumbnail URL.</summary>
+    public string AnimatedThumbnailUrl { get; set; } = string.Empty;
+
+    /// <summary>Thumbnail moderation status.</summary>
+    public string ThumbnailStatus { get; set; } = string.Empty;
+
+    /// <summary>Preferred aspect ratio for scaling tests.</summary>
+    public string AspectRatio { get; set; } = string.Empty;
+
     /// <summary>Full build history.</summary>
     public List<BuildDto> BuildHistory { get; set; } = new();
 

@@ -8,6 +8,10 @@ export const routes: Routes = [
     component: GameFrameComponent,
   },
   {
+    path: 'preview/:slug/:version',
+    component: GameFrameComponent,
+  },
+  {
     path: 'leaderboard/:gameId',
     loadComponent: () => import('./player/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent),
   },

@@ -15,9 +15,12 @@ namespace GameHub.Builds
     {
         private static readonly string[] BlockedExtensions = { ".exe", ".dll", ".bat", ".cmd", ".ps1", ".sh" };
         private static readonly string[] DebugFolders = { "node_modules", ".git", "__macosx", "__MACOSX", "test", "tests", "debug", "coverage" };
+        private static readonly string[] DebugFileExtensions = { ".map", ".pdb", ".dbg", ".nupkg", ".symbols" };
         private static readonly Regex ExternalUrlRegex = new(@"https?://[^\s""'<>]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex SplashScreenRegex = new(@"\bsplash\b|intro\.html|loading[_\-]?screen|boot[_\-]?screen", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex OutgoingLinkRegex = new(@"(window\.open\s*\(|location\.href\s*=|<a\s+[^>]*href\s*=\s*[ ""']?https?://)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex ConsoleLogRegex = new(@"\bconsole\.(log|warn|error|debug)\s*\(", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex DebuggerStatementRegex = new(@"\bdebugger\s*;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private const long MaxTextScanBytes = 100L * 1024;
         private static readonly string[] TextExtensions = { ".html", ".htm", ".js", ".json", ".css", ".txt" };
 
@@ -96,6 +99,11 @@ namespace GameHub.Builds
                 summary.Errors.Add($"Package contains blocked executable file: {entry.FullName}");
             }
 
+            if (DebugFileExtensions.Contains(extension))
+            {
+                summary.Warnings.Add($"Package contains debug artifact: {entry.FullName}. Remove source maps and symbols before publishing.");
+            }
+
             if (entry.Length > GameHubConsts.LargeFileWarningSizeBytes)
             {
                 summary.Warnings.Add($"Large file detected: {entry.FullName} ({entry.Length / 1024} KB).");
@@ -114,19 +122,30 @@ namespace GameHub.Builds
 
             if (TextExtensions.Contains(extension) && entry.Length <= MaxTextScanBytes)
             {
-                DetectOutgoingLinksAsync(entry, summary, CancellationToken.None).GetAwaiter().GetResult();
+                ScanTextEntryAsync(entry, summary, CancellationToken.None).GetAwaiter().GetResult();
             }
         }
 
-        private static async Task DetectOutgoingLinksAsync(ZipArchiveEntry entry, ValidationSummaryDto summary, CancellationToken cancellationToken)
+        private static async Task ScanTextEntryAsync(ZipArchiveEntry entry, ValidationSummaryDto summary, CancellationToken cancellationToken)
         {
             using (var stream = entry.Open())
             using (var reader = new StreamReader(stream, Encoding.UTF8))
             {
                 var content = await reader.ReadToEndAsync(cancellationToken);
+
                 if (OutgoingLinkRegex.IsMatch(content))
                 {
                     summary.Warnings.Add($"Outgoing link or navigation detected in {entry.FullName}. Remove external links before publishing.");
+                }
+
+                if (ConsoleLogRegex.IsMatch(content))
+                {
+                    summary.Warnings.Add($"Console logging detected in {entry.FullName}. Remove debug statements before publishing.");
+                }
+
+                if (DebuggerStatementRegex.IsMatch(content))
+                {
+                    summary.Warnings.Add($"Debugger statement detected in {entry.FullName}. Remove debug breakpoints before publishing.");
                 }
             }
         }

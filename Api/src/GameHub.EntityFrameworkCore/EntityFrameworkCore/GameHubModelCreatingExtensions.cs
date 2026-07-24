@@ -39,6 +39,9 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.DefaultLanguage).HasMaxLength(16);
                 b.Property(x => x.SupportedLanguages).HasMaxLength(512);
                 b.Property(x => x.ThumbnailUrl).HasMaxLength(512);
+                b.Property(x => x.AnimatedThumbnailUrl).HasMaxLength(512);
+                b.Property(x => x.ThumbnailStatus).IsRequired();
+                b.Property(x => x.AspectRatio).IsRequired();
                 b.Property(x => x.HeroImageUrl).HasMaxLength(512);
                 b.Property(x => x.TotalPlays).HasDefaultValue(0L);
                 b.Property(x => x.TotalLikes).HasDefaultValue(0L);
@@ -533,6 +536,11 @@ namespace GameHub.EntityFrameworkCore
                     .WithMany()
                     .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasMany(x => x.ChecklistAnswers)
+                    .WithOne(x => x.Session)
+                    .HasForeignKey(x => x.SessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<InspectorSdkEvent>(b =>
@@ -567,6 +575,42 @@ namespace GameHub.EntityFrameworkCore
                 b.HasOne(x => x.Session)
                     .WithMany()
                     .HasForeignKey(x => x.SessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<InspectorChecklistAnswer>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "InspectorChecklistAnswers", GameHubConsts.DbSchema);
+
+                b.Property(x => x.SessionId).IsRequired();
+                b.Property(x => x.QuestionId).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Answer).HasMaxLength(2000);
+                b.Property(x => x.UpdatedAt).IsRequired();
+
+                b.HasIndex(x => new { x.SessionId, x.QuestionId }).IsUnique();
+
+                b.HasOne(x => x.Session)
+                    .WithMany(x => x.ChecklistAnswers)
+                    .HasForeignKey(x => x.SessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PreviewToken>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PreviewTokens", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.GameBuildId).IsRequired();
+                b.Property(x => x.Version).IsRequired().HasMaxLength(64);
+                b.Property(x => x.TokenValue).IsRequired().HasMaxLength(4096);
+                b.Property(x => x.ExpiresAt).IsRequired();
+
+                b.HasIndex(x => x.TokenValue).IsUnique();
+                b.HasIndex(x => new { x.GameId, x.Version });
+
+                b.HasOne(x => x.GameBuild)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameBuildId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

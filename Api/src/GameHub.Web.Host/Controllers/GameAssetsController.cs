@@ -51,6 +51,20 @@ namespace GameHub.Web.Controllers
             return await UploadAsync(gameId, file, _developerGameAppService.UploadHeroAsync);
         }
 
+        /// <summary>
+        /// Faz upload da thumbnail animada de um jogo.
+        /// </summary>
+        /// <param name="gameId">Identificador do jogo.</param>
+        /// <param name="file">GIF, WebP animado ou MP4 até 2 MB.</param>
+        /// <returns>URL pública do asset.</returns>
+        [HttpPost("{gameId:guid}/animated-thumbnail")]
+        [RequestSizeLimit(2L * 1024 * 1024)]
+        [Consumes("multipart/form-data")]
+        public async Task<UploadImageResultDto> UploadAnimatedThumbnailAsync(Guid gameId, IFormFile file)
+        {
+            return await UploadAsync(gameId, file, _developerGameAppService.UploadAnimatedThumbnailAsync);
+        }
+
         private async Task<UploadImageResultDto> UploadAsync(Guid gameId, IFormFile file, Func<Guid, byte[], string, string, Task<UploadImageResultDto>> upload)
         {
             if (file == null || file.Length == 0)

@@ -10,5 +10,10 @@ namespace GameHub.Tests.DependencyInjection
         {
             return Task.FromResult($"fake-token-{userId}-{gameId}");
         }
+
+        public Task<string> CreatePreviewTokenAsync(long userId, int? tenantId, Guid gameId, string version, TimeSpan expiration)
+        {
+            return Task.FromResult($"fake-preview-token-{userId}-{gameId}-{version}");
+        }
     }
 }

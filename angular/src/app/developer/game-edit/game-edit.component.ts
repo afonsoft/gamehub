@@ -24,6 +24,7 @@ export class GameEditComponent implements OnInit {
     seoDescription: '',
     ageRating: 'E',
     orientation: 'Both',
+    aspectRatio: 'Aspect16x9',
     supportsDesktop: true,
     supportsMobile: true,
     supportsTablet: true,
@@ -34,11 +35,14 @@ export class GameEditComponent implements OnInit {
   tags: Tag[] = [];
   status = '';
   thumbnailUrl = '';
+  animatedThumbnailUrl = '';
+  thumbnailStatus = '';
   heroImageUrl = '';
   loading = false;
   saving = false;
   submitting = false;
   uploadingThumbnail = false;
+  uploadingAnimatedThumbnail = false;
   uploadingHero = false;
   error = '';
 
@@ -179,6 +183,23 @@ export class GameEditComponent implements OnInit {
     });
   }
 
+  onAnimatedThumbnailSelected(event: Event): void {
+    const file = this.extractFile(event);
+    if (!file) return;
+    this.uploadingAnimatedThumbnail = true;
+    this.developerService.uploadAnimatedThumbnail(this.gameId, file).subscribe({
+      next: (result: UploadImageResult) => {
+        this.animatedThumbnailUrl = result.url;
+        this.thumbnailStatus = 'Pending';
+        this.uploadingAnimatedThumbnail = false;
+      },
+      error: () => {
+        this.uploadingAnimatedThumbnail = false;
+        this.error = 'Unable to upload animated thumbnail.';
+      },
+    });
+  }
+
   onHeroSelected(event: Event): void {
     const file = this.extractFile(event);
     if (!file) return;
@@ -195,6 +216,10 @@ export class GameEditComponent implements OnInit {
     });
   }
 
+  isImageUrl(url: string): boolean {
+    return /\.(gif|webp|png|jpg|jpeg)$/i.test(url);
+  }
+
   private extractFile(event: Event): File | null {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -205,6 +230,8 @@ export class GameEditComponent implements OnInit {
   private mapDetail(detail: GameDetail): void {
     this.status = detail.status ?? '';
     this.thumbnailUrl = detail.thumbnailUrl ?? '';
+    this.animatedThumbnailUrl = detail.animatedThumbnailUrl ?? '';
+    this.thumbnailStatus = detail.thumbnailStatus ?? 'Approved';
     this.heroImageUrl = detail.heroImageUrl ?? '';
     this.input = {
       gameId: detail.id,
@@ -217,6 +244,7 @@ export class GameEditComponent implements OnInit {
       seoDescription: detail.seoDescription ?? '',
       ageRating: detail.ageRating || 'E',
       orientation: detail.orientation,
+      aspectRatio: detail.aspectRatio || 'Aspect16x9',
       supportsDesktop: detail.supportsDesktop,
       supportsMobile: detail.supportsMobile,
       supportsTablet: detail.supportsTablet,

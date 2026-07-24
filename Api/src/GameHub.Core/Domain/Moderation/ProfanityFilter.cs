@@ -22,11 +22,14 @@ namespace GameHub.Moderation
 
         private static readonly Dictionary<char, char> LeetMap = new Dictionary<char, char>
         {
-            ['@'] = 'a', ['4'] = 'a',
+            ['@'] = 'a',
+            ['4'] = 'a',
             ['3'] = 'e',
-            ['1'] = 'i', ['!'] = 'i',
+            ['1'] = 'i',
+            ['!'] = 'i',
             ['0'] = 'o',
-            ['5'] = 's', ['$'] = 's',
+            ['5'] = 's',
+            ['$'] = 's',
             ['7'] = 't',
             ['9'] = 'g'
         };

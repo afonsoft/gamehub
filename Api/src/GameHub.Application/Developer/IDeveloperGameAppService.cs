@@ -27,6 +27,8 @@ namespace GameHub.Developer
 
         Task<UploadImageResultDto> UploadThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
 
+        Task<UploadImageResultDto> UploadAnimatedThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
+
         Task<UploadImageResultDto> UploadHeroAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
     }
 }

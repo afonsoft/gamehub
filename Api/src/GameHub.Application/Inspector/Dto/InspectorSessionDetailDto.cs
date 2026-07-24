@@ -14,5 +14,6 @@ namespace GameHub.Inspector.Dto
         public string Status { get; set; }
         public List<InspectorSdkEventDto> Events { get; set; } = new List<InspectorSdkEventDto>();
         public List<InspectorWarningDto> Warnings { get; set; } = new List<InspectorWarningDto>();
+        public List<InspectorChecklistAnswerDto> ChecklistAnswers { get; set; } = new List<InspectorChecklistAnswerDto>();
     }
 }

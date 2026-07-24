@@ -14,13 +14,13 @@
     <div class="m-portlet__body">
       <div class="row">
         <div class="col-md-3">
-          <label>Device Preset</label>
-          <select class="form-control" [ngModel]="devicePreset" (ngModelChange)="selectPreset($event)">
+          <label>Device Preset / Resolution</label>
+          <select class="form-control" [(ngModel)]="devicePreset" (ngModelChange)="selectPreset($event)">
             <option *ngFor="let p of presets" [value]="p.value">{{ p.label }}</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <label>Resolution</label>
+        <div class="col-md-2">
+          <label>Width x Height</label>
           <input class="form-control" [(ngModel)]="resolution" />
         </div>
         <div class="col-md-3">
@@ -29,7 +29,15 @@
             Re-run validation
           </button>
         </div>
+        <div class="col-md-2">
+          <label>&nbsp;</label>
+          <a class="btn btn-info btn-block" [href]="getPreviewUrl()" target="_blank">Open preview</a>
+        </div>
       </div>
+
+      <p *ngIf="completion" class="m--margin-top-20">
+        Checklist: {{ completion.completionPercentage }}% ({{ completion.answeredQuestions }}/{{ completion.totalQuestions }})
+      </p>
 
       <hr />
 
@@ -41,6 +49,21 @@
           class="inspector-frame"
           sandbox="allow-scripts allow-same-origin allow-pointer-lock"
         ></iframe>
+      </div>
+
+      <hr />
+
+      <h5>QA Checklist</h5>
+      <div class="row">
+        <div class="col-md-4" *ngFor="let q of checklistQuestions">
+          <label>{{ q.label }}</label>
+          <select class="form-control" [ngModel]="getAnswer(q.id)" (ngModelChange)="saveAnswer(q.id, $event)">
+            <option value="">Not answered</option>
+            <option value="pass">Pass</option>
+            <option value="fail">Fail</option>
+            <option value="na">N/A</option>
+          </select>
+        </div>
       </div>
 
       <hr />

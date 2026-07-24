@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
@@ -31,5 +32,7 @@ namespace GameHub.Inspector
         public string Status { get; set; } = "Running";
 
         public virtual GameHub.Catalog.Game Game { get; set; }
+
+        public virtual ICollection<InspectorChecklistAnswer> ChecklistAnswers { get; protected set; } = new List<InspectorChecklistAnswer>();
     }
 }

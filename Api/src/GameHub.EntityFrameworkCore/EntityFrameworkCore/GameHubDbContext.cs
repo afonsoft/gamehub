@@ -100,6 +100,8 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<InspectorSession> InspectorSessions { get; set; }
         public virtual DbSet<InspectorSdkEvent> InspectorSdkEvents { get; set; }
         public virtual DbSet<InspectorWarning> InspectorWarnings { get; set; }
+        public virtual DbSet<InspectorChecklistAnswer> InspectorChecklistAnswers { get; set; }
+        public virtual DbSet<PreviewToken> PreviewTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

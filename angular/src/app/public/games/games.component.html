@@ -68,8 +68,9 @@
 
   <div class="game-grid" *ngIf="games?.length">
     <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
-      <div class="thumb">
-        <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+      <div class="thumb" [class.animated]="game.animatedThumbnailUrl">
+        <img class="static" [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+        <img class="animated" *ngIf="game.animatedThumbnailUrl" [src]="game.animatedThumbnailUrl" [alt]="game.title" loading="lazy" />
         <app-badge *ngIf="game.isWebExclusive" class="web-exclusive-badge" [label]="'gameDetail.webExclusive' | translate" variant="primary"></app-badge>
         <app-badge *ngIf="!game.supportsMobile" class="desktop-only" label="Desktop" variant="primary"></app-badge>
       </div>
