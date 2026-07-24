@@ -6,6 +6,8 @@
       <a routerLink="/games">{{ 'nav.games' | translate }}</a>
       <a routerLink="/docs">{{ 'nav.docs' | translate }}</a>
       <a routerLink="/developer">{{ 'nav.developer' | translate }}</a>
+      <a *ngIf="!isLoggedIn()" routerLink="/login">{{ 'nav.login' | translate }}</a>
+      <a *ngIf="isLoggedIn()" routerLink="/player">{{ 'nav.player' | translate }}</a>
     </div>
   </nav>
 </header>

@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { GameCatalogService, GameDetail } from '../../core/services/game-catalog.service';
 import { GameplayBridgeService, StartPlaySessionInput } from '../../core/services/gameplay-bridge.service';
+import { PlayerService } from '../../core/services/player.service';
+import { TokenService } from '../../core/auth/token.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
@@ -33,6 +35,8 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly catalog = inject(GameCatalogService);
   private readonly bridge = inject(GameplayBridgeService);
+  private readonly player = inject(PlayerService);
+  private readonly token = inject(TokenService);
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
@@ -82,6 +86,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
         if (this.sessionId && this.gameId) {
           this.bridge.setSession(this.sessionId, this.gameId);
           this.bridge.gameplayStart();
+          this.player.trackPlay(this.gameId, this.token.isValid()).subscribe();
         }
       },
       error: () => {

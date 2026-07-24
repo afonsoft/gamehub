@@ -5,6 +5,8 @@ using Abp.Domain.Repositories;
 using GameHub;
 using GameHub.Catalog;
 using GameHub.Gameplay.Dto;
+using GameHub.Player;
+using GameHub.Player.Dto;
 
 namespace GameHub.Gameplay
 {
@@ -13,15 +15,18 @@ namespace GameHub.Gameplay
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IPlayerAccountAppService _playerAccountAppService;
 
         public GameplayAppService(
             IRepository<PlaySession, Guid> playSessionRepository,
             IRepository<GameplayEvent, Guid> gameplayEventRepository,
-            IRepository<Game, Guid> gameRepository)
+            IRepository<Game, Guid> gameRepository,
+            IPlayerAccountAppService playerAccountAppService)
         {
             _playSessionRepository = playSessionRepository;
             _gameplayEventRepository = gameplayEventRepository;
             _gameRepository = gameRepository;
+            _playerAccountAppService = playerAccountAppService;
         }
 
         public async Task<PlaySessionDto> StartSessionAsync(StartPlaySessionInput input)
@@ -57,6 +62,8 @@ namespace GameHub.Gameplay
             await _playSessionRepository.InsertAsync(session);
             game.TotalPlays++;
             await CurrentUnitOfWork.SaveChangesAsync();
+
+            await _playerAccountAppService.TrackPlayAsync(new TrackPlayInput { GameId = input.GameId });
 
             return ObjectMapper.Map<PlaySessionDto>(session);
         }

@@ -11,6 +11,7 @@ using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
 using GameHub.Moderation;
+using GameHub.Monetization;
 using GameHub.Admin.Dto;
 using GameHub.Storage;
 using Abp.Auditing;
@@ -45,7 +46,8 @@ namespace GameHub
                 .ForMember(dest => dest.SupportsMobile, opt => opt.MapFrom(src => src.SupportsMobile))
                 .ForMember(dest => dest.SupportsDesktop, opt => opt.MapFrom(src => src.SupportsDesktop))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
-                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)));
+                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)))
+                .ForMember(dest => dest.IsWebExclusive, opt => opt.MapFrom(src => IsWebExclusive(src)));
 
             configuration.CreateMap<Game, GameDetailDto>()
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))
@@ -54,7 +56,8 @@ namespace GameHub
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
                 .ForMember(dest => dest.PublishedBuildUrl, opt => opt.MapFrom(src => BuildUrl(src.PublishedBuild)))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
-                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)));
+                .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)))
+                .ForMember(dest => dest.IsWebExclusive, opt => opt.MapFrom(src => IsWebExclusive(src)));
 
             configuration.CreateMap<Game, GameSummaryDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
@@ -164,6 +167,11 @@ namespace GameHub
         private static long ComputeTotalVotes(Game game)
         {
             return game.TotalLikes + game.TotalDislikes;
+        }
+
+        private static bool IsWebExclusive(Game game)
+        {
+            return game.RevenueContracts?.Any(c => c.IsActive && c.ContractType == RevenueContractType.WebExclusive) == true;
         }
 
         private static string TruncateAuditDetails(string parameters)

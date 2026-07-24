@@ -6,6 +6,7 @@ import { SearchPageComponent } from './search-page/search-page.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { PlayerComponent } from './player/player.component';
 import { guestGuard } from '../core/auth/guest.guard';
 
 export const publicRoutes: Routes = [
@@ -17,5 +18,6 @@ export const publicRoutes: Routes = [
   { path: 'search', component: SearchPageComponent },
   { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
   { path: 'register', loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent), canActivate: [guestGuard] },
+  { path: 'player', component: PlayerComponent },
   { path: '**', component: NotFoundComponent },
 ];

@@ -6,6 +6,7 @@ using GameHub.Gameplay;
 using GameHub.Configuration;
 using GameHub.Moderation;
 using GameHub.Monetization;
+using GameHub.Player;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.EntityFrameworkCore
@@ -400,6 +401,48 @@ namespace GameHub.EntityFrameworkCore
                 b.HasOne(x => x.Game)
                     .WithMany()
                     .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PlayerFavorite>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlayerFavorites", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.UserId }).IsUnique();
+                b.HasIndex(x => new { x.UserId, x.CreationTime });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PlayerRecentGame>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlayerRecentGames", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.LastPlayedAt).IsRequired();
+                b.Property(x => x.TotalSessions).HasDefaultValue(0L);
+
+                b.HasIndex(x => new { x.GameId, x.UserId }).IsUnique();
+                b.HasIndex(x => new { x.UserId, x.LastPlayedAt });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
