@@ -31,7 +31,7 @@ namespace GameHub
             IocManager.Register<IGameCatalogCache, InMemoryGameCatalogCache>(DependencyLifeStyle.Transient);
             IocManager.Register<ILeaderboardCache, InMemoryLeaderboardCache>(DependencyLifeStyle.Transient);
             IocManager.Register<IGameBuildPackageValidator, GameBuildPackageValidator>(DependencyLifeStyle.Transient);
-            IocManager.Register<IAdProvider, FakeAdProvider>(DependencyLifeStyle.Transient);
+            IocManager.Register<IAdProvider, ConfigurableAdProvider>(DependencyLifeStyle.Transient);
         }
 
         public override void Initialize()

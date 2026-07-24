@@ -6,6 +6,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GameCatalogService, GameDetail, GameCard, GameVoteResult } from '../../core/services/game-catalog.service';
 import { ReportService } from '../../core/services/report.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { PlayerService } from '../../core/services/player.service';
+import { TokenService } from '../../core/auth/token.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { BadgeComponent } from '../../shared/ui/badge/badge.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton/skeleton.component';
@@ -36,6 +38,8 @@ export class GameDetailComponent implements OnInit {
   private readonly catalog = inject(GameCatalogService);
   private readonly reportService = inject(ReportService);
   private readonly auth = inject(AuthService);
+  private readonly player = inject(PlayerService);
+  private readonly token = inject(TokenService);
   private readonly titleService = inject(Title);
   private readonly metaService = inject(Meta);
 
@@ -89,14 +93,15 @@ export class GameDetailComponent implements OnInit {
 
   toggleFavorite(): void {
     if (!this.game) return;
-    this.isFavorite = !this.isFavorite;
-    const favorites = new Set(this.getFavorites());
-    if (this.isFavorite) {
-      favorites.add(this.game.id);
-    } else {
-      favorites.delete(this.game.id);
-    }
-    localStorage.setItem('gamehub-favorites', JSON.stringify([...favorites]));
+    this.player.toggleFavorite(this.game.id, this.isAuthenticated()).subscribe({
+      next: isFavorite => {
+        this.isFavorite = isFavorite;
+      },
+    });
+  }
+
+  isAuthenticated(): boolean {
+    return this.token.isValid();
   }
 
   openReport(reason = ''): void {

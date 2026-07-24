@@ -55,4 +55,7 @@ public class GameCardDto
 
     /// <summary>Total votes used to compute the average rating.</summary>
     public long TotalVotes { get; set; }
+
+    /// <summary>Whether the game has an active WebExclusive revenue contract.</summary>
+    public bool IsWebExclusive { get; set; }
 }

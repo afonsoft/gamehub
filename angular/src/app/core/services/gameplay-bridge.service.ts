@@ -133,13 +133,18 @@ export class GameplayBridgeService implements GameplayBridge {
     this.isAdRunning = true;
     this.isPlaying = false;
     this.sendEvent(GameplayEventType.CommercialBreakRequested);
+    this.reply({ channel: 'gamehub-bridge', action: 'adBreakMute' });
 
     if (this.gameId) {
-      await this.adBreak.requestCommercial(this.gameId).toPromise();
+      const result = await this.adBreak.requestCommercial(this.gameId, this.sessionId ?? undefined).toPromise();
+      if (result?.adBlocked) {
+        this.reply({ channel: 'gamehub-bridge', action: 'adBreakUnmute' });
+      }
     }
 
     this.isAdRunning = false;
     this.commercialBreakCompleted();
+    this.reply({ channel: 'gamehub-bridge', action: 'adBreakUnmute' });
     this.reply({ channel: 'gamehub-bridge', action: 'commercialBreakCompleted' });
   }
 
@@ -152,17 +157,22 @@ export class GameplayBridgeService implements GameplayBridge {
     this.isAdRunning = true;
     this.isPlaying = false;
     this.sendEvent(GameplayEventType.RewardedBreakRequested);
+    this.reply({ channel: 'gamehub-bridge', action: 'adBreakMute' });
 
-    let completed = false;
+    let rewardGranted = false;
     if (this.gameId) {
-      const result = await this.adBreak.requestRewarded(this.gameId).toPromise();
-      completed = result?.completed ?? false;
+      const result = await this.adBreak.requestRewarded(this.gameId, this.sessionId ?? undefined).toPromise();
+      rewardGranted = Boolean(result?.completed && result?.rewardGranted && !result?.adBlocked);
+      if (result?.adBlocked) {
+        this.reply({ channel: 'gamehub-bridge', action: 'adBreakUnmute' });
+      }
     }
 
     this.isAdRunning = false;
     this.rewardedBreakCompleted();
-    this.reply({ channel: 'gamehub-bridge', action: 'rewardedBreakCompleted', payload: { success: completed } });
-    return completed;
+    this.reply({ channel: 'gamehub-bridge', action: 'adBreakUnmute' });
+    this.reply({ channel: 'gamehub-bridge', action: 'rewardedBreakCompleted', payload: { success: rewardGranted } });
+    return rewardGranted;
   }
 
   rewardedBreakCompleted(): void {

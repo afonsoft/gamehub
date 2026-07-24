@@ -5,11 +5,16 @@ import { map } from 'rxjs/operators';
 
 export interface CommercialBreakResult {
   completed: boolean;
+  adBlocked: boolean;
   durationSeconds: number;
+  errorMessage: string;
 }
 
 export interface RewardedBreakResult {
   completed: boolean;
+  rewardGranted: boolean;
+  adBlocked: boolean;
+  errorMessage: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,15 +23,19 @@ export class AdBreakService {
 
   constructor(private http: HttpClient) {}
 
-  requestCommercial(gameId: string): Observable<CommercialBreakResult> {
+  requestCommercial(gameId: string, sessionId?: string): Observable<CommercialBreakResult> {
     return this.http
-      .post<CommercialBreakResult | { result?: CommercialBreakResult }>(`${this.apiUrl}/RequestCommercialBreak`, { gameId })
+      .post<CommercialBreakResult | { result?: CommercialBreakResult }>(
+        `${this.apiUrl}/RequestCommercialBreak`,
+        { gameId, sessionId })
       .pipe(map(response => this.unwrap<CommercialBreakResult>(response)));
   }
 
-  requestRewarded(gameId: string): Observable<RewardedBreakResult> {
+  requestRewarded(gameId: string, sessionId?: string): Observable<RewardedBreakResult> {
     return this.http
-      .post<RewardedBreakResult | { result?: RewardedBreakResult }>(`${this.apiUrl}/RequestRewardedBreak`, { gameId })
+      .post<RewardedBreakResult | { result?: RewardedBreakResult }>(
+        `${this.apiUrl}/RequestRewardedBreak`,
+        { gameId, sessionId })
       .pipe(map(response => this.unwrap<RewardedBreakResult>(response)));
   }
 

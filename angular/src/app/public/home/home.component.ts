@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { GameCatalogService, HomeResponse } from '../../core/services/game-catalog.service';
+import { TokenService } from '../../core/auth/token.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
 import { LanguageSelectorComponent } from '../../shared/ui/language-selector/language-selector.component';
@@ -23,7 +24,12 @@ export class HomeComponent implements OnInit {
   constructor(
     private catalog: GameCatalogService,
     private router: Router,
+    private token: TokenService,
   ) {}
+
+  isLoggedIn(): boolean {
+    return this.token.isValid();
+  }
 
   ngOnInit(): void {
     this.catalog.getHome().subscribe({
@@ -58,7 +64,8 @@ export class HomeComponent implements OnInit {
       this.home?.trending?.length ||
       this.home?.newGames?.length ||
       this.home?.popularThisWeek?.length ||
-      this.home?.topFree?.length
+      this.home?.topFree?.length ||
+      this.home?.webExclusives?.length
     );
   }
 }

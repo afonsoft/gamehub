@@ -92,4 +92,7 @@ public class GameDetailDto
 
     /// <summary>Related/similar games.</summary>
     public List<GameCardDto> RelatedGames { get; set; } = new();
+
+    /// <summary>Whether the game has an active WebExclusive revenue contract.</summary>
+    public bool IsWebExclusive { get; set; }
 }

@@ -1,0 +1,49 @@
+<div class="player-page">
+  <div class="page-header">
+    <h1>{{ 'player.title' | translate }}</h1>
+    <p *ngIf="!isAuthenticated" class="hint">{{ 'player.signInToSync' | translate }}</p>
+  </div>
+
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'favorites'" (click)="setTab('favorites')">{{ 'player.favorites' | translate }}</button>
+    <button [class.active]="activeTab === 'recent'" (click)="setTab('recent')">{{ 'player.recent' | translate }}</button>
+  </nav>
+
+  <div class="tab-content" *ngIf="!loading">
+    <section *ngIf="activeTab === 'favorites'">
+      <div class="game-grid" *ngIf="favorites?.length; else emptyFavorites">
+        <a class="game-card" *ngFor="let item of favorites" [routerLink]="['/play', item.game.slug]">
+          <div class="thumb">
+            <img [src]="item.game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="item.game.title" loading="lazy" />
+          </div>
+          <div class="meta">
+            <h3>{{ item.game.title }}</h3>
+            <p class="short-desc" *ngIf="item.game.shortDescription">{{ item.game.shortDescription }}</p>
+          </div>
+          <button class="remove" (click)="$event.preventDefault(); $event.stopPropagation(); removeFavorite(item.gameId)">×</button>
+        </a>
+      </div>
+      <ng-template #emptyFavorites>
+        <p class="empty">{{ 'player.emptyFavorites' | translate }}</p>
+      </ng-template>
+    </section>
+
+    <section *ngIf="activeTab === 'recent'">
+      <div class="game-grid" *ngIf="recent?.length; else emptyRecent">
+        <a class="game-card" *ngFor="let item of recent" [routerLink]="['/play', item.game.slug]">
+          <div class="thumb">
+            <img [src]="item.game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="item.game.title" loading="lazy" />
+          </div>
+          <div class="meta">
+            <h3>{{ item.game.title }}</h3>
+            <p class="short-desc" *ngIf="item.game.shortDescription">{{ item.game.shortDescription }}</p>
+            <span class="sessions">{{ item.totalSessions }} {{ 'player.sessions' | translate }}</span>
+          </div>
+        </a>
+      </div>
+      <ng-template #emptyRecent>
+        <p class="empty">{{ 'player.emptyRecent' | translate }}</p>
+      </ng-template>
+    </section>
+  </div>
+</div>

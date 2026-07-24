@@ -14,6 +14,7 @@ using GameHub.Gameplay;
 using GameHub.Configuration;
 using GameHub.Moderation;
 using GameHub.Monetization;
+using GameHub.Player;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -89,6 +90,8 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<FeatureFlag> FeatureFlags { get; set; }
         public virtual DbSet<BuildValidationReport> BuildValidationReports { get; set; }
         public virtual DbSet<RevenueContract> RevenueContracts { get; set; }
+        public virtual DbSet<PlayerFavorite> PlayerFavorites { get; set; }
+        public virtual DbSet<PlayerRecentGame> PlayerRecentGames { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

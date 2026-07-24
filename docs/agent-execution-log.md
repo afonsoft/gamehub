@@ -1,5 +1,31 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 04:08 UTC
+
+### Tarefa
+Corrigir mensagens de erro na tela de registro, implementar specs 19.11, 19.8 e 19.9 do backlog Poki, e adicionar testes para os novos métodos.
+
+### Arquivos alterados
+- `angular/src/app/core/auth/auth.service.ts` e `register.component.ts/.html` — exibe erros da API e requisitos de senha.
+- `angular/public/i18n/en-US.json` e `pt-BR.json` — chaves `register.passwordHint`, `nav.login`, `nav.player` e `player.*`.
+- `angular/src/app/core/services/player.service.ts`, `public/player/*` — conta do jogador, favoritos e histórico.
+- `angular/src/app/core/services/ad-break.service.ts`, `gameplay-bridge.service.ts` — ad breaks com sessão, mute/unmute e respeito a `adBlocked`.
+- `Api/src/GameHub.Core/Domain/Player/*` e `Domain/Gameplay/PlaySession.cs` — entidades de favoritos, recentes e contadores de ad breaks.
+- `Api/src/GameHub.Application/Player/*`, `Monetization/AdBreakAppService.cs`, `ConfigurableAdProvider.cs`, `StaticVastAdProvider.cs`, `FakeAdProvider.cs` — serviços de jogador e ad provider.
+- `Api/src/GameHub.Core/Application/Configuration/AdBreakOptions.cs`, `StaticVastAdOptions.cs`, `appsettings.json`, `Startup.cs` — configuração de ad breaks.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/*` — migrações para categorias SEO, relação game/receita, favoritos, recentes e contadores de ad breaks.
+- `Api/test/GameHub.Tests/GameHub/Application/PlayerAccountAppService_Tests.cs`, `AdBreakAppService_Tests.cs`, `GameCatalogAppService_Tests.cs`, `FakeAdProvider_Tests.cs`.
+
+### Motivação
+Resolver o bug de registro que não exibia mensagens da API, e avançar as entregas do backlog Poki: descoberta avançada (web exclusives, SEO, filtros), contas de jogador (favoritos/recentes) e integração realista do ad provider com regras de UX.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 216 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Criado `.specs/20-proxima-sessao-poki.md` com instruções para implementar 19.10 e 19.12.
+- Criado `.specs/21-poki-quality-and-compliance.md` com requisitos de qualidade baseados na documentação da Poki.
+
 ## 2026-07-24 02:40 UTC
 
 ### Tarefa

@@ -8,6 +8,8 @@ export interface Category {
   name: string;
   slug: string;
   sortOrder?: number;
+  description?: string;
+  keywords?: string;
 }
 
 export interface Tag {
@@ -29,6 +31,7 @@ export interface GameCard {
   totalDislikes: number;
   averageRating: number;
   totalVotes: number;
+  isWebExclusive?: boolean;
   categories?: Category[];
 }
 
@@ -46,6 +49,7 @@ export interface HomeResponse {
   trending: GameCard[];
   popularThisWeek: GameCard[];
   topFree: GameCard[];
+  webExclusives: GameCard[];
   categories: Category[];
 }
 
@@ -77,6 +81,7 @@ export interface GameDetail {
   categories: { id: string; name: string; slug: string }[];
   tags: { id: string; name: string; slug: string }[];
   relatedGames: GameCard[];
+  isWebExclusive?: boolean;
 }
 
 export interface PagedGames {
@@ -111,6 +116,8 @@ export class GameCatalogService {
     tagSlug?: string,
     device?: string,
     orientation?: string,
+    exclusivity?: 'All' | 'WebExclusive' | 'NonExclusive',
+    minRating?: number,
   ): Observable<PagedGames> {
     let params = new HttpParams()
       .set('SkipCount', skipCount.toString())
@@ -120,8 +127,16 @@ export class GameCatalogService {
     if (tagSlug) params = params.set('TagSlug', tagSlug);
     if (device) params = params.set('Device', device);
     if (orientation) params = params.set('Orientation', orientation);
+    if (exclusivity && exclusivity !== 'All') params = params.set('Exclusivity', exclusivity);
+    if (minRating && minRating > 0) params = params.set('MinRating', minRating.toString());
     return this.http.get<PagedGames>(`${this.apiUrl}/GetGames`, { params }).pipe(
       map(response => this.unwrap<PagedGames>(response)),
+    );
+  }
+
+  getCategoryBySlug(slug: string): Observable<Category | null> {
+    return this.http.get<Category>(`${this.apiUrl}/GetCategoryBySlug`, { params: { slug } }).pipe(
+      map(response => this.unwrap<Category | null>(response)),
     );
   }
 

@@ -32,4 +32,12 @@ public class CreateOrUpdateCategoryInput
 
     /// <summary>Whether the category is active and visible.</summary>
     public bool IsActive { get; set; } = true;
+
+    /// <summary>SEO description for the category page.</summary>
+    [StringLength(500)]
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>SEO keywords for the category page.</summary>
+    [StringLength(256)]
+    public string Keywords { get; set; } = string.Empty;
 }

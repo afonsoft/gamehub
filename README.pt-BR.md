@@ -41,21 +41,23 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 | Persona | Capacidades |
 |---------|-------------|
 | Jogador Anônimo | Navegar, buscar, jogar, votar e denunciar jogos. |
-| Jogador Autenticado | Perfil, favoritos, saves na nuvem, leaderboards e recomendações. |
+| Jogador Autenticado | Perfil, **favoritos**, **jogos recentes**, saves na nuvem, leaderboards e recomendações. |
 | Desenvolvedor | Criar e submeter jogos, fazer upload de builds e ver métricas. |
 | Moderador | Revisar, aprovar/rejeitar builds e tratar denúncias. |
 | Administrador | Gerenciar usuários, roles, feature flags, métricas e auditoria. |
 
 ### Funcionalidades Públicas (Game Hub)
 
-- Home com seções: destaques, novidades, mais jogados, tendências, recomendados e categorias.
-- Página de detalhe do jogo com execução em iframe sandbox.
-- Busca com filtros por categoria, tag, dispositivo e orientação.
+- Home com seções: destaques, novidades, mais jogados, tendências, recomendados, **exclusivos web** e categorias.
+- Página de detalhe do jogo com execução em iframe sandbox, like/dislike, denúncia, favorito e fullscreen.
+- Busca com filtros por categoria, tag, dispositivo, orientação, **exclusividade** e **avaliação mínima**.
+- Conta opcional do jogador com favoritos e jogos recentes; dados anônimos ficam no `localStorage` e são mesclados no login.
 - Leaderboards com Redis Sorted Sets.
+- Ad breaks (comerciais/recompensados) com abstração de provider, mute automático de áudio e tratamento de ad block.
 
 ### Gameplay SDK / Bridge
 
-O jogo executado no iframe se comunica com a plataforma através de dez eventos:
+O jogo executado no iframe se comunica com a plataforma através dos eventos:
 
 | Evento | Descrição |
 |--------|-----------|
@@ -67,6 +69,7 @@ O jogo executado no iframe se comunica com a plataforma através de dez eventos:
 | `CommercialBreakCompleted` | Break comercial finalizado. |
 | `RewardedBreakRequested` | Rewarded ad solicitado. |
 | `RewardedBreakCompleted` | Rewarded ad finalizado. |
+| `AdBreakMute` / `AdBreakUnmute` | Mute de áudio durante ad breaks. |
 | `GameErrorCaptured` | Erro capturado. |
 | `GameMeasuredEvent` | Evento de medição. |
 
@@ -170,7 +173,7 @@ Web  ← Application
 3. **Gameplay Analytics** — `PlaySession`, `GameplayEvent`, `GameMetricSnapshot`
 4. **Developer Portal** — `DeveloperProfile`, submissão de jogos
 5. **Moderation** — `ModerationReview`, `UserReport`
-6. **Monetization** — `IAdProvider`, revenue share (preparado)
+6. **Monetização** — `IAdProvider`, `AdBreakResult`, revenue share e descoberta de `WebExclusive`
 
 ### Fluxo do Sistema
 
@@ -315,7 +318,7 @@ GPL-3.0-or-later. Veja [LICENSE](LICENSE) para detalhes.
 
 ## Status do Projeto
 
-Em desenvolvimento ativo. O modelo de domínio, camada de aplicação, infraestrutura EF Core, middlewares de segurança e frontends Angular iniciais estão implementados. Trabalho restante inclui telas completas do admin, caches produtivos com Redis e integração MinIO/S3 para armazenamento de builds.
+Em desenvolvimento ativo. O modelo de domínio, camada de aplicação, infraestrutura EF Core, middlewares de segurança, frontend Angular público, contas de jogador, descoberta de exclusivos web e abstração de ad provider estão implementados. Trabalho restante inclui Inspector QA v2, privacidade/UGC/desempenho, caches produtivos com Redis e integração MinIO/S3 para armazenamento de builds.
 
 ---
 

@@ -62,16 +62,27 @@ export class AuthService {
   }
 
   register(model: RegisterModel): Observable<{ success: boolean; error?: string }> {
-    return this.http.post<RegisterResultModel | { result?: RegisterResultModel }>(this.registerUrl, model).pipe(
-      map(response => this.unwrap(response)),
-      switchMap(() =>
-        this.login({
+    return this.http.post<any>(this.registerUrl, model).pipe(
+      map(response => {
+        if (response?.success === false) {
+          return { success: false, error: this.extractApiError(response) } as const;
+        }
+        const result = this.unwrap<RegisterResultModel>(response);
+        if (!result) {
+          return { success: false, error: 'Registration failed. Please try again.' } as const;
+        }
+        return result;
+      }),
+      switchMap(response => {
+        if ('success' in response && response.success === false) {
+          return of(response);
+        }
+        return this.login({
           userNameOrEmailAddress: model.userName,
           password: model.password,
-          rememberClient: true
-        })
-      ),
-      map(success => ({ success })),
+          rememberClient: true,
+        }).pipe(map(success => ({ success })));
+      }),
       catchError(err => {
         const message = this.extractErrorMessage(err);
         return of({ success: false, error: message });
@@ -114,5 +125,13 @@ export class AuthService {
       return (err as any).message;
     }
     return 'Registration failed. Please try again.';
+  }
+
+  private extractApiError(response: any): string {
+    const error = response?.error;
+    if (error?.details) {
+      return error.details;
+    }
+    return error?.message || 'Registration failed. Please try again.';
   }
 }

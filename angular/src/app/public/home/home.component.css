@@ -220,6 +220,20 @@
   text-overflow: ellipsis;
 }
 
+.web-exclusive-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
 .game-card .short-desc {
   font-size: 0.85rem;
   color: #6b7280;

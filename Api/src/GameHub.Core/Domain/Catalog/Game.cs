@@ -3,6 +3,7 @@ using GameHub.Gameplay;
 using GameHub.Developers;
 using GameHub.Catalog;
 using GameHub.Builds;
+using GameHub.Monetization;
 using GameHub;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
@@ -154,6 +155,7 @@ namespace GameHub.Catalog
         public virtual ICollection<ModerationReview> ModerationReviews { get; protected set; } = new List<ModerationReview>();
         public virtual ICollection<UserReport> UserReports { get; protected set; } = new List<UserReport>();
         public virtual ICollection<GameVote> GameVotes { get; protected set; } = new List<GameVote>();
+        public virtual ICollection<RevenueContract> RevenueContracts { get; protected set; } = new List<RevenueContract>();
 
         public void SetCategories(IEnumerable<Guid> categoryIds)
         {

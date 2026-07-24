@@ -13,6 +13,8 @@ namespace GameHub.Catalog
 
         Task<PagedResultDto<GameCardDto>> GetGamesAsync(GetGamesInput input, CancellationToken cancellationToken = default);
 
+        Task<CategoryDto> GetCategoryBySlugAsync(string slug, CancellationToken cancellationToken = default);
+
         Task<GameDetailDto> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
 
         Task<GameVoteResultDto> GetVoteAsync(Guid gameId, string deviceId = null);

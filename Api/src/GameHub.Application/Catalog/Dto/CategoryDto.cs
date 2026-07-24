@@ -27,4 +27,10 @@ public class CategoryDto
 
     /// <summary>Display sort order (ascending).</summary>
     public int SortOrder { get; set; }
+
+    /// <summary>SEO description for the category page.</summary>
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>SEO keywords for the category page.</summary>
+    public string Keywords { get; set; } = string.Empty;
 }

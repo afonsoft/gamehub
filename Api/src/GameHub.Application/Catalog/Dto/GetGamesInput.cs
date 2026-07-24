@@ -40,4 +40,11 @@ public class GetGamesInput
 
     /// <summary>Filter by game status: "Draft", "InReview", "Published", "Rejected", "Suspended".</summary>
     public string Status { get; set; }
+
+    /// <summary>Filter by exclusivity: "All", "WebExclusive", "NonExclusive".</summary>
+    public string Exclusivity { get; set; } = "All";
+
+    /// <summary>Minimum average rating (1–5).</summary>
+    [Range(0, 5)]
+    public decimal MinRating { get; set; }
 }

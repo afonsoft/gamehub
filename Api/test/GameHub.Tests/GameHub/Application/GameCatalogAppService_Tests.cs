@@ -9,6 +9,7 @@ using GameHub.Catalog.Dto;
 using GameHub.Developer;
 using GameHub.Developer.Dto;
 using GameHub.Gameplay;
+using GameHub.Monetization;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
@@ -19,12 +20,14 @@ namespace GameHub.Tests.GameHub.Application
     {
         private readonly IGameCatalogAppService _catalogAppService;
         private readonly IDeveloperGameAppService _developerGameAppService;
+        private readonly IRevenueContractAppService _revenueContractAppService;
         private readonly IRepository<Game, Guid> _gameRepository;
 
         public GameCatalogAppService_Tests()
         {
             _catalogAppService = Resolve<IGameCatalogAppService>();
             _developerGameAppService = Resolve<IDeveloperGameAppService>();
+            _revenueContractAppService = Resolve<IRevenueContractAppService>();
             _gameRepository = Resolve<IRepository<Game, Guid>>();
         }
 
@@ -210,6 +213,98 @@ namespace GameHub.Tests.GameHub.Application
 
             rating.ShouldNotBeNull();
             rating.Value.ShouldBe(5.0, 0.01);
+        }
+
+        [Fact]
+        public async Task Dado_ContratoWebExclusive_Quando_CarregarHome_Entao_JogoApareceEmWebExclusives()
+        {
+            var slug = await SeedPublishedGameAsync("Exclusive Web Game");
+            var gameId = await UsingDbContextAsync(async context =>
+            {
+                var game = await context.Games.FirstAsync(g => g.Slug == slug);
+                return game.Id;
+            });
+
+            await _revenueContractAppService.SetContractAsync(gameId, RevenueContractType.WebExclusive);
+
+            var home = await _catalogAppService.GetHomeAsync();
+
+            home.WebExclusives.ShouldNotBeEmpty();
+            home.WebExclusives.ShouldContain(g => g.Slug == slug);
+        }
+
+        [Fact]
+        public async Task Dado_FiltroExclusividade_Quando_ListarJogos_Entao_RetornaApenasExclusivos()
+        {
+            var exclusiveSlug = await SeedPublishedGameAsync("Exclusive Filter Game");
+            var normalSlug = await SeedPublishedGameAsync("Normal Filter Game");
+
+            var exclusiveGameId = await UsingDbContextAsync(async context =>
+            {
+                var game = await context.Games.FirstAsync(g => g.Slug == exclusiveSlug);
+                return game.Id;
+            });
+
+            await _revenueContractAppService.SetContractAsync(exclusiveGameId, RevenueContractType.WebExclusive);
+
+            var result = await _catalogAppService.GetGamesAsync(new GetGamesInput
+            {
+                Exclusivity = "WebExclusive",
+                SkipCount = 0,
+                MaxResultCount = 10
+            });
+
+            result.Items.ShouldContain(g => g.Slug == exclusiveSlug);
+            result.Items.ShouldNotContain(g => g.Slug == normalSlug);
+        }
+
+        [Fact]
+        public async Task Dado_FiltroMinRating_Quando_ListarJogos_Entao_RetornaJogosComRatingMinimo()
+        {
+            var highSlug = await SeedPublishedGameAsync("High Rating Game");
+            await SeedPublishedGameAsync("Low Rating Game");
+
+            var highGameId = await UsingDbContextAsync(async context =>
+            {
+                var game = await context.Games.FirstAsync(g => g.Slug == highSlug);
+                return game.Id;
+            });
+
+            await _catalogAppService.VoteAsync(new GameVoteInput
+            {
+                GameId = highGameId,
+                VoteType = GameVoteType.Like,
+                DeviceId = "test-device"
+            });
+
+            var result = await _catalogAppService.GetGamesAsync(new GetGamesInput
+            {
+                MinRating = 4,
+                SkipCount = 0,
+                MaxResultCount = 10
+            });
+
+            result.Items.ShouldContain(g => g.Slug == highSlug);
+        }
+
+        [Fact]
+        public async Task Dado_CategoriaComSeo_Quando_BuscarPorSlug_Entao_RetornaDescriptionEKeywords()
+        {
+            var categoryId = await SeedCategoryAsync("SEO Category");
+
+            await UsingDbContextAsync(async context =>
+            {
+                var category = await context.Categories.FindAsync(categoryId);
+                category.Description = "SEO description";
+                category.Keywords = "seo, category";
+                await context.SaveChangesAsync();
+            });
+
+            var result = await _catalogAppService.GetCategoryBySlugAsync("seo-category");
+
+            result.ShouldNotBeNull();
+            result.Description.ShouldBe("SEO description");
+            result.Keywords.ShouldBe("seo, category");
         }
 
         private async Task<string> SeedPublishedGameAsync(string title, long totalPlays = 0, List<Guid> categoryIds = null)
