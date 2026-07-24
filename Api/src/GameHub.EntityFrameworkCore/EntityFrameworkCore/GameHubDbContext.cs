@@ -13,6 +13,7 @@ using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Configuration;
 using GameHub.Moderation;
+using GameHub.Monetization;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -87,6 +88,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<GameVote> GameVotes { get; set; }
         public virtual DbSet<FeatureFlag> FeatureFlags { get; set; }
         public virtual DbSet<BuildValidationReport> BuildValidationReports { get; set; }
+        public virtual DbSet<RevenueContract> RevenueContracts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

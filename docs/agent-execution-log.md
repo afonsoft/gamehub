@@ -1,5 +1,30 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 00:59 UTC
+
+### Tarefa
+Executar o início do spec `19.6-poki-monetizacao.md`: base de monetização com contratos de receita, rastreamento de origem do jogador e split de receita.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Monetization/RevenueContractType.cs` e `TrafficSource.cs` — enums de tipo de contrato e origem do tráfego.
+- `Api/src/GameHub.Core/Domain/Monetization/RevenueContract.cs` — entidade de contrato de receita.
+- `Api/src/GameHub.Core/Domain/Monetization/RevenueSplitCalculator.cs` — cálculo de split dev/plataforma.
+- `Api/src/GameHub.Application/Monetization/IRevenueContractAppService.cs` e `RevenueContractAppService.cs` — gerenciamento e cálculo de contratos.
+- `Api/src/GameHub.Application/Monetization/Dto/RevenueContractDto.cs` e `RevenueShareResultDto.cs`.
+- `Api/src/GameHub.Core/Domain/Gameplay/PlaySession.cs` — adiciona `TrafficSource`, `UtmSource`, `UtmMedium` e `UtmCampaign`.
+- `Api/src/GameHub.Application/Gameplay/Dto/StartPlaySessionInput.cs` e `GameplayAppService.cs` — mapeia os campos de origem na sessão.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs` e `GameHubModelCreatingExtensions.cs` — `DbSet` e configuração do contrato + colunas da sessão.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260724003018_AddMonetizationBase.cs` — migração.
+- `Api/test/GameHub.Tests/GameHub/Application/RevenueContractAppService_Tests.cs` e `FakeAdProvider_Tests.cs`.
+
+### Motivação
+Preparar a base de monetização sem acoplar a um provider de ads específico, permitindo contratos (`WebExclusive`/`NonExclusive`), rastreamento de origem (direct, homepage, search, platform, utm) e cálculo automático de split de receita.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 215 passaram, 1 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+
 ## 2026-07-24 00:55 UTC
 
 ### Tarefa
