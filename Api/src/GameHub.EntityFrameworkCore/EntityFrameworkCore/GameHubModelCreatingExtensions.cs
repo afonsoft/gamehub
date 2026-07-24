@@ -5,6 +5,7 @@ using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Configuration;
 using GameHub.Moderation;
+using GameHub.Monetization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.EntityFrameworkCore
@@ -189,6 +190,10 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Browser).IsRequired().HasMaxLength(64);
                 b.Property(x => x.CountryCode).HasMaxLength(2);
                 b.Property(x => x.Referrer).HasMaxLength(1024);
+                b.Property(x => x.TrafficSource).IsRequired();
+                b.Property(x => x.UtmSource).HasMaxLength(128);
+                b.Property(x => x.UtmMedium).HasMaxLength(128);
+                b.Property(x => x.UtmCampaign).HasMaxLength(128);
                 b.Property(x => x.ClientRequestId).HasMaxLength(64);
 
                 b.HasIndex(x => new { x.GameId, x.StartedAt });
@@ -379,6 +384,23 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.IsEnabled).IsRequired();
 
                 b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+            });
+
+            modelBuilder.Entity<RevenueContract>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "RevenueContracts", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.ContractType).IsRequired();
+                b.Property(x => x.EffectiveDate).IsRequired();
+                b.Property(x => x.IsActive).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.IsActive, x.EffectiveDate });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

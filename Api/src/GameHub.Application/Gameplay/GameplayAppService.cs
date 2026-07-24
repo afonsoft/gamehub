@@ -47,6 +47,10 @@ namespace GameHub.Gameplay
                 DeviceType = input.DeviceType,
                 Browser = input.Browser ?? "Unknown",
                 Referrer = input.Referrer,
+                TrafficSource = input.TrafficSource,
+                UtmSource = input.UtmSource,
+                UtmMedium = input.UtmMedium,
+                UtmCampaign = input.UtmCampaign,
                 ClientRequestId = input.ClientRequestId
             };
 
