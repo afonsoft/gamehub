@@ -87,6 +87,21 @@ public class GameDetailDto
     /// <summary>Supports tablet browsers.</summary>
     public bool SupportsTablet { get; set; }
 
+    /// <summary>Whether the game persists progress to the cloud.</summary>
+    public bool SupportsCloudSaves { get; set; }
+
+    /// <summary>Primary input scheme supported by the game.</summary>
+    public string ControlScheme { get; set; } = string.Empty;
+
+    /// <summary>Whether cutscenes can be skipped.</summary>
+    public bool CutscenesSkippable { get; set; }
+
+    /// <summary>Default language code (e.g. en-US).</summary>
+    public string DefaultLanguage { get; set; } = string.Empty;
+
+    /// <summary>List of supported language codes.</summary>
+    public List<string> SupportedLanguages { get; set; } = new();
+
     /// <summary>Assigned categories.</summary>
     public List<CategoryDto> Categories { get; set; } = new();
 

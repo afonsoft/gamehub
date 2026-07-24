@@ -48,12 +48,17 @@ namespace GameHub
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
                 .ForMember(dest => dest.SupportsMobile, opt => opt.MapFrom(src => src.SupportsMobile))
                 .ForMember(dest => dest.SupportsDesktop, opt => opt.MapFrom(src => src.SupportsDesktop))
+                .ForMember(dest => dest.SupportsCloudSaves, opt => opt.MapFrom(src => src.SupportsCloudSaves))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
                 .ForMember(dest => dest.TotalVotes, opt => opt.MapFrom(src => ComputeTotalVotes(src)))
                 .ForMember(dest => dest.IsWebExclusive, opt => opt.MapFrom(src => IsWebExclusive(src)));
 
             configuration.CreateMap<Game, GameDetailDto>()
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))
+                .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => src.ControlScheme.ToString()))
+                .ForMember(dest => dest.CutscenesSkippable, opt => opt.MapFrom(src => src.CutscenesSkippable))
+                .ForMember(dest => dest.DefaultLanguage, opt => opt.MapFrom(src => src.DefaultLanguage))
+                .ForMember(dest => dest.SupportedLanguages, opt => opt.MapFrom(src => ParseSupportedLanguages(src.SupportedLanguages)))
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.GameCategories))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.GameTags))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
@@ -76,6 +81,10 @@ namespace GameHub
 
             configuration.CreateMap<Game, AdminGameDetailDto>()
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => src.Orientation.ToString()))
+                .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => src.ControlScheme.ToString()))
+                .ForMember(dest => dest.CutscenesSkippable, opt => opt.MapFrom(src => src.CutscenesSkippable))
+                .ForMember(dest => dest.DefaultLanguage, opt => opt.MapFrom(src => src.DefaultLanguage))
+                .ForMember(dest => dest.SupportedLanguages, opt => opt.MapFrom(src => ParseSupportedLanguages(src.SupportedLanguages)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.DeveloperName, opt => opt.MapFrom(src => src.DeveloperProfile != null ? src.DeveloperProfile.DisplayName : string.Empty))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => (decimal)ComputeAverageRating(src)))
@@ -105,11 +114,13 @@ namespace GameHub
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.AgeRating, opt => opt.MapFrom(src => src.AgeRating))
                 .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => ParseOrientation(src.Orientation)))
+                .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => ParseControlScheme(src.ControlScheme)))
                 .ForMember(dest => dest.TotalPlays, opt => opt.Ignore());
 
             configuration.CreateMap<UpdateGameMetadataInput, Game>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => ParseOrientation(src.Orientation)));
+                .ForMember(dest => dest.Orientation, opt => opt.MapFrom(src => ParseOrientation(src.Orientation)))
+                .ForMember(dest => dest.ControlScheme, opt => opt.MapFrom(src => ParseControlScheme(src.ControlScheme)));
 
             configuration.CreateMap<DeveloperProfile, DeveloperProfileDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
@@ -216,6 +227,29 @@ namespace GameHub
             }
 
             return GameOrientation.Both;
+        }
+
+        private static GameControlScheme ParseControlScheme(string value)
+        {
+            if (Enum.TryParse<GameControlScheme>(value, true, out var result))
+            {
+                return result;
+            }
+
+            return GameControlScheme.Both;
+        }
+
+        private static List<string> ParseSupportedLanguages(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return new List<string>();
+            }
+
+            return value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Distinct()
+                .ToList();
         }
     }
 }

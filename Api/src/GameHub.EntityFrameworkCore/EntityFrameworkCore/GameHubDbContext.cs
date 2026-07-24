@@ -16,6 +16,7 @@ using GameHub.Inspector;
 using GameHub.Moderation;
 using GameHub.Monetization;
 using GameHub.Player;
+using GameHub.Privacy;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -93,7 +94,9 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<RevenueContract> RevenueContracts { get; set; }
         public virtual DbSet<PlayerFavorite> PlayerFavorites { get; set; }
         public virtual DbSet<PlayerRecentGame> PlayerRecentGames { get; set; }
+        public virtual DbSet<PlayerPreference> PlayerPreferences { get; set; }
         public virtual DbSet<UserContent> UserContents { get; set; }
+        public virtual DbSet<PlayerPrivacyConsent> PlayerPrivacyConsents { get; set; }
         public virtual DbSet<InspectorSession> InspectorSessions { get; set; }
         public virtual DbSet<InspectorSdkEvent> InspectorSdkEvents { get; set; }
         public virtual DbSet<InspectorWarning> InspectorWarnings { get; set; }

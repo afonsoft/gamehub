@@ -41,7 +41,7 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 | Persona | Capabilities |
 |---------|--------------|
 | Anonymous Player | Browse, search, play, vote, and report games. |
-| Authenticated Player | Profile, **favorites**, **recent games**, cloud saves, leaderboards, and recommendations. |
+| Authenticated Player | Profile, **favorites**, **recent games**, **cloud saves**, leaderboards, recommendations, and short game tokens. |
 | Developer | Create and submit games, upload builds, and view metrics. |
 | Moderator | Review, approve/reject builds, and handle user reports. |
 | Administrator | Manage users, roles, feature flags, metrics, and audit logs. |
@@ -54,11 +54,16 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - Optional player account with favorites and recent games; anonymous data stays in `localStorage` and merges on login.
 - Leaderboards backed by Redis Sorted Sets.
 - Ad breaks (commercial/rewarded) with provider abstraction, automatic audio muting, and ad-block handling.
+- Cloud save/load with anonymous `localStorage` fallback and `gamehub_ignore_` local-only keys.
+- SDK login, `getUser`, and `getToken` for games requiring player identity.
+- Adaptive controls (keyboard/touch hints) and ESC/Space pause/resume.
+- Skippable cutscenes when `cutscenesSkippable` is enabled.
+- In-game language selector and player language preference (`getLanguage`/`setLanguage`).
 - Privacy policy display and consent on game detail pages.
 
 ### Gameplay SDK / Bridge
 
-The iframe-hosted game communicates with the platform through ten events:
+The iframe-hosted game communicates with the platform through the following events and actions:
 
 | Event | Description |
 |-------|-------------|
@@ -74,6 +79,12 @@ The iframe-hosted game communicates with the platform through ten events:
 | `GameErrorCaptured` | Error captured. |
 | `GameMeasuredEvent` | Measurement or timing event. |
 | `FpsMeasured` | FPS telemetry for performance monitoring. |
+| `save` / `load` | Cloud/local player data persistence. |
+| `getUser` / `getToken` | Authenticated player profile and short JWT. |
+| `getPrivacyPolicy` | Hosted privacy policy for the game. |
+| `controlScheme` | Primary input scheme sent to the game. |
+| `pauseRequested` / `resumeRequested` | ESC/Space keyboard events. |
+| `getLanguage` / `setLanguage` | Player language preference and game language change. |
 
 ### Developer Portal
 

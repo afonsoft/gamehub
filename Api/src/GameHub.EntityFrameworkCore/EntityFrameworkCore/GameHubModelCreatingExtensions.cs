@@ -8,6 +8,7 @@ using GameHub.Inspector;
 using GameHub.Moderation;
 using GameHub.Monetization;
 using GameHub.Player;
+using GameHub.Privacy;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.EntityFrameworkCore
@@ -32,6 +33,11 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.AgeRating).IsRequired().HasMaxLength(32);
                 b.Property(x => x.Status).IsRequired();
                 b.Property(x => x.Orientation).IsRequired();
+                b.Property(x => x.SupportsCloudSaves).IsRequired();
+                b.Property(x => x.ControlScheme).IsRequired();
+                b.Property(x => x.CutscenesSkippable).IsRequired();
+                b.Property(x => x.DefaultLanguage).HasMaxLength(16);
+                b.Property(x => x.SupportedLanguages).HasMaxLength(512);
                 b.Property(x => x.ThumbnailUrl).HasMaxLength(512);
                 b.Property(x => x.HeroImageUrl).HasMaxLength(512);
                 b.Property(x => x.TotalPlays).HasDefaultValue(0L);
@@ -455,6 +461,21 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<PlayerPreference>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlayerPreferences", GameHubConsts.DbSchema);
+
+                b.Property(x => x.UserId).IsRequired();
+                b.Property(x => x.Language).IsRequired().HasMaxLength(16);
+
+                b.HasIndex(x => x.UserId).IsUnique();
+
+                b.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<UserContent>(b =>
             {
                 b.ToTable(GameHubConsts.DbTablePrefix + "UserContents", GameHubConsts.DbSchema);
@@ -471,6 +492,28 @@ namespace GameHub.EntityFrameworkCore
                 b.HasOne(x => x.Game)
                     .WithMany()
                     .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PlayerPrivacyConsent>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlayerPrivacyConsents", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.UserId).IsRequired();
+                b.Property(x => x.PolicyVersion).HasMaxLength(64);
+                b.Property(x => x.ConsentedAt).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.UserId }).IsUnique();
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

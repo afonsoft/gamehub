@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Cloud saves (Poki 22.1)**: `Game.SupportsCloudSaves`, `CloudSaveAppService.DeleteAsync`, `GameplayBridgeService.save()`/`load()` aliases, `gamehub_ignore_` local-only key filtering, and a hint when cloud saves are disabled.
+- **User accounts in SDK (Poki 22.2)**: `PlayerAccountAppService.GetPlayerProfileAsync()` returning `{ username, avatarUrl }`; `PlayerAccountAppService.GetTokenAsync()` returning a short JWT with `sub`, `gameId`, `tenantId`, `exp` claims via `IGameTokenProvider`/`GameTokenProvider`; `GameplayBridgeService.login()` redirect, `getUser()`, and `getToken()`.
+- **Scroll lock and adaptive controls (Poki 22.4 + 22.5)**: `Game.ControlScheme` enum (`Keyboard`/`Touch`/`Both`) and metadata; `GameFrameComponent` iframe CSS `overscroll-behavior: contain`/`touch-action: none`; focus/blur parent scroll lock; ESC/Space `pauseRequested`/`resumeRequested`; control hints overlay; `Game.CutscenesSkippable` and skip button after 2s.
+- **In-game privacy consent (Poki 22.9)**: `PlayerPrivacyConsent` entity, `PrivacyAppService.GetForGameAsync()` and `SaveConsentAsync()` endpoints, `GameplayBridgeService.getPrivacyPolicy()`, and inline consent UI in `GameFrameComponent` when a privacy policy URL is set.
+- **Game localization fields**: `Game.DefaultLanguage` and `Game.SupportedLanguages` mapped to DTOs and Angular `GameDetail`/`GameCard` interfaces.
+- **Player language preference**: `PlayerPreference` entity, `PlayerAccountAppService.GetLanguageAsync`/`SetLanguageAsync`, `GameplayBridgeService.getLanguage`/`setLanguage`, and in-game language selector on `GameFrameComponent`.
+- Tests for `CloudSaveAppService.DeleteAsync`, `PlayerAccountAppService.GetPlayerProfileAsync`/`GetTokenAsync`/`GetLanguageAsync`/`SetLanguageAsync`, and `PrivacyAppService.GetForGameAsync`/`SaveConsentAsync`.
+- EF Core migrations `AddPokiCloudSaveAndControls` (new `Game` columns + `PlayerPrivacyConsents`) and `AddPlayerPreference`.
+
 - **Inspector de QA v2**: `InspectorSession`, `InspectorSdkEvent` e `InspectorWarning` entities; `IInspectorAppService` with SDK event validation (duplicates, order, `gameplayStart` before `gameLoadingFinished`, events during ad breaks); scaling tests and warnings; admin page `/app/main/gamehub/inspector/session/:id` with sandboxed iframe, event timeline, and re-run validation.
 - **Privacy, UGC and Performance**: `Game.PrivacyPolicyUrl` with publish gate for builds with external requests; `ProfanityFilter` domain service with pt-BR/en-US word lists and leet support; `UserContent` entity with moderation fields and `IUserContentAppService` for comments/reviews; `PlaySession.FpsAverage`/`FpsMin` and `GameMetricSnapshot.AvgFps`/`MinFps`; FPS aggregation and admin health alerts for low FPS.
 - **Web Exclusives and discovery**: `Category.Description`/`Keywords` for SEO, `IsWebExclusive` flag on game cards, `GetCategoryBySlugAsync`, and catalog filters for `Exclusivity` and `MinRating`. Angular public home, catalog, detail, and admin category forms updated.

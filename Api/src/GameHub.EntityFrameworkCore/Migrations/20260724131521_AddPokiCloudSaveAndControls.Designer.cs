@@ -3,6 +3,7 @@ using System;
 using GameHub.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameHub.Migrations
 {
     [DbContext(typeof(GameHubDbContext))]
-    partial class GameHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260724131521_AddPokiCloudSaveAndControls")]
+    partial class AddPokiCloudSaveAndControls
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3239,37 +3242,6 @@ namespace GameHub.Migrations
                     b.ToTable("gh_PlayerFavorites", (string)null);
                 });
 
-            modelBuilder.Entity("GameHub.Player.PlayerPreference", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("TenantId")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("gh_PlayerPreferences", (string)null);
-                });
-
             modelBuilder.Entity("GameHub.Player.PlayerRecentGame", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3929,17 +3901,6 @@ namespace GameHub.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Game");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GameHub.Player.PlayerPreference", b =>
-                {
-                    b.HasOne("Eaf.Middleware.Authorization.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("User");
                 });

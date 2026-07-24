@@ -60,6 +60,32 @@ namespace GameHub.Tests.GameHub.Application
             });
         }
 
+        [Fact]
+        public async Task Dado_JogadorLogado_Quando_Deletar_Entao_SaveRemovido()
+        {
+            var gameId = await SeedGameAsync();
+            const string data = "{\"level\":3}";
+
+            await _cloudSaveAppService.SaveAsync(new SaveCloudSaveInput
+            {
+                GameId = gameId,
+                Data = data
+            });
+
+            await _cloudSaveAppService.DeleteAsync(new GetCloudSaveInput
+            {
+                GameId = gameId
+            });
+
+            var saved = await _cloudSaveAppService.GetAsync(new GetCloudSaveInput
+            {
+                GameId = gameId
+            });
+
+            saved.Data.ShouldBeNull();
+            (await _cloudSaveRepository.GetAllListAsync(s => s.GameId == gameId)).Count.ShouldBe(0);
+        }
+
         private async Task<Guid> SeedGameAsync()
         {
             var profileId = Guid.NewGuid();

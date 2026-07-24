@@ -5,29 +5,40 @@ using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using Abp.Timing;
+using Eaf.Middleware.Authorization.Users;
 using GameHub.Catalog.Dto;
 using GameHub.Player.Dto;
+using GameHub.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Player
 {
     /// <summary>
-    /// Implements player favorites and recent game tracking.
+    /// Implements player favorites, recent games, profile and short-lived game tokens.
     /// </summary>
     public class PlayerAccountAppService : GameHubAppServiceBase, IPlayerAccountAppService
     {
         private readonly IRepository<PlayerFavorite, Guid> _favoriteRepository;
         private readonly IRepository<PlayerRecentGame, Guid> _recentRepository;
+        private readonly IRepository<PlayerPreference, Guid> _preferenceRepository;
         private readonly IRepository<Catalog.Game, Guid> _gameRepository;
+        private readonly IRepository<User, long> _userRepository;
+        private readonly IGameTokenProvider _gameTokenProvider;
 
         public PlayerAccountAppService(
             IRepository<PlayerFavorite, Guid> favoriteRepository,
             IRepository<PlayerRecentGame, Guid> recentRepository,
-            IRepository<Catalog.Game, Guid> gameRepository)
+            IRepository<PlayerPreference, Guid> preferenceRepository,
+            IRepository<Catalog.Game, Guid> gameRepository,
+            IRepository<User, long> userRepository,
+            IGameTokenProvider gameTokenProvider)
         {
             _favoriteRepository = favoriteRepository;
             _recentRepository = recentRepository;
+            _preferenceRepository = preferenceRepository;
             _gameRepository = gameRepository;
+            _userRepository = userRepository;
+            _gameTokenProvider = gameTokenProvider;
         }
 
         public async Task<List<PlayerFavoriteDto>> GetFavoritesAsync()
@@ -188,6 +199,86 @@ namespace GameHub.Player
                 LastPlayedAt = recent.LastPlayedAt,
                 TotalSessions = recent.TotalSessions
             };
+        }
+
+        public async Task<PlayerProfileDto> GetPlayerProfileAsync()
+        {
+            var userId = AbpSession.UserId;
+            if (!userId.HasValue)
+            {
+                return new PlayerProfileDto();
+            }
+
+            var user = await _userRepository.GetAsync(userId.Value);
+
+            return new PlayerProfileDto
+            {
+                Username = user.UserName,
+                AvatarUrl = string.Empty
+            };
+        }
+
+        public async Task<PlayerTokenDto> GetTokenAsync(GetTokenInput input)
+        {
+            var userId = AbpSession.UserId;
+            if (!userId.HasValue)
+            {
+                throw new Abp.Authorization.AbpAuthorizationException("User must be logged in to request a game token.");
+            }
+
+            var token = await _gameTokenProvider.CreateTokenAsync(
+                userId.Value,
+                AbpSession.TenantId,
+                input.GameId,
+                TimeSpan.FromHours(1));
+
+            return new PlayerTokenDto { Token = token };
+        }
+
+        public async Task<string> GetLanguageAsync()
+        {
+            var userId = AbpSession.UserId;
+            if (!userId.HasValue)
+            {
+                return string.Empty;
+            }
+
+            var preference = await _preferenceRepository.FirstOrDefaultAsync(
+                p => p.UserId == userId.Value);
+
+            return preference?.Language ?? string.Empty;
+        }
+
+        public async Task SetLanguageAsync(SetLanguageInput input)
+        {
+            var userId = AbpSession.UserId;
+            if (!userId.HasValue)
+            {
+                return;
+            }
+
+            var preference = await _preferenceRepository.FirstOrDefaultAsync(
+                p => p.UserId == userId.Value);
+
+            if (preference == null)
+            {
+                await _preferenceRepository.InsertAsync(new PlayerPreference
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    UserId = userId.Value,
+                    Language = input.Language,
+                    CreationTime = Clock.Now
+                });
+            }
+            else
+            {
+                preference.Language = input.Language;
+                preference.LastModificationTime = Clock.Now;
+                await _preferenceRepository.UpdateAsync(preference);
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
     }
 }

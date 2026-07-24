@@ -9,8 +9,10 @@ using Eaf.Middleware.Configuration;
 using Eaf.Middleware.Web;
 using GameHub.Catalog;
 using GameHub.Gameplay;
+using GameHub.Security;
 using GameHub.Storage;
 using GameHub.Web.Caching;
+using GameHub.Web.Security;
 using GameHub.Web.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +43,8 @@ namespace GameHub.Web.Startup
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(WebHostModule).GetAssembly());
+
+            IocManager.Register<IGameTokenProvider, GameTokenProvider>(DependencyLifeStyle.Transient);
 
             //Enabled or Disabled BackgroundJobs
             Configuration.BackgroundJobs.IsJobExecutionEnabled = true;

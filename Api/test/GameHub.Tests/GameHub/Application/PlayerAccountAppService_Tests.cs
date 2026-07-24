@@ -87,6 +87,72 @@ namespace GameHub.Tests.GameHub.Application
             recent[0].GameId.ShouldBe(gameId1);
         }
 
+        [Fact]
+        public async Task Dado_UsuarioAutenticado_Quando_GetPlayerProfile_Entao_RetornaUsername()
+        {
+            LoginAsDefaultTenantAdmin();
+
+            var profile = await _playerAccountAppService.GetPlayerProfileAsync();
+
+            profile.Username.ShouldBe("admin");
+            profile.AvatarUrl.ShouldBe(string.Empty);
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioAnonimo_Quando_GetPlayerProfile_Entao_RetornaVazio()
+        {
+            AbpSession.UserId = null;
+
+            var profile = await _playerAccountAppService.GetPlayerProfileAsync();
+
+            profile.Username.ShouldBeNullOrEmpty();
+            profile.AvatarUrl.ShouldBe(string.Empty);
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioAutenticado_Quando_GetToken_Entao_RetornaTokenComGameId()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync("Token Game", "token-game");
+
+            var token = await _playerAccountAppService.GetTokenAsync(new GetTokenInput { GameId = gameId });
+
+            token.Token.ShouldContain($"fake-token-");
+            token.Token.ShouldContain(gameId.ToString());
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioAnonimo_Quando_GetToken_Entao_LancaExcecao()
+        {
+            AbpSession.UserId = null;
+
+            await Should.ThrowAsync<Abp.Authorization.AbpAuthorizationException>(async () =>
+            {
+                await _playerAccountAppService.GetTokenAsync(new GetTokenInput { GameId = Guid.NewGuid() });
+            });
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioAutenticado_Quando_SetLanguage_Entao_SalvaPreferencia()
+        {
+            LoginAsDefaultTenantAdmin();
+
+            await _playerAccountAppService.SetLanguageAsync(new SetLanguageInput { Language = "pt-BR" });
+            var language = await _playerAccountAppService.GetLanguageAsync();
+
+            language.ShouldBe("pt-BR");
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioAnonimo_Quando_GetLanguage_Entao_RetornaVazio()
+        {
+            AbpSession.UserId = null;
+
+            var language = await _playerAccountAppService.GetLanguageAsync();
+
+            language.ShouldBeNullOrEmpty();
+        }
+
         private async Task<Guid> SeedGameAsync(string title, string slug)
         {
             var gameId = Guid.NewGuid();

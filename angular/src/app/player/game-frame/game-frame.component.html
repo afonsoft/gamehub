@@ -2,8 +2,29 @@
   <div *ngIf="!started && !loadingError" class="start-overlay">
     <div class="start-card">
       <h1 *ngIf="game">{{ game.title }}</h1>
+
+      <label *ngIf="canSelectLanguage()" class="language-selector">
+        <span>{{ 'gameFrame.language' | translate }}</span>
+        <select [value]="selectedLanguage" (change)="onLanguageChange($any($event.target).value)">
+          <option *ngFor="let lang of game?.supportedLanguages ?? []" [value]="lang">{{ lang }}</option>
+        </select>
+      </label>
+
       <p *ngIf="game">{{ 'gameFrame.ready' | translate }}</p>
-      <button class="btn-primary" (click)="startGame()" [disabled]="starting">
+      <p *ngIf="game?.supportsCloudSaves === false" class="hint">
+        {{ 'gameFrame.noCloudSave' | translate }}
+      </p>
+      <p *ngIf="controlsHint" class="hint">{{ controlsHint | translate }}</p>
+
+      <div *ngIf="privacyConsentNeeded" class="privacy-consent">
+        <p>{{ 'gameFrame.privacyConsent' | translate }}</p>
+        <a *ngIf="privacyConsentUrl" [href]="privacyConsentUrl" target="_blank" rel="noopener">{{ 'gameFrame.privacyPolicy' | translate }}</a>
+        <button class="btn-primary" (click)="acceptPrivacyConsent()">
+          {{ 'gameFrame.acceptPrivacy' | translate }}
+        </button>
+      </div>
+
+      <button class="btn-primary" (click)="startGame()" [disabled]="starting || privacyConsentNeeded">
         {{ starting ? ('common.loading' | translate) : ('gameFrame.start' | translate) }}
       </button>
       <p *ngIf="startError" class="error-message">{{ startError }}</p>
@@ -35,6 +56,14 @@
     [attr.aria-label]="'gameFrame.fullscreen' | translate"
     type="button">
     {{ isFullscreen ? ('gameFrame.exitFullscreen' | translate) : ('gameFrame.fullscreen' | translate) }}
+  </button>
+
+  <button
+    *ngIf="showSkip"
+    class="skip-btn"
+    (click)="skipCutscene()"
+    type="button">
+    {{ 'gameFrame.skip' | translate }}
   </button>
 
   <div *ngIf="loadingError" class="error">

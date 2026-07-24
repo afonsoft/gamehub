@@ -19,5 +19,13 @@ namespace GameHub.Player
         Task TrackPlayAsync(TrackPlayInput input);
 
         Task MergeLocalDataAsync(MergePlayerDataInput input);
+
+        Task<PlayerProfileDto> GetPlayerProfileAsync();
+
+        Task<PlayerTokenDto> GetTokenAsync(GetTokenInput input);
+
+        Task<string> GetLanguageAsync();
+
+        Task SetLanguageAsync(SetLanguageInput input);
     }
 }

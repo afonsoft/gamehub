@@ -70,6 +70,21 @@ public class AdminGameDetailDto
     /// <summary>Total votes used to compute the average rating.</summary>
     public long TotalVotes { get; set; }
 
+    /// <summary>Whether the game persists progress to the cloud.</summary>
+    public bool SupportsCloudSaves { get; set; }
+
+    /// <summary>Primary input scheme supported by the game.</summary>
+    public string ControlScheme { get; set; } = string.Empty;
+
+    /// <summary>Whether cutscenes can be skipped.</summary>
+    public bool CutscenesSkippable { get; set; }
+
+    /// <summary>Default language code.</summary>
+    public string DefaultLanguage { get; set; } = string.Empty;
+
+    /// <summary>List of supported language codes.</summary>
+    public List<string> SupportedLanguages { get; set; } = new();
+
     /// <summary>Full build history.</summary>
     public List<BuildDto> BuildHistory { get; set; } = new();
 

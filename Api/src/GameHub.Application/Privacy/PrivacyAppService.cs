@@ -1,7 +1,9 @@
 using Abp.Application.Services;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Timing;
 using Eaf.Middleware.Authorization.Users;
+using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Moderation;
@@ -21,6 +23,8 @@ namespace GameHub.Privacy
     {
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
+        private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IRepository<PlayerPrivacyConsent, Guid> _privacyConsentRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<LeaderboardEntry, Guid> _leaderboardEntryRepository;
         private readonly IRepository<UserReport, Guid> _userReportRepository;
@@ -28,12 +32,16 @@ namespace GameHub.Privacy
         public PrivacyAppService(
             IRepository<User, long> userRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
+            IRepository<Game, Guid> gameRepository,
+            IRepository<PlayerPrivacyConsent, Guid> privacyConsentRepository,
             IRepository<PlaySession, Guid> playSessionRepository,
             IRepository<LeaderboardEntry, Guid> leaderboardEntryRepository,
             IRepository<UserReport, Guid> userReportRepository)
         {
             _userRepository = userRepository;
             _developerProfileRepository = developerProfileRepository;
+            _gameRepository = gameRepository;
+            _privacyConsentRepository = privacyConsentRepository;
             _playSessionRepository = playSessionRepository;
             _leaderboardEntryRepository = leaderboardEntryRepository;
             _userReportRepository = userReportRepository;
@@ -189,6 +197,60 @@ namespace GameHub.Privacy
             profile.Status = DeveloperProfileStatus.Suspended;
 
             await _developerProfileRepository.UpdateAsync(profile);
+        }
+
+        [AbpAllowAnonymous]
+        public virtual async Task<PrivacyPolicyDto> GetForGameAsync(string gameSlug)
+        {
+            var game = await _gameRepository.GetAll()
+                .Select(g => new { g.Id, g.Slug, g.PrivacyPolicyUrl })
+                .FirstOrDefaultAsync(g => g.Slug == gameSlug);
+
+            if (game == null)
+            {
+                throw new AbpAuthorizationException("Game not found");
+            }
+
+            return new PrivacyPolicyDto
+            {
+                GameSlug = game.Slug,
+                Url = game.PrivacyPolicyUrl ?? string.Empty,
+                Text = string.Empty,
+                RequiresConsent = !string.IsNullOrWhiteSpace(game.PrivacyPolicyUrl)
+            };
+        }
+
+        public virtual async Task SaveConsentAsync(SavePrivacyConsentInput input)
+        {
+            if (!AbpSession.UserId.HasValue)
+            {
+                throw new AbpAuthorizationException("User must be logged in to consent.");
+            }
+
+            var existing = await _privacyConsentRepository.FirstOrDefaultAsync(c =>
+                c.GameId == input.GameId && c.UserId == AbpSession.UserId.Value);
+
+            if (existing != null)
+            {
+                existing.ConsentedAt = Clock.Now;
+                existing.PolicyVersion = input.PolicyVersion;
+                await _privacyConsentRepository.UpdateAsync(existing);
+            }
+            else
+            {
+                await _privacyConsentRepository.InsertAsync(new PlayerPrivacyConsent
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    UserId = AbpSession.UserId.Value,
+                    GameId = input.GameId,
+                    ConsentedAt = Clock.Now,
+                    CreationTime = Clock.Now,
+                    PolicyVersion = input.PolicyVersion
+                });
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
     }
 }

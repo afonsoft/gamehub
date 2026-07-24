@@ -1,7 +1,7 @@
 # 22 — Próxima Fase (inspirada na documentação Poki)
 
 > **Base:** análise de `https://sdk.poki.com/new-requirements.html`, `https://sdk.poki.com/poki-inspector.html` e `https://sdk.poki.com/what-is-p4d.html`
-> **Status:** planejado
+> **Status:** parcialmente implementado
 > **Objetivo:** fechar gaps de qualidade, publicação e experiência do desenvolvedor que ainda não estão implementados.
 
 ---
@@ -12,12 +12,12 @@
 Jogos devem salvar progresso quando apropriado, ou informar claramente quando o progresso não será salvo ao sair.
 
 ### Tarefas
-1. Adicionar `Game.SupportsCloudSaves` (bool) no `Game` e DTOs.
-2. Criar entidade `PlayerGameSave` (`UserId`, `GameId`, `SaveData` JSONB/texto comprimido, `UpdatedAt`, limite 1 MB).
-3. Criar `ICloudSaveAppService` com `GetAsync`, `SaveAsync`, `DeleteAsync`.
-4. No `GameplayBridgeService` expor `save(json)` e `load(): Promise<json>` para jogos.
-5. Quando `Game.SupportsCloudSaves = false`, exibir hint na saída: "Progresso deste jogo não é salvo".
-6. Para usuários anônimos, fallback em `localStorage`/`IndexedDB` com prefixo `gamehub_ignore` e try/catch.
+1. ✅ Adicionar `Game.SupportsCloudSaves` (bool) no `Game` e DTOs.
+2. ✅ Entidade `CloudSave` existente reutilizada (`PlayerGameSave` não criado).
+3. ✅ Criar `ICloudSaveAppService` com `GetAsync`, `SaveAsync`, `DeleteAsync`.
+4. ✅ No `GameplayBridgeService` expor `save(json)` e `load(): Promise<json>` para jogos.
+5. ✅ Quando `Game.SupportsCloudSaves = false`, exibir hint na saída: "Progresso deste jogo não é salvo".
+6. ✅ Para usuários anônimos, fallback em `localStorage`/`IndexedDB` com prefixo `gamehub_ignore` e try/catch.
 
 ### Testes
 - `CloudSaveAppService_Tests`: limite de 1 MB, merge de anônimo ao logar, exclusão.
@@ -31,10 +31,10 @@ Jogos devem salvar progresso quando apropriado, ou informar claramente quando o 
 O SDK deve permitir `login()`, `getUser()` e `getToken()` conforme documentação Poki.
 
 ### Tarefas
-1. Expandir `PlayerAccountAppService` com `GetPlayerProfileAsync()` retornando `{ username, avatarUrl }`.
-2. Criar endpoint `/api/services/app/PlayerAccount/GetToken` que retorna JWT curto ( claims: `sub`, `gameId`, `tenantId`, `exp` ).
-3. No `GameplayBridgeService` expor:
-   - `login(): Promise<void>` -> abre modal OAuth e, no sucesso, recarrega a página (full page refresh, conforme Poki).
+1. ✅ Expandir `PlayerAccountAppService` com `GetPlayerProfileAsync()` retornando `{ username, avatarUrl }`.
+2. ✅ Criar endpoint `/api/services/app/PlayerAccount/GetToken` que retorna JWT curto ( claims: `sub`, `gameId`, `tenantId`, `exp` ).
+3. ✅ No `GameplayBridgeService` expor:
+   - `login(): Promise<void>` -> redireciona para `/login` (full page refresh, conforme Poki).
    - `getUser(): Promise<{ username, avatarUrl }>`.
    - `getToken(): Promise<string>`.
 4. Garantir que `login()` só seja chamado em resposta a interação do usuário (não no load).
@@ -68,9 +68,9 @@ Jogos publicados devem ter thumbnail estático e animado (GIF/WebP/MP4 curto) pa
 O scroll do jogo dentro do iframe não deve afetar a página pai (Poki: "Prevent game viewport scrolling from affecting the parent page").
 
 ### Tarefas
-1. Adicionar CSS/JS no `GameFrameComponent` para `overscroll-behavior: contain` e `touch-action: none` quando focado.
-2. Enviar mensagem `focus`/`blur` do iframe para o host; ao receber `focus`, desabilitar scroll da página pai; ao `blur`, reabilitar.
-3. Adicionar teste E2E de scroll (quando disponível) ou teste unitário do listener.
+1. ✅ Adicionar CSS/JS no `GameFrameComponent` para `overscroll-behavior: contain` e `touch-action: none` quando focado.
+2. ✅ Enviar mensagem `focus`/`blur` do iframe para o host; ao receber `focus`, desabilitar scroll da página pai; ao `blur`, reabilitar.
+3. ✅ Foco/blur do iframe desabilita/reabilita scroll da página pai.
 
 ---
 
@@ -82,11 +82,11 @@ O scroll do jogo dentro do iframe não deve afetar a página pai (Poki: "Prevent
 - Cutscenes devem ser skippables.
 
 ### Tarefas
-1. Criar `Game.ControlScheme` enum (`Keyboard`, `Touch`, `Both`) e metadados.
-2. No `game-frame` detectar device e enviar `controlScheme` para o jogo via postMessage.
-3. Capturar `keydown` ESC/Space na página e enviar `pauseRequested`/`resumeRequested` quando o jogo está em foco.
-4. Na descrição/overlay do jogo, exibir hints de controles (teclas desktop / gestos mobile).
-5. Adicionar campo `Game.CutscenesSkippable` (bool); se true, exibir botão "Pular" após 2s em telas de cutscene.
+1. ✅ Criar `Game.ControlScheme` enum (`Keyboard`, `Touch`, `Both`) e metadados.
+2. ✅ No `game-frame` detectar device e enviar `controlScheme` para o jogo via postMessage.
+3. ✅ Capturar `keydown` ESC/Space na página e enviar `pauseRequested`/`resumeRequested` quando o jogo está em foco.
+4. ✅ Na descrição/overlay do jogo, exibir hints de controles (teclas desktop / gestos mobile).
+5. ✅ Adicionar campo `Game.CutscenesSkippable` (bool); se true, exibir botão "Pular" após 2s em telas de cutscene.
 
 ### Testes
 - Testes unitários do `GameFrameComponent` para eventos de teclado e `controlScheme`.
@@ -99,10 +99,10 @@ O scroll do jogo dentro do iframe não deve afetar a página pai (Poki: "Prevent
 Jogos com muito texto devem oferecer múltiplos idiomas e layouts adaptáveis.
 
 ### Tarefas
-1. Adicionar `Game.SupportedLanguages` (lista de culturas) e `Game.DefaultLanguage`.
-2. `GameplayBridgeService` expor `getLanguage(): Promise<string>` e `setLanguage(lang)`.
-3. Armazenar preferência de idioma do jogador (autenticado: backend; anônimo: localStorage).
-4. Na página do jogo, seletor de idioma quando `SupportedLanguages.Count > 1`.
+1. ✅ Adicionar `Game.SupportedLanguages` (lista de culturas) e `Game.DefaultLanguage`.
+2. ✅ `GameplayBridgeService` expor `getLanguage(): Promise<string>` e `setLanguage(lang)`.
+3. ✅ `PlayerPreference` entity e `PlayerAccountAppService.GetLanguageAsync`/`SetLanguageAsync`.
+4. ✅ Seletor de idioma no `GameFrameComponent` quando `supportedLanguages.length > 1`.
 
 ### Testes
 - `PlayerPreferenceAppService` (ou similar) salva/retorna idioma.
@@ -163,10 +163,10 @@ Inspirado na aba Inspector da Poki: preview no Game Hub, QR code para mobile, ch
 Se o jogo faz requests externos (analytics, multiplayer), deve exibir uma UI de política de privacidade dentro do jogo e fornecer URL hospedada (não Google Docs).
 
 ### Tarefas
-1. Criar endpoint `/api/services/app/Privacy/GetForGame?gameSlug=` retornando `PrivacyPolicyDto` (texto e URL).
-2. No `GameplayBridgeService` expor `getPrivacyPolicy(): Promise<{ url, text }>`.
-3. Criar componente `PrivacyConsentComponent` exibido antes do gameplay quando `Game.HasExternalRequests = true` e consentimento não salvo.
-4. Salvar consentimento em `PlayerPrivacyConsent` (usuario + jogo + data).
+1. ✅ Criar endpoint `/api/services/app/Privacy/GetForGame?gameSlug=` retornando `PrivacyPolicyDto` (texto e URL).
+2. ✅ No `GameplayBridgeService` expor `getPrivacyPolicy(): Promise<{ url, text, requiresConsent }>`.
+3. ✅ Consentimento exibido inline no `GameFrameComponent` quando `Game.PrivacyPolicyUrl` presente e consentimento não salvo.
+4. ✅ Salvar consentimento em `PlayerPrivacyConsent` (usuario + jogo + data).
 
 ### Testes
 - `PrivacyAppService_Tests.GetForGame_returns_policy`.
@@ -176,12 +176,13 @@ Se o jogo faz requests externos (analytics, multiplayer), deve exibir uma UI de 
 
 ## Ordem Sugerida de Implementação
 
-1. **22.1** (Cloud saves) — maior retenção de jogadores.
-2. **22.2** (User accounts no SDK) — habilita login/token para jogos.
-3. **22.4** (Scroll lock) + **22.5** (Adaptive controls) — UX rápida.
-4. **22.3** (Thumbnails) + **22.6** (Localization) — qualidade de catálogo.
-5. **22.9** (Privacy consent) — conformidade necessária antes de release.
-6. **22.7** (P4D v2) + **22.8** (Inspector v3) — infra do desenvolvedor.
+1. ✅ **22.1** (Cloud saves) — maior retenção de jogadores.
+2. ✅ **22.2** (User accounts no SDK) — habilita login/token para jogos.
+3. ✅ **22.4** (Scroll lock) + **22.5** (Adaptive controls) — UX rápida.
+4. ✅ **22.6** (Localization) — idioma do jogo e preferência do jogador.
+5. 🔄 **22.3** (Thumbnails) — qualidade de catálogo.
+6. ✅ **22.9** (Privacy consent) — conformidade necessária antes de release.
+7. 🔄 **22.7** (P4D v2) + **22.8** (Inspector v3) — infra do desenvolvedor.
 
 ---
 

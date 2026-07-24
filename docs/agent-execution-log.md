@@ -1,5 +1,41 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-24 13:20 UTC
+
+### Tarefa
+Implementar specs 22.1, 22.2, 22.4, 22.5 e 22.9 do backlog Poki (cloud saves, contas de jogador no SDK, scroll lock, controles adaptativos e consentimento de privacidade in-game).
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs`, `GameControlScheme.cs` — propriedades `SupportsCloudSaves`, `ControlScheme`, `CutscenesSkippable`, `DefaultLanguage`, `SupportedLanguages`.
+- `Api/src/GameHub.Application/Catalog/Dto/GameDetailDto.cs`, `GameCardDto.cs`, `Admin/Dto/AdminGameDetailDto.cs`, `Developer/Dto/CreateGameDraftInput.cs`, `UpdateGameMetadataInput.cs` — mapeamento dos novos campos.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — `ParseControlScheme`, `ParseSupportedLanguages` e correção de sintaxe em `IsWebExclusive`.
+- `Api/src/GameHub.Application/Gameplay/ICloudSaveAppService.cs`, `CloudSaveAppService.cs` — `DeleteAsync` e filtro de chaves `gamehub_ignore_` no bridge.
+- `Api/src/GameHub.Application/Player/IPlayerAccountAppService.cs`, `PlayerAccountAppService.cs`, `Dto/PlayerProfileDto.cs`, `PlayerTokenDto.cs`, `GetTokenInput.cs` — `GetPlayerProfileAsync` e `GetTokenAsync`.
+- `Api/src/GameHub.Application/Security/IGameTokenProvider.cs`, `Api/src/GameHub.Web.Host/Security/GameTokenProvider.cs` — geração de JWT curto via `ITokenAuthenticationService`.
+- `Api/src/GameHub.Web.Host/Startup/WebHostModule.cs` — registro do `IGameTokenProvider`.
+- `Api/src/GameHub.Core/Domain/Privacy/PlayerPrivacyConsent.cs` — entidade de consentimento.
+- `Api/src/GameHub.Application/Privacy/IPrivacyAppService.cs`, `PrivacyAppService.cs`, `Dto/PrivacyPolicyDto.cs`, `SavePrivacyConsentInput.cs` — `GetForGameAsync` e `SaveConsentAsync`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`, `GameHubModelCreatingExtensions.cs` — `DbSet` e configuração de `PlayerPrivacyConsent` e novas colunas do `Game`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260724131521_AddPokiCloudSaveAndControls.*` — migração EF Core.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — `save`/`load`, `login`/`getUser`/`getToken`, `getPrivacyPolicy`, `controlScheme` e `ignorePrefix`.
+- `angular/src/app/core/services/game-catalog.service.ts` — campos `supportsCloudSaves`, `controlScheme`, `cutscenesSkippable`, `defaultLanguage`, `supportedLanguages`, `privacyPolicyUrl`.
+- `angular/src/app/player/game-frame/game-frame.component.ts/.html/.css` — scroll lock, focus/blur, teclado ESC/Space, hints de controle, botão "Pular", consentimento de privacidade e seletor de idioma.
+- `Api/src/GameHub.Core/Domain/Player/PlayerPreference.cs` — preferência de idioma do jogador.
+- `Api/src/GameHub.Application/Player/PlayerAccountAppService.cs` — `GetLanguageAsync`/`SetLanguageAsync`.
+- `Api/src/GameHub.Application/Player/Dto/SetLanguageInput.cs` — input de idioma.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260724*_AddPlayerPreference.*` — migração de preferências.
+- `Api/test/GameHub.Tests/GameHub/Application/CloudSaveAppService_Tests.cs`, `PlayerAccountAppService_Tests.cs`, `PrivacyAppService_Tests.cs`, `DependencyInjection/FakeGameTokenProvider.cs`, `GameHubTestModule.cs`.
+- `.specs/22-poki-proxima-fase.md` — status atualizado.
+
+### Motivação
+Habilitar o SDK do GameHub para operar como distribuidora Poki: saves na nuvem, login/token do jogador, scroll/controles adaptativos e LGPD para jogos com requests externos.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` sucesso.
+- `dotnet test Api/GameHub.sln --no-build` — 252 passaram, 2 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` sucesso.
+- Itens 22.3, 22.7 e 22.8 ainda pendentes para próxima sessão.
+
 ## 2026-07-24 13:00 UTC
 
 ### Tarefa

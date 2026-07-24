@@ -87,6 +87,21 @@ namespace GameHub.Gameplay
             };
         }
 
+        public async Task DeleteAsync(GetCloudSaveInput input)
+        {
+            var deviceHash = HashDeviceId(input.DeviceId);
+            var existing = await _cloudSaveRepository.GetAll()
+                .Where(s => s.GameId == input.GameId)
+                .Where(s => AbpSession.UserId.HasValue ? s.UserId == AbpSession.UserId.Value : s.DeviceIdHash == deviceHash)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+            {
+                await _cloudSaveRepository.DeleteAsync(existing);
+                await CurrentUnitOfWork.SaveChangesAsync();
+            }
+        }
+
         private static string HashDeviceId(string deviceId)
         {
             if (string.IsNullOrWhiteSpace(deviceId))

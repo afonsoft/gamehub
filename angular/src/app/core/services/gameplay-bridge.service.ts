@@ -46,12 +46,25 @@ export interface PlaySession {
   startedAt: string;
 }
 
+export interface PlayerProfile {
+  username: string;
+  avatarUrl: string | null;
+}
+
+export interface PrivacyPolicy {
+  gameSlug: string;
+  url: string;
+  text: string;
+  requiresConsent: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GameplayBridgeService implements GameplayBridge {
   private readonly gameplayUrl = '/api/services/app/Gameplay';
 
   private sessionId: string | null = null;
   private gameId: string | null = null;
+  private gameSlug: string | null = null;
   private gameOrigin = environment.gameOrigin;
   private replyHandler?: (message: unknown) => void;
 
@@ -64,7 +77,10 @@ export class GameplayBridgeService implements GameplayBridge {
   private inspectorSessionId: string | null = null;
   private readonly localSavePrefix = 'gamehub_save_';
   private readonly ignorePrefix = 'gamehub_ignore_';
+  private readonly languageKey = 'gamehub_language';
   private readonly cloudSaveUrl = '/api/services/app/CloudSave';
+  private readonly playerAccountUrl = '/api/services/app/PlayerAccount';
+  private readonly privacyUrl = '/api/services/app/Privacy/GetForGame';
 
   constructor(
     private http: HttpClient,
@@ -81,6 +97,10 @@ export class GameplayBridgeService implements GameplayBridge {
       this.pendingLoadingFinished = false;
       this.sendLoadingFinished();
     }
+  }
+
+  setGame(slug: string): void {
+    this.gameSlug = slug;
   }
 
   setGameOrigin(origin: string): void {
@@ -209,7 +229,7 @@ export class GameplayBridgeService implements GameplayBridge {
 
     try {
       const data = this.auth.isLoggedIn()
-        ? await this.getCloudSave()
+        ? { ...(await this.getCloudSave()), ...this.getLocalSave() }
         : this.getLocalSave();
 
       if (keys && keys.length > 0 && data) {
@@ -236,42 +256,142 @@ export class GameplayBridgeService implements GameplayBridge {
 
     try {
       const merged = { ...this.getLocalSave(), ...data };
-      if (this.auth.isLoggedIn()) {
-        await this.saveCloudSave(merged);
-      }
       this.setLocalSave(merged);
+
+      if (this.auth.isLoggedIn()) {
+        const cloudData = this.filterIgnoreKeys(merged);
+        await this.saveCloudSave(cloudData);
+      }
+
       this.replyResponse(requestId, { success: true });
     } catch (err) {
       this.replyResponse(requestId, undefined, err instanceof Error ? err.message : 'Storage error');
     }
   }
 
-  login(requestId: string): void {
-    const token = this.token.getToken();
-    const username = this.token.getUserName();
-    if (token && username) {
-      this.replyResponse(requestId, { token, username });
-      return;
-    }
-    this.replyResponse(requestId, undefined, 'Login required');
+  async save(data: Record<string, unknown>): Promise<void> {
+    await this.setPlayerData('', data);
   }
 
-  getUser(requestId: string): void {
-    const username = this.token.getUserName();
-    if (username) {
-      this.replyResponse(requestId, { username, avatarUrl: null });
-    } else {
+  async load(): Promise<Record<string, unknown>> {
+    if (!this.gameId) {
+      return {};
+    }
+
+    try {
+      const data = this.auth.isLoggedIn()
+        ? { ...(await this.getCloudSave()), ...this.getLocalSave() }
+        : this.getLocalSave();
+      return data ?? {};
+    } catch {
+      return this.getLocalSave();
+    }
+  }
+
+  login(): void {
+    if (typeof window !== 'undefined') {
+      const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/login?returnUrl=${returnUrl}`;
+    }
+  }
+
+  async getUser(requestId: string): Promise<void> {
+    if (!this.auth.isLoggedIn()) {
+      this.replyResponse(requestId, undefined, 'No user');
+      return;
+    }
+
+    try {
+      const profile = await firstValueFrom(
+        this.http.post<{ result?: PlayerProfile }>(`${this.playerAccountUrl}/GetPlayerProfile`, {})
+          .pipe(map(response => this.unwrap<{ result?: PlayerProfile }>(response)?.result ?? this.unwrap<PlayerProfile>(response)))
+      );
+      this.replyResponse(requestId, { username: profile?.username ?? '', avatarUrl: profile?.avatarUrl ?? null });
+    } catch {
       this.replyResponse(requestId, undefined, 'No user');
     }
   }
 
-  getToken(requestId: string): void {
-    const token = this.token.getToken();
-    if (token) {
-      this.replyResponse(requestId, { token });
-    } else {
+  async getToken(requestId: string): Promise<void> {
+    if (!this.gameId) {
+      this.replyResponse(requestId, undefined, 'No game session');
+      return;
+    }
+
+    if (!this.auth.isLoggedIn()) {
+      this.replyResponse(requestId, undefined, 'No token');
+      return;
+    }
+
+    try {
+      const result = await firstValueFrom(
+        this.http.post<{ result?: { token: string } }>(`${this.playerAccountUrl}/GetToken`, { gameId: this.gameId })
+          .pipe(map(response => this.unwrap<{ result?: { token: string } }>(response)?.result ?? this.unwrap<{ token: string }>(response)))
+      );
+      if (result?.token) {
+        this.replyResponse(requestId, { token: result.token });
+      } else {
+        this.replyResponse(requestId, undefined, 'No token');
+      }
+    } catch {
       this.replyResponse(requestId, undefined, 'No token');
     }
+  }
+
+  async getPrivacyPolicy(requestId: string): Promise<void> {
+    if (!this.gameSlug) {
+      this.replyResponse(requestId, undefined, 'No game session');
+      return;
+    }
+
+    try {
+      const result = await firstValueFrom(
+        this.http.get<{ result?: PrivacyPolicy }>(`${this.privacyUrl}?gameSlug=${this.gameSlug}`)
+          .pipe(map(response => this.unwrap<{ result?: PrivacyPolicy }>(response)?.result ?? this.unwrap<PrivacyPolicy>(response)))
+      );
+
+      this.replyResponse(requestId, { url: result?.url ?? '', text: result?.text ?? '', requiresConsent: result?.requiresConsent ?? false });
+    } catch {
+      this.replyResponse(requestId, undefined, 'Privacy policy unavailable');
+    }
+  }
+
+  async getLanguage(requestId: string): Promise<void> {
+    const fallback = this.safeLocalStorageGet(this.languageKey) ?? 'en-US';
+
+    if (!this.auth.isLoggedIn()) {
+      this.replyResponse(requestId, { language: fallback });
+      return;
+    }
+
+    try {
+      const result = await firstValueFrom(
+        this.http.post<{ result?: string }>(`${this.playerAccountUrl}/GetLanguage`, {})
+          .pipe(map(response => this.unwrap<{ result?: string }>(response)?.result ?? this.unwrap<string>(response)))
+      );
+      this.replyResponse(requestId, { language: result || fallback });
+    } catch {
+      this.replyResponse(requestId, { language: fallback });
+    }
+  }
+
+  async setLanguage(requestId: string, language: string): Promise<void> {
+    this.safeLocalStorageSet(this.languageKey, language);
+
+    if (this.auth.isLoggedIn()) {
+      try {
+        await firstValueFrom(this.http.post(`${this.playerAccountUrl}/SetLanguage`, { language }));
+      } catch {
+        // ignore backend failures; localStorage is the source of truth for anonymous users
+      }
+    }
+
+    this.replyResponse(requestId, { language });
+    this.reply({ channel: 'gamehub-bridge', action: 'languageChanged', payload: { language } });
+  }
+
+  getStoredLanguage(): string {
+    return this.safeLocalStorageGet(this.languageKey) ?? 'en-US';
   }
 
   handleMessage(event: MessageEvent<unknown>): void {
@@ -326,19 +446,30 @@ export class GameplayBridgeService implements GameplayBridge {
         );
         break;
       case 'getPlayerData':
+      case 'load':
         void this.getPlayerData(requestId ?? '', payload?.['keys'] as string[] | undefined);
         break;
       case 'setPlayerData':
+      case 'save':
         void this.setPlayerData(requestId ?? '', (payload?.['data'] as Record<string, unknown>) ?? {});
         break;
       case 'login':
-        this.login(requestId ?? '');
+        this.login();
         break;
       case 'getUser':
-        this.getUser(requestId ?? '');
+        void this.getUser(requestId ?? '');
         break;
       case 'getToken':
-        this.getToken(requestId ?? '');
+        void this.getToken(requestId ?? '');
+        break;
+      case 'getPrivacyPolicy':
+        void this.getPrivacyPolicy(requestId ?? '');
+        break;
+      case 'getLanguage':
+        void this.getLanguage(requestId ?? '');
+        break;
+      case 'setLanguage':
+        void this.setLanguage(requestId ?? '', (payload?.['language'] as string) ?? 'en-US');
         break;
     }
   }
@@ -393,6 +524,16 @@ export class GameplayBridgeService implements GameplayBridge {
     }
   }
 
+  private filterIgnoreKeys(data: Record<string, unknown>): Record<string, unknown> {
+    const filtered: Record<string, unknown> = {};
+    for (const key of Object.keys(data)) {
+      if (!key.startsWith(this.ignorePrefix)) {
+        filtered[key] = data[key];
+      }
+    }
+    return filtered;
+  }
+
   private getDeviceId(): string {
     try {
       let id = localStorage.getItem('gamehub-device-id');
@@ -414,10 +555,11 @@ export class GameplayBridgeService implements GameplayBridge {
       })
       .pipe(
         map(response => {
-          const result = this.unwrap<{ Data?: string }>(response);
-          if (result?.Data) {
+          const result = this.unwrap<{ data?: string; Data?: string }>(response);
+          const payload = result?.data ?? result?.Data;
+          if (payload) {
             try {
-              return JSON.parse(result.Data) as Record<string, unknown>;
+              return JSON.parse(payload) as Record<string, unknown>;
             } catch {
               return {};
             }

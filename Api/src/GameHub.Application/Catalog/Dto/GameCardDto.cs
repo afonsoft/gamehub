@@ -41,6 +41,9 @@ public class GameCardDto
     /// <summary>Whether the game supports desktop browsers.</summary>
     public bool SupportsDesktop { get; set; }
 
+    /// <summary>Whether the game persists progress to the cloud.</summary>
+    public bool SupportsCloudSaves { get; set; }
+
     /// <summary>Total play count across all sessions.</summary>
     public long TotalPlays { get; set; }
 
