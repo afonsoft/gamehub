@@ -10,5 +10,8 @@ namespace GameHub.Security
     {
         /// <summary>Creates a JWT containing sub, gameId, tenantId and exp claims.</summary>
         Task<string> CreateTokenAsync(long userId, int? tenantId, Guid gameId, TimeSpan expiration);
+
+        /// <summary>Creates a JWT containing sub, gameId, version, preview and exp claims.</summary>
+        Task<string> CreatePreviewTokenAsync(long userId, int? tenantId, Guid gameId, string version, TimeSpan expiration);
     }
 }

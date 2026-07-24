@@ -32,6 +32,8 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   privacyConsentUrl = '';
   selectedLanguage = 'en-US';
   game: GameDetail | null = null;
+  isPreview = false;
+  previewVersion: string | null = null;
   private sessionId: string | null = null;
   private gameId: string | null = null;
   private gameOrigin = '*';
@@ -53,6 +55,24 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
+    this.isPreview = this.route.snapshot.url.some(s => s.path === 'preview');
+    this.previewVersion = this.route.snapshot.paramMap.get('version');
+
+    if (this.isPreview && this.previewVersion) {
+      const token = this.route.snapshot.queryParamMap.get('token') ?? '';
+      this.loadPreview(slug, this.previewVersion, token);
+    } else {
+      this.loadGame(slug);
+    }
+
+    window.addEventListener('message', this.messageHandler);
+    document.addEventListener('fullscreenchange', this.fullscreenHandler);
+    window.addEventListener('focusin', this.focusHandler, true);
+    window.addEventListener('focusout', this.blurHandler, true);
+    window.addEventListener('keydown', this.keyHandler);
+  }
+
+  private loadGame(slug: string): void {
     this.catalog.getBySlug(slug).subscribe({
       next: (game: GameDetail | null) => {
         if (!game?.publishedBuildUrl) {
@@ -64,24 +84,54 @@ export class GameFrameComponent implements OnInit, OnDestroy {
         this.gameId = game.id;
         this.gameOrigin = new URL(game.publishedBuildUrl).origin;
         this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(game.publishedBuildUrl);
-        this.controlsHint = this.buildControlsHint(game);
-        this.privacyConsentUrl = game.privacyPolicyUrl ?? '';
-        this.privacyConsentNeeded = this.privacyConsentUrl.length > 0 && !this.hasPrivacyConsent(game.slug);
-        this.selectedLanguage = this.resolveLanguage(game);
-        this.bridge.setGame(game.slug);
-        this.bridge.setGameOrigin(this.gameOrigin);
-        this.bridge.setReplyHandler(msg => this.postToGame(msg));
+        this.configureGame(game);
       },
       error: () => {
         this.loadingError = true;
       },
     });
+  }
 
-    window.addEventListener('message', this.messageHandler);
-    document.addEventListener('fullscreenchange', this.fullscreenHandler);
-    window.addEventListener('focusin', this.focusHandler, true);
-    window.addEventListener('focusout', this.blurHandler, true);
-    window.addEventListener('keydown', this.keyHandler);
+  private loadPreview(slug: string, version: string, token: string): void {
+    this.catalog.validatePreview(token).subscribe({
+      next: result => {
+        if (!result.isValid || !result.previewUrl) {
+          this.loadingError = true;
+          return;
+        }
+
+        this.catalog.getBySlug(slug).subscribe({
+          next: (game: GameDetail | null) => {
+            if (!game) {
+              this.loadingError = true;
+              return;
+            }
+
+            this.game = game;
+            this.gameId = game.id;
+            this.gameOrigin = new URL(result.previewUrl).origin;
+            this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(result.previewUrl);
+            this.configureGame(game);
+          },
+          error: () => {
+            this.loadingError = true;
+          },
+        });
+      },
+      error: () => {
+        this.loadingError = true;
+      },
+    });
+  }
+
+  private configureGame(game: GameDetail): void {
+    this.controlsHint = this.buildControlsHint(game);
+    this.privacyConsentUrl = game.privacyPolicyUrl ?? '';
+    this.privacyConsentNeeded = this.privacyConsentUrl.length > 0 && !this.hasPrivacyConsent(game.slug);
+    this.selectedLanguage = this.resolveLanguage(game);
+    this.bridge.setGame(game.slug);
+    this.bridge.setGameOrigin(this.gameOrigin);
+    this.bridge.setReplyHandler(msg => this.postToGame(msg));
   }
 
   acceptPrivacyConsent(): void {

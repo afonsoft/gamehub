@@ -71,6 +71,39 @@ namespace GameHub.Tests.GameHub.Application
             result.Warnings.ShouldContain(w => w.Contains("Outgoing link", StringComparison.OrdinalIgnoreCase));
         }
 
+        [Fact]
+        public async Task Dado_ZipComSourceMap_Quando_Validar_Entao_DeveGerarWarning()
+        {
+            var stream = CreateZip(new[] { "index.html", "game.js.map" });
+            var validator = new GameBuildPackageValidator();
+
+            var result = await validator.ValidateAsync(stream);
+
+            result.Warnings.ShouldContain(w => w.Contains("debug artifact", StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Fact]
+        public async Task Dado_ZipComConsoleLog_Quando_Validar_Entao_DeveGerarWarning()
+        {
+            var stream = CreateZipWithContent("game.js", "console.log('debug');");
+            var validator = new GameBuildPackageValidator();
+
+            var result = await validator.ValidateAsync(stream);
+
+            result.Warnings.ShouldContain(w => w.Contains("Console logging", StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Fact]
+        public async Task Dado_ZipComDebugger_Quando_Validar_Entao_DeveGerarWarning()
+        {
+            var stream = CreateZipWithContent("game.js", "function x() { debugger; }");
+            var validator = new GameBuildPackageValidator();
+
+            var result = await validator.ValidateAsync(stream);
+
+            result.Warnings.ShouldContain(w => w.Contains("Debugger", StringComparison.OrdinalIgnoreCase));
+        }
+
         private static MemoryStream CreateZipWithContent(string entryName, string content)
         {
             var stream = new MemoryStream();
