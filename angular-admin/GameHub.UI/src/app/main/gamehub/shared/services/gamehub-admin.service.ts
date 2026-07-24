@@ -63,6 +63,21 @@ export interface InspectorSession {
 export interface InspectorSessionDetail extends InspectorSession {
   events: InspectorSdkEvent[];
   warnings: InspectorWarning[];
+  checklistAnswers: InspectorChecklistAnswer[];
+}
+
+export interface InspectorChecklistAnswer {
+  id: string;
+  sessionId: string;
+  questionId: string;
+  answer: string;
+  updatedAt: string;
+}
+
+export interface InspectorChecklistCompletion {
+  totalQuestions: number;
+  answeredQuestions: number;
+  completionPercentage: number;
 }
 
 export interface InspectorSdkEvent {
@@ -182,6 +197,14 @@ export class GameHubAdminService {
     return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/Suspend`, { gameId: id, reason }).pipe(map(this.unwrapResult));
   }
 
+  approveThumbnail(gameId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/ApproveThumbnail`, { gameId }).pipe(map(this.unwrapResult));
+  }
+
+  rejectThumbnail(gameId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/RejectThumbnail`, { gameId }).pipe(map(this.unwrapResult));
+  }
+
   getPendingReviews(count?: number): Observable<any> {
     if (count != null) {
       const params = new HttpParams().set('count', count.toString());
@@ -263,6 +286,15 @@ export class GameHubAdminService {
   validateInspectorSession(sessionId: string): Observable<InspectorWarning[]> {
     const params = new HttpParams().set('sessionId', sessionId);
     return this.http.get<InspectorWarning[]>(`${this.baseUrl}/api/services/app/Inspector/ValidateSession`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  saveInspectorChecklistAnswer(sessionId: string, questionId: string, answer: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/Inspector/SaveChecklistAnswer`, { sessionId, questionId, answer }).pipe(map(this.unwrapResult));
+  }
+
+  getInspectorChecklistCompletion(sessionId: string): Observable<InspectorChecklistCompletion> {
+    const params = new HttpParams().set('sessionId', sessionId);
+    return this.http.get<InspectorChecklistCompletion>(`${this.baseUrl}/api/services/app/Inspector/GetChecklistCompletion`, { params }).pipe(map(this.unwrapResult));
   }
 
   private unwrapResult = (response: any): any => {

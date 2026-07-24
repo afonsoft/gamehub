@@ -17,6 +17,19 @@ namespace GameHub.Inspector
         private readonly IRepository<InspectorSession, Guid> _sessionRepository;
         private readonly IRepository<InspectorSdkEvent, Guid> _eventRepository;
         private readonly IRepository<InspectorWarning, Guid> _warningRepository;
+        private readonly IRepository<InspectorChecklistAnswer, Guid> _checklistAnswerRepository;
+
+        private static readonly string[] ChecklistQuestionIds = new[]
+        {
+            "indexHtml",
+            "viewport",
+            "loadingTime",
+            "eventSequence",
+            "muteUnmute",
+            "adBreakFlow",
+            "externalRequests",
+            "cleanBuild"
+        };
 
         private static readonly string[] ExpectedSdkSequence = new[]
         {
@@ -28,11 +41,13 @@ namespace GameHub.Inspector
         public InspectorAppService(
             IRepository<InspectorSession, Guid> sessionRepository,
             IRepository<InspectorSdkEvent, Guid> eventRepository,
-            IRepository<InspectorWarning, Guid> warningRepository)
+            IRepository<InspectorWarning, Guid> warningRepository,
+            IRepository<InspectorChecklistAnswer, Guid> checklistAnswerRepository)
         {
             _sessionRepository = sessionRepository;
             _eventRepository = eventRepository;
             _warningRepository = warningRepository;
+            _checklistAnswerRepository = checklistAnswerRepository;
         }
 
         public async Task<InspectorSessionDto> StartSessionAsync(StartInspectorSessionInput input)
@@ -91,6 +106,7 @@ namespace GameHub.Inspector
         {
             var session = await _sessionRepository.GetAll()
                 .Where(s => s.Id == sessionId)
+                .Include(s => s.ChecklistAnswers)
                 .FirstOrDefaultAsync();
 
             if (session == null)
@@ -117,7 +133,8 @@ namespace GameHub.Inspector
                 Resolution = session.Resolution,
                 Status = session.Status,
                 Events = ObjectMapper.Map<List<InspectorSdkEventDto>>(events),
-                Warnings = ObjectMapper.Map<List<InspectorWarningDto>>(warnings)
+                Warnings = ObjectMapper.Map<List<InspectorWarningDto>>(warnings),
+                ChecklistAnswers = ObjectMapper.Map<List<InspectorChecklistAnswerDto>>(session.ChecklistAnswers.ToList())
             };
         }
 
@@ -157,6 +174,45 @@ namespace GameHub.Inspector
             }
 
             return warnings;
+        }
+
+        public async Task SaveChecklistAnswerAsync(SaveChecklistAnswerInput input)
+        {
+            var existing = await _checklistAnswerRepository.FirstOrDefaultAsync(
+                a => a.SessionId == input.SessionId && a.QuestionId == input.QuestionId);
+
+            if (existing != null)
+            {
+                existing.Answer = input.Answer ?? string.Empty;
+                existing.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                var answer = ObjectMapper.Map<InspectorChecklistAnswer>(input);
+                answer.Id = Guid.NewGuid();
+                answer.TenantId = AbpSession.TenantId;
+                answer.UpdatedAt = DateTime.UtcNow;
+                await _checklistAnswerRepository.InsertAsync(answer);
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<InspectorChecklistCompletionDto> GetChecklistCompletionAsync(Guid sessionId)
+        {
+            var answeredCount = await _checklistAnswerRepository.GetAll()
+                .Where(a => a.SessionId == sessionId && !string.IsNullOrEmpty(a.Answer))
+                .Select(a => a.QuestionId)
+                .Distinct()
+                .CountAsync();
+
+            var total = ChecklistQuestionIds.Length;
+            return new InspectorChecklistCompletionDto
+            {
+                TotalQuestions = total,
+                AnsweredQuestions = answeredCount,
+                CompletionPercentage = total == 0 ? 0 : Math.Round((double)answeredCount / total * 100, 2)
+            };
         }
 
         private static void ValidateEventSequence(List<InspectorSdkEvent> events, List<InspectorWarningDto> warnings)

@@ -14,5 +14,7 @@ namespace GameHub.Inspector
         Task<InspectorSessionDetailDto> GetSessionAsync(Guid sessionId);
         Task<List<InspectorSessionDto>> GetSessionsAsync(Guid gameId, int maxResultCount = 20);
         Task<List<InspectorWarningDto>> ValidateSessionAsync(Guid sessionId);
+        Task SaveChecklistAnswerAsync(SaveChecklistAnswerInput input);
+        Task<InspectorChecklistCompletionDto> GetChecklistCompletionAsync(Guid sessionId);
     }
 }
