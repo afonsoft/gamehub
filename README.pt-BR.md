@@ -63,6 +63,8 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 - Thumbnails animados com moderação nos cards da home/catálogo; fallback estático quando não aprovado.
 - Metadados de aspect ratio por jogo (`16:9`, `4:3` ou `Qualquer`).
 - URLs públicas de preview para builds não publicados (`/preview/:slug/:version?token=...`) com tokens JWT de curta duração.
+- Overlay mobile Poki Pill com mensagem `movePill(topPercent, topPx)` do SDK e posição persistida.
+- Consentimento de privacidade in-game com fallback para `localStorage` de usuários anônimos.
 
 ### Gameplay SDK / Bridge
 
@@ -88,6 +90,8 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 | `controlScheme` | Esquema de controle primário enviado ao jogo. |
 | `pauseRequested` / `resumeRequested` | Eventos de teclado ESC/Space. |
 | `getLanguage` / `setLanguage` | Preferência de idioma do jogador e mudança de idioma do jogo. |
+| `getPrivacyConsent` / `setPrivacyConsent` | Estado de consentimento de privacidade com fallback em `localStorage` para usuários anônimos. |
+| `movePill` | Reposiciona o overlay mobile Poki Pill. |
 
 ### Portal do Desenvolvedor
 
@@ -95,6 +99,15 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 - Upload de builds HTML5/WebGL (zip/tar) com validação obrigatória.
 - Validações: `index.html` obrigatório, tamanho máximo (100 MB), hash SHA-256 e sem executáveis (`.exe`, `.dll`, `.bat`, `.cmd`, `.ps1`).
 - Versionamento imutável (semver) e publicação no CDN após aprovação.
+- Ações "Abrir no Inspector" e "Preview no Game Hub" por build na lista de versões.
+- Contrato `gamehub.json` e `POST /api/services/app/GameBuild/UploadFromCli` para uploads via CI/CD (autenticação por API key).
+
+### P4D v2 (Equipes, Billing e Playtests)
+
+- Entidades `DeveloperTeam` e `DeveloperTeamMember` com papéis `Developer`, `Support` e `Billing`.
+- `IDeveloperTeamAppService` para criar, atualizar, convidar, remover e aceitar membros.
+- `DeveloperBillingProfile` vinculado a uma equipe com workflow de aprovação pendente.
+- Entidade `PlaytestSession` e `IPlaytestAppService` para solicitar playtests, listar por jogo e fazer upload de gravações.
 
 ### Moderação & Publicação (Admin)
 
@@ -191,7 +204,7 @@ Web  ← Application
 1. **Catalog** — `Game`, `Category`, `Tag`, `GamePlacement`
 2. **Build Management** — `GameBuild`, validação de builds
 3. **Gameplay Analytics** — `PlaySession`, `GameplayEvent`, `GameMetricSnapshot`
-4. **Developer Portal** — `DeveloperProfile`, submissão de jogos
+4. **Developer Portal** — `DeveloperProfile`, submissão de jogos, `DeveloperTeam`/`DeveloperTeamMember` (P4D v2), playtests, billing e upload via CLI com `gamehub.json`
 5. **Moderation** — `ModerationReview`, `UserReport`
 6. **Monetização** — `IAdProvider`, `AdBreakResult`, revenue share e descoberta de `WebExclusive`
 
@@ -281,7 +294,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Quantidade |
 |-------|--------|------------|
-| GameHub.Tests | Pass | 261 passados, 2 skipped |
+| GameHub.Tests | Pass | 279 passados, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passados, 1 skipped |
 | Angular Hub Build | Pass | build de produção OK |
 | Angular Admin Build | Pass | build de produção OK |
@@ -292,10 +305,10 @@ Medido com `dotnet test --collect:"XPlat Code Coverage"` e filtro de assemblies 
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 82,0% | — |
-| GameHub.Application | 76,3% | — |
+| GameHub.Core | 82,4% | — |
+| GameHub.Application | 77,0% | — |
 | GameHub.EntityFrameworkCore | 1,4% | — |
-| **Geral** | **6,9%** | **49,1%** |
+| **Geral** | **6,9%** | **50,3%** |
 
 > A cobertura geral está baixa porque a plataforma está em desenvolvimento inicial. O target é 90% line/branch; novos testes de domínio e aplicação devem ser adicionados incrementalmente.
 

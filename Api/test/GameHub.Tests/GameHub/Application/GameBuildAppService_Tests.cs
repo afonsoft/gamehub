@@ -1,14 +1,17 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using Castle.MicroKernel.Registration;
 using GameHub.Builds;
+using GameHub.Builds.Dto;
 using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Storage;
+using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Shouldly;
 using Xunit;
@@ -158,6 +161,85 @@ namespace GameHub.Tests.GameHub.Application
             }
             stream.Position = 0;
             return stream;
+        }
+
+        private static byte[] ReadStreamToBytes(Stream stream)
+        {
+            var bytes = new byte[stream.Length];
+            stream.ReadExactly(bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        [Fact]
+        public async Task Dado_ApiKeyValida_Quando_UploadFromCli_Entao_PersisteBuildParaJogo()
+        {
+            var (gameId, slug, apiKey) = await SeedGameWithApiKeyAsync("cli-test-game");
+            using var stream = CreateZipStream();
+            var package = ReadStreamToBytes(stream);
+
+            var result = await _gameBuildAppService.UploadFromCliAsync(new UploadFromCliInput
+            {
+                ApiKey = apiKey,
+                GameSlug = slug,
+                Version = "1.2.3",
+                Package = package
+            });
+
+            result.ShouldNotBeNull();
+            result.Status.ShouldBe(GameBuildStatus.Validated.ToString());
+            result.Version.ShouldBe("1.2.3");
+            result.BuildId.ShouldNotBe(Guid.Empty);
+
+            var build = await _buildRepository.GetAsync(result.BuildId);
+            build.GameId.ShouldBe(gameId);
+        }
+
+        [Fact]
+        public async Task Dado_ApiKeyInvalida_Quando_UploadFromCli_Entao_RetornaErro()
+        {
+            var (_, slug, _) = await SeedGameWithApiKeyAsync("cli-test-game-2");
+            using var stream = CreateZipStream();
+            var package = ReadStreamToBytes(stream);
+
+            var result = await _gameBuildAppService.UploadFromCliAsync(new UploadFromCliInput
+            {
+                ApiKey = "invalid-key",
+                GameSlug = slug,
+                Package = package
+            });
+
+            result.ShouldNotBeNull();
+            result.Status.ShouldBe(GameBuildStatus.ValidationFailed.ToString());
+            result.ValidationSummary.Errors.ShouldContain(e => e.Contains("Invalid API key"));
+        }
+
+        private async Task<(Guid gameId, string slug, string apiKey)> SeedGameWithApiKeyAsync(string slug)
+        {
+            var profileId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var apiKey = $"gh_cli_{Guid.NewGuid():N}";
+
+            return await UsingDbContextAsync(async context =>
+            {
+                await context.DeveloperProfiles.AddAsync(new DeveloperProfile
+                {
+                    Id = profileId,
+                    TenantId = AbpSession.TenantId,
+                    UserId = AbpSession.UserId ?? 1,
+                    DisplayName = "CLI Tester",
+                    Status = DeveloperProfileStatus.Active,
+                    ApiKey = apiKey
+                });
+
+                await context.Games.AddAsync(new Game(gameId, "CLI Test Game", slug, "Test game for CLI", profileId)
+                {
+                    TenantId = AbpSession.TenantId,
+                    Status = GameStatus.InReview
+                });
+
+                await context.SaveChangesAsync();
+                return (gameId, slug, apiKey);
+            });
         }
 
         private async Task<Guid> SeedGameAsync()

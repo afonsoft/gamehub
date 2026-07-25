@@ -15,7 +15,7 @@ export class I18nService {
   currentLang$ = this._currentLang.asObservable();
 
   constructor(private http: HttpClient) {
-    const saved = (typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null) as SupportedLanguage | null;
+    const saved = this.safeGetStorage();
     if (saved === 'pt-BR' || saved === 'en-US') {
       this._currentLang.next(saved);
     }
@@ -28,9 +28,25 @@ export class I18nService {
   async setLanguage(lang: SupportedLanguage): Promise<void> {
     if (lang !== this._currentLang.value) {
       await this.loadLanguage(lang);
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, lang);
-      }
+      this.safeSetStorage(lang);
+    }
+  }
+
+  private safeGetStorage(): SupportedLanguage | null {
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      return localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
+    } catch {
+      return null;
+    }
+  }
+
+  private safeSetStorage(lang: SupportedLanguage): void {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {
+      // Ignore in private/incognito mode.
     }
   }
 

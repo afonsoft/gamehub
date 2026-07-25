@@ -220,6 +220,27 @@ namespace GameHub.Privacy
             };
         }
 
+        [AbpAllowAnonymous]
+        public virtual async Task<PrivacyConsentDto> GetConsentAsync(GetPrivacyConsentInput input)
+        {
+            if (!AbpSession.UserId.HasValue)
+            {
+                return new PrivacyConsentDto { GameId = input.GameId };
+            }
+
+            var consent = await _privacyConsentRepository.FirstOrDefaultAsync(
+                c => c.GameId == input.GameId && c.UserId == AbpSession.UserId.Value);
+
+            if (consent == null)
+            {
+                return new PrivacyConsentDto { GameId = input.GameId };
+            }
+
+            var dto = ObjectMapper.Map<PrivacyConsentDto>(consent);
+            dto.Consented = true;
+            return dto;
+        }
+
         public virtual async Task SaveConsentAsync(SavePrivacyConsentInput input)
         {
             if (!AbpSession.UserId.HasValue)

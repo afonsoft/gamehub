@@ -58,6 +58,12 @@ export interface PrivacyPolicy {
   requiresConsent: boolean;
 }
 
+export interface PrivacyConsent {
+  consented: boolean;
+  policyVersion: string;
+  consentedAt?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GameplayBridgeService implements GameplayBridge {
   private readonly gameplayUrl = '/api/services/app/Gameplay';
@@ -67,6 +73,9 @@ export class GameplayBridgeService implements GameplayBridge {
   private gameSlug: string | null = null;
   private gameOrigin = environment.gameOrigin;
   private replyHandler?: (message: unknown) => void;
+  private onSaveError?: () => void;
+  private onMovePill?: (topPercent?: number, topPx?: number) => void;
+  private readonly pillPositionKey = 'gamehub_pill_position';
 
   private isLoadingStarted = false;
   private isLoadingFinished = false;
@@ -78,9 +87,11 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly localSavePrefix = 'gamehub_save_';
   private readonly ignorePrefix = 'gamehub_ignore_';
   private readonly languageKey = 'gamehub_language';
+  private readonly privacyConsentKey = 'gamehub_privacy_consent';
   private readonly cloudSaveUrl = '/api/services/app/CloudSave';
   private readonly playerAccountUrl = '/api/services/app/PlayerAccount';
   private readonly privacyUrl = '/api/services/app/Privacy/GetForGame';
+  private readonly consentUrl = '/api/services/app/Privacy/GetConsent';
 
   constructor(
     private http: HttpClient,
@@ -114,6 +125,40 @@ export class GameplayBridgeService implements GameplayBridge {
   setInspectorMode(enabled: boolean, sessionId?: string): void {
     this.isInspectorMode = enabled;
     this.inspectorSessionId = sessionId ?? null;
+  }
+
+  setOnSaveError(handler?: () => void): void {
+    this.onSaveError = handler;
+  }
+
+  setOnMovePill(handler?: (topPercent?: number, topPx?: number) => void): void {
+    this.onMovePill = handler;
+    const stored = this.getStoredPillPosition();
+    if (stored && this.onMovePill) {
+      this.onMovePill(stored.topPercent, stored.topPx);
+    }
+  }
+
+  private movePill(topPercent?: number, topPx?: number): void {
+    this.storePillPosition({ topPercent, topPx });
+    if (this.onMovePill) {
+      this.onMovePill(topPercent, topPx);
+    }
+    this.reply({ channel: 'gamehub-bridge', action: 'pillMoved', payload: { topPercent, topPx } });
+  }
+
+  private getStoredPillPosition(): { topPercent?: number; topPx?: number } | null {
+    const raw = this.safeLocalStorageGet(this.pillPositionKey);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as { topPercent?: number; topPx?: number };
+    } catch {
+      return null;
+    }
+  }
+
+  private storePillPosition(position: { topPercent?: number; topPx?: number }): void {
+    this.safeLocalStorageSet(this.pillPositionKey, JSON.stringify(position));
   }
 
   startSession(input: StartPlaySessionInput): Observable<PlaySession> {
@@ -260,12 +305,17 @@ export class GameplayBridgeService implements GameplayBridge {
 
       if (this.auth.isLoggedIn()) {
         const cloudData = this.filterIgnoreKeys(merged);
-        await this.saveCloudSave(cloudData);
+        const result = await this.saveCloudSave(cloudData);
+        if (result && !result.saved) {
+          this.onSaveError?.();
+          this.replyResponse(requestId, { saved: false, message: result.message ?? 'Progresso local apenas' });
+          return;
+        }
       }
 
-      this.replyResponse(requestId, { success: true });
+      this.replyResponse(requestId, { saved: true });
     } catch (err) {
-      this.replyResponse(requestId, undefined, err instanceof Error ? err.message : 'Storage error');
+      this.replyResponse(requestId, { saved: false, message: err instanceof Error ? err.message : 'Storage error' });
     }
   }
 
@@ -394,6 +444,67 @@ export class GameplayBridgeService implements GameplayBridge {
     return this.safeLocalStorageGet(this.languageKey) ?? 'en-US';
   }
 
+  async getPrivacyConsent(requestId: string): Promise<void> {
+    const fallback = this.getStoredPrivacyConsent();
+
+    if (!this.gameId) {
+      this.replyResponse(requestId, fallback);
+      return;
+    }
+
+    if (this.auth.isLoggedIn()) {
+      try {
+        const result = await firstValueFrom(
+          this.http.post<{ result?: PrivacyConsent }>(this.consentUrl, { gameId: this.gameId })
+            .pipe(map(response => this.unwrap<{ result?: PrivacyConsent }>(response)?.result ?? this.unwrap<PrivacyConsent>(response)))
+        );
+        this.replyResponse(requestId, result ?? fallback);
+        return;
+      } catch {
+        // Fallback to localStorage on API errors.
+      }
+    }
+
+    this.replyResponse(requestId, fallback);
+  }
+
+  async setPrivacyConsent(requestId: string, consented: boolean, policyVersion: string): Promise<void> {
+    this.storePrivacyConsent({ consented, policyVersion, consentedAt: new Date().toISOString() });
+
+    if (this.auth.isLoggedIn() && this.gameId) {
+      try {
+        await firstValueFrom(this.http.post(`${this.privacyUrl.replace('/GetForGame', '')}/SaveConsent`, {
+          gameId: this.gameId,
+          policyVersion
+        }));
+      } catch {
+        // ignore backend failures; localStorage is the source of truth for anonymous users
+      }
+    }
+
+    this.replyResponse(requestId, { consented, policyVersion });
+  }
+
+  getStoredPrivacyConsent(): PrivacyConsent {
+    const raw = this.safeLocalStorageGet(this.getPrivacyConsentKey());
+    if (!raw) {
+      return { consented: false, policyVersion: '' };
+    }
+    try {
+      return JSON.parse(raw) as PrivacyConsent;
+    } catch {
+      return { consented: false, policyVersion: '' };
+    }
+  }
+
+  private storePrivacyConsent(consent: PrivacyConsent): void {
+    this.safeLocalStorageSet(this.getPrivacyConsentKey(), JSON.stringify(consent));
+  }
+
+  private getPrivacyConsentKey(): string {
+    return this.gameSlug ? `${this.privacyConsentKey}_${this.gameSlug}` : this.privacyConsentKey;
+  }
+
   handleMessage(event: MessageEvent<unknown>): void {
     if (event.origin !== this.gameOrigin) {
       return;
@@ -471,6 +582,22 @@ export class GameplayBridgeService implements GameplayBridge {
       case 'setLanguage':
         void this.setLanguage(requestId ?? '', (payload?.['language'] as string) ?? 'en-US');
         break;
+      case 'getPrivacyConsent':
+        void this.getPrivacyConsent(requestId ?? '');
+        break;
+      case 'setPrivacyConsent':
+        void this.setPrivacyConsent(
+          requestId ?? '',
+          (payload?.['consented'] as boolean) ?? true,
+          (payload?.['policyVersion'] as string) ?? ''
+        );
+        break;
+      case 'movePill':
+        this.movePill(
+          payload?.['topPercent'] as number | undefined,
+          payload?.['topPx'] as number | undefined
+        );
+        break;
     }
   }
 
@@ -510,6 +637,7 @@ export class GameplayBridgeService implements GameplayBridge {
 
   private safeLocalStorageGet(key: string): string | null {
     try {
+      if (typeof localStorage === 'undefined') return null;
       return localStorage.getItem(key);
     } catch {
       return null;
@@ -518,6 +646,7 @@ export class GameplayBridgeService implements GameplayBridge {
 
   private safeLocalStorageSet(key: string, value: string): void {
     try {
+      if (typeof localStorage === 'undefined') return;
       localStorage.setItem(key, value);
     } catch {
       // Ignore in private/incognito mode.
@@ -536,6 +665,7 @@ export class GameplayBridgeService implements GameplayBridge {
 
   private getDeviceId(): string {
     try {
+      if (typeof localStorage === 'undefined') return '';
       let id = localStorage.getItem('gamehub-device-id');
       if (!id) {
         id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -571,14 +701,20 @@ export class GameplayBridgeService implements GameplayBridge {
     return firstValueFrom(request$);
   }
 
-  private saveCloudSave(data: Record<string, unknown>): Promise<unknown> {
+  private saveCloudSave(data: Record<string, unknown>): Promise<{ saved: boolean; message?: string } | null> {
     const request$ = this.http
-      .post(`${this.cloudSaveUrl}/Save`, {
+      .post<{ saved?: boolean; message?: string; result?: { saved?: boolean; message?: string } }>(`${this.cloudSaveUrl}/Save`, {
         gameId: this.gameId,
         deviceId: this.getDeviceId(),
         data: JSON.stringify(data),
       })
-      .pipe(catchError(() => of(null)));
+      .pipe(
+        map(response => {
+          const result = this.unwrap<{ saved?: boolean; message?: string }>(response);
+          return { saved: result?.saved ?? true, message: result?.message };
+        }),
+        catchError(() => of({ saved: false, message: 'Progresso local apenas' })),
+      );
     return firstValueFrom(request$);
   }
 

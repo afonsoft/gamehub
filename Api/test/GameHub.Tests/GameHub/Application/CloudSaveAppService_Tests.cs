@@ -1,10 +1,18 @@
 using System;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
+using Abp.ObjectMapping;
+using Abp.Runtime.Session;
+using Castle.Core.Logging;
 using GameHub.Catalog;
 using GameHub.Developers;
+using GameHub.EntityFrameworkCore;
 using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
+using Microsoft.EntityFrameworkCore;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Shouldly;
 using Xunit;
 
@@ -39,6 +47,7 @@ namespace GameHub.Tests.GameHub.Application
             });
 
             saved.Data.ShouldBe(data);
+            saved.Saved.ShouldBeTrue();
 
             var rows = await _cloudSaveRepository.GetAllListAsync(s => s.GameId == gameId);
             rows.Count.ShouldBe(1);
@@ -84,6 +93,49 @@ namespace GameHub.Tests.GameHub.Application
 
             saved.Data.ShouldBeNull();
             (await _cloudSaveRepository.GetAllListAsync(s => s.GameId == gameId)).Count.ShouldBe(0);
+        }
+
+        [Fact]
+        public async Task Dado_FalhaPersistencia_Quando_Salvar_Entao_RetornaSavedFalseComMensagemAmigavel()
+        {
+            GameHubDbContext.SkipMigrate = true;
+            var options = new DbContextOptionsBuilder<GameHubDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using var context = new GameHubDbContext(options);
+
+            var repo = Substitute.For<IRepository<CloudSave, Guid>>();
+            repo.GetAll().Returns(context.CloudSaves);
+            repo.InsertAsync(Arg.Any<CloudSave>()).Returns(call => Task.FromResult(call.Arg<CloudSave>()));
+
+            var abpSession = Substitute.For<IAbpSession>();
+            abpSession.UserId.Returns(1L);
+            abpSession.TenantId.Returns(1);
+
+            var uow = Substitute.For<IActiveUnitOfWork>();
+            uow.SaveChangesAsync().Throws(new Exception("Database is unavailable"));
+
+            var uowManager = Substitute.For<IUnitOfWorkManager>();
+            uowManager.Current.Returns(uow);
+
+            var service = new CloudSaveAppService(repo)
+            {
+                AbpSession = abpSession,
+                UnitOfWorkManager = uowManager,
+                Logger = NullLogger.Instance,
+                ObjectMapper = Substitute.For<IObjectMapper>()
+            };
+
+            var result = await service.SaveAsync(new SaveCloudSaveInput
+            {
+                GameId = Guid.NewGuid(),
+                Data = "{\"level\":1}"
+            });
+
+            result.ShouldNotBeNull();
+            result.Saved.ShouldBeFalse();
+            result.Message.ShouldContain("Progresso local apenas");
         }
 
         private async Task<Guid> SeedGameAsync()

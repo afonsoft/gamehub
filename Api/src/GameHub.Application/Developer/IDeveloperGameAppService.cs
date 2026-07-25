@@ -2,8 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using GameHub.Builds.Dto;
 using GameHub.Catalog.Dto;
 using GameHub.Developer.Dto;
+using GameHub.Inspector.Dto;
 
 namespace GameHub.Developer
 {
@@ -30,5 +32,9 @@ namespace GameHub.Developer
         Task<UploadImageResultDto> UploadAnimatedThumbnailAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
 
         Task<UploadImageResultDto> UploadHeroAsync(Guid gameId, byte[] fileBytes, string fileName, string contentType);
+
+        Task<CreatePreviewTokenResult> CreatePreviewTokenForBuildAsync(CreatePreviewTokenInput input);
+
+        Task<InspectorSessionDto> StartInspectorSessionForBuildAsync(StartInspectorSessionInput input);
     }
 }

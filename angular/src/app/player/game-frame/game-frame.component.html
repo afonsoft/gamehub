@@ -66,6 +66,14 @@
     {{ 'gameFrame.skip' | translate }}
   </button>
 
+  <div *ngIf="toast" class="toast" [class.toast-warning]="toast.type === 'warning'" [class.toast-error]="toast.type === 'error'" (click)="hideToast()">
+    {{ toast.message }}
+  </div>
+
+  <div *ngIf="started" class="mobile-pill" [style.top]="pillTop ?? 'auto'">
+    <span class="pill-handle"></span>
+  </div>
+
   <div *ngIf="loadingError" class="error">
     <p>{{ 'gameFrame.unavailable' | translate }}</p>
     <a (click)="back()">{{ 'gameFrame.back' | translate }}</a>

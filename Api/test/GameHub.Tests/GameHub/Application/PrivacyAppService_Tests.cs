@@ -243,5 +243,44 @@ namespace GameHub.Tests.GameHub.Application
                 consent.PolicyVersion.ShouldBe("v1");
             });
         }
+
+        [Fact]
+        public async Task Dado_UsuarioComConsentimento_Quando_GetConsent_Entao_RetornaConsentimento()
+        {
+            var userId = AbpSession.UserId.Value;
+            var gameId = Guid.NewGuid();
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.PlayerPrivacyConsents.AddAsync(new PlayerPrivacyConsent
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    GameId = gameId,
+                    PolicyVersion = "v2",
+                    ConsentedAt = DateTime.UtcNow,
+                    TenantId = AbpSession.TenantId,
+                });
+            });
+
+            var result = await _privacyAppService.GetConsentAsync(new GetPrivacyConsentInput { GameId = gameId });
+
+            result.ShouldNotBeNull();
+            result.GameId.ShouldBe(gameId);
+            result.Consented.ShouldBeTrue();
+            result.PolicyVersion.ShouldBe("v2");
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioSemConsentimento_Quando_GetConsent_Entao_RetornaNaoConsentido()
+        {
+            var gameId = Guid.NewGuid();
+
+            var result = await _privacyAppService.GetConsentAsync(new GetPrivacyConsentInput { GameId = gameId });
+
+            result.ShouldNotBeNull();
+            result.GameId.ShouldBe(gameId);
+            result.Consented.ShouldBeFalse();
+        }
     }
 }

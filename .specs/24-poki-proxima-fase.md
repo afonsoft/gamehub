@@ -1,6 +1,6 @@
 # 24 — Próxima Fase Poki: P4D v2 Completo, Inspector Final e Otimizações
 
-> **Status:** pendente
+> **Status:** implementado
 > **Base:** análise de `https://sdk.poki.com/new-requirements`, `https://sdk.poki.com/poki-inspector.html` e `https://sdk.poki.com/what-is-p4d.html`
 > **Objetivo:** fechar os itens remanescentes do spec 23 e incorporar otimizações e integrações finais da Poki.
 

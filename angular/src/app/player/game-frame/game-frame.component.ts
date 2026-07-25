@@ -34,10 +34,13 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   game: GameDetail | null = null;
   isPreview = false;
   previewVersion: string | null = null;
+  toast: { message: string; type: 'warning' | 'error' | 'info' } | null = null;
+  pillTop: string | null = null;
   private sessionId: string | null = null;
   private gameId: string | null = null;
   private gameOrigin = '*';
   private skipTimeout?: number;
+  private toastTimeout?: number;
   private readonly messageHandler = (event: MessageEvent<unknown>) => this.bridge.handleMessage(event);
   private readonly fullscreenHandler = () => this.onFullscreenChange();
   private readonly focusHandler = (event: FocusEvent) => this.onFocusChange(event, true);
@@ -127,11 +130,20 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   private configureGame(game: GameDetail): void {
     this.controlsHint = this.buildControlsHint(game);
     this.privacyConsentUrl = game.privacyPolicyUrl ?? '';
-    this.privacyConsentNeeded = this.privacyConsentUrl.length > 0 && !this.hasPrivacyConsent(game.slug);
+    this.privacyConsentNeeded = this.privacyConsentUrl.length > 0 && !this.bridge.getStoredPrivacyConsent().consented;
     this.selectedLanguage = this.resolveLanguage(game);
+    this.bridge.setSession('', this.gameId ?? '');
     this.bridge.setGame(game.slug);
     this.bridge.setGameOrigin(this.gameOrigin);
     this.bridge.setReplyHandler(msg => this.postToGame(msg));
+    this.bridge.setOnSaveError(() => this.showToast('Progresso local apenas', 'warning'));
+    this.bridge.setOnMovePill((topPercent, topPx) => this.setPillPosition(topPercent, topPx));
+
+    const inspector = this.route.snapshot.queryParamMap.get('inspector');
+    const inspectorSession = this.route.snapshot.queryParamMap.get('inspectorSession');
+    if (inspector === '1' && inspectorSession) {
+      this.bridge.setInspectorMode(true, inspectorSession);
+    }
   }
 
   acceptPrivacyConsent(): void {
@@ -141,14 +153,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
     this.privacyConsentGiven = true;
     this.privacyConsentNeeded = false;
-    this.savePrivacyConsent(this.game.slug);
-
-    if (this.token.isValid()) {
-      this.http.post('/api/services/app/Privacy/SaveConsent', {
-        gameId: this.game.id,
-        policyVersion: '1.0'
-      }).subscribe();
-    }
+    void this.bridge.setPrivacyConsent('', true, '1.0');
   }
 
   startGame(): void {
@@ -256,19 +261,29 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     return 'Desktop';
   }
 
-  private hasPrivacyConsent(slug: string): boolean {
-    try {
-      return localStorage.getItem(`gamehub-privacy-${slug}`) === 'true';
-    } catch {
-      return false;
+  private setPillPosition(topPercent?: number, topPx?: number): void {
+    if (topPx !== undefined && topPx !== null) {
+      this.pillTop = `${topPx}px`;
+    } else if (topPercent !== undefined && topPercent !== null) {
+      this.pillTop = `${topPercent}%`;
+    } else {
+      this.pillTop = null;
     }
   }
 
-  private savePrivacyConsent(slug: string): void {
-    try {
-      localStorage.setItem(`gamehub-privacy-${slug}`, 'true');
-    } catch {
-      // Ignore in private/incognito mode.
+  showToast(message: string, type: 'warning' | 'error' | 'info' = 'info'): void {
+    this.toast = { message, type };
+    if (this.toastTimeout) {
+      window.clearTimeout(this.toastTimeout);
+    }
+    this.toastTimeout = window.setTimeout(() => (this.toast = null), 4000);
+  }
+
+  hideToast(): void {
+    this.toast = null;
+    if (this.toastTimeout) {
+      window.clearTimeout(this.toastTimeout);
+      this.toastTimeout = undefined;
     }
   }
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { DeveloperService, BuildItem, UploadResult } from '../../core/services/developer.service';
 
 @Component({
@@ -19,6 +19,7 @@ export class DeveloperBuildsComponent implements OnInit {
   uploading = false;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly developerService = inject(DeveloperService);
 
   ngOnInit(): void {
@@ -54,6 +55,34 @@ export class DeveloperBuildsComponent implements OnInit {
     this.developerService.rejectBuild(build.id, reason).subscribe({
       next: () => this.loadBuilds(),
       error: err => alert(err?.error?.error?.message || 'Unable to reject build.'),
+    });
+  }
+
+  openInspector(build: BuildItem): void {
+    this.developerService.startInspectorSession(build.gameId, build.id, 'desktop', '1024x768').subscribe({
+      next: session => {
+        const url = this.router.serializeUrl(
+          this.router.createUrlTree(['/games', build.gameSlug], {
+            queryParams: { inspector: '1', inspectorSession: session.id },
+          })
+        );
+        window.open(url, '_blank');
+      },
+      error: err => alert(err?.error?.error?.message || 'Unable to start inspector session.'),
+    });
+  }
+
+  previewOnGameHub(build: BuildItem): void {
+    this.developerService.createPreviewToken(build.gameId, build.version).subscribe({
+      next: result => {
+        const url = this.router.serializeUrl(
+          this.router.createUrlTree(['/preview', result.gameSlug, result.version], {
+            queryParams: { token: result.token },
+          })
+        );
+        window.open(url, '_blank');
+      },
+      error: err => alert(err?.error?.error?.message || 'Unable to create preview token.'),
     });
   }
 

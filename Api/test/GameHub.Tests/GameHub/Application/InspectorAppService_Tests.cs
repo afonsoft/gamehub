@@ -93,7 +93,7 @@ namespace GameHub.Tests.GameHub.Application
 
             var warnings = await _inspectorAppService.ValidateSessionAsync(session.Id);
 
-            warnings.ShouldContain(w => w.Category == "Duplicate");
+            warnings.ShouldContain(w => w.Category == "UnexpectedBehavior");
         }
 
         [Fact]

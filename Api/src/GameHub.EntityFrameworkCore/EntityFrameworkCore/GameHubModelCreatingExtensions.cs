@@ -8,6 +8,7 @@ using GameHub.Inspector;
 using GameHub.Moderation;
 using GameHub.Monetization;
 using GameHub.Player;
+using GameHub.Playtesting;
 using GameHub.Privacy;
 using Microsoft.EntityFrameworkCore;
 
@@ -182,9 +183,11 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.LegalName).HasMaxLength(256);
                 b.Property(x => x.WebsiteUrl).HasMaxLength(512);
                 b.Property(x => x.SupportEmail).HasMaxLength(256);
+                b.Property(x => x.ApiKey).HasMaxLength(128);
                 b.Property(x => x.Status).IsRequired();
 
                 b.HasIndex(x => x.UserId).IsUnique();
+                b.HasIndex(x => x.ApiKey);
 
                 b.HasOne(x => x.User)
                     .WithMany()
@@ -612,6 +615,68 @@ namespace GameHub.EntityFrameworkCore
                     .WithMany()
                     .HasForeignKey(x => x.GameBuildId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DeveloperTeam>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "DeveloperTeams", GameHubConsts.DbSchema);
+
+                b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+                b.Property(x => x.PrimaryContactEmail).IsRequired().HasMaxLength(256);
+                b.Property(x => x.Country).HasMaxLength(128);
+                b.Property(x => x.ApiKey).HasMaxLength(128);
+                b.Property(x => x.CreatedAt).IsRequired();
+
+                b.HasIndex(x => x.ApiKey);
+            });
+
+            modelBuilder.Entity<DeveloperTeamMember>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "DeveloperTeamMembers", GameHubConsts.DbSchema);
+
+                b.Property(x => x.TeamId).IsRequired();
+                b.Property(x => x.Role).IsRequired();
+                b.Property(x => x.InvitedAt).IsRequired();
+                b.Property(x => x.InvitationToken).HasMaxLength(128);
+
+                b.HasIndex(x => new { x.TeamId, x.UserId }).IsUnique();
+                b.HasIndex(x => x.InvitationToken);
+
+                b.HasOne(x => x.Team)
+                    .WithMany(x => x.Members)
+                    .HasForeignKey(x => x.TeamId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DeveloperBillingProfile>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "DeveloperBillingProfiles", GameHubConsts.DbSchema);
+
+                b.Property(x => x.TeamId).IsRequired();
+                b.Property(x => x.TaxId).HasMaxLength(64);
+                b.Property(x => x.Address).HasMaxLength(512);
+                b.Property(x => x.PaymentMethodPlaceholder).HasMaxLength(64);
+
+                b.HasIndex(x => x.TeamId).IsUnique();
+
+                b.HasOne(x => x.Team)
+                    .WithMany()
+                    .HasForeignKey(x => x.TeamId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PlaytestSession>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlaytestSessions", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.Status).IsRequired();
+                b.Property(x => x.Notes).HasMaxLength(2000);
+                b.Property(x => x.RecordingUrl).HasMaxLength(2048);
+                b.Property(x => x.CreatedAt).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.Status });
+                b.HasIndex(x => x.RequestedByUserId);
             });
         }
     }

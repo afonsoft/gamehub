@@ -18,18 +18,30 @@ export class TokenService {
   private readonly tokenKey = 'gamehub_token';
 
   getToken(): string | null {
-    return typeof window !== 'undefined' ? localStorage.getItem(this.tokenKey) : null;
+    try {
+      return typeof window !== 'undefined' ? localStorage.getItem(this.tokenKey) : null;
+    } catch {
+      return null;
+    }
   }
 
   setToken(token: string): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(this.tokenKey, token);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(this.tokenKey, token);
+      }
+    } catch {
+      // Ignore in private/incognito mode.
     }
   }
 
   clearToken(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(this.tokenKey);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(this.tokenKey);
+      }
+    } catch {
+      // Ignore in private/incognito mode.
     }
   }
 

@@ -16,6 +16,7 @@ using GameHub.Inspector;
 using GameHub.Moderation;
 using GameHub.Monetization;
 using GameHub.Player;
+using GameHub.Playtesting;
 using GameHub.Privacy;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
@@ -102,6 +103,10 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<InspectorWarning> InspectorWarnings { get; set; }
         public virtual DbSet<InspectorChecklistAnswer> InspectorChecklistAnswers { get; set; }
         public virtual DbSet<PreviewToken> PreviewTokens { get; set; }
+        public virtual DbSet<DeveloperTeam> DeveloperTeams { get; set; }
+        public virtual DbSet<DeveloperTeamMember> DeveloperTeamMembers { get; set; }
+        public virtual DbSet<DeveloperBillingProfile> DeveloperBillingProfiles { get; set; }
+        public virtual DbSet<PlaytestSession> PlaytestSessions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

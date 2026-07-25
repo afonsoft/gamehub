@@ -56,6 +56,8 @@
           <td>
             <button *ngIf="build.status === 'Validated'" (click)="approveBuild(build)">Approve</button>
             <button *ngIf="build.status === 'Validated'" (click)="rejectBuild(build)">Reject</button>
+            <button (click)="openInspector(build)">Open in Inspector</button>
+            <button (click)="previewOnGameHub(build)">Preview on Game Hub</button>
           </td>
         </tr>
       </tbody>

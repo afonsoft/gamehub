@@ -16,6 +16,12 @@ public class BuildDto
     /// <summary>Build unique identifier.</summary>
     public Guid Id { get; set; }
 
+    /// <summary>Game identifier.</summary>
+    public Guid GameId { get; set; }
+
+    /// <summary>Game slug used in public URLs.</summary>
+    public string GameSlug { get; set; } = string.Empty;
+
     /// <summary>Version string (e.g., "1.0.0").</summary>
     public string Version { get; set; } = string.Empty;
 
