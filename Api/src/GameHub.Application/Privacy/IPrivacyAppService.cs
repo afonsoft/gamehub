@@ -21,6 +21,9 @@ namespace GameHub.Privacy
         /// <summary>Returns the privacy policy for the given game.</summary>
         Task<PrivacyPolicyDto> GetForGameAsync(string gameSlug);
 
+        /// <summary>Returns the current player's consent for the given game.</summary>
+        Task<PrivacyConsentDto> GetConsentAsync(GetPrivacyConsentInput input);
+
         /// <summary>Records the current player's consent to the game's privacy policy.</summary>
         Task SaveConsentAsync(SavePrivacyConsentInput input);
     }

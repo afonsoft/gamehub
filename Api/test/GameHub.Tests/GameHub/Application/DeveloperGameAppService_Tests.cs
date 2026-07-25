@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Abp.Domain.Repositories;
 using Abp.UI;
 using GameHub.Builds;
+using GameHub.Builds.Dto;
 using GameHub.Catalog;
 using GameHub.Developer;
 using GameHub.Developer.Dto;
+using GameHub.Inspector.Dto;
 using GameHub.Moderation;
 using Shouldly;
 using Xunit;
@@ -166,6 +168,40 @@ namespace GameHub.Tests.GameHub.Application
             game.Status.ShouldBe(GameStatus.InReview);
         }
 
+        [Fact]
+        public async Task Dado_BuildValido_Quando_CriarPreviewToken_Entao_RetornaUrlDePreview()
+        {
+            var (gameId, _) = await SeedGameWithBuildAsync("Preview Token Game");
+
+            var result = await _developerGameAppService.CreatePreviewTokenForBuildAsync(new CreatePreviewTokenInput
+            {
+                GameId = gameId,
+                Version = "1.0.1"
+            });
+
+            result.ShouldNotBeNull();
+            result.Token.ShouldNotBeNullOrWhiteSpace();
+            result.PreviewUrl.ShouldContain("/preview/preview-token-game/1.0.1?token=");
+        }
+
+        [Fact]
+        public async Task Dado_BuildValido_Quando_IniciarSessaoInspector_Entao_RetornaSessao()
+        {
+            var (gameId, buildId) = await SeedGameWithBuildAsync("Inspector Session Game");
+
+            var result = await _developerGameAppService.StartInspectorSessionForBuildAsync(new StartInspectorSessionInput
+            {
+                GameId = gameId,
+                GameBuildId = buildId,
+                DevicePreset = "desktop",
+                Resolution = "1024x768"
+            });
+
+            result.ShouldNotBeNull();
+            result.GameId.ShouldBe(gameId);
+            result.GameBuildId.ShouldBe(buildId);
+        }
+
         private async Task<(Guid GameId, Guid BuildId)> SeedGameWithBuildAsync(string title)
         {
             var game = await _developerGameAppService.CreateDraftAsync(new CreateGameDraftInput
@@ -180,7 +216,9 @@ namespace GameHub.Tests.GameHub.Application
             var build = new GameBuild(buildId, game.Id, "1.0.1", 1, "/uploads/test.zip", 100, "hash")
             {
                 TenantId = AbpSession.TenantId,
-                Status = GameBuildStatus.Validated
+                Status = GameBuildStatus.Validated,
+                PublicBaseUrl = "https://cdn.test/build/",
+                IndexHtmlPath = "index.html"
             };
 
             await UsingDbContextAsync(async context =>

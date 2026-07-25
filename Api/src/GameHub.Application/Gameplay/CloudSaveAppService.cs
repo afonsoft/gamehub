@@ -77,13 +77,28 @@ namespace GameHub.Gameplay
             existing.UncompressedSize = size;
             existing.LastModificationTime = Clock.Now;
 
-            await CurrentUnitOfWork.SaveChangesAsync();
+            try
+            {
+                await CurrentUnitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Cloud save persistence failed", ex);
+                return new CloudSaveDto
+                {
+                    GameId = input.GameId,
+                    Data = input.Data,
+                    Saved = false,
+                    Message = "Progresso local apenas"
+                };
+            }
 
             return new CloudSaveDto
             {
                 GameId = existing.GameId,
                 Data = existing.Data,
                 LastModificationTime = existing.LastModificationTime,
+                Saved = true
             };
         }
 

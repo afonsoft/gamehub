@@ -10,10 +10,13 @@ using Abp.UI;
 using GameHub;
 using GameHub.Authorization;
 using GameHub.Builds;
+using GameHub.Builds.Dto;
 using GameHub.Catalog;
 using GameHub.Catalog.Dto;
 using GameHub.Developer.Dto;
 using GameHub.Developers;
+using GameHub.Inspector;
+using GameHub.Inspector.Dto;
 using GameHub.Moderation;
 using GameHub.Storage;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +31,8 @@ namespace GameHub.Developer
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
         private readonly IGameCatalogCache _catalogCache;
         private readonly IGameAssetStorage _assetStorage;
+        private readonly IGamePreviewAppService _gamePreviewAppService;
+        private readonly IInspectorAppService _inspectorAppService;
 
         private static readonly string[] AllowedImageExtensions = { ".png", ".jpg", ".jpeg", ".webp", ".gif" };
 
@@ -37,7 +42,9 @@ namespace GameHub.Developer
             IRepository<ModerationReview, Guid> moderationReviewRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
             IGameCatalogCache catalogCache,
-            IGameAssetStorage assetStorage)
+            IGameAssetStorage assetStorage,
+            IGamePreviewAppService gamePreviewAppService,
+            IInspectorAppService inspectorAppService)
         {
             _gameRepository = gameRepository;
             _gameBuildRepository = gameBuildRepository;
@@ -45,6 +52,8 @@ namespace GameHub.Developer
             _developerProfileRepository = developerProfileRepository;
             _catalogCache = catalogCache;
             _assetStorage = assetStorage;
+            _gamePreviewAppService = gamePreviewAppService;
+            _inspectorAppService = inspectorAppService;
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Games_Create)]
@@ -209,13 +218,36 @@ namespace GameHub.Developer
                 .Include(g => g.GameBuilds)
                 .FirstAsync();
 
-            return new ListResultDto<BuildDto>(ObjectMapper.Map<List<BuildDto>>(game.GameBuilds.ToList()));
+            var builds = ObjectMapper.Map<List<BuildDto>>(game.GameBuilds.ToList());
+            foreach (var build in builds)
+            {
+                build.GameId = game.Id;
+                build.GameSlug = game.Slug;
+            }
+
+            return new ListResultDto<BuildDto>(builds);
         }
 
         [AbpAuthorize]
         public async Task<ListResultDto<BuildDto>> GetVersionsAsync(Guid gameId)
         {
             return await GetBuildsAsync(gameId);
+        }
+
+        [AbpAuthorize]
+        public async Task<CreatePreviewTokenResult> CreatePreviewTokenForBuildAsync(CreatePreviewTokenInput input)
+        {
+            var game = await _gameRepository.GetAsync(input.GameId);
+            await EnsureCurrentUserOwnsGameAsync(game);
+            return await _gamePreviewAppService.CreatePreviewTokenAsync(input);
+        }
+
+        [AbpAuthorize]
+        public async Task<InspectorSessionDto> StartInspectorSessionForBuildAsync(StartInspectorSessionInput input)
+        {
+            var game = await _gameRepository.GetAsync(input.GameId);
+            await EnsureCurrentUserOwnsGameAsync(game);
+            return await _inspectorAppService.StartSessionAsync(input);
         }
 
         private async Task EnsureCurrentUserOwnsGameAsync(Game game)

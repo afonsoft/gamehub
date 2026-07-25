@@ -92,9 +92,13 @@ export class PlayerService {
   }
 
   clearLocalData(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(FAVORITES_KEY);
-      localStorage.removeItem(RECENT_KEY);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(FAVORITES_KEY);
+        localStorage.removeItem(RECENT_KEY);
+      }
+    } catch {
+      // Ignore in private/incognito mode.
     }
   }
 
@@ -113,10 +117,10 @@ export class PlayerService {
   }
 
   private readJson<T>(key: string): T | null {
-    if (typeof localStorage === 'undefined') return null;
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
     try {
+      if (typeof localStorage === 'undefined') return null;
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
       return JSON.parse(raw) as T;
     } catch {
       return null;
@@ -124,8 +128,12 @@ export class PlayerService {
   }
 
   private writeJson(key: string, value: unknown): void {
-    if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(key, JSON.stringify(value));
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Ignore in private/incognito mode.
+    }
   }
 
   private unwrap<T>(response: any): T | null {

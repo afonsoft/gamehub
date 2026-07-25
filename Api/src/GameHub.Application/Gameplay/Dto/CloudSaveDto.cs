@@ -13,5 +13,11 @@ namespace GameHub.Gameplay.Dto
 
         /// <summary>UTC timestamp of the last update.</summary>
         public DateTime? LastModificationTime { get; set; }
+
+        /// <summary>Whether the save was persisted successfully.</summary>
+        public bool Saved { get; set; } = true;
+
+        /// <summary>Friendly message when persistence fails or is local-only.</summary>
+        public string Message { get; set; }
     }
 }

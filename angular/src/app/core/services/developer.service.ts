@@ -74,6 +74,8 @@ export interface PagedGameSummary {
 
 export interface BuildItem {
   id: string;
+  gameId: string;
+  gameSlug: string;
   version: string;
   buildNumber: number;
   status: string;
@@ -81,6 +83,22 @@ export interface BuildItem {
   hashSha256: string;
   createdAt: string;
   publishedAt?: string;
+}
+
+export interface PreviewTokenResult {
+  token: string;
+  previewUrl: string;
+  version: string;
+  gameSlug: string;
+}
+
+export interface InspectorSessionResult {
+  id: string;
+  gameId: string;
+  gameBuildId: string;
+  devicePreset: string;
+  resolution: string;
+  startedAt: string;
 }
 
 export interface DeveloperDashboard {
@@ -268,6 +286,23 @@ export class DeveloperService {
     return this.http
       .get<BuildItem[] | { result?: BuildItem[] }>(`${this.gameUrl}/GetVersions`, { params })
       .pipe(map(response => this.unwrap<BuildItem[]>(response)));
+  }
+
+  createPreviewToken(gameId: string, version: string): Observable<PreviewTokenResult> {
+    return this.http
+      .post<PreviewTokenResult | { result?: PreviewTokenResult }>(`${this.gameUrl}/CreatePreviewTokenForBuild`, { gameId, version })
+      .pipe(map(response => this.unwrap<PreviewTokenResult>(response)));
+  }
+
+  startInspectorSession(gameId: string, gameBuildId: string, devicePreset = 'desktop', resolution = '1024x768'): Observable<InspectorSessionResult> {
+    return this.http
+      .post<InspectorSessionResult | { result?: InspectorSessionResult }>(`${this.gameUrl}/StartInspectorSessionForBuild`, {
+        gameId,
+        gameBuildId,
+        devicePreset,
+        resolution,
+      })
+      .pipe(map(response => this.unwrap<InspectorSessionResult>(response)));
   }
 
   getDashboard(): Observable<DeveloperDashboard> {
