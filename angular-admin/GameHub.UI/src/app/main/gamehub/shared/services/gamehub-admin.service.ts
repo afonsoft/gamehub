@@ -53,6 +53,7 @@ export interface ValidationReport {
 export interface InspectorSession {
   id: string;
   gameId: string;
+  gameSlug?: string;
   gameBuildId?: string;
   startedAt: string;
   devicePreset?: string;

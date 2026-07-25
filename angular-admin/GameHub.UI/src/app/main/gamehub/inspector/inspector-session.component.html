@@ -23,7 +23,7 @@
           <label>Width x Height</label>
           <input class="form-control" [(ngModel)]="resolution" />
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label>&nbsp;</label>
           <button class="btn btn-primary btn-block" (click)="rerunValidation()" [disabled]="validating">
             Re-run validation
@@ -33,7 +33,22 @@
           <label>&nbsp;</label>
           <a class="btn btn-info btn-block" [href]="getPreviewUrl()" target="_blank">Open preview</a>
         </div>
+        <div class="col-md-2">
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary btn-block" (click)="toggleQr()">
+            {{ showQr ? 'Hide QR' : 'Mobile QR' }}
+          </button>
+        </div>
       </div>
+
+      <div *ngIf="showQr && qrUrl" class="m--margin-top-20 text-center">
+        <img [src]="qrUrl" alt="Mobile preview QR code" />
+        <p class="text-muted">{{ getMobilePreviewUrl() }}</p>
+      </div>
+
+      <p *ngIf="unexpectedWarnings.length" class="m--margin-top-20 alert alert-warning">
+        Unexpected behavior detected: {{ unexpectedWarnings.length }} warning(s)
+      </p>
 
       <p *ngIf="completion" class="m--margin-top-20">
         Checklist: {{ completion.completionPercentage }}% ({{ completion.answeredQuestions }}/{{ completion.totalQuestions }})
@@ -45,7 +60,7 @@
       <div class="inspector-frame-wrapper" [style.width]="getResolutionStyle()?.width" [style.height]="getResolutionStyle()?.height">
         <iframe
           *ngIf="session?.gameId"
-          [src]="'/play/' + session.gameId + '?inspector=1&inspectorSession=' + session.id"
+          [src]="getPreviewUrl()"
           class="inspector-frame"
           sandbox="allow-scripts allow-same-origin allow-pointer-lock"
         ></iframe>

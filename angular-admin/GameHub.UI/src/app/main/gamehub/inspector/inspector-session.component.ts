@@ -26,6 +26,8 @@ export class InspectorSessionComponent implements OnInit {
   devicePreset = 'desktop';
   resolution = '1024x768';
   completion: InspectorChecklistCompletion | null = null;
+  showQr = false;
+  qrUrl: string | null = null;
 
   presets = [
     { label: 'Desktop 1024x768', value: 'desktop', resolution: '1024x768' },
@@ -122,7 +124,26 @@ export class InspectorSessionComponent implements OnInit {
 
   getPreviewUrl(): string {
     if (!this.session) return '';
-    return `/play/${this.session.gameId}?inspector=1&inspectorSession=${this.session.id}`;
+    return `/play/${this.session.gameSlug || this.session.gameId}?inspector=1&inspectorSession=${this.session.id}`;
+  }
+
+  getMobilePreviewUrl(): string {
+    if (!this.session) return '';
+    return `${window.location.origin}/play/${this.session.gameSlug || this.session.gameId}?inspector=1&inspectorSession=${this.session.id}`;
+  }
+
+  getQrCodeUrl(): string {
+    const data = encodeURIComponent(this.getMobilePreviewUrl());
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${data}`;
+  }
+
+  toggleQr(): void {
+    this.showQr = !this.showQr;
+    this.qrUrl = this.showQr ? this.getQrCodeUrl() : null;
+  }
+
+  get unexpectedWarnings(): InspectorWarning[] {
+    return this.session?.warnings?.filter(w => w.category === 'UnexpectedBehavior') ?? [];
   }
 
   getAnswer(questionId: string): string {

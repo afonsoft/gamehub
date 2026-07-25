@@ -7,6 +7,7 @@ namespace GameHub.Inspector.Dto
     {
         public Guid Id { get; set; }
         public Guid GameId { get; set; }
+        public string GameSlug { get; set; }
         public Guid? GameBuildId { get; set; }
         public DateTime StartedAt { get; set; }
         public string DevicePreset { get; set; }

@@ -6,6 +6,7 @@ using Abp.Application.Services;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using GameHub.Authorization;
+using GameHub.Catalog;
 using GameHub.Inspector.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ namespace GameHub.Inspector
         private readonly IRepository<InspectorSdkEvent, Guid> _eventRepository;
         private readonly IRepository<InspectorWarning, Guid> _warningRepository;
         private readonly IRepository<InspectorChecklistAnswer, Guid> _checklistAnswerRepository;
+        private readonly IRepository<Game, Guid> _gameRepository;
 
         private static readonly string[] ChecklistQuestionIds = new[]
         {
@@ -42,12 +44,14 @@ namespace GameHub.Inspector
             IRepository<InspectorSession, Guid> sessionRepository,
             IRepository<InspectorSdkEvent, Guid> eventRepository,
             IRepository<InspectorWarning, Guid> warningRepository,
-            IRepository<InspectorChecklistAnswer, Guid> checklistAnswerRepository)
+            IRepository<InspectorChecklistAnswer, Guid> checklistAnswerRepository,
+            IRepository<Game, Guid> gameRepository)
         {
             _sessionRepository = sessionRepository;
             _eventRepository = eventRepository;
             _warningRepository = warningRepository;
             _checklistAnswerRepository = checklistAnswerRepository;
+            _gameRepository = gameRepository;
         }
 
         public async Task<InspectorSessionDto> StartSessionAsync(StartInspectorSessionInput input)
@@ -123,10 +127,13 @@ namespace GameHub.Inspector
                 .Where(w => w.SessionId == sessionId)
                 .ToListAsync();
 
+            var game = await _gameRepository.FirstOrDefaultAsync(g => g.Id == session.GameId);
+
             return new InspectorSessionDetailDto
             {
                 Id = session.Id,
                 GameId = session.GameId,
+                GameSlug = game?.Slug ?? string.Empty,
                 GameBuildId = session.GameBuildId,
                 StartedAt = session.StartedAt,
                 DevicePreset = session.DevicePreset,
@@ -167,7 +174,7 @@ namespace GameHub.Inspector
                 await AddWarningAsync(new AddInspectorWarningInput
                 {
                     SessionId = sessionId,
-                    Category = "SDK",
+                    Category = w.Category,
                     Message = w.Message,
                     Severity = w.Severity
                 });
@@ -227,7 +234,7 @@ namespace GameHub.Inspector
             {
                 warnings.Add(new InspectorWarningDto
                 {
-                    Category = "Order",
+                    Category = "UnexpectedBehavior",
                     Message = "gameplayStart was called before gameLoadingFinished.",
                     Severity = "Critical"
                 });
@@ -237,7 +244,7 @@ namespace GameHub.Inspector
             {
                 warnings.Add(new InspectorWarningDto
                 {
-                    Category = "Order",
+                    Category = "UnexpectedBehavior",
                     Message = "gameLoadingFinished was called before gameLoadingStarted.",
                     Severity = "Critical"
                 });
@@ -247,7 +254,7 @@ namespace GameHub.Inspector
             {
                 warnings.Add(new InspectorWarningDto
                 {
-                    Category = "Order",
+                    Category = "UnexpectedBehavior",
                     Message = "gameLoadingStarted was not received before gameLoadingFinished.",
                     Severity = "Warning"
                 });
@@ -266,7 +273,7 @@ namespace GameHub.Inspector
                     {
                         warnings.Add(new InspectorWarningDto
                         {
-                            Category = "AdBreak",
+                            Category = "UnexpectedBehavior",
                             Message = $"{ordered[i].EventType} was not surrounded by adBreakMute/adBreakUnmute events.",
                             Severity = "Warning"
                         });
@@ -287,7 +294,7 @@ namespace GameHub.Inspector
             {
                 warnings.Add(new InspectorWarningDto
                 {
-                    Category = "Duplicate",
+                    Category = "UnexpectedBehavior",
                     Message = $"{dup} was emitted more than once.",
                     Severity = "Warning"
                 });
