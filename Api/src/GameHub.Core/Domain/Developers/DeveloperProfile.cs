@@ -29,6 +29,8 @@ namespace GameHub.Developers
         public string WebsiteUrl { get; set; }
         [StringLength(256)]
         public string SupportEmail { get; set; }
+        [StringLength(128)]
+        public string ApiKey { get; set; }
         [Required]
         public DeveloperProfileStatus Status { get; set; }
 

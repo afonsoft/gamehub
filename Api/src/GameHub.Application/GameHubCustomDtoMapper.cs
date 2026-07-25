@@ -15,6 +15,10 @@ using GameHub.Moderation.Dto;
 using GameHub.Monetization;
 using GameHub.Inspector;
 using GameHub.Inspector.Dto;
+using GameHub.Playtesting;
+using GameHub.Playtesting.Dto;
+using GameHub.Privacy;
+using GameHub.Privacy.Dto;
 using GameHub.Admin.Dto;
 using GameHub.Storage;
 using Abp.Auditing;
@@ -141,6 +145,20 @@ namespace GameHub
             configuration.CreateMap<CreateOrUpdateDeveloperProfileInput, DeveloperProfile>();
             configuration.CreateMap<DeveloperProfileStatus, string>().ConvertUsing(s => s.ToString());
 
+            configuration.CreateMap<DeveloperTeam, DeveloperTeamDto>();
+            configuration.CreateMap<CreateOrUpdateDeveloperTeamInput, DeveloperTeam>();
+            configuration.CreateMap<DeveloperTeamMember, DeveloperTeamMemberDto>();
+            configuration.CreateMap<DeveloperBillingProfile, DeveloperBillingProfileDto>();
+            configuration.CreateMap<SaveDeveloperBillingProfileInput, DeveloperBillingProfile>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.TeamId, opt => opt.MapFrom(src => src.TeamId));
+
+            configuration.CreateMap<PlaytestSession, PlaytestSessionDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+            configuration.CreateMap<RequestPlaytestInput, PlaytestSession>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
+
             configuration.CreateMap<StoredAsset, UploadImageResultDto>()
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
@@ -175,6 +193,9 @@ namespace GameHub
                 .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : string.Empty))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime))
                 .ForMember(dest => dest.GameTitle, opt => opt.MapFrom(src => src.Game != null ? src.Game.Title : string.Empty));
+
+            // Privacy
+            configuration.CreateMap<PlayerPrivacyConsent, PrivacyConsentDto>();
 
             // Configuration / Audit
             configuration.CreateMap<FeatureFlag, FeatureFlagDto>();
