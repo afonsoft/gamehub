@@ -1,5 +1,35 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-25 17:15 UTC
+
+### Tarefa
+Implementar spec 24 da referência Poki (P4D v2, Inspector v3, incognito UX, CLI parity, Versions tab e Poki Pill).
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Developers/DeveloperProfile.cs`, `DeveloperTeam.cs` — `ApiKey` para autenticação CLI.
+- `Api/src/GameHub.Application/Builds/GameBuildAppService.cs`, `IGameBuildAppService.cs`, `Dto/GamehubCliManifest.cs`, `Dto/UploadFromCliInput.cs` — upload via CLI com API key.
+- `Api/src/GameHub.Application/Developer/DeveloperGameAppService.cs`, `IDeveloperGameAppService.cs`, `Dto/BuildDto.cs` — `CreatePreviewTokenForBuildAsync`, `StartInspectorSessionForBuildAsync` e `GameId`/`GameSlug` no build DTO.
+- `Api/src/GameHub.Application/Privacy/PrivacyAppService.cs`, `IPrivacyAppService.cs`, `Dto/PrivacyConsentDto.cs`, `Dto/GetPrivacyConsentInput.cs` — `GetConsentAsync` com fallback para usuários anônimos.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — mapeamento `PlayerPrivacyConsent -> PrivacyConsentDto`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubModelCreatingExtensions.cs` — colunas e índices `ApiKey`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260725170203_AddDeveloperApiKeys.*` — migração.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — `getPrivacyConsent`, `setPrivacyConsent`, `movePill`, safe localStorage guards e persistência da posição do pill.
+- `angular/src/app/player/game-frame/game-frame.component.ts/.html/.css` — integração das ações de privacy/pill, toast de progresso local e overlay mobile.
+- `angular/src/app/core/services/developer.service.ts`, `angular/src/app/developer/builds/builds.component.ts/.html` — ações "Open in Inspector" e "Preview on Game Hub" por build.
+- `docs/gamehub-cli.md` — documentação do CLI.
+- `Api/test/GameHub.Tests/GameHub/Application/PrivacyAppService_Tests.cs`, `GameBuildAppService_Tests.cs`, `DeveloperGameAppService_Tests.cs` — testes dos novos métodos.
+- `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `.specs/24-poki-proxima-fase.md` — documentação atualizada.
+
+### Motivação
+Completar a fase 24 da referência Poki: suporte a equipes e playtests já haviam sido entregues; esta sessão focou em CLI parity, actions do Versions tab, overlay mobile, UX de incognito e testes.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` — 0 warnings, 0 erros.
+- `dotnet test Api/GameHub.sln --no-build` — 279 passaram, 2 skipped.
+- `dotnet test Api/test/GameHub.Tests/GameHub.Tests.csproj --collect:"XPlat Code Coverage"` — cobertura gerada em `TestResults/*/coverage.cobertura.xml`.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` — sucesso.
+- Itens pendentes para próxima sessão: onboarding de equipes/billing no portal admin, integração real do CLI em Node.js, deep-link do inspector no admin e gamificação/monetização avançada.
+
 ## 2026-07-24 14:40 UTC
 
 ### Tarefa

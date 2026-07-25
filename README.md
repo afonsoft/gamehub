@@ -59,10 +59,11 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - Adaptive controls (keyboard/touch hints) and ESC/Space pause/resume.
 - Skippable cutscenes when `cutscenesSkippable` is enabled.
 - In-game language selector and player language preference (`getLanguage`/`setLanguage`).
-- Privacy policy display and consent on game detail pages.
+- Privacy policy display and consent on game detail pages with `localStorage` fallback for anonymous users.
 - Animated thumbnails with moderation status on home/catalog cards; static fallback when not approved.
 - Game aspect ratio metadata (`16:9`, `4:3` or `Any`).
 - Public preview URLs for unpublished game builds (`/preview/:slug/:version?token=...`) with short-lived JWT tokens.
+- Mobile Poki Pill overlay with `movePill(topPercent, topPx)` SDK message and persisted position.
 
 ### Gameplay SDK / Bridge
 
@@ -88,6 +89,8 @@ The iframe-hosted game communicates with the platform through the following even
 | `controlScheme` | Primary input scheme sent to the game. |
 | `pauseRequested` / `resumeRequested` | ESC/Space keyboard events. |
 | `getLanguage` / `setLanguage` | Player language preference and game language change. |
+| `getPrivacyConsent` / `setPrivacyConsent` | Privacy consent state with anonymous `localStorage` fallback. |
+| `movePill` | Reposition the mobile Poki Pill overlay. |
 
 ### Developer Portal
 
@@ -95,6 +98,15 @@ The iframe-hosted game communicates with the platform through the following even
 - HTML5/WebGL build upload (zip/tar) with mandatory validation.
 - Validations: `index.html` required, maximum size (100 MB), SHA-256 hash, and no executables (`.exe`, `.dll`, `.bat`, `.cmd`, `.ps1`).
 - Immutable versioning (semver) and CDN publication after approval.
+- Per-build "Open in Inspector" and "Preview on Game Hub" actions in the versions list.
+- `gamehub.json` CLI contract and `POST /api/services/app/GameBuild/UploadFromCli` for CI/CD uploads (API-key auth).
+
+### P4D v2 (Teams, Billing & Playtests)
+
+- `DeveloperTeam` and `DeveloperTeamMember` entities with `Developer`, `Support`, and `Billing` roles.
+- `IDeveloperTeamAppService` for create, update, invite, remove, and accept members.
+- `DeveloperBillingProfile` linked to a team with pending-approval workflow.
+- `PlaytestSession` entity and `IPlaytestAppService` for requesting playtests, listing by game, and uploading recordings.
 
 ### Moderation & Publishing (Admin)
 
@@ -335,7 +347,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Count |
 |-------|--------|-------|
-| GameHub.Tests | Pass | 261 passed, 2 skipped |
+| GameHub.Tests | Pass | 279 passed, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passed, 1 skipped |
 | Angular Hub Build | Pass | production build OK |
 | Angular Admin Build | Pass | production build OK |
@@ -346,10 +358,10 @@ Measured with `dotnet test --collect:"XPlat Code Coverage"` and `GameHub.*` asse
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 82.0% | — |
-| GameHub.Application | 76.3% | — |
+| GameHub.Core | 82.4% | — |
+| GameHub.Application | 77.0% | — |
 | GameHub.EntityFrameworkCore | 1.4% | — |
-| **Overall** | **6.9%** | **49.1%** |
+| **Overall** | **6.9%** | **50.3%** |
 
 > The overall rate is low because the platform is in early development. The coverage target is 90% line/branch; new domain and application tests should be added incrementally.
 
