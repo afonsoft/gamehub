@@ -1,6 +1,8 @@
 # 27 — Poki Netlib / Multiplayer e Arbitrary User Data Store (AUDS)
 
-> **Status:** pendente
+> **Status:** implementado (2026-07-26)
+> **Branch:** `feature/poki-27-multiplayer-auds`
+> **PR:** #56
 > **Base:** análise de `https://sdk.poki.com/new-requirements`, `https://sdk.poki.com/sdk-documentation` e referências da Poki Networking Library
 > **Objetivo:** implementar suporte a partidas online leves e um backend genérico de chave/valor JSON para jogos que precisam persistir dados arbitrários na nuvem.
 
@@ -117,3 +119,12 @@ public class ArbitraryUserData : FullAuditedEntity<Guid>, IMayHaveTenant
 - Itens 27.1 e 27.2 são independentes e podem ser entregues separadamente.
 - Prioridade sugerida: 27.2 (AUDS) → 27.1 (Multiplayer) — AUDS é mais simples e desbloqueia cloud saves genéricos.
 - Criar migração `AddPoki27MultiplayerAndAuds` ao final.
+
+## Notas de implementação
+
+- Migração gerada: `Poki27`.
+- `GameHubMatchHub` utiliza `ITransientDependency` e injeta `IMatchmakingService`; sessão do ABP disponível via `IAbpSession`.
+- `GameplayBridgeService` cria uma conexão SignalR única (`/signalr-match`) e gerencia sala atual (`currentMatchId`).
+- AUDS valida JSON, rejeita prefixo `gamehub_ignore_*` e aplica cota/limite de 64 KB por valor.
+- Bridge expõe `createMatch`, `joinMatch`, `joinMatchByRoomCode`, `leaveMatch`, `sendMatchState`, `onMatchStateChanged`, `saveArbitrary`, `loadArbitrary` e `deleteArbitrary` via mensagens `gamehub-bridge`.
+- Testes: `MatchmakingAppService_Tests` (10 casos) e `ArbitraryUserDataAppService_Tests` (5 casos).
