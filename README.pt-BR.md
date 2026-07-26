@@ -67,6 +67,8 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 - **Mystery Tile** na home para descoberta de playtests, com prompt de consentimento de gravação.
 - Avisos de otimização de imagem na validação de builds quando assets ultrapassam 100 KB.
 - Consentimento de privacidade in-game com fallback para `localStorage` de usuários anônimos.
+- **Multiplayer / Netlib base**: `Game.SupportsMultiplayer`, `MaxPlayersPerMatch`, `MatchState`, `MatchParticipant`, SignalR `GameHubMatchHub` (`/signalr-match`), matchmaking por código de sala, estado da partida em tempo real e endpoints HTTP de bridge.
+- **Arbitrary User Data Store (AUDS)**: armazenamento chave/valor JSON por jogo com validação de JSON, cota de 100 chaves, limite de 64 KB por valor, prefixo reservado `gamehub_ignore_*` e TTL opcional.
 
 ### Gameplay SDK / Bridge
 
@@ -95,6 +97,10 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 | `getLanguage` / `setLanguage` | Preferência de idioma do jogador e mudança de idioma do jogo. |
 | `getPrivacyConsent` / `setPrivacyConsent` | Estado de consentimento de privacidade com fallback em `localStorage` para usuários anônimos. |
 | `movePill` | Reposiciona o overlay mobile Poki Pill. |
+| `createMatch` / `joinMatch` / `joinMatchByRoomCode` | Matchmaking multiplayer via SignalR com código de sala. |
+| `sendMatchState` / `onMatchStateChanged` | Broadcast do estado da partida para os jogadores conectados. |
+| `leaveMatch` | Desconecta do jogador da partida atual. |
+| `saveArbitrary` / `loadArbitrary` / `deleteArbitrary` | Armazenamento arbitrário de dados do jogador (AUDS) com cota e TTL. |
 
 ### Portal do Desenvolvedor
 
@@ -312,7 +318,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Quantidade |
 |-------|--------|------------|
-| GameHub.Tests | Pass | 296 passados, 2 skipped |
+| GameHub.Tests | Pass | 310 passados, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passados, 1 skipped |
 | Angular Hub Build | Pass | build de produção OK |
 | Angular Admin Build | Pass | build de produção OK |
@@ -323,11 +329,11 @@ Medido com `dotnet test --collect:"XPlat Code Coverage"` e filtro de assemblies 
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 77,0% | 53,8% |
-| GameHub.Application | 81,2% | 52,4% |
-| GameHub.EntityFrameworkCore | 1,3% | 42,3% |
+| GameHub.Core | 77,7% | 50,3% |
+| GameHub.Application | 79,6% | 50,3% |
+| GameHub.EntityFrameworkCore | 1,0% | 42,3% |
 | GameHub.Web.Host | 49,1% | 41,9% |
-| **Geral** | **7,9%** | **51,1%** |
+| **Geral** | **6,3%** | **50,3%** |
 
 > A cobertura geral está baixa porque a plataforma está em desenvolvimento inicial. O target é 90% line/branch; novos testes de domínio e aplicação devem ser adicionados incrementalmente.
 
@@ -369,7 +375,7 @@ GPL-3.0-or-later. Veja [LICENSE](LICENSE) para detalhes.
 
 ## Status do Projeto
 
-Em desenvolvimento ativo. O spec 26 (Error Scanner, DPU/funil de conversão, feedback de jogadores, portões de qualidade, domínios externos, guia de thumbnails, dificuldade de playtests, player fit/retenção, workflow de submissão e relatórios de anúncios) está implementado no backend e testes. Trabalho restante inclui caches produtivos com Redis, integração MinIO/S3 para armazenamento de builds, algoritmos avançados de recomendação e Netlib/multiplayer + AUDS (spec 27).
+Em desenvolvimento ativo. O spec 27 (Netlib/multiplayer base com matchmaking e estado da partida em tempo real via SignalR, além do Arbitrary User Data Store) está implementado no backend, Web Host e bridge Angular. Trabalho restante inclui caches produtivos com Redis, integração MinIO/S3 para armazenamento de builds, algoritmos avançados de recomendação e integração mais profunda do SignalR (autorização no hub, reconexão resiliente e suporte a espectadores).
 
 ---
 

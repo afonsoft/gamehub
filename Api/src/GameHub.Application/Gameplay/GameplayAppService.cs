@@ -9,6 +9,10 @@ using GameHub.Catalog;
 using GameHub.Gameplay.Dto;
 using GameHub.Player;
 using GameHub.Player.Dto;
+using GameHub.Multiplayer;
+using GameHub.Multiplayer.Dto;
+using GameHub.ArbitraryUserData;
+using GameHub.ArbitraryUserData.Dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Gameplay
@@ -21,6 +25,8 @@ namespace GameHub.Gameplay
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
         private readonly IPlayerAccountAppService _playerAccountAppService;
+        private readonly IMultiplayerAppService _multiplayerAppService;
+        private readonly IArbitraryUserDataAppService _arbitraryUserDataAppService;
 
         public GameplayAppService(
             IRepository<PlaySession, Guid> playSessionRepository,
@@ -28,7 +34,9 @@ namespace GameHub.Gameplay
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
             IRepository<Game, Guid> gameRepository,
             IRepository<GameErrorLog, Guid> errorLogRepository,
-            IPlayerAccountAppService playerAccountAppService)
+            IPlayerAccountAppService playerAccountAppService,
+            IMultiplayerAppService multiplayerAppService,
+            IArbitraryUserDataAppService arbitraryUserDataAppService)
         {
             _playSessionRepository = playSessionRepository;
             _gameplayEventRepository = gameplayEventRepository;
@@ -36,6 +44,8 @@ namespace GameHub.Gameplay
             _gameRepository = gameRepository;
             _errorLogRepository = errorLogRepository;
             _playerAccountAppService = playerAccountAppService;
+            _multiplayerAppService = multiplayerAppService;
+            _arbitraryUserDataAppService = arbitraryUserDataAppService;
         }
 
         public async Task<PlaySessionDto> StartSessionAsync(StartPlaySessionInput input)
@@ -173,6 +183,46 @@ namespace GameHub.Gameplay
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<GameErrorLogDto>(error);
+        }
+
+        public Task<MatchDto> CreateMatchAsync(CreateMatchInput input)
+        {
+            return _multiplayerAppService.CreateOrJoinMatchAsync(input);
+        }
+
+        public Task<MatchDto> JoinMatchAsync(JoinMatchInput input)
+        {
+            return _multiplayerAppService.JoinMatchAsync(input);
+        }
+
+        public Task<MatchDto> JoinMatchByRoomCodeAsync(JoinMatchByRoomCodeInput input)
+        {
+            return _multiplayerAppService.JoinMatchByRoomCodeAsync(input);
+        }
+
+        public Task LeaveMatchAsync(LeaveMatchInput input)
+        {
+            return _multiplayerAppService.LeaveMatchAsync(input);
+        }
+
+        public Task SendMatchStateAsync(UpdateMatchStateInput input)
+        {
+            return _multiplayerAppService.UpdateMatchStateAsync(input);
+        }
+
+        public Task<string> LoadArbitraryAsync(GetArbitraryUserDataInput input)
+        {
+            return _arbitraryUserDataAppService.GetAsync(input);
+        }
+
+        public Task SaveArbitraryAsync(SetArbitraryUserDataInput input)
+        {
+            return _arbitraryUserDataAppService.SetAsync(input);
+        }
+
+        public Task DeleteArbitraryAsync(DeleteArbitraryUserDataInput input)
+        {
+            return _arbitraryUserDataAppService.DeleteAsync(input);
         }
     }
 }

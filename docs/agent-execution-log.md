@@ -1,5 +1,36 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-26 03:00 UTC
+
+### Tarefa
+Implementar spec 27 da referência Poki (Netlib/multiplayer base + Arbitrary User Data Store), com foco em SignalR.
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Catalog/Game.cs` — `SupportsMultiplayer`, `MaxPlayersPerMatch`.
+- `Api/src/GameHub.Core/Domain/Multiplayer/MatchState.cs`, `MatchParticipant.cs`, `MatchStatus.cs`, `IMatchmakingService.cs`.
+- `Api/src/GameHub.Application/Multiplayer/MatchmakingService.cs`, `IMultiplayerAppService.cs`, `MultiplayerAppService.cs`, `Dto/MatchDto.cs`, `MultiplayerInputs.cs`.
+- `Api/src/GameHub.Application/ArbitraryUserData/ArbitraryUserDataRecord.cs` (Core), `ArbitraryUserDataAppService.cs`, `IArbitraryUserDataAppService.cs`, `Dto/ArbitraryUserDataInputs.cs`, `ArbitraryUserDataQuotaDto.cs`.
+- `Api/src/GameHub.Application/Gameplay/GameplayAppService.cs`, `IGameplayAppService.cs` — bridge methods para `createMatch`, `joinMatch`, `sendMatchState`, `saveArbitrary`, `loadArbitrary`, `deleteArbitrary`.
+- `Api/src/GameHub.Web.Host/Hubs/GameHubMatchHub.cs` — SignalR hub para matchmaking e estado da partida.
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — `services.AddSignalR()` e `endpoints.MapHub<GameHubMatchHub>("/signalr-match")`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`, `GameHubModelCreatingExtensions.cs` — `DbSet`s e configurações EF para `MatchState`, `MatchParticipant` e `ArbitraryUserDataRecord`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/*Poki27.*` — migração EF Core.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs` — mapeamento `MatchState`/`MatchParticipant` ↔ `MatchDto`.
+- `angular/package.json` — `@microsoft/signalr` v8.0.7.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` — conexão SignalR, métodos de match e handler de mensagens.
+- `Api/test/GameHub.Tests/GameHub/Application/MatchmakingAppService_Tests.cs` e `ArbitraryUserDataAppService_Tests.cs` — testes de integração.
+- `README.md`, `README.pt-BR.md`, `CHANGELOG.md` — atualização de funcionalidades, testes e cobertura.
+
+### Motivação
+Entregar a base de multiplayer (Netlib) e o armazenamento arbitrário de dados do jogador (AUDS) da Poki, priorizando SignalR para comunicação em tempo real entre jogadores.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` — 0 warnings, 0 erros.
+- `dotnet test Api/GameHub.sln --no-build` — 310 passaram, 2 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` — sucesso.
+- Cobertura: GameHub.Application 79.6% linha / 50.3% branch, GameHub.Core 77.7% / 50.3%, global 6.3% / 50.3%.
+- Próximos passos: aprofundar SignalR (autorização, reconexão, espectadores) e criar spec 28.
+
 ## 2026-07-26 02:00 UTC
 
 ### Tarefa

@@ -54,6 +54,7 @@ CLAUDE.local.md
 
 # Test coverage output
 **/TestResults/
+coverage-report/
 
 # MSBuild Binary and Structured Log
 *.binlog

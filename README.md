@@ -66,6 +66,8 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - Mobile Poki Pill overlay with `movePill(topPercent, topPx)` SDK message and persisted position.
 - **Mystery Tile** on the home page for playtest discovery, with recording-consent prompt.
 - Image-optimization warnings in build validation when uploaded assets exceed 100 KB.
+- **Multiplayer / Netlib base**: `Game.SupportsMultiplayer`, `MaxPlayersPerMatch`, `MatchState`, `MatchParticipant`, SignalR `GameHubMatchHub` (`/signalr-match`), room code matchmaking, real-time match state, and HTTP bridge endpoints.
+- **Arbitrary User Data Store (AUDS)**: per-game key/value JSON storage with JSON validation, 100-key quota, 64 KB/value limit, reserved `gamehub_ignore_*` prefix, and optional TTL.
 
 ### Gameplay SDK / Bridge
 
@@ -94,6 +96,10 @@ The iframe-hosted game communicates with the platform through the following even
 | `getLanguage` / `setLanguage` | Player language preference and game language change. |
 | `getPrivacyConsent` / `setPrivacyConsent` | Privacy consent state with anonymous `localStorage` fallback. |
 | `movePill` | Reposition the mobile Poki Pill overlay. |
+| `createMatch` / `joinMatch` / `joinMatchByRoomCode` | SignalR-based multiplayer matchmaking with room code. |
+| `sendMatchState` / `onMatchStateChanged` | Real-time match state broadcast to joined players. |
+| `leaveMatch` | Disconnect from the current match. |
+| `saveArbitrary` / `loadArbitrary` / `deleteArbitrary` | Arbitrary user data store (AUDS) with quota and TTL. |
 
 ### Developer Portal
 
@@ -365,7 +371,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Count |
 |-------|--------|-------|
-| GameHub.Tests | Pass | 296 passed, 2 skipped |
+| GameHub.Tests | Pass | 310 passed, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passed, 1 skipped |
 | Angular Hub Build | Pass | production build OK |
 | Angular Admin Build | Pass | production build OK |
@@ -376,11 +382,11 @@ Measured with `dotnet test --collect:"XPlat Code Coverage"` and `GameHub.*` asse
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 77.0% | 53.8% |
-| GameHub.Application | 81.2% | 52.4% |
-| GameHub.EntityFrameworkCore | 1.3% | 42.3% |
+| GameHub.Core | 77.7% | 50.3% |
+| GameHub.Application | 79.6% | 50.3% |
+| GameHub.EntityFrameworkCore | 1.0% | 42.3% |
 | GameHub.Web.Host | 49.1% | 41.9% |
-| **Overall** | **7.9%** | **51.1%** |
+| **Overall** | **6.3%** | **50.3%** |
 
 > The overall rate is low because the platform is in early development. The coverage target is 90% line/branch; new domain and application tests should be added incrementally.
 
@@ -422,7 +428,7 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 
 ## Project Status
 
-In active development. Spec 26 (Error Scanner, DPU/conversion funnel, player feedback analytics, quality guidelines gates, external-resource exemptions, thumbnail enforcement, playtest difficulty balancing, player fit/retention, submission/approval workflow, and ad/earnings reports) is implemented in backend and tests. Remaining work includes Redis-backed production caches, full MinIO/S3 integration for build storage, advanced recommendation algorithms, and the Netlib/multiplayer + Arbitrary User Data Store (AUDS) features (reserved for a dedicated follow-up session).
+In active development. Spec 27 (Netlib/multiplayer base with SignalR matchmaking and real-time match state, plus the Arbitrary User Data Store) is implemented in backend, Web Host, and Angular bridge. Remaining work includes Redis-backed production caches, full MinIO/S3 integration for build storage, advanced recommendation algorithms, and deeper SignalR integration such as hub authorization, reconnect resilience, and spectator support.
 
 ---
 

@@ -62,6 +62,8 @@ namespace GameHub.Web.Startup
                 options.Filters.Add(new ResponseCacheAttribute() { NoStore = true, Location = ResponseCacheLocation.None });
             }).AddNewtonsoftJson();
 
+            services.AddSignalR();
+
             //Configure EAF Middleware
             services.AddEafConfigurer(_appConfiguration);
 
@@ -199,6 +201,7 @@ namespace GameHub.Web.Startup
             {
                 endpoints.MapHub<AbpCommonHub>("/signalr");
                 endpoints.MapHub<ChatHub>("/signalr-chat");
+                endpoints.MapHub<GameHub.Web.Hubs.GameHubMatchHub>("/signalr-match");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
