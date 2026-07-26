@@ -93,6 +93,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<FeatureFlag> FeatureFlags { get; set; }
         public virtual DbSet<BuildValidationReport> BuildValidationReports { get; set; }
         public virtual DbSet<RevenueContract> RevenueContracts { get; set; }
+        public virtual DbSet<AdImpression> AdImpressions { get; set; }
         public virtual DbSet<PlayerFavorite> PlayerFavorites { get; set; }
         public virtual DbSet<PlayerRecentGame> PlayerRecentGames { get; set; }
         public virtual DbSet<PlayerPreference> PlayerPreferences { get; set; }
@@ -108,6 +109,8 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<DeveloperBillingProfile> DeveloperBillingProfiles { get; set; }
         public virtual DbSet<PlaytestSession> PlaytestSessions { get; set; }
         public virtual DbSet<PlaytestRecording> PlaytestRecordings { get; set; }
+        public virtual DbSet<GameErrorLog> GameErrorLogs { get; set; }
+        public virtual DbSet<ExternalResourceExemption> ExternalResourceExemptions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

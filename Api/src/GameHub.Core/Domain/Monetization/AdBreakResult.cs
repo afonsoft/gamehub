@@ -13,6 +13,10 @@ namespace GameHub.Monetization
 
         public bool AdBlocked { get; set; }
 
+        public decimal Cpm { get; set; }
+
+        public decimal Earnings { get; set; }
+
         public string ErrorMessage { get; set; } = string.Empty;
     }
 }
