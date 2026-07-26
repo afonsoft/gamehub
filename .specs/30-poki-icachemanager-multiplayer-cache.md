@@ -46,6 +46,11 @@ Criar em Web/Infrastructure uma implementação baseada em `ICacheManager`:
 - não armazenar payload de signaling;
 - não registrar valores de tokens, cookies ou credenciais.
 
+Quando `RedisCache:IsEnabled=true`, configurar `Configuration.Caching.UseRedis(...)`
+com a mesma connection string e `DatabaseId` usados pela API. Com Redis
+desabilitado, o provider local do ABP continua disponível para desenvolvimento e
+testes.
+
 O nome do cache deve ser estável, por exemplo:
 
 ```text

@@ -19,5 +19,11 @@ namespace GameHub.Monitoring
         public static readonly Histogram<long> LatencyMs = Meter.CreateHistogram<long>("multiplayer.latency_ms");
         public static readonly Counter<long> AudsKeysStored = Meter.CreateCounter<long>("auds.keys.stored");
         public static readonly Counter<long> AudsBytesStored = Meter.CreateCounter<long>("auds.bytes.stored");
+        public static readonly Counter<long> PresenceRegistered = Meter.CreateCounter<long>("multiplayer.presence.registered");
+        public static readonly Counter<long> PresenceRefreshed = Meter.CreateCounter<long>("multiplayer.presence.refreshed");
+        public static readonly Counter<long> PresenceRemoved = Meter.CreateCounter<long>("multiplayer.presence.removed");
+        public static readonly Counter<long> PresenceCacheErrors = Meter.CreateCounter<long>("multiplayer.presence.cache_errors");
+        public static readonly Histogram<double> PresenceOperationDurationMs =
+            Meter.CreateHistogram<double>("multiplayer.presence.operation_duration_ms");
     }
 }

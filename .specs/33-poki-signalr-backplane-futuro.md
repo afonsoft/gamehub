@@ -2,13 +2,14 @@
 
 ## Status
 
-Fora do escopo imediato. Depende da conclusão e observação dos Prompts 30–32.
+Implementado de forma opcional junto com os Prompts 30–32. A ativação permanece
+desligada por padrão nos `appsettings.*.json`.
 
 ## Objetivo futuro
 
 Distribuir grupos e mensagens dos hubs `/signalr-match` e `/signalr-network` entre múltiplas instâncias da API usando o provider oficial `Microsoft.AspNetCore.SignalR.StackExchangeRedis`.
 
-## Pré-requisitos
+## Pré-requisitos operacionais
 
 - Provider `ICacheManager`/EAF validado em produção.
 - Redis compartilhado com TLS, autenticação e capacidade dimensionada.
@@ -17,14 +18,16 @@ Distribuir grupos e mensagens dos hubs `/signalr-match` e `/signalr-network` ent
 - Métricas de conexões, Pub/Sub, latência e falhas disponíveis.
 - Estratégia de channel prefix por ambiente/tenant definida.
 
-## Escopo futuro
+## Implementação entregue
 
-- Adicionar pacote oficial compatível com `net10.0`.
-- Configurar `AddStackExchangeRedis` somente quando habilitado.
-- Definir `ChannelPrefix` não conflitante com caches.
-- Testar `Signal`, `Broadcast`, grupos e reconnect entre instâncias.
-- Validar comportamento durante perda/reconexão do Redis.
-- Definir se presença continua usando `ICacheManager` ou se compartilha a conexão Redis.
+- Pacote `Microsoft.AspNetCore.SignalR.StackExchangeRedis` compatível com `net10.0`.
+- `AddStackExchangeRedis` somente quando `RedisCache:IsEnabled` e
+  `SignalR:Backplane:IsEnabled` forem verdadeiros.
+- `ChannelPrefix` configurável e separado do cache.
+- Presença continua usando `ICacheManager`; o backplane é transporte separado.
+
+Ainda requer validação de runtime com duas instâncias e Redis compartilhado antes
+de habilitar em produção.
 
 ## Não fazer neste prompt
 

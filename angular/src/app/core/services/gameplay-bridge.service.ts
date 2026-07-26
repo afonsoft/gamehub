@@ -224,6 +224,11 @@ export class GameplayBridgeService implements GameplayBridge {
     await this.networkConnection?.invoke('Broadcast', channel, payload);
   }
 
+  async heartbeatNetwork(): Promise<void> {
+    await this.ensureNetworkConnection();
+    await this.networkConnection?.invoke('Heartbeat');
+  }
+
   private async ensureNetworkConnection(): Promise<void> {
     if (this.networkConnection) {
       return;
@@ -835,6 +840,11 @@ export class GameplayBridgeService implements GameplayBridge {
         )
           .then(() => this.replyResponse(requestId ?? '', { sent: true }))
           .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Broadcast error'));
+        break;
+      case 'heartbeat':
+        void this.heartbeatNetwork()
+          .then(() => this.replyResponse(requestId ?? '', { sent: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Heartbeat error'));
         break;
       case 'loadArbitrary':
         void this.loadArbitrary((payload?.['key'] as string) ?? '')

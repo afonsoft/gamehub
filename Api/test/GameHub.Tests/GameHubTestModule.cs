@@ -13,6 +13,8 @@ using GameHub.EntityFrameworkCore;
 using GameHub.Security;
 using GameHub.Storage;
 using GameHub.Tests.DependencyInjection;
+using GameHub.Multiplayer;
+using GameHub.Web.Multiplayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -60,6 +62,8 @@ namespace GameHub.Tests
             RegisterFakeService<AbpZeroDbMigrator<GameHubDbContext>>();
             IocManager.Register<IGameAssetStorage, FakeGameAssetStorage>(DependencyLifeStyle.Transient);
             IocManager.Register<IGameTokenProvider, FakeGameTokenProvider>(DependencyLifeStyle.Transient);
+            IocManager.Register<IMultiplayerPresenceStore, CacheMultiplayerPresenceStore>(
+                DependencyLifeStyle.Transient);
 
             Configuration.ReplaceService<IEmailSender, NullEmailSender>(DependencyLifeStyle.Transient);
         }

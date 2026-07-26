@@ -21,6 +21,7 @@ using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
 using GameHub.Web.Hubs;
+using GameHub.Web.Multiplayer;
 using GameHub.Web.WebHooks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
@@ -34,6 +35,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -64,15 +66,34 @@ namespace GameHub.Web.Startup
                 options.Filters.Add(new ResponseCacheAttribute() { NoStore = true, Location = ResponseCacheLocation.None });
             }).AddNewtonsoftJson();
 
-            services.AddSignalR();
+            var signalR = services.AddSignalR();
+            var backplane = SignalRBackplaneSettings.FromConfiguration(_appConfiguration);
+
+            if (backplane.CanConfigure)
+            {
+                signalR.AddStackExchangeRedis(
+                    backplane.ConnectionString,
+                    options =>
+                    {
+                        options.Configuration.ChannelPrefix =
+                            RedisChannel.Literal(backplane.ChannelPrefix);
+                    });
+            }
+
             services.AddSingleton<IUserIdProvider, GameHubUserIdProvider>();
             services.AddSingleton<NetworkPeerRegistry>();
+            services.Configure<MultiplayerPresenceOptions>(
+                _appConfiguration.GetSection("Multiplayer:Presence"));
 
             //Configure EAF Middleware
             services.AddEafConfigurer(_appConfiguration);
 
             //Configure HealthChecks
             services.AddEafHealthChecks();
+            services.AddHealthChecks()
+                .AddCheck<MultiplayerPresenceHealthCheck>(
+                    "multiplayer_presence_cache",
+                    HealthStatus.Degraded);
             //Configure OpenTelemetry
             services.AddEafOpenTelemetry(options =>
             {

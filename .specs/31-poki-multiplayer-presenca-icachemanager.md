@@ -9,7 +9,7 @@ Substituir o `NetworkPeerRegistry` puramente local por um registro de presença 
 Cada conexão deve ser uma entrada independente, pois `ICacheManager` não deve depender de scan/enumeration:
 
 ```text
-gamehub:multiplayer:presence:{tenant}:{match}:{connection}
+gamehub:multiplayer:presence:{tenant}:connection:{connection}
 ```
 
 Valor mínimo:
@@ -70,6 +70,10 @@ Preservar a regra atual de grace period de 30 segundos no matchmaking. A presen�
 - grace period de participante: 30 segundos;
 - desconexão explícita remove presença imediatamente;
 - reconexão registra nova conexão e reativa o participante conforme regra atual.
+
+O hub expõe `Heartbeat` para renovar o TTL. O cliente pode chamá-lo a cada
+`HeartbeatIntervalSeconds`; clientes antigos continuam compatíveis porque o
+método é adicional.
 
 ## Limitação deliberada
 
