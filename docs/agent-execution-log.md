@@ -1540,3 +1540,16 @@ Executar melhorias do GameHub que não dependem de alterações no EAF.
 - O SDK gera `clientEventId` para telemetria.
 - Captura de erros valida que a sessão pertence ao jogo informado.
 - Nenhuma alteração foi feita no EAF.
+
+## 2026-07-26 00:10 UTC
+
+### Tarefa
+Criar as especificações detalhadas dos próximos passos após o PR #68.
+
+### Resultado
+- Criadas as Specs 46–51 para moderação/segurança, analytics/exportação,
+  portal/publicação, SDK/privacidade, evolução de contratos do EAF e roadmap
+  de execução.
+- As Specs 46–49 são executáveis no GameHub sem alterar o EAF.
+- A Spec 50 isola os contratos que exigem PR separado no EAF.
+- A Spec 51 define a ordem, dependências, fora de escopo e Definition of Done.
