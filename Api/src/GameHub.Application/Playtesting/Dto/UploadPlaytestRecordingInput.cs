@@ -22,5 +22,8 @@ namespace GameHub.Playtesting.Dto
 
         [StringLength(4000)]
         public string ConsoleOutput { get; set; }
+
+        [StringLength(16000)]
+        public string LevelEvents { get; set; }
     }
 }

@@ -27,6 +27,7 @@ namespace GameHub.Developer
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
         private readonly IRepository<RevenueContract, Guid> _revenueContractRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
+        private readonly IRepository<AdImpression, Guid> _adImpressionRepository;
         private readonly IRepository<DeveloperTeamMember, Guid> _teamMemberRepository;
 
         public DeveloperEarningsAppService(
@@ -35,6 +36,7 @@ namespace GameHub.Developer
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
             IRepository<RevenueContract, Guid> revenueContractRepository,
             IRepository<PlaySession, Guid> playSessionRepository,
+            IRepository<AdImpression, Guid> adImpressionRepository,
             IRepository<DeveloperTeamMember, Guid> teamMemberRepository)
         {
             _developerProfileRepository = developerProfileRepository;
@@ -42,6 +44,7 @@ namespace GameHub.Developer
             _metricSnapshotRepository = metricSnapshotRepository;
             _revenueContractRepository = revenueContractRepository;
             _playSessionRepository = playSessionRepository;
+            _adImpressionRepository = adImpressionRepository;
             _teamMemberRepository = teamMemberRepository;
         }
 
@@ -210,6 +213,69 @@ namespace GameHub.Developer
                 Source = source;
                 Count = count;
             }
+        }
+
+        public async Task<AdReportDto> GetAdReportAsync(GetDeveloperEarningsInput input)
+        {
+            await EnsureCurrentUserIsNotSupportAsync();
+
+            var to = (input.To ?? Clock.Now).Date.AddDays(1).AddTicks(-1);
+            var from = (input.From ?? to.AddDays(-29)).Date;
+
+            var profile = await _developerProfileRepository.FirstOrDefaultAsync(p => p.UserId == AbpSession.UserId.Value);
+            if (profile == null)
+            {
+                return new AdReportDto { From = from, To = to };
+            }
+
+            var gameIds = await _gameRepository.GetAll()
+                .Where(g => g.DeveloperProfileId == profile.Id && !g.IsDeleted)
+                .Select(g => g.Id)
+                .ToListAsync();
+
+            var impressions = await _adImpressionRepository.GetAll()
+                .Where(i => gameIds.Contains(i.GameId) && i.OccurredAt >= from && i.OccurredAt <= to)
+                .ToListAsync();
+
+            var grouped = impressions
+                .GroupBy(i => new { i.GameId, i.Type, i.Provider, i.CountryCode, i.DeviceType })
+                .Select(g =>
+                {
+                    var earnings = g.Sum(i => i.Earnings);
+                    var count = g.Count();
+                    return new AdReportItemDto
+                    {
+                        GameId = g.Key.GameId,
+                        GameTitle = string.Empty,
+                        Type = g.Key.Type,
+                        Provider = g.Key.Provider,
+                        CountryCode = g.Key.CountryCode ?? string.Empty,
+                        DeviceType = g.Key.DeviceType ?? string.Empty,
+                        Impressions = count,
+                        Earnings = earnings,
+                        Cpm = count > 0 ? earnings / count * 1000 : 0
+                    };
+                })
+                .ToList();
+
+            var gameTitles = await _gameRepository.GetAll()
+                .Where(g => gameIds.Contains(g.Id))
+                .ToDictionaryAsync(g => g.Id, g => g.Title);
+
+            foreach (var item in grouped)
+            {
+                item.GameTitle = gameTitles.GetValueOrDefault(item.GameId) ?? string.Empty;
+            }
+
+            return new AdReportDto
+            {
+                From = from,
+                To = to,
+                TotalImpressions = impressions.Count,
+                TotalEarnings = impressions.Sum(i => i.Earnings),
+                AverageCpm = impressions.Count > 0 ? impressions.Sum(i => i.Earnings) / impressions.Count * 1000 : 0,
+                Items = grouped
+            };
         }
 
         private async Task EnsureCurrentUserIsNotSupportAsync()

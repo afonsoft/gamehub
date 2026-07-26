@@ -10,5 +10,7 @@ namespace GameHub.Developer
     public interface IDeveloperEarningsAppService : IApplicationService
     {
         Task<DeveloperEarningsDto> GetEarningsAsync(GetDeveloperEarningsInput input);
+
+        Task<AdReportDto> GetAdReportAsync(GetDeveloperEarningsInput input);
     }
 }

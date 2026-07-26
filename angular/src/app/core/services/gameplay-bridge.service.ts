@@ -272,6 +272,23 @@ export class GameplayBridgeService implements GameplayBridge {
   gameErrorCaptured(error: Error | string): void {
     if (this.isAdRunning) return;
     this.sendEvent(GameplayEventType.GameErrorCaptured, error.toString());
+    this.reportError(error);
+  }
+
+  private reportError(error: Error | string): void {
+    if (!this.sessionId || !this.gameId) return;
+    const message = typeof error === 'string' ? error : error.message ?? error.toString();
+    const stack = typeof error === 'string' ? '' : error.stack ?? '';
+    this.http
+      .post(`${this.gameplayUrl}/CaptureError`, {
+        sessionId: this.sessionId,
+        gameId: this.gameId,
+        message,
+        stackTrace: stack,
+        source: 'game',
+        severity: 'Error',
+      })
+      .subscribe({ error: () => {} });
   }
 
   gameMeasuredEvent(category: string, what: string, action: string): void {

@@ -25,7 +25,8 @@ namespace GameHub.Monetization
             {
                 Completed = true,
                 AdBlocked = false,
-                AdDurationSeconds = _defaultDurationSeconds
+                AdDurationSeconds = _defaultDurationSeconds,
+                Earnings = GameHubConsts.EstimatedCommercialBreakRevenue
             });
         }
 
@@ -36,7 +37,8 @@ namespace GameHub.Monetization
                 Completed = true,
                 RewardGranted = true,
                 AdBlocked = false,
-                AdDurationSeconds = _defaultDurationSeconds
+                AdDurationSeconds = _defaultDurationSeconds,
+                Earnings = GameHubConsts.EstimatedRewardedBreakRevenue
             });
         }
     }

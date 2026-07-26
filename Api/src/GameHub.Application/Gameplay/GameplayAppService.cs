@@ -19,6 +19,7 @@ namespace GameHub.Gameplay
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
         private readonly IPlayerAccountAppService _playerAccountAppService;
 
         public GameplayAppService(
@@ -26,12 +27,14 @@ namespace GameHub.Gameplay
             IRepository<GameplayEvent, Guid> gameplayEventRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
             IRepository<Game, Guid> gameRepository,
+            IRepository<GameErrorLog, Guid> errorLogRepository,
             IPlayerAccountAppService playerAccountAppService)
         {
             _playSessionRepository = playSessionRepository;
             _gameplayEventRepository = gameplayEventRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
             _gameRepository = gameRepository;
+            _errorLogRepository = errorLogRepository;
             _playerAccountAppService = playerAccountAppService;
         }
 
@@ -148,6 +151,28 @@ namespace GameHub.Gameplay
 
             metric.AvgFps = avgFps;
             metric.MinFps = minFps;
+        }
+
+        public async Task<GameErrorLogDto> CaptureErrorAsync(CaptureGameErrorInput input)
+        {
+            var error = new GameErrorLog
+            {
+                Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
+                SessionId = input.SessionId,
+                GameId = input.GameId,
+                BuildId = input.BuildId,
+                Message = input.Message,
+                StackTrace = input.StackTrace,
+                Source = input.Source,
+                Severity = string.IsNullOrWhiteSpace(input.Severity) ? "Error" : input.Severity,
+                Timestamp = DateTime.UtcNow
+            };
+
+            await _errorLogRepository.InsertAsync(error);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return ObjectMapper.Map<GameErrorLogDto>(error);
         }
     }
 }

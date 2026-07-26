@@ -15,6 +15,7 @@ namespace GameHub.Playtesting.Dto
         public string CountryCode { get; set; }
         public string ConsoleOutput { get; set; }
         public string Notes { get; set; }
+        public string LevelEvents { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

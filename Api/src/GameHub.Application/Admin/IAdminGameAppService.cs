@@ -18,6 +18,12 @@ namespace GameHub.Admin
 
         Task SuspendAsync(SuspendGameInput input);
 
+        Task StartReviewAsync(StartReviewInput input);
+
+        Task ApproveForPublishingAsync(ApproveForPublishingInput input);
+
+        Task RequestChangesAsync(RequestChangesInput input);
+
         Task ApproveThumbnailAsync(Guid gameId);
 
         Task RejectThumbnailAsync(Guid gameId);

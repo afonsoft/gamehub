@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using GameHub.Builds;
+using GameHub.Builds.Dto;
 using GameHub.Catalog;
 using GameHub.Catalog.Dto;
 using GameHub.Configuration;
@@ -125,6 +126,9 @@ namespace GameHub
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreationTime))
                 .ForMember(dest => dest.PublishedAt, opt => opt.MapFrom(src => src.PublishedTime));
 
+            configuration.CreateMap<ExternalResourceExemption, ExternalResourceExemptionDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
             configuration.CreateMap<CreateGameDraftInput, Game>()
                 .ForMember(dest => dest.Slug, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
@@ -170,6 +174,7 @@ namespace GameHub
                 .ForMember(dest => dest.SessionId, opt => opt.MapFrom(src => src.Id));
             configuration.CreateMap<LeaderboardEntry, LeaderboardEntryDto>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
+            configuration.CreateMap<GameErrorLog, GameErrorLogDto>();
 
             // Moderation
             configuration.CreateMap<ModerationReview, ModerationReviewDto>()
