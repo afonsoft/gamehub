@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
+using Abp.Runtime.Caching;
 using Abp.Timing;
 using GameHub;
 using GameHub.Catalog;
@@ -19,6 +20,7 @@ namespace GameHub.Gameplay
 {
     public class GameplayAppService : GameHubAppServiceBase, IGameplayAppService
     {
+        private static readonly TimeSpan EventDeduplicationWindow = TimeSpan.FromMinutes(10);
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
@@ -27,6 +29,7 @@ namespace GameHub.Gameplay
         private readonly IPlayerAccountAppService _playerAccountAppService;
         private readonly IMultiplayerAppService _multiplayerAppService;
         private readonly IArbitraryUserDataAppService _arbitraryUserDataAppService;
+        private readonly ITypedCache<string, string> _eventDeduplicationCache;
 
         public GameplayAppService(
             IRepository<PlaySession, Guid> playSessionRepository,
@@ -36,7 +39,8 @@ namespace GameHub.Gameplay
             IRepository<GameErrorLog, Guid> errorLogRepository,
             IPlayerAccountAppService playerAccountAppService,
             IMultiplayerAppService multiplayerAppService,
-            IArbitraryUserDataAppService arbitraryUserDataAppService)
+            IArbitraryUserDataAppService arbitraryUserDataAppService,
+            ICacheManager cacheManager)
         {
             _playSessionRepository = playSessionRepository;
             _gameplayEventRepository = gameplayEventRepository;
@@ -46,6 +50,9 @@ namespace GameHub.Gameplay
             _playerAccountAppService = playerAccountAppService;
             _multiplayerAppService = multiplayerAppService;
             _arbitraryUserDataAppService = arbitraryUserDataAppService;
+            _eventDeduplicationCache = cacheManager
+                .GetCache("GameHub.Gameplay.EventDeduplication")
+                .AsTyped<string, string>();
         }
 
         public async Task<PlaySessionDto> StartSessionAsync(StartPlaySessionInput input)
@@ -107,6 +114,23 @@ namespace GameHub.Gameplay
             if (ContainsSensitiveTelemetry(input.PayloadJson))
             {
                 throw new ArgumentException("Telemetry payload contains restricted data.", nameof(input));
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.ClientEventId))
+            {
+                var deduplicationKey =
+                    $"gamehub:gameplay:event:{AbpSession.TenantId?.ToString() ?? "host"}:" +
+                    $"{input.SessionId:N}:{input.ClientEventId}";
+
+                if (await _eventDeduplicationCache.GetOrDefaultAsync(deduplicationKey) != null)
+                {
+                    return;
+                }
+
+                await _eventDeduplicationCache.SetAsync(
+                    deduplicationKey,
+                    DateTime.UtcNow.ToString("O"),
+                    absoluteExpireTime: DateTimeOffset.UtcNow.Add(EventDeduplicationWindow));
             }
 
             var ev = new GameplayEvent
@@ -190,6 +214,13 @@ namespace GameHub.Gameplay
 
         public async Task<GameErrorLogDto> CaptureErrorAsync(CaptureGameErrorInput input)
         {
+            var session = await _playSessionRepository.GetAsync(input.SessionId);
+            if (session.GameId != input.GameId)
+            {
+                throw new InvalidOperationException(
+                    "Game error session does not match the game.");
+            }
+
             var error = new GameErrorLog
             {
                 Id = Guid.NewGuid(),

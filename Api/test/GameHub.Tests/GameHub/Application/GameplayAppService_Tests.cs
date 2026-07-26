@@ -79,6 +79,35 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
+        public async Task Dado_EventoComClientEventId_Quando_RepetirRequisicao_Entao_PersisteUmaVez()
+        {
+            var gameId = await SeedGameAsync();
+            var session = await _gameplayAppService.StartSessionAsync(new StartPlaySessionInput
+            {
+                GameId = gameId,
+                DeviceType = "Desktop",
+                Browser = "Chrome"
+            });
+            var input = new GameplayEventInput
+            {
+                SessionId = session.SessionId,
+                GameId = gameId,
+                EventType = GameplayEventType.GameMeasuredEvent,
+                EventName = "level_complete",
+                ClientEventId = "event-retry-123",
+                PayloadJson = "{}"
+            };
+
+            await _gameplayAppService.EventAsync(input);
+            await _gameplayAppService.EventAsync(input);
+
+            var eventCount = await UsingDbContextAsync(context =>
+                context.GameplayEvents.CountAsync(item =>
+                    item.PlaySessionId == session.SessionId));
+            eventCount.ShouldBe(1);
+        }
+
+        [Fact]
         public async Task Dado_SessaoAtiva_Quando_AtualizarFps_Entao_DeveArmazenarValores()
         {
             var gameId = await SeedGameAsync();
@@ -142,6 +171,27 @@ namespace GameHub.Tests.GameHub.Application
             var stored = await _errorLogRepository.GetAsync(error.Id);
             stored.ShouldNotBeNull();
             stored.Severity.ShouldBe("Error");
+        }
+
+        [Fact]
+        public async Task Dado_GameDiferenteDaSessao_Quando_CapturarErro_Entao_Rejeita()
+        {
+            var gameId = await SeedGameAsync();
+            var otherGameId = await SeedGameAsync();
+            var session = await _gameplayAppService.StartSessionAsync(new StartPlaySessionInput
+            {
+                GameId = gameId,
+                DeviceType = "Desktop",
+                Browser = "Chrome"
+            });
+
+            await Should.ThrowAsync<InvalidOperationException>(() =>
+                _gameplayAppService.CaptureErrorAsync(new CaptureGameErrorInput
+                {
+                    SessionId = session.SessionId,
+                    GameId = otherGameId,
+                    Message = "Spoofed error"
+                }));
         }
 
         [Fact]

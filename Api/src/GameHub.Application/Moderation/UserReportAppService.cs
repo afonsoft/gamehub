@@ -6,6 +6,7 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Runtime.Caching;
 using GameHub.Admin.Dto;
 using GameHub.Authorization;
 using GameHub.Catalog;
@@ -19,20 +20,28 @@ namespace GameHub.Moderation
     /// </summary>
     public class UserReportAppService : GameHubAppServiceBase, IUserReportAppService
     {
+        private static readonly TimeSpan RateLimitWindow = TimeSpan.FromMinutes(1);
+        private const int MaxReportsPerMinute = 10;
         private readonly IRepository<UserReport, Guid> _userReportRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly ITypedCache<string, string> _rateLimitCache;
 
         public UserReportAppService(
             IRepository<UserReport, Guid> userReportRepository,
-            IRepository<Game, Guid> gameRepository)
+            IRepository<Game, Guid> gameRepository,
+            ICacheManager cacheManager)
         {
             _userReportRepository = userReportRepository;
             _gameRepository = gameRepository;
+            _rateLimitCache = cacheManager
+                .GetCache("GameHub.Moderation.UserReportRateLimit")
+                .AsTyped<string, string>();
         }
 
         public async Task<UserReportDto> SubmitAsync(UserReportInput input)
         {
             await _gameRepository.GetAsync(input.GameId);
+            await EnsureRateLimitAsync(input.GameId);
 
             var report = new UserReport
             {
@@ -48,6 +57,29 @@ namespace GameHub.Moderation
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<UserReportDto>(report);
+        }
+
+        private async Task EnsureRateLimitAsync(Guid gameId)
+        {
+            var key =
+                $"gamehub:moderation:report:" +
+                $"{AbpSession.TenantId?.ToString() ?? "host"}:" +
+                $"{AbpSession.UserId?.ToString() ?? "anonymous"}:" +
+                $"{gameId:N}";
+
+            var current = await _rateLimitCache.GetOrDefaultAsync(key);
+            var count = int.TryParse(current, out var parsed) ? parsed : 0;
+
+            if (count >= MaxReportsPerMinute)
+            {
+                throw new InvalidOperationException(
+                    "User report rate limit exceeded.");
+            }
+
+            await _rateLimitCache.SetAsync(
+                key,
+                (count + 1).ToString(),
+                absoluteExpireTime: DateTimeOffset.UtcNow.Add(RateLimitWindow));
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Reports_Manage)]
