@@ -1324,6 +1324,26 @@ Usar a Poki como referência de mercado para evoluir o GameHub sem copiar marca,
 - Novos specs criados e prontos para revisão.
 - Branch `feature/poki-specs` criada a partir de `main`.
 
+## 2026-07-26 22:45 UTC
+
+### Tarefa
+Criar as especificações dos próximos ajustes do portal do desenvolvedor e do User Guide após o PR #61.
+
+### Arquivos alterados
+- `.specs/34-poki-developer-portal-v3-next-adjustments.md` — shell compartilhado, filtros, estados e acessibilidade.
+- `.specs/35-poki-developer-publishing-workflow.md` — versões, Preview, Inspector e submissão.
+- `.specs/36-poki-developer-analytics-earnings.md` — métricas, receita estimada, filtros e qualidade dos dados.
+- `.specs/37-poki-user-guide-developer-documentation.md` — estrutura operacional do User Guide e internacionalização.
+- `.specs/38-poki-next-session-roadmap.md` — priorização P0/P1/P2 e regras de execução.
+
+### Motivação
+O layout do portal foi melhorado, mas ainda faltava um plano executável para consolidar o fluxo de publicação, conectar Preview/Inspector, evoluir Earnings e manter a documentação alinhada.
+
+### Resultado
+- Cinco specs independentes foram criadas, sem implementar código nesta etapa.
+- A Spec 35 é a prioridade P0; as Specs 34 e 37 são as próximas entregas de suporte.
+- A Spec 36 ficou condicionada à confirmação dos contratos de agregação e autorização no backend.
+
 ## 2026-07-26 22:30 UTC
 
 ### Tarefa
