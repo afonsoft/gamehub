@@ -10,34 +10,44 @@
   </aside>
   <main class="dev-main">
     <div class="dev-header">
-      <h1>My Games</h1>
+      <div>
+        <h1>My Games</h1>
+        <p>Manage your catalog, builds and review submissions.</p>
+      </div>
       <a class="btn-primary" routerLink="/developer/games/create">New Game</a>
     </div>
     <div class="loading" *ngIf="loading">Loading...</div>
-    <table class="games-table" *ngIf="!loading && games.length">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Latest Build</th>
-          <th>Last Updated</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let game of games">
-          <td>{{ game.title }}</td>
-          <td><span class="badge">{{ game.status }}</span></td>
-          <td><span class="badge" *ngIf="game.latestBuildStatus">{{ game.latestBuildStatus }}</span></td>
-          <td>{{ game.lastUpdated | date:'short' }}</td>
-          <td>
-            <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
-            <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
-            <button type="button" *ngIf="canSubmitForReview(game)" (click)="submitForReview(game)">Submit for review</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="games-toolbar" *ngIf="!loading && games.length">
+      <p>{{ games.length }} {{ games.length === 1 ? 'game' : 'games' }} in your catalog</p>
+    </div>
+    <div class="games-table-wrap table-scroll" *ngIf="!loading && games.length">
+      <table class="games-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Latest Build</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let game of games">
+            <td><span class="game-title">{{ game.title }}</span></td>
+            <td><span class="badge status-badge" [class.status-rejected]="game.status === 'Rejected'" [class.status-inreview]="game.status === 'InReview'">{{ game.status }}</span></td>
+            <td><span class="badge" *ngIf="game.latestBuildStatus">{{ game.latestBuildStatus }}</span><span class="game-date" *ngIf="!game.latestBuildStatus">Not uploaded</span></td>
+            <td><span class="game-date">{{ game.lastUpdated | date:'mediumDate' }}</span></td>
+            <td>
+              <div class="actions-cell">
+                <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
+                <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
+                <button class="submit-action" type="button" *ngIf="canSubmitForReview(game)" (click)="submitForReview(game)">Submit for review</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <p class="empty" *ngIf="!loading && !games.length">No games yet. Create your first game.</p>
   </main>
 </div>

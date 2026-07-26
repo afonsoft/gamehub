@@ -1,7 +1,158 @@
-@import '../dashboard/dashboard.component.css';
-@import '../games/games.component.css';
-
 .earnings-empty {
   color: #5f6368;
   padding: 24px 0;
+}
+
+.earnings-intro {
+  margin: 8px 0 0;
+  color: #69707d;
+}
+
+.earnings-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.earnings-card {
+  min-height: 132px;
+  padding: 20px;
+  border: 1px solid #e7e9ef;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(26, 27, 46, 0.06);
+}
+
+.earnings-card.primary {
+  border-color: transparent;
+  background: #1a1b2e;
+  color: #fff;
+}
+
+.earnings-card-label {
+  display: block;
+  color: #69707d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.earnings-card.primary .earnings-card-label {
+  color: #c7c9d3;
+}
+
+.earnings-card-value {
+  display: block;
+  margin-top: 12px;
+  color: #1a1b2e;
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.earnings-card.primary .earnings-card-value {
+  color: #fff;
+}
+
+.earnings-panel {
+  margin-bottom: 20px;
+  padding: 22px;
+  border: 1px solid #e7e9ef;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(26, 27, 46, 0.06);
+}
+
+.earnings-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.earnings-panel h2 {
+  margin: 0;
+  color: #1a1b2e;
+  font-size: 1.1rem;
+}
+
+.earnings-panel-header p {
+  margin: 4px 0 0;
+  color: #69707d;
+  font-size: 0.85rem;
+}
+
+.earnings-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.earnings-table th,
+.earnings-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #eef0f2;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.earnings-table th {
+  color: #69707d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.earnings-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.earnings-table tbody tr:hover {
+  background: #fafaff;
+}
+
+.earnings-game {
+  color: #1a1b2e;
+  font-weight: 700;
+}
+
+.earnings-number {
+  color: #34384a;
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .earnings-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .earnings-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .earnings-card {
+    min-height: 116px;
+    padding: 16px;
+  }
+
+  .earnings-panel {
+    padding: 16px;
+  }
+
+  .earnings-panel-header {
+    display: grid;
+  }
+}
+
+@media (max-width: 400px) {
+  .earnings-cards {
+    grid-template-columns: 1fr;
+  }
 }
