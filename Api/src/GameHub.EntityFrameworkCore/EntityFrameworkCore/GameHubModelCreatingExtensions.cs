@@ -10,6 +10,8 @@ using GameHub.Monetization;
 using GameHub.Player;
 using GameHub.Playtesting;
 using GameHub.Privacy;
+using GameHub.Multiplayer;
+using GameHub.ArbitraryUserData;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.EntityFrameworkCore
@@ -35,6 +37,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Status).IsRequired();
                 b.Property(x => x.Orientation).IsRequired();
                 b.Property(x => x.SupportsCloudSaves).IsRequired();
+                b.Property(x => x.SupportsMultiplayer).IsRequired().HasDefaultValue(false);
+                b.Property(x => x.MaxPlayersPerMatch).IsRequired().HasDefaultValue(0);
                 b.Property(x => x.ControlScheme).IsRequired();
                 b.Property(x => x.CutscenesSkippable).IsRequired();
                 b.Property(x => x.DefaultLanguage).HasMaxLength(16);
@@ -780,6 +784,72 @@ namespace GameHub.EntityFrameworkCore
 
                 b.HasIndex(x => new { x.GameId, x.Domain }).IsUnique();
                 b.HasIndex(x => new { x.GameId, x.Status });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MatchState>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "MatchStates", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.RoomCode).IsRequired().HasMaxLength(16);
+                b.Property(x => x.Mode).HasMaxLength(64);
+                b.Property(x => x.Status).IsRequired();
+                b.Property(x => x.MaxPlayers).IsRequired();
+                b.Property(x => x.PayloadJson).HasMaxLength(8000);
+                b.Property(x => x.StartedAt);
+                b.Property(x => x.EndedAt);
+                b.Property(x => x.ExpiresAt).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.Status });
+                b.HasIndex(x => x.RoomCode).IsUnique();
+                b.HasIndex(x => x.ExpiresAt);
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MatchParticipant>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "MatchParticipants", GameHubConsts.DbSchema);
+
+                b.Property(x => x.MatchId).IsRequired();
+                b.Property(x => x.UserId);
+                b.Property(x => x.AnonymousIdHash).HasMaxLength(128);
+                b.Property(x => x.ConnectionId).HasMaxLength(256);
+                b.Property(x => x.IsActive).IsRequired();
+                b.Property(x => x.JoinedAt).IsRequired();
+                b.Property(x => x.LeftAt);
+
+                b.HasIndex(x => new { x.MatchId, x.IsActive });
+                b.HasIndex(x => x.ConnectionId);
+
+                b.HasOne(x => x.Match)
+                    .WithMany(x => x.Participants)
+                    .HasForeignKey(x => x.MatchId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ArbitraryUserDataRecord>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "ArbitraryUserData", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.UserId);
+                b.Property(x => x.AnonymousIdHash).HasMaxLength(128);
+                b.Property(x => x.Key).IsRequired().HasMaxLength(128);
+                b.Property(x => x.ValueJson).HasMaxLength(65536);
+                b.Property(x => x.ExpiresAt);
+
+                b.HasIndex(x => new { x.GameId, x.UserId, x.AnonymousIdHash, x.Key });
+                b.HasIndex(x => new { x.GameId, x.AnonymousIdHash, x.Key });
+                b.HasIndex(x => x.ExpiresAt);
 
                 b.HasOne(x => x.Game)
                     .WithMany()

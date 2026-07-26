@@ -38,6 +38,8 @@ namespace GameHub.Catalog
             SupportsMobile = true;
             SupportsTablet = true;
             SupportsCloudSaves = true;
+            SupportsMultiplayer = false;
+            MaxPlayersPerMatch = 0;
             ControlScheme = GameControlScheme.Both;
             CutscenesSkippable = false;
             DefaultLanguage = "en-US";
@@ -143,6 +145,10 @@ namespace GameHub.Catalog
         public bool SupportsTablet { get; set; }
         [Required]
         public bool SupportsCloudSaves { get; set; }
+        [Required]
+        public bool SupportsMultiplayer { get; set; }
+        [Required]
+        public int MaxPlayersPerMatch { get; set; }
         [Required]
         public GameControlScheme ControlScheme { get; set; }
         [Required]

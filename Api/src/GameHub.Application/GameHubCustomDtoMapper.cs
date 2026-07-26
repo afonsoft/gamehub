@@ -22,6 +22,8 @@ using GameHub.Privacy;
 using GameHub.Privacy.Dto;
 using GameHub.Admin.Dto;
 using GameHub.Storage;
+using GameHub.Multiplayer;
+using GameHub.Multiplayer.Dto;
 using Abp.Auditing;
 
 namespace GameHub
@@ -204,6 +206,11 @@ namespace GameHub
 
             // Privacy
             configuration.CreateMap<PlayerPrivacyConsent, PrivacyConsentDto>();
+
+            // Multiplayer
+            configuration.CreateMap<MatchState, MatchDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+            configuration.CreateMap<MatchParticipant, MatchParticipantDto>();
 
             // Configuration / Audit
             configuration.CreateMap<FeatureFlag, FeatureFlagDto>();

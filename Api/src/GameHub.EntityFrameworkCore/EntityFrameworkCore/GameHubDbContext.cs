@@ -18,6 +18,8 @@ using GameHub.Monetization;
 using GameHub.Player;
 using GameHub.Playtesting;
 using GameHub.Privacy;
+using GameHub.Multiplayer;
+using GameHub.ArbitraryUserData;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -111,6 +113,9 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<PlaytestRecording> PlaytestRecordings { get; set; }
         public virtual DbSet<GameErrorLog> GameErrorLogs { get; set; }
         public virtual DbSet<ExternalResourceExemption> ExternalResourceExemptions { get; set; }
+        public virtual DbSet<MatchState> MatchStates { get; set; }
+        public virtual DbSet<MatchParticipant> MatchParticipants { get; set; }
+        public virtual DbSet<ArbitraryUserDataRecord> ArbitraryUserDataRecords { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
