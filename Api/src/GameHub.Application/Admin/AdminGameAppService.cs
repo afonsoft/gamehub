@@ -120,6 +120,57 @@ namespace GameHub.Admin
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Games_Publish)]
+        public async Task StartReviewAsync(StartReviewInput input)
+        {
+            var game = await _gameRepository.GetAsync(input.GameId);
+            if (game.Status != GameStatus.Submitted && game.Status != GameStatus.InReview)
+            {
+                throw new InvalidOperationException("Review can only be started for a submitted or in-review game.");
+            }
+
+            game.Status = GameStatus.InReview;
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Publish)]
+        public async Task ApproveForPublishingAsync(ApproveForPublishingInput input)
+        {
+            var game = await _gameRepository.GetAsync(input.GameId);
+            game.Status = GameStatus.ApprovedForPublishing;
+
+            if (input.GameBuildId.HasValue)
+            {
+                var build = await _buildRepository.GetAsync(input.GameBuildId.Value);
+                var latestReport = await _validationReportRepository.GetAll()
+                    .Where(r => r.GameBuildId == build.Id)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (latestReport != null && latestReport.HasExternalRequests && string.IsNullOrWhiteSpace(game.PrivacyPolicyUrl))
+                {
+                    throw new InvalidOperationException("This build contains external requests. A privacy policy URL is required before publishing.");
+                }
+
+                build.Publish();
+                game.SetPublishedBuild(build);
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateHomeAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Suspend)]
+        public async Task RequestChangesAsync(RequestChangesInput input)
+        {
+            var game = await _gameRepository.GetAsync(input.GameId);
+            game.Status = GameStatus.Rejected;
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await _catalogCache.InvalidateBySlugAsync(game.Slug);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Games_Publish)]
         public async Task ApproveThumbnailAsync(Guid gameId)
         {
             var game = await _gameRepository.GetAsync(gameId);

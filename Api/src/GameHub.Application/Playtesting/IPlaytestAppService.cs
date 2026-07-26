@@ -21,5 +21,7 @@ namespace GameHub.Playtesting
         Task<PagedResultDto<PlaytestRecordingDto>> GetAllRecordingsAsync(GetAllPlaytestRecordingsInput input);
 
         Task<PlaytestRecordingDto> AddNotesAsync(AddPlaytestRecordingNotesInput input);
+
+        Task<PlaytestDifficultyInsightDto> GetDifficultyInsightsAsync(Guid gameId);
     }
 }

@@ -39,6 +39,10 @@ namespace GameHub.Playtesting
         [StringLength(4000)]
         public string Notes { get; set; }
 
+        /// <summary>JSON array of level events (start, death, restart, complete) used for difficulty balancing.</summary>
+        [StringLength(16000)]
+        public string LevelEvents { get; set; }
+
         public virtual PlaytestSession PlaytestSession { get; set; }
     }
 }

@@ -31,5 +31,11 @@ namespace GameHub.Admin
         Task<AdminOnboardingInsightsDto> GetOnboardingInsightsAsync(Guid gameId, DateTime? startDate, DateTime? endDate);
 
         Task<AdminEngagementInsightsDto> GetEngagementInsightsAsync(Guid gameId, DateTime? startDate, DateTime? endDate);
+
+        Task<ErrorScannerResultDto> GetErrorScannerAsync(Guid? gameId, Guid? buildId, int hours);
+
+        Task<ConversionFunnelDto> GetConversionFunnelAsync(Guid? gameId, DateTime? startDate, DateTime? endDate);
+
+        Task<PlayerFitDto> GetPlayerFitAsync(Guid gameId);
     }
 }

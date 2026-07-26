@@ -14,5 +14,8 @@ namespace GameHub.Moderation.Dto
         [Required]
         [StringLength(4000)]
         public string Text { get; set; }
+
+        [Range(1, 5)]
+        public int? Rating { get; set; }
     }
 }

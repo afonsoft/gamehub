@@ -35,6 +35,7 @@ namespace GameHub.Moderation
                 UserId = AbpSession.UserId,
                 ContentType = input.ContentType,
                 Text = input.Text,
+                Rating = input.Rating,
                 IsApproved = !hasProfanity,
                 RequiresModeration = hasProfanity,
                 ModerationReason = hasProfanity ? "Contains profanity" : null

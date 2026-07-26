@@ -4,6 +4,7 @@ using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using GameHub.Catalog;
 using GameHub.Gameplay;
+using GameHub.Moderation;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,17 +21,20 @@ namespace GameHub.Jobs
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
+        private readonly IRepository<UserContent, Guid> _userContentRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public GameMetricsAggregationJob(
             IRepository<PlaySession, Guid> playSessionRepository,
             IRepository<GameplayEvent, Guid> gameplayEventRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
+            IRepository<UserContent, Guid> userContentRepository,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _playSessionRepository = playSessionRepository;
             _gameplayEventRepository = gameplayEventRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
+            _userContentRepository = userContentRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -51,6 +55,10 @@ namespace GameHub.Jobs
                     .Where(e => e.OccurredAt >= start && e.OccurredAt < end)
                     .ToListAsync();
 
+                var userContents = await _userContentRepository.GetAll()
+                    .Where(c => c.CreationTime >= start && c.CreationTime < end && c.ContentType == UserContentType.Review && c.IsApproved && !c.RequiresModeration)
+                    .ToListAsync();
+
                 var sessionGroups = sessions
                     .GroupBy(s => s.GameId)
                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
@@ -59,14 +67,19 @@ namespace GameHub.Jobs
                     .GroupBy(e => e.GameId)
                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
 
-                var gameIds = sessionGroups.Keys.Union(eventGroups.Keys).ToList();
+                var contentGroups = userContents
+                    .GroupBy(c => c.GameId)
+                    .ToDictionary(g => g.Key, g => g.AsEnumerable());
+
+                var gameIds = sessionGroups.Keys.Union(eventGroups.Keys).Union(contentGroups.Keys).ToList();
 
                 foreach (var gameId in gameIds)
                 {
                     sessionGroups.TryGetValue(gameId, out var gameSessions);
                     eventGroups.TryGetValue(gameId, out var gameEvents);
+                    contentGroups.TryGetValue(gameId, out var gameContents);
 
-                    var (snapshot, isExisting) = await BuildSnapshotAsync(gameId, date, gameSessions, gameEvents);
+                    var (snapshot, isExisting) = await BuildSnapshotAsync(gameId, date, gameSessions, gameEvents, gameContents);
                     await UpsertSnapshotAsync(snapshot, isExisting);
                 }
 
@@ -78,11 +91,17 @@ namespace GameHub.Jobs
             Guid gameId,
             DateTime date,
             IEnumerable<PlaySession> sessions,
-            IEnumerable<GameplayEvent> events)
+            IEnumerable<GameplayEvent> events,
+            IEnumerable<UserContent> userContents)
         {
             var sessionList = sessions?.ToList() ?? new List<PlaySession>();
             var productionSessions = sessionList.Where(s => !s.IsPlaytest).ToList();
             var eventList = events?.ToList() ?? new List<GameplayEvent>();
+            var contentList = userContents?.ToList() ?? new List<UserContent>();
+
+            var reviewsWithRating = contentList.Where(c => c.Rating.HasValue).ToList();
+            var averageRating = reviewsWithRating.Any() ? reviewsWithRating.Average(c => c.Rating.Value) : (double?)null;
+            var reviewCount = contentList.Count;
 
             var uniquePlayerKeys = productionSessions
                 .Select(s => s.UserId.HasValue ? $"u:{s.UserId.Value}" : $"a:{s.AnonymousIdHash}")
@@ -100,7 +119,10 @@ namespace GameHub.Jobs
             var dropOffRate = ComputeOnboardingDropOffRate(productionSessions);
             var (fpsAcceptable, fpsTotal) = ComputeFpsCounts(productionSessions);
 
+            var pageViews = eventList.Count(e => e.EventType == GameplayEventType.GamePageViewed);
+            var loadingStarted = eventList.Count(e => e.EventType == GameplayEventType.GameLoadingStarted);
             var loadingFinished = eventList.Count(e => e.EventType == GameplayEventType.GameLoadingFinished);
+            var gameplayStarted = eventList.Count(e => e.EventType == GameplayEventType.GameplayStarted);
             var errors = eventList.Count(e => e.EventType == GameplayEventType.GameErrorCaptured);
             var commercialBreaks = eventList.Count(e => e.EventType == GameplayEventType.CommercialBreakCompleted);
             var rewardedBreaks = eventList.Count(e => e.EventType == GameplayEventType.RewardedBreakCompleted);
@@ -114,15 +136,21 @@ namespace GameHub.Jobs
             {
                 existing.Plays = productionSessions.Count;
                 existing.UniquePlayers = uniquePlayerKeys.Count;
+                existing.DailyPlayingUsers = uniquePlayerKeys.Count;
+                existing.PageViews = pageViews;
                 existing.AvgDurationSeconds = avgDuration;
                 existing.MedianSessionDurationSeconds = medianDuration;
                 existing.OnboardingDropOffRate = dropOffRate;
+                existing.LoadingStartedCount = loadingStarted;
                 existing.LoadingFinishedCount = loadingFinished;
+                existing.GameplayStartedCount = gameplayStarted;
                 existing.ErrorCount = errors;
                 existing.CommercialBreakCount = commercialBreaks;
                 existing.RewardedBreakCount = rewardedBreaks;
                 existing.FpsAcceptableSessions = fpsAcceptable;
                 existing.FpsTotalSessions = fpsTotal;
+                existing.AverageRating = averageRating;
+                existing.ReviewCount = reviewCount;
                 return (existing, true);
             }
 
@@ -133,15 +161,21 @@ namespace GameHub.Jobs
                 Date = date,
                 Plays = productionSessions.Count,
                 UniquePlayers = uniquePlayerKeys.Count,
+                DailyPlayingUsers = uniquePlayerKeys.Count,
+                PageViews = pageViews,
                 AvgDurationSeconds = avgDuration,
                 MedianSessionDurationSeconds = medianDuration,
                 OnboardingDropOffRate = dropOffRate,
+                LoadingStartedCount = loadingStarted,
                 LoadingFinishedCount = loadingFinished,
+                GameplayStartedCount = gameplayStarted,
                 ErrorCount = errors,
                 CommercialBreakCount = commercialBreaks,
                 RewardedBreakCount = rewardedBreaks,
                 FpsAcceptableSessions = fpsAcceptable,
-                FpsTotalSessions = fpsTotal
+                FpsTotalSessions = fpsTotal,
+                AverageRating = averageRating,
+                ReviewCount = reviewCount
             };
 
             return (snapshot, false);

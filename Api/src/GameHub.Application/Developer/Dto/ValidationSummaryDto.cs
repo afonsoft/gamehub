@@ -36,5 +36,8 @@ namespace GameHub.Developer.Dto
 
         /// <summary>Warnings about image assets that can be compressed or converted.</summary>
         public List<ImageOptimizationWarningDto> ImageOptimizationWarnings { get; set; } = new List<ImageOptimizationWarningDto>();
+
+        /// <summary>Overall quality score from 0 to 100; null when not computed.</summary>
+        public int? QualityScore { get; set; }
     }
 }

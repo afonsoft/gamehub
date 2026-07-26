@@ -20,17 +20,20 @@ namespace GameHub.Monetization
         private readonly IAdProvider _adProvider;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
+        private readonly IRepository<AdImpression, Guid> _adImpressionRepository;
         private readonly AdBreakOptions _adBreakOptions;
 
         public AdBreakAppService(
             IAdProvider adProvider,
             IRepository<PlaySession, Guid> playSessionRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
+            IRepository<AdImpression, Guid> adImpressionRepository,
             IOptions<AdBreakOptions> adBreakOptions)
         {
             _adProvider = adProvider;
             _playSessionRepository = playSessionRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
+            _adImpressionRepository = adImpressionRepository;
             _adBreakOptions = adBreakOptions?.Value ?? new AdBreakOptions();
         }
 
@@ -48,9 +51,13 @@ namespace GameHub.Monetization
 
             var result = await _adProvider.ShowCommercialBreakAsync(input.GameId);
 
-            if (result.Completed && input.SessionId.HasValue)
+            if (result.Completed)
             {
-                await IncrementBreakCountsAsync(input.GameId, input.SessionId.Value, commercial: true);
+                await RecordAdImpressionAsync(input.GameId, input.SessionId, "commercial", _adBreakOptions.Provider ?? "Fake", result);
+                if (input.SessionId.HasValue)
+                {
+                    await IncrementBreakCountsAsync(input.GameId, input.SessionId.Value, commercial: true);
+                }
             }
 
             return new CommercialBreakResultDto
@@ -78,9 +85,13 @@ namespace GameHub.Monetization
             var result = await _adProvider.ShowRewardedBreakAsync(input.GameId);
             var rewardGranted = result.Completed && result.RewardGranted && !result.AdBlocked;
 
-            if (rewardGranted && input.SessionId.HasValue)
+            if (rewardGranted)
             {
-                await IncrementBreakCountsAsync(input.GameId, input.SessionId.Value, rewarded: true);
+                await RecordAdImpressionAsync(input.GameId, input.SessionId, "rewarded", _adBreakOptions.Provider ?? "Fake", result);
+                if (input.SessionId.HasValue)
+                {
+                    await IncrementBreakCountsAsync(input.GameId, input.SessionId.Value, rewarded: true);
+                }
             }
 
             return new RewardedBreakResultDto
@@ -90,6 +101,38 @@ namespace GameHub.Monetization
                 AdBlocked = result.AdBlocked,
                 ErrorMessage = result.ErrorMessage
             };
+        }
+
+        private async Task RecordAdImpressionAsync(Guid gameId, Guid? sessionId, string type, string provider, AdBreakResult result)
+        {
+            string countryCode = null;
+            string deviceType = null;
+
+            if (sessionId.HasValue)
+            {
+                var session = await _playSessionRepository.FirstOrDefaultAsync(s => s.Id == sessionId.Value);
+                if (session != null)
+                {
+                    countryCode = session.CountryCode;
+                    deviceType = session.DeviceType;
+                }
+            }
+
+            var cpm = result.Cpm > 0 ? result.Cpm : (result.Earnings > 0 ? result.Earnings * 1000 : 0);
+
+            await _adImpressionRepository.InsertAsync(new AdImpression
+            {
+                Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
+                GameId = gameId,
+                Type = type,
+                Provider = provider,
+                CountryCode = countryCode,
+                DeviceType = deviceType,
+                Cpm = cpm,
+                Earnings = result.Earnings,
+                OccurredAt = Clock.Now
+            });
         }
 
         private async Task IncrementBreakCountsAsync(Guid gameId, Guid sessionId, bool commercial = false, bool rewarded = false)

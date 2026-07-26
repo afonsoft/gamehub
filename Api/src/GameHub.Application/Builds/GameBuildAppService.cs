@@ -74,7 +74,7 @@ namespace GameHub.Builds
                 return BuildFailedResult(fileName, $"Package exceeds maximum size of {GameHubConsts.MaxBuildPackageSizeBytes} bytes.");
             }
 
-            var validation = await _validator.ValidateAsync(packageStream);
+            var validation = await _validator.ValidateAsync(packageStream, game.Id);
 
             if (!validation.IsValid)
             {

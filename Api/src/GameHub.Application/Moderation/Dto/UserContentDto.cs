@@ -9,6 +9,7 @@ namespace GameHub.Moderation.Dto
         public long? UserId { get; set; }
         public UserContentType ContentType { get; set; }
         public string Text { get; set; }
+        public int? Rating { get; set; }
         public bool IsApproved { get; set; }
         public bool RequiresModeration { get; set; }
         public string ModerationReason { get; set; }

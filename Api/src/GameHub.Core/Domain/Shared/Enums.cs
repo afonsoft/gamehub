@@ -15,7 +15,9 @@ namespace GameHub
         Published = 2,
         Rejected = 3,
         Suspended = 4,
-        Archived = 5
+        Archived = 5,
+        Submitted = 6,
+        ApprovedForPublishing = 7
     }
 
     public enum GameBuildStatus
@@ -49,7 +51,8 @@ namespace GameHub
         RewardedBreakRequested = 6,
         RewardedBreakCompleted = 7,
         GameErrorCaptured = 8,
-        GameMeasuredEvent = 9
+        GameMeasuredEvent = 9,
+        GamePageViewed = 10
     }
 
     public enum GamePlacementType

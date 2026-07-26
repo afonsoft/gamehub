@@ -116,14 +116,23 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 ### Moderação & Publicação (Admin)
 
 - Fila de revisão com aprovação/rejeição.
+- Workflow de submissão: `SubmitForReviewAsync`, `StartReviewAsync`, `ApproveForPublishingAsync` e `RequestChangesAsync`.
 - Workflow de publicação/suspensão de jogos.
 - Fila de denúncias e histórico auditável de moderação.
 - Avisos de validação de builds para requests externos, arquivos grandes e links externos.
+- **Portões de Qualidade Poki**: avisos de otimização de imagem, detecção de termos de IAP/ads, filtro de profanidade em títulos/descrições/arquivos, regras de thumbnail (dimensões, proporção, tamanho, formato) e detecção de links externos.
+- **Exemptions de Recursos Externos & Analytics**: lista de permissões por domínio com aprovação de moderador e rastreamento de privacy statement.
 - **Inspector de QA v2**: timeline de eventos SDK, warnings e scaling tests por sessão.
+- **Error Scanner**: agregação de `GameErrorLog` por mensagem/severidade com alertas quando > 10 erros/hora.
+- **Funil de Conversão**: PageView → Loading → Gameplay start a partir de `GameMetricSnapshot`.
+- **Analytics de Feedback de Jogadores**: nota média, distribuição, sentimento e alertas de nota baixa.
+- **Player Fit / Retenção**: retenção 1d/7d/30d, stickiness e benchmark por categoria.
+- **Dificuldade de Playtests**: analytics de morte/replay/complete por nível a partir de `PlaytestRecording.LevelEvents`.
 - Alertas de performance baseados em FPS e snapshots diários de métricas; health alerts quando < 85% dos usuários por dispositivo não atingem 30 FPS.
 - **Guias de Onboarding e Engajamento**: taxa de drop-off, duração de sessão, mediana e benchmark por categoria, com sugestões.
 - **Sugestão de categorias e validação de SEO** para publicação de jogos.
 - Tipos de contrato de revenue share (`WebExclusive`, `NonExclusive`) com regras de split e flat fee.
+- **Relatórios de Anúncios**: entidade `AdImpression` e `DeveloperEarningsAppService.GetAdReportAsync` agrupado por tipo, provedor, país e dispositivo.
 - Moderação de UGC com filtro de profanidade.
 
 ---
@@ -212,8 +221,10 @@ Web  ← Application
 2. **Build Management** — `GameBuild`, validação de builds
 3. **Gameplay Analytics** — `PlaySession`, `GameplayEvent`, `GameMetricSnapshot`
 4. **Developer Portal** — `DeveloperProfile`, submissão de jogos, `DeveloperTeam`/`DeveloperTeamMember` (P4D v2), playtests, billing e upload via CLI com `gamehub.json`
-5. **Moderation** — `ModerationReview`, `UserReport`
-6. **Monetização** — `IAdProvider`, `AdBreakResult`, revenue share e descoberta de `WebExclusive`
+5. **Moderation** — `ModerationReview`, `UserReport`, `UserContent`
+6. **Monetização** — `IAdProvider`, `AdBreakResult`, `AdImpression`, revenue share e descoberta de `WebExclusive`
+7. **Analytics** — `GameMetricSnapshot`, `GameplayEvent`, `GameErrorLog`, relatórios de retenção/funil/feedback
+8. **Quality Gates** — `GameBuildPackageValidator`, `BuildValidationReport`, `InspectorSession`
 
 ### Fluxo do Sistema
 
@@ -301,7 +312,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Quantidade |
 |-------|--------|------------|
-| GameHub.Tests | Pass | 288 passados, 2 skipped |
+| GameHub.Tests | Pass | 296 passados, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passados, 1 skipped |
 | Angular Hub Build | Pass | build de produção OK |
 | Angular Admin Build | Pass | build de produção OK |
@@ -312,10 +323,11 @@ Medido com `dotnet test --collect:"XPlat Code Coverage"` e filtro de assemblies 
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 82.9% | — |
-| GameHub.Application | 79.9% | — |
-| GameHub.EntityFrameworkCore | 1.3% | — |
-| **Geral** | **7,4%** | **50,8%** |
+| GameHub.Core | 77,0% | 53,8% |
+| GameHub.Application | 81,2% | 52,4% |
+| GameHub.EntityFrameworkCore | 1,3% | 42,3% |
+| GameHub.Web.Host | 49,1% | 41,9% |
+| **Geral** | **7,9%** | **51,1%** |
 
 > A cobertura geral está baixa porque a plataforma está em desenvolvimento inicial. O target é 90% line/branch; novos testes de domínio e aplicação devem ser adicionados incrementalmente.
 
@@ -357,7 +369,7 @@ GPL-3.0-or-later. Veja [LICENSE](LICENSE) para detalhes.
 
 ## Status do Projeto
 
-Em desenvolvimento ativo. O modelo de domínio, camada de aplicação, infraestrutura EF Core, middlewares de segurança, frontend Angular público, contas de jogador, descoberta de exclusivos web, abstração de ad provider, Inspector QA v2, recursos de privacidade/UGC/desempenho e telemetria de FPS estão implementados. Trabalho restante inclui caches produtivos com Redis, integração MinIO/S3 para armazenamento de builds e algoritmos avançados de recomendação.
+Em desenvolvimento ativo. O spec 26 (Error Scanner, DPU/funil de conversão, feedback de jogadores, portões de qualidade, domínios externos, guia de thumbnails, dificuldade de playtests, player fit/retenção, workflow de submissão e relatórios de anúncios) está implementado no backend e testes. Trabalho restante inclui caches produtivos com Redis, integração MinIO/S3 para armazenamento de builds, algoritmos avançados de recomendação e Netlib/multiplayer + AUDS (spec 27).
 
 ---
 

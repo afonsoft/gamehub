@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -87,7 +88,8 @@ namespace GameHub.Playtesting
                 DurationSeconds = input.DurationSeconds,
                 DeviceType = input.DeviceType,
                 CountryCode = input.CountryCode,
-                ConsoleOutput = input.ConsoleOutput
+                ConsoleOutput = input.ConsoleOutput,
+                LevelEvents = input.LevelEvents
             };
 
             await _recordingRepository.InsertAsync(recording);
@@ -150,6 +152,81 @@ namespace GameHub.Playtesting
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<PlaytestRecordingDto>(recording);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_Review)]
+        public async Task<PlaytestDifficultyInsightDto> GetDifficultyInsightsAsync(Guid gameId)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            var recordings = await _recordingRepository.GetAll()
+                .Include(r => r.PlaytestSession)
+                .Where(r => r.PlaytestSession.GameId == gameId && !string.IsNullOrEmpty(r.LevelEvents))
+                .Select(r => r.LevelEvents)
+                .ToListAsync();
+
+            var levelGroups = new Dictionary<string, (long Starts, long Deaths, long Restarts, long Completions)>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var levelEventsJson in recordings)
+            {
+                if (string.IsNullOrWhiteSpace(levelEventsJson))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var events = JsonSerializer.Deserialize<List<PlaytestLevelEvent>>(levelEventsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<PlaytestLevelEvent>();
+                    foreach (var levelEvent in events)
+                    {
+                        if (string.IsNullOrWhiteSpace(levelEvent.Level) || string.IsNullOrWhiteSpace(levelEvent.Event))
+                        {
+                            continue;
+                        }
+
+                        var current = levelGroups.GetValueOrDefault(levelEvent.Level);
+                        current.Starts += levelEvent.Event.Equals("start", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                        current.Deaths += levelEvent.Event.Equals("death", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                        current.Restarts += levelEvent.Event.Equals("restart", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                        current.Completions += levelEvent.Event.Equals("complete", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                        levelGroups[levelEvent.Level] = current;
+                    }
+                }
+                catch (JsonException)
+                {
+                    // Ignore malformed JSON.
+                }
+            }
+
+            var levels = levelGroups
+                .Select(g =>
+                {
+                    var (starts, deaths, restarts, completions) = g.Value;
+                    return new LevelDifficultyDto
+                    {
+                        Level = g.Key,
+                        Starts = starts,
+                        Deaths = deaths,
+                        Restarts = restarts,
+                        Completions = completions,
+                        CompletionRate = starts > 0 ? (double)completions / starts : 0.0,
+                        AvgDeathsPerStart = starts > 0 ? (double)deaths / starts : 0.0
+                    };
+                })
+                .OrderBy(l => l.Level)
+                .ToList();
+
+            return new PlaytestDifficultyInsightDto
+            {
+                GameId = gameId,
+                GameTitle = game.Title,
+                Levels = levels
+            };
+        }
+
+        private class PlaytestLevelEvent
+        {
+            public string Level { get; set; }
+            public string Event { get; set; }
         }
 
         private async Task EnsureCurrentUserHasAccessToGameAsync(Guid gameId)

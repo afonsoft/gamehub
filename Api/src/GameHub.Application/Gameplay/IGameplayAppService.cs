@@ -14,5 +14,7 @@ namespace GameHub.Gameplay
         Task EventAsync(GameplayEventInput input);
 
         Task UpdateFpsAsync(UpdateFpsInput input);
+
+        Task<GameErrorLogDto> CaptureErrorAsync(CaptureGameErrorInput input);
     }
 }

@@ -1,5 +1,43 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-26 02:00 UTC
+
+### Tarefa
+Implementar spec 26 da referência Poki (Error Scanner, DPU/conversion funnel, player feedback analytics, quality guidelines gates, external-resource exemptions, thumbnail guide, playtest difficulty balancing, player fit/retention, submission/approval workflow, ad/earnings reports).
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/Domain/Gameplay/GameMetricSnapshot.cs` — campos de funnel (`DailyPlayingUsers`, `PageViews`, `LoadingStartedCount`, `LoadingFinishedCount`, `GameplayStartedCount`) e métricas de feedback (`AverageRating`, `ReviewCount`).
+- `Api/src/GameHub.Core/Domain/Shared/Enums.cs` — `GameplayEventType.GamePageViewed`.
+- `Api/src/GameHub.Core/Domain/Moderation/UserContent.cs` — campo `Rating`.
+- `Api/src/GameHub.Core/Domain/Builds/ExternalResourceExemption.cs` e enum `ExternalResourceExemptionStatus`.
+- `Api/src/GameHub.Core/Domain/Builds/ImageHeaderAnalyzer.cs` — parser de dimensões de imagem.
+- `Api/src/GameHub.Core/Domain/Monetization/AdImpression.cs` e `AdBreakResult.Cpm`/`Earnings`.
+- `Api/src/GameHub.Core/Domain/Shared/Enums.cs` — `GameStatus.Submitted`, `InReview`, `ApprovedForPublishing`.
+- `Api/src/GameHub.Application/Admin/AdminDashboardAppService.cs` — `GetErrorScannerAsync`, `GetConversionFunnelAsync`, `GetPlayerFitAsync`, alertas de feedback e FPS.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs` e `IAdminGameAppService.cs` — `StartReviewAsync`, `ApproveForPublishingAsync`, `RequestChangesAsync`.
+- `Api/src/GameHub.Application/Admin/Dto/*` — DTOs `ErrorScannerItemDto`, `ConversionFunnelDto`, `PlayerFitDto`, `StartReviewInput`, `ApproveForPublishingInput`, `RequestChangesInput`.
+- `Api/src/GameHub.Application/Builds/GameBuildPackageValidator.cs`, `ImageHeaderAnalyzer.cs` e DTOs de validação — quality gates, thumbnails, IAP/links.
+- `Api/src/GameHub.Application/Builds/ExternalResourceAppService.cs` e DTOs.
+- `Api/src/GameHub.Application/Monetization/AdBreakAppService.cs`, `FakeAdProvider.cs`, `StaticVastAdProvider.cs` — gravação de `AdImpression`.
+- `Api/src/GameHub.Application/Developer/DeveloperEarningsAppService.cs` e DTOs — `GetAdReportAsync`.
+- `Api/src/GameHub.Application/Playtesting/PlaytestAppService.cs` — `GetDifficultyInsightsAsync` com case-insensitive JSON.
+- `Api/src/GameHub.Application/Player/PlayerFeedbackAnalyticsAppService.cs`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`, `GameHubModelCreatingExtensions.cs` — configurações EF e `DbSet`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260726*_Poki26.*` — migração.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminDashboardAppService_Tests.cs`, `PlayerFeedbackAnalyticsAppService_Tests.cs`, `ExternalResourceAppService_Tests.cs`, `PlaytestAnalyticsAppService_Tests.cs`, `DeveloperEarningsAdReportAppService_Tests.cs`.
+- `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `.specs/26-poki-proxima-fase.md`.
+- `Api/test/GameHub.Tests/GameHub.Tests.csproj` — downgrade `coverlet.collector` para `6.0.4` para recuperar coleta de cobertura.
+
+### Motivação
+Completar a fase 26 da referência Poki (Quality & Analytics): coleta de erros, funil de conversão, feedback de jogadores, portões de qualidade, domínios externos, thumbnails, dificuldade de playtests, retenção, workflow de submissão e relatórios de anúncios.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` — 0 warnings, 0 erros.
+- `dotnet test Api/GameHub.sln --no-build` — 296 passaram, 2 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` — sucesso.
+- Cobertura: GameHub.Application 81.2% linha / 52.4% branch, GameHub.Core 77.0% / 53.8%, global 7.9% / 51.1%.
+- Itens 26.9 (Netlib/Multiplayer) e 26.10 (AUDS) reservados para sessão dedicada.
+
 ## 2026-07-26 01:20 UTC
 
 ### Tarefa

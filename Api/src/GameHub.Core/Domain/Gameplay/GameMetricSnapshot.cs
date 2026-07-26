@@ -23,12 +23,26 @@ namespace GameHub.Gameplay
         public DateTime Date { get; set; }
         [Required]
         public long Plays { get; set; }
+
         [Required]
         public long UniquePlayers { get; set; }
+
+        [Required]
+        public long DailyPlayingUsers { get; set; }
+
+        [Required]
+        public long PageViews { get; set; }
         [Required]
         public double AvgDurationSeconds { get; set; }
         [Required]
+        public long LoadingStartedCount { get; set; }
+
+        [Required]
         public long LoadingFinishedCount { get; set; }
+
+        [Required]
+        public long GameplayStartedCount { get; set; }
+
         [Required]
         public long ErrorCount { get; set; }
         [Required]
@@ -56,6 +70,12 @@ namespace GameHub.Gameplay
 
         /// <summary>Total number of sessions that reported FPS.</summary>
         public long FpsTotalSessions { get; set; }
+
+        /// <summary>Average player rating (1-5) for this date.</summary>
+        public double? AverageRating { get; set; }
+
+        /// <summary>Total number of approved reviews for this date.</summary>
+        public long ReviewCount { get; set; }
 
         public virtual Game Game { get; set; }
     }

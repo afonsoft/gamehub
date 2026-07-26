@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,6 @@ namespace GameHub.Builds
 {
     public interface IGameBuildPackageValidator
     {
-        Task<ValidationSummaryDto> ValidateAsync(Stream packageStream, CancellationToken cancellationToken = default);
+        Task<ValidationSummaryDto> ValidateAsync(Stream packageStream, Guid? gameId = null, CancellationToken cancellationToken = default);
     }
 }

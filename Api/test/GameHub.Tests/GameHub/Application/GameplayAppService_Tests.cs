@@ -16,6 +16,7 @@ namespace GameHub.Tests.GameHub.Application
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
+        private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
 
         public GameplayAppService_Tests()
         {
@@ -23,6 +24,7 @@ namespace GameHub.Tests.GameHub.Application
             _gameRepository = LocalIocManager.Resolve<IRepository<Game, Guid>>();
             _playSessionRepository = LocalIocManager.Resolve<IRepository<PlaySession, Guid>>();
             _metricSnapshotRepository = LocalIocManager.Resolve<IRepository<GameMetricSnapshot, Guid>>();
+            _errorLogRepository = LocalIocManager.Resolve<IRepository<GameErrorLog, Guid>>();
         }
 
         [Fact]
@@ -112,6 +114,30 @@ namespace GameHub.Tests.GameHub.Application
             snapshot.ShouldNotBeNull();
             snapshot.AvgFps.ShouldBe(55.0);
             snapshot.MinFps.ShouldBe(20.0);
+        }
+
+        [Fact]
+        public async Task Dado_SessaoAtiva_Quando_CapturarErro_Entao_PersisteLog()
+        {
+            var gameId = await SeedGameAsync();
+            var session = await _gameplayAppService.StartSessionAsync(new StartPlaySessionInput { GameId = gameId, DeviceType = "Desktop", Browser = "Chrome" });
+
+            var error = await _gameplayAppService.CaptureErrorAsync(new CaptureGameErrorInput
+            {
+                SessionId = session.SessionId,
+                GameId = gameId,
+                Message = "Texture load failed",
+                StackTrace = "at renderer.js:42",
+                Source = "renderer",
+                Severity = "Error"
+            });
+
+            error.ShouldNotBeNull();
+            error.Message.ShouldBe("Texture load failed");
+
+            var stored = await _errorLogRepository.GetAsync(error.Id);
+            stored.ShouldNotBeNull();
+            stored.Severity.ShouldBe("Error");
         }
 
         private async Task<Guid> SeedGameAsync()

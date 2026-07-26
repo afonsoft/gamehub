@@ -31,6 +31,7 @@ namespace GameHub.Admin
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
+        private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
 
@@ -41,6 +42,7 @@ namespace GameHub.Admin
             IRepository<PlaySession, Guid> playSessionRepository,
             IRepository<GameplayEvent, Guid> gameplayEventRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
+            IRepository<GameErrorLog, Guid> errorLogRepository,
             IRepository<User, long> userRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository)
         {
@@ -50,6 +52,7 @@ namespace GameHub.Admin
             _playSessionRepository = playSessionRepository;
             _gameplayEventRepository = gameplayEventRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
+            _errorLogRepository = errorLogRepository;
             _userRepository = userRepository;
             _developerProfileRepository = developerProfileRepository;
         }
@@ -388,6 +391,23 @@ namespace GameHub.Admin
                 }
             }
 
+            var lowRatingSnapshots = await _metricSnapshotRepository.GetAll()
+                .Where(s => s.Date >= since && s.ReviewCount >= 10 && s.AverageRating < 3.0)
+                .Select(s => new { s.GameId, s.Game.Title, s.AverageRating, s.ReviewCount })
+                .ToListAsync();
+
+            foreach (var snapshot in lowRatingSnapshots)
+            {
+                alerts.Add(new AdminHealthAlertDto
+                {
+                    GameId = snapshot.GameId,
+                    GameTitle = snapshot.Title,
+                    Reason = $"Average player rating below 3.0 over {snapshot.ReviewCount} reviews",
+                    Severity = "Warning",
+                    MetricValue = snapshot.AverageRating ?? 0
+                });
+            }
+
             return alerts.OrderByDescending(a => a.MetricValue).ToList();
         }
 
@@ -486,6 +506,231 @@ namespace GameHub.Admin
                 BenchmarkSeconds = benchmark,
                 BelowBenchmark = below,
                 Suggestions = suggestions
+            };
+        }
+
+        public async Task<ErrorScannerResultDto> GetErrorScannerAsync(Guid? gameId, Guid? buildId, int hours)
+        {
+            if (hours < 1) hours = 24;
+            if (hours > 168) hours = 168;
+
+            var end = Clock.Now;
+            var start = end.AddHours(-hours);
+
+            var query = _errorLogRepository.GetAll()
+                .Where(e => e.Timestamp >= start && e.Timestamp <= end);
+
+            if (gameId.HasValue)
+            {
+                query = query.Where(e => e.GameId == gameId.Value);
+            }
+
+            if (buildId.HasValue)
+            {
+                query = query.Where(e => e.BuildId == buildId.Value);
+            }
+
+            var logs = await query
+                .OrderByDescending(e => e.Timestamp)
+                .Take(1000)
+                .Select(e => new { e.GameId, e.Game.Title, e.Message, e.Severity, e.Timestamp, e.StackTrace })
+                .ToListAsync();
+
+            var groups = logs
+                .GroupBy(e => new { e.Message, e.Severity })
+                .Select(g => new ErrorScannerItemDto
+                {
+                    Message = g.Key.Message,
+                    Severity = g.Key.Severity,
+                    Count = g.Count(),
+                    LastOccurredAt = g.Max(x => x.Timestamp),
+                    Samples = g.Select(x => x.StackTrace ?? x.Message).Where(s => !string.IsNullOrWhiteSpace(s)).Take(3).ToList()
+                })
+                .OrderByDescending(i => i.Count)
+                .ToList();
+
+            var title = gameId.HasValue
+                ? (await _gameRepository.FirstOrDefaultAsync(gameId.Value))?.Title ?? string.Empty
+                : string.Empty;
+
+            return new ErrorScannerResultDto
+            {
+                GameId = gameId,
+                GameTitle = title,
+                StartTime = start,
+                EndTime = end,
+                TotalErrors = logs.Count,
+                Items = groups
+            };
+        }
+
+        public async Task<PlayerFitDto> GetPlayerFitAsync(Guid gameId)
+        {
+            var game = await _gameRepository.GetAll()
+                .Include(g => g.GameCategories)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if (game == null)
+            {
+                throw new Abp.UI.UserFriendlyException("Game not found");
+            }
+
+            var today = Clock.Now.Date;
+            var sessions = await _playSessionRepository.GetAll()
+                .Where(s => s.GameId == gameId && !s.IsPlaytest && s.StartedAt >= today.AddDays(-60))
+                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt })
+                .ToListAsync();
+
+            var playerDays = sessions
+                .Select(s => new
+                {
+                    Key = s.UserId.HasValue ? $"u:{s.UserId.Value}" : $"a:{s.AnonymousIdHash}",
+                    Date = s.StartedAt.Date
+                })
+                .Where(x => !string.IsNullOrEmpty(x.Key))
+                .Distinct()
+                .ToList();
+
+            var firstPlayByPlayer = playerDays
+                .GroupBy(x => x.Key)
+                .ToDictionary(g => g.Key, g => g.Min(x => x.Date));
+
+            var playerDateSets = playerDays
+                .GroupBy(x => x.Key)
+                .ToDictionary(g => g.Key, g => new HashSet<DateTime>(g.Select(x => x.Date)));
+
+            long retained1d = 0, retained7d = 0, retained30d = 0;
+            foreach (var player in firstPlayByPlayer)
+            {
+                var dates = playerDateSets[player.Key];
+                if (dates.Contains(player.Value.AddDays(1))) retained1d++;
+                if (dates.Contains(player.Value.AddDays(7))) retained7d++;
+                if (dates.Contains(player.Value.AddDays(30))) retained30d++;
+            }
+
+            var totalPlayers = firstPlayByPlayer.Count;
+            var retention1d = totalPlayers > 0 ? (double)retained1d / totalPlayers : 0;
+            var retention7d = totalPlayers > 0 ? (double)retained7d / totalPlayers : 0;
+            var retention30d = totalPlayers > 0 ? (double)retained30d / totalPlayers : 0;
+
+            var last30Days = playerDays.Where(x => x.Date >= today.AddDays(-29)).ToList();
+            var mau = last30Days.Select(x => x.Key).Distinct().Count();
+            var dauWindow = last30Days
+                .GroupBy(x => x.Date)
+                .Select(g => g.Select(x => x.Key).Distinct().Count())
+                .ToList();
+            var avgDau = dauWindow.Any() ? dauWindow.Average() : 0.0;
+            var stickiness = mau > 0 ? avgDau / mau : 0.0;
+
+            var categoryId = game.GameCategories.Select(c => c.CategoryId).FirstOrDefault();
+            var categoryAverageStickiness = categoryId != default
+                ? await ComputeCategoryStickinessAsync(categoryId, gameId)
+                : 0.0;
+
+            var benchmark = stickiness >= categoryAverageStickiness * 1.1 ? "Above average"
+                : stickiness >= categoryAverageStickiness * 0.9 ? "On par"
+                : "Below average";
+
+            var suggestions = new List<string>();
+            if (retention1d < 0.3)
+            {
+                suggestions.Add("Primeira sessão curta; considere um tutorial mais envolvente ou recompensa diária.");
+            }
+            if (stickiness < 0.1)
+            {
+                suggestions.Add("Baixa recorrência; adicione notificações de retorno ou missões diárias.");
+            }
+
+            return new PlayerFitDto
+            {
+                GameId = gameId,
+                GameTitle = game.Title,
+                Retention1d = retention1d,
+                Retention7d = retention7d,
+                Retention30d = retention30d,
+                Stickiness = stickiness,
+                CategoryAverageStickiness = categoryAverageStickiness,
+                Benchmark = benchmark,
+                Suggestions = suggestions
+            };
+        }
+
+        private async Task<double> ComputeCategoryStickinessAsync(Guid categoryId, Guid excludeGameId)
+        {
+            var gameIds = await _gameRepository.GetAll()
+                .Where(g => g.Id != excludeGameId && g.GameCategories.Any(c => c.CategoryId == categoryId))
+                .Select(g => g.Id)
+                .ToListAsync();
+
+            if (!gameIds.Any())
+            {
+                return 0.0;
+            }
+
+            var today = Clock.Now.Date;
+            var sessions = await _playSessionRepository.GetAll()
+                .Where(s => gameIds.Contains(s.GameId) && !s.IsPlaytest && s.StartedAt >= today.AddDays(-29))
+                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt })
+                .ToListAsync();
+
+            var playerDays = sessions
+                .Select(s => new { Key = s.UserId.HasValue ? $"u:{s.UserId.Value}" : $"a:{s.AnonymousIdHash}", Date = s.StartedAt.Date })
+                .Where(x => !string.IsNullOrEmpty(x.Key))
+                .Distinct()
+                .ToList();
+
+            var mau = playerDays.Select(x => x.Key).Distinct().Count();
+            var dau = playerDays
+                .GroupBy(x => x.Date)
+                .Select(g => g.Select(x => x.Key).Distinct().Count())
+                .ToList();
+
+            return mau > 0 ? dau.Average() / mau : 0.0;
+        }
+
+        public async Task<ConversionFunnelDto> GetConversionFunnelAsync(Guid? gameId, DateTime? startDate, DateTime? endDate)
+        {
+            var end = endDate?.Date ?? Clock.Now.Date;
+            var start = startDate?.Date ?? end.AddDays(-29);
+            var startAt = start;
+            var endAt = end.AddDays(1).AddTicks(-1);
+
+            var query = _metricSnapshotRepository.GetAll()
+                .Where(s => s.Date >= startAt && s.Date <= endAt);
+
+            if (gameId.HasValue)
+            {
+                query = query.Where(s => s.GameId == gameId.Value);
+            }
+
+            var snapshots = await query.ToListAsync();
+
+            var pageViews = snapshots.Sum(s => s.PageViews);
+            var loadingStarted = snapshots.Sum(s => s.LoadingStartedCount);
+            var loadingFinished = snapshots.Sum(s => s.LoadingFinishedCount);
+            var gameplayStarted = snapshots.Sum(s => s.GameplayStartedCount);
+
+            var stages = new List<FunnelStageDto>
+            {
+                new() { Name = "PageView", Count = pageViews, ConversionRate = 1.0 },
+                new() { Name = "LoadingStarted", Count = loadingStarted, ConversionRate = pageViews > 0 ? (double)loadingStarted / pageViews : 0 },
+                new() { Name = "LoadingFinished", Count = loadingFinished, ConversionRate = loadingStarted > 0 ? (double)loadingFinished / loadingStarted : 0 },
+                new() { Name = "GameplayStarted", Count = gameplayStarted, ConversionRate = loadingFinished > 0 ? (double)gameplayStarted / loadingFinished : 0 }
+            };
+
+            string title = string.Empty;
+            if (gameId.HasValue)
+            {
+                title = (await _gameRepository.FirstOrDefaultAsync(gameId.Value))?.Title ?? string.Empty;
+            }
+
+            return new ConversionFunnelDto
+            {
+                GameId = gameId ?? Guid.Empty,
+                GameTitle = title,
+                StartDate = start,
+                EndDate = end,
+                Stages = stages
             };
         }
 

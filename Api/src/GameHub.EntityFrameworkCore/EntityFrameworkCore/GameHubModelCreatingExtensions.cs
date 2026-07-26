@@ -263,10 +263,14 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Date).IsRequired();
                 b.Property(x => x.Plays).HasDefaultValue(0L);
                 b.Property(x => x.UniquePlayers).HasDefaultValue(0L);
+                b.Property(x => x.DailyPlayingUsers).HasDefaultValue(0L);
+                b.Property(x => x.PageViews).HasDefaultValue(0L);
                 b.Property(x => x.AvgDurationSeconds).HasDefaultValue(0.0);
                 b.Property(x => x.MedianSessionDurationSeconds).HasDefaultValue(0.0);
                 b.Property(x => x.OnboardingDropOffRate).HasDefaultValue(0.0);
+                b.Property(x => x.LoadingStartedCount).HasDefaultValue(0L);
                 b.Property(x => x.LoadingFinishedCount).HasDefaultValue(0L);
+                b.Property(x => x.GameplayStartedCount).HasDefaultValue(0L);
                 b.Property(x => x.ErrorCount).HasDefaultValue(0L);
                 b.Property(x => x.CommercialBreakCount).HasDefaultValue(0L);
                 b.Property(x => x.RewardedBreakCount).HasDefaultValue(0L);
@@ -274,6 +278,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.MinFps);
                 b.Property(x => x.FpsAcceptableSessions).HasDefaultValue(0L);
                 b.Property(x => x.FpsTotalSessions).HasDefaultValue(0L);
+                b.Property(x => x.AverageRating);
+                b.Property(x => x.ReviewCount).HasDefaultValue(0L);
 
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => new { x.GameId, x.Date }).IsUnique();
@@ -431,6 +437,29 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<AdImpression>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "AdImpressions", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.BuildId);
+                b.Property(x => x.Type).IsRequired().HasMaxLength(32);
+                b.Property(x => x.Provider).IsRequired().HasMaxLength(64);
+                b.Property(x => x.CountryCode).HasMaxLength(2);
+                b.Property(x => x.DeviceType).HasMaxLength(64);
+                b.Property(x => x.Cpm).HasPrecision(18, 6);
+                b.Property(x => x.Earnings).HasPrecision(18, 6);
+                b.Property(x => x.OccurredAt).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.OccurredAt });
+                b.HasIndex(x => new { x.GameId, x.Type, x.OccurredAt });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<PlayerFavorite>(b =>
             {
                 b.ToTable(GameHubConsts.DbTablePrefix + "PlayerFavorites", GameHubConsts.DbSchema);
@@ -495,6 +524,7 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.GameId).IsRequired();
                 b.Property(x => x.ContentType).IsRequired();
                 b.Property(x => x.Text).IsRequired().HasMaxLength(4000);
+                b.Property(x => x.Rating);
                 b.Property(x => x.IsApproved).IsRequired();
                 b.Property(x => x.RequiresModeration).IsRequired();
                 b.Property(x => x.ModerationReason).HasMaxLength(1000);
@@ -698,12 +728,62 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.CountryCode).HasMaxLength(2);
                 b.Property(x => x.ConsoleOutput).HasMaxLength(4000);
                 b.Property(x => x.Notes).HasMaxLength(4000);
+                b.Property(x => x.LevelEvents).HasMaxLength(16000);
 
                 b.HasIndex(x => x.PlaytestSessionId);
 
                 b.HasOne(x => x.PlaytestSession)
                     .WithMany()
                     .HasForeignKey(x => x.PlaytestSessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<GameErrorLog>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "GameErrorLogs", GameHubConsts.DbSchema);
+
+                b.Property(x => x.SessionId);
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.BuildId);
+                b.Property(x => x.Message).IsRequired().HasMaxLength(2048);
+                b.Property(x => x.StackTrace).HasMaxLength(4000);
+                b.Property(x => x.Source).HasMaxLength(256);
+                b.Property(x => x.Severity).HasMaxLength(32);
+                b.Property(x => x.Timestamp).IsRequired();
+
+                b.HasIndex(x => new { x.GameId, x.Timestamp });
+                b.HasIndex(x => new { x.Timestamp, x.Severity });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(x => x.Session)
+                    .WithMany()
+                    .HasForeignKey(x => x.SessionId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<ExternalResourceExemption>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "ExternalResourceExemptions", GameHubConsts.DbSchema);
+
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.Domain).IsRequired().HasMaxLength(256);
+                b.Property(x => x.ProviderName).HasMaxLength(128);
+                b.Property(x => x.PrivacyStatementUrl).HasMaxLength(512);
+                b.Property(x => x.Status).IsRequired();
+                b.Property(x => x.ApprovedAt);
+                b.Property(x => x.RejectedAt);
+                b.Property(x => x.ModeratorNotes).HasMaxLength(1000);
+
+                b.HasIndex(x => new { x.GameId, x.Domain }).IsUnique();
+                b.HasIndex(x => new { x.GameId, x.Status });
+
+                b.HasOne(x => x.Game)
+                    .WithMany()
+                    .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
