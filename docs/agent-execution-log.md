@@ -1323,3 +1323,23 @@ Usar a Poki como referência de mercado para evoluir o GameHub sem copiar marca,
 ### Resultado
 - Novos specs criados e prontos para revisão.
 - Branch `feature/poki-specs` criada a partir de `main`.
+
+## 2026-07-26 22:30 UTC
+
+### Tarefa
+Reorganizar as telas `/developer/games` e `/developer/earnings` e atualizar o Guia do Usuário com o fluxo do portal do desenvolvedor.
+
+### Arquivos alterados
+- `angular/src/app/developer/games/games.component.html` e `.css` — tabela responsiva, cabeçalho, estado vazio, badges de status e ações agrupadas.
+- `angular/src/app/developer/earnings/earnings.component.html` e `.css` — cards de resumo, tabelas em painéis, hierarquia visual e rolagem horizontal em telas menores.
+- `angular/src/styles.css` — layout compartilhado do portal do desenvolvedor com sidebar responsiva.
+- `angular/src/app/public/docs/user-guide/user-guide.component.html` — instruções para portal, jogos, receitas e builds.
+- `angular/public/i18n/pt-BR.json` e `angular/public/i18n/en-US.json` — novas traduções do Guia do Usuário.
+
+### Motivação
+As telas usavam tabelas e componentes sem um layout de portal consistente; a documentação também não explicava onde gerenciar jogos, builds e receitas.
+
+### Resultado
+- Build Angular de produção passou.
+- `git diff --check` passou.
+- Rotas `/developer/games` e `/developer/earnings` revisadas visualmente em desktop; o estado vazio e a navegação lateral foram validados.

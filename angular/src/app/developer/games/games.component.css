@@ -1,48 +1,134 @@
-@import '../dashboard/dashboard.component.css';
 .dev-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 28px;
 }
+
 .dev-header h1 {
   margin: 0;
 }
+
+.games-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.games-toolbar p {
+  margin: 0;
+  color: #69707d;
+  font-size: 0.9rem;
+}
+
+.games-table-wrap {
+  background: #fff;
+  border: 1px solid #e7e9ef;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(26, 27, 46, 0.06);
+}
+
 .games-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-width: 760px;
 }
+
 .games-table th,
 .games-table td {
   text-align: left;
-  padding: 14px;
+  padding: 16px 18px;
   border-bottom: 1px solid #eef0f2;
+  vertical-align: middle;
 }
+
 .games-table th {
-  background: #f8f9fa;
-  color: #5f6368;
+  background: #fbfbfd;
+  color: #69707d;
   font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
+
+.games-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.games-table tbody tr:hover {
+  background: #fafaff;
+}
+
+.game-title {
+  color: #1a1b2e;
+  font-weight: 700;
+}
+
+.game-date {
+  color: #69707d;
+  white-space: nowrap;
+}
+
 .games-table a {
   color: #1a73e8;
   text-decoration: none;
-  margin-right: 12px;
   font-size: 0.875rem;
+  font-weight: 700;
 }
+
+.games-table a:hover {
+  text-decoration: underline;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  min-width: 210px;
+}
+
+.submit-action {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: #fff0ee;
+  color: #c83f39;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-action:hover {
+  background: #ffe1de;
+}
+
 .badge {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 5px 9px;
   border-radius: 9999px;
   background: #e8f0fe;
   color: #1a73e8;
   font-size: 0.75rem;
   font-weight: 500;
+  white-space: nowrap;
 }
+
+.status-badge {
+  background: #edf8f1;
+  color: #218447;
+}
+
+.status-badge.status-rejected {
+  background: #fff0ee;
+  color: #c83f39;
+}
+
+.status-badge.status-inreview {
+  background: #fff8e5;
+  color: #9a6a00;
+}
+
 .empty {
-  color: #5f6368;
-  padding: 24px 0;
+  margin-top: 18px;
 }
