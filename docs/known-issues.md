@@ -8,7 +8,12 @@
 
 ## Caches
 
-- `IGameCatalogCache` e `ILeaderboardCache` possuem implementações Redis (`RedisGameCatalogCache` e `RedisLeaderboardCache`) registradas quando `RedisCache:IsEnabled=true`.
+- `IGameCatalogCache` e `ILeaderboardCache` possuem implementações Redis
+  (`RedisGameCatalogCache` e `RedisLeaderboardCache`) registradas pelo GameHub
+  quando o Redis está habilitado por `RedisCache:IsEnabled` ou
+  `RedisCache:IsRedisEnabled` e há uma connection string configurada. A
+  configuração base de `ICacheManager` e `IDistributedCache` é responsabilidade
+  do EAF.
 - Em desenvolvimento sem Redis, caem para as implementações in-memory padrão.
 
 ## Storage

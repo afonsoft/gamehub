@@ -4,6 +4,11 @@
 
 O GameHub possui Redis configurável, `IConnectionMultiplexer`, caches de catálogo/leaderboard e um `NetworkPeerRegistry` em memória usado pelo hub `/signalr-network`. O objetivo desta evolução é preparar a presença distribuída usando a abstração de cache do ASP.NET Boilerplate (`ICacheManager`), sem introduzir ainda Pub/Sub ou o backplane oficial do SignalR.
 
+O provider base não pertence ao GameHub: o `MiddlewareWebCoreModule` do EAF
+executa `CacheConfigurer` para o `ICacheManager` e `RedisConfigurer` para o
+`IDistributedCache`. O GameHub deve consumir essas abstrações e implementar
+somente as extensões específicas do multiplayer.
+
 ## Decisão aprovada
 
 Implementar em três etapas:
@@ -34,6 +39,10 @@ Implementar em três etapas:
 - Todo key prefix inclui tenant, jogo e partida quando aplicável.
 - Nenhum payload de sinal sensível deve ser persistido no cache de presença.
 - Toda entrada possui TTL e deve sobreviver à ausência de evento explícito de desconexão.
+- `WebHostModule` não deve chamar `Configuration.Caching.UseRedis(...)`;
+  essa configuração é responsabilidade do EAF.
+- `IConnectionMultiplexer` direto só deve ser registrado para caches ou
+  componentes do GameHub que realmente precisem de comandos Redis.
 
 ## Sequência alvo
 
@@ -60,6 +69,8 @@ Disconnect/TTL
 
 - Os contratos de cache não vazam `ICacheManager` para Core/Application.
 - A implementação pode usar o provider Redis do EAF/ABP sem alterar o modelo relacional.
+- A configuração de `ICacheManager` e `IDistributedCache` não é duplicada no
+  GameHub.
 - O comportamento de instância única permanece compatível.
 - A limitação de entrega cross-instance está explícita na documentação e nos testes.
 - A futura adição de Pub/Sub não exige alterar o contrato de presença.

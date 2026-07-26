@@ -6,11 +6,15 @@ Criar uma abstração de cache multiplayer baseada no `ICacheManager` do ASP.NET
 
 ## Contexto atual
 
-- `WebHostModule` registra `IConnectionMultiplexer` quando `RedisCache:IsEnabled=true`.
+- O `MiddlewareWebCoreModule` do EAF configura o provider do `ICacheManager` e do
+  `IDistributedCache` conforme `RedisCache:IsEnabled` ou
+  `RedisCache:IsRedisEnabled`.
+- `WebHostModule` registra `IConnectionMultiplexer` somente para componentes do
+  GameHub que precisam de acesso direto ao Redis.
 - `RedisGameCatalogCache` usa `IDistributedCache`.
 - `RedisLeaderboardCache` usa `IConnectionMultiplexer`.
 - `NetworkPeerRegistry` usa `ConcurrentDictionary<string, Guid>` em memória.
-- O EAF pode fornecer `IDistributedCache`/cache ABP conforme configuração; o provider efetivo precisa ser validado, não presumido.
+- O provider efetivo é selecionado pelo EAF; o GameHub não deve reconfigurá-lo.
 
 ## Escopo
 
@@ -46,10 +50,20 @@ Criar em Web/Infrastructure uma implementação baseada em `ICacheManager`:
 - não armazenar payload de signaling;
 - não registrar valores de tokens, cookies ou credenciais.
 
-Quando `RedisCache:IsEnabled=true`, configurar `Configuration.Caching.UseRedis(...)`
-com a mesma connection string e `DatabaseId` usados pela API. Com Redis
-desabilitado, o provider local do ABP continua disponível para desenvolvimento e
-testes.
+O EAF já configura `Configuration.Caching.UseRedis(...)` em
+`Eaf.Middleware.Web.Configuration.CacheConfigurer`, durante o
+`PreInitialize` do `MiddlewareWebCoreModule`. O GameHub deve apenas consumir
+`ICacheManager`; não deve chamar `Configuration.Caching.UseRedis(...)` novamente.
+O mesmo módulo também configura `IDistributedCache` por meio de
+`RedisConfigurer`.
+
+Com Redis desabilitado, o provider local selecionado pelo EAF continua
+disponível para desenvolvimento e testes.
+
+O registro de `IConnectionMultiplexer` e as substituições de
+`IGameCatalogCache`/`ILeaderboardCache` continuam sendo extensões específicas do
+GameHub, pois o EAF não fornece essas implementações de domínio nem expõe sua
+conexão interna para esses componentes.
 
 O nome do cache deve ser estável, por exemplo:
 
@@ -79,6 +93,21 @@ Documentar e validar:
 ```
 
 `IsEnabled` da presença não deve assumir que o provider é Redis. Em modo sem Redis, a implementação pode operar localmente para desenvolvimento/testes, mas deve expor o modo efetivo em health/diagnóstico.
+
+### Responsabilidades EAF versus GameHub
+
+| Responsabilidade | EAF | GameHub |
+| --- | --- | --- |
+| Seleção do provider do `ICacheManager` | `CacheConfigurer` | Não duplicar |
+| Registro do `IDistributedCache` | `RedisConfigurer` | Não duplicar |
+| Connection string e database do cache base | `RedisCache:*` | Consumir configuração |
+| Presença tenant-aware e TTL | — | `IMultiplayerPresenceStore` |
+| Cache de catálogo e leaderboard | — | Implementações específicas |
+| `IConnectionMultiplexer` direto | — | Somente quando necessário |
+| Backplane SignalR | — | `Startup` do GameHub |
+
+O backplane SignalR não é habilitado por `ICacheManager` ou
+`IDistributedCache`; ele continua sendo uma configuração de transporte separada.
 
 ### Provider efetivo
 
