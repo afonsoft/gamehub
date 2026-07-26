@@ -29,6 +29,10 @@ export const developerRoutes: Routes = [
     path: 'earnings',
     loadComponent: () => import('./earnings/earnings.component').then(m => m.DeveloperEarningsComponent),
   },
+  {
+    path: 'team',
+    loadComponent: () => import('./team/team.component').then(m => m.DeveloperTeamComponent),
+  },
 ];
 
 export const developerRootRoute = {

@@ -42,6 +42,20 @@
       </div>
     </section>
 
+    <section class="game-section mystery-tile" *ngIf="home?.mysteryTile">
+      <h2 class="section-title">{{ 'section.mysteryTile' | translate }}</h2>
+      <a class="game-card mystery" [routerLink]="['/play', home?.mysteryTile?.slug]">
+        <div class="thumb">
+          <img [src]="home?.mysteryTile?.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="home?.mysteryTile?.title" loading="lazy" />
+          <span class="mystery-badge" *ngIf="home?.mysteryTile?.isPlaytest">{{ 'mysteryTile.playtest' | translate }}</span>
+        </div>
+        <div class="meta">
+          <h3>{{ home?.mysteryTile?.title }}</h3>
+          <p *ngIf="home?.mysteryTile?.recordingConsentPrompt">{{ home?.mysteryTile?.recordingConsentPrompt }}</p>
+        </div>
+      </a>
+    </section>
+
     <ng-template #largeGameGrid let-games="games">
       <div class="game-grid large">
         <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">

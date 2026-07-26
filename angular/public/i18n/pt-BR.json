@@ -11,6 +11,8 @@
   "section.popularThisWeek": "Populares da semana",
   "section.topFree": "Top jogos grátis",
   "section.webExclusives": "Exclusivos web",
+  "section.mysteryTile": "Jogo Misterioso",
+  "mysteryTile.playtest": "Playtest",
   "emptyState.home": "Nenhum jogo publicado ainda. Volte em breve!",
   "notFound.title": "Página não encontrada",
   "register.passwordHint": "A senha deve ter pelo menos 6 caracteres, incluindo uma letra maiúscula, uma minúscula, um número e um caractere especial.",

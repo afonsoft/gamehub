@@ -59,6 +59,7 @@ export class HomeComponent implements OnInit {
 
   hasAnyGames(): boolean {
     return !!(
+      this.home?.mysteryTile ||
       this.home?.highlights?.length ||
       this.home?.mostPlayed?.length ||
       this.home?.trending?.length ||

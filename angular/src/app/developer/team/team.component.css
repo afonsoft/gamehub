@@ -1,0 +1,32 @@
+.team-settings-page {
+  padding: 1rem;
+}
+
+.developer-header nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.settings-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error {
+  color: #b91c1c;
+  margin-bottom: 1rem;
+}
+
+.success {
+  color: #15803d;
+  margin-bottom: 1rem;
+}

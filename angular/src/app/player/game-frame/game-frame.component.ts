@@ -36,6 +36,8 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   previewVersion: string | null = null;
   toast: { message: string; type: 'warning' | 'error' | 'info' } | null = null;
   pillTop: string | null = null;
+  rewardedBreakPending: { resolve: (rewarded: boolean) => void } | null = null;
+  rewardedBreakState: 'idle' | 'watching' | 'adblocked' | 'rewarded' | 'dismissed' = 'idle';
   private sessionId: string | null = null;
   private gameId: string | null = null;
   private gameOrigin = '*';
@@ -138,6 +140,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     this.bridge.setReplyHandler(msg => this.postToGame(msg));
     this.bridge.setOnSaveError(() => this.showToast('Progresso local apenas', 'warning'));
     this.bridge.setOnMovePill((topPercent, topPx) => this.setPillPosition(topPercent, topPx));
+    this.bridge.setOnRewardedBreak(resolve => this.showRewardedBreak(resolve));
 
     const inspector = this.route.snapshot.queryParamMap.get('inspector');
     const inspectorSession = this.route.snapshot.queryParamMap.get('inspectorSession');
@@ -314,6 +317,34 @@ export class GameFrameComponent implements OnInit, OnDestroy {
       event.preventDefault();
       this.postToGame({ channel: 'gamehub-bridge', action: 'resumeRequested' });
     }
+  }
+
+  showRewardedBreak(resolve: (rewarded: boolean) => void): void {
+    this.rewardedBreakPending = { resolve };
+    this.rewardedBreakState = 'idle';
+  }
+
+  async confirmRewardedBreak(): Promise<void> {
+    if (!this.rewardedBreakPending) return;
+    this.rewardedBreakState = 'watching';
+
+    const { rewarded, adBlocked } = await this.bridge.requestRewardedAd();
+    this.rewardedBreakState = adBlocked ? 'adblocked' : rewarded ? 'rewarded' : 'dismissed';
+
+    window.setTimeout(() => {
+      this.rewardedBreakPending?.resolve(rewarded);
+      this.rewardedBreakPending = null;
+      this.rewardedBreakState = 'idle';
+    }, adBlocked ? 1200 : 800);
+  }
+
+  declineRewardedBreak(): void {
+    this.rewardedBreakState = 'dismissed';
+    window.setTimeout(() => {
+      this.rewardedBreakPending?.resolve(false);
+      this.rewardedBreakPending = null;
+      this.rewardedBreakState = 'idle';
+    }, 300);
   }
 
   private toggleParentScroll(enabled: boolean): void {

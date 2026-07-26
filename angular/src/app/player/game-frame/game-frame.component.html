@@ -70,6 +70,27 @@
     {{ toast.message }}
   </div>
 
+  <div *ngIf="rewardedBreakPending" class="rewarded-overlay">
+    <div class="rewarded-card">
+      <h3 *ngIf="rewardedBreakState === 'idle'">Earn a reward?</h3>
+      <p *ngIf="rewardedBreakState === 'idle'">Watch a short ad to get a bonus.</p>
+
+      <p *ngIf="rewardedBreakState === 'watching'">Loading reward...</p>
+      <p *ngIf="rewardedBreakState === 'rewarded'">Reward granted!</p>
+      <p *ngIf="rewardedBreakState === 'adblocked'">Ad blocker detected. No reward available.</p>
+      <p *ngIf="rewardedBreakState === 'dismissed'">No reward this time.</p>
+
+      <div class="rewarded-actions" *ngIf="rewardedBreakState === 'idle'">
+        <button class="btn-primary btn-reward" (click)="confirmRewardedBreak()">
+          <span class="reward-icon">⭐</span> Watch for reward
+        </button>
+        <button class="btn-secondary" (click)="declineRewardedBreak()">
+          No thanks
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="started" class="mobile-pill" [style.top]="pillTop ?? 'auto'">
     <span class="pill-handle"></span>
   </div>
