@@ -1,10 +1,12 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
+using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 
@@ -17,6 +19,7 @@ namespace GameHub.Tests.GameHub.Application
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
         private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
+        private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
 
         public GameplayAppService_Tests()
         {
@@ -25,6 +28,7 @@ namespace GameHub.Tests.GameHub.Application
             _playSessionRepository = LocalIocManager.Resolve<IRepository<PlaySession, Guid>>();
             _metricSnapshotRepository = LocalIocManager.Resolve<IRepository<GameMetricSnapshot, Guid>>();
             _errorLogRepository = LocalIocManager.Resolve<IRepository<GameErrorLog, Guid>>();
+            _gameplayEventRepository = LocalIocManager.Resolve<IRepository<GameplayEvent, Guid>>();
         }
 
         [Fact]
@@ -138,6 +142,57 @@ namespace GameHub.Tests.GameHub.Application
             var stored = await _errorLogRepository.GetAsync(error.Id);
             stored.ShouldNotBeNull();
             stored.Severity.ShouldBe("Error");
+        }
+
+        [Fact]
+        public async Task Dado_EventoComDadosSensíveis_Quando_Registrar_Entao_Rejeita()
+        {
+            var gameId = await SeedGameAsync();
+            var session = await _gameplayAppService.StartSessionAsync(new StartPlaySessionInput
+            {
+                GameId = gameId,
+                DeviceType = "Desktop",
+                Browser = "Chrome"
+            });
+
+            await Should.ThrowAsync<ArgumentException>(() =>
+                _gameplayAppService.EventAsync(new GameplayEventInput
+                {
+                    SessionId = session.SessionId,
+                    GameId = gameId,
+                    EventType = GameplayEventType.GameMeasuredEvent,
+                    PayloadJson = "{\"token\":\"secret\"}"
+                }));
+        }
+
+        [Fact]
+        public async Task Dado_EventoVálido_Quando_Registrar_Entao_PersisteBuildEMatch()
+        {
+            var gameId = await SeedGameAsync();
+            var session = await _gameplayAppService.StartSessionAsync(new StartPlaySessionInput
+            {
+                GameId = gameId,
+                DeviceType = "Desktop",
+                Browser = "Chrome"
+            });
+            var buildId = Guid.NewGuid();
+            var matchId = Guid.NewGuid();
+
+            await _gameplayAppService.EventAsync(new GameplayEventInput
+            {
+                SessionId = session.SessionId,
+                GameId = gameId,
+                BuildId = buildId,
+                MatchId = matchId,
+                EventType = GameplayEventType.GameplayStarted,
+                EventName = "gameplay_started"
+            });
+
+            var stored = await UsingDbContextAsync(context =>
+                context.GameplayEvents.FirstOrDefaultAsync(item => item.PlaySessionId == session.SessionId));
+            stored.ShouldNotBeNull();
+            stored.BuildId.ShouldBe(buildId);
+            stored.MatchId.ShouldBe(matchId);
         }
 
         private async Task<Guid> SeedGameAsync()

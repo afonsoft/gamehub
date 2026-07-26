@@ -17,6 +17,12 @@ namespace GameHub.Gameplay.Dto
         [Required]
         public Guid GameId { get; set; }
 
+        /// <summary>Build identifier associated with the event.</summary>
+        public Guid? BuildId { get; set; }
+
+        /// <summary>Match identifier associated with the event.</summary>
+        public Guid? MatchId { get; set; }
+
         /// <summary>Type of gameplay event.</summary>
         [Required]
         public GameplayEventType EventType { get; set; }

@@ -21,10 +21,13 @@ namespace GameHub.Chat
     public class GameChatAppService : GameHubAppServiceBase, IGameChatAppService
     {
         private static readonly TimeSpan DeduplicationWindow = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan RateLimitWindow = TimeSpan.FromMinutes(1);
+        private const int MaxMessagesPerMinute = 30;
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<MatchState, Guid> _matchRepository;
         private readonly IChatMessageManager _chatMessageManager;
         private readonly ITypedCache<string, string> _deduplicationCache;
+        private readonly ITypedCache<string, string> _rateLimitCache;
 
         public GameChatAppService(
             IRepository<Game, Guid> gameRepository,
@@ -37,6 +40,9 @@ namespace GameHub.Chat
             _chatMessageManager = chatMessageManager;
             _deduplicationCache = cacheManager
                 .GetCache("GameHub.Chat.Deduplication")
+                .AsTyped<string, string>();
+            _rateLimitCache = cacheManager
+                .GetCache("GameHub.Chat.RateLimit")
                 .AsTyped<string, string>();
         }
 
@@ -65,6 +71,7 @@ namespace GameHub.Chat
                 };
             }
 
+            await EnsureRateLimitAsync(input.GameId);
             var conversation = ParseConversation(input.ConversationId);
             var sender = await UserManager.GetUserByIdAsync(AbpSession.UserId.Value);
             var senderIdentifier = new UserIdentifier(AbpSession.TenantId, sender.Id);
@@ -160,6 +167,22 @@ namespace GameHub.Chat
             }
 
             return $"gamehub:chat:dedup:{AbpSession.TenantId?.ToString() ?? "host"}:{AbpSession.UserId}:{input.GameId:N}:{input.ConversationId}:{input.ClientMessageId}";
+        }
+
+        private async Task EnsureRateLimitAsync(Guid gameId)
+        {
+            var key = $"gamehub:chat:rate:{AbpSession.TenantId?.ToString() ?? "host"}:{AbpSession.UserId}:{gameId:N}";
+            var current = await _rateLimitCache.GetOrDefaultAsync(key);
+            var count = int.TryParse(current, out var parsed) ? parsed : 0;
+            if (count >= MaxMessagesPerMinute)
+            {
+                throw new InvalidOperationException("Chat rate limit exceeded.");
+            }
+
+            await _rateLimitCache.SetAsync(
+                key,
+                (count + 1).ToString(),
+                absoluteExpireTime: DateTimeOffset.UtcNow.Add(RateLimitWindow));
         }
 
         private static string NormalizeText(string text)

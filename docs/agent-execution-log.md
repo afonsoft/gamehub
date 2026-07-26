@@ -1,3 +1,20 @@
+## 2026-07-26 23:25 UTC
+
+### Tarefa
+Executar Specs 41–45 em uma única branch após o merge do PR #65.
+
+### Implementado
+- Social SDK: convites de partida tenant-aware, notificações persistidas, leitura, aceite com expiração, presença coarse-grained via `ICacheManager` e reports de jogadores.
+- Chat: rate limit cacheado por usuário/jogo/conversa, mantendo deduplicação antes do limite.
+- Telemetria: `BuildId`/`MatchId` nos eventos, validação de sessão/jogo e rejeição de payloads com tokens, senhas, connection strings ou chat.
+- Analytics: contagens de gameplay started, page views e conversões, além dos filtros existentes.
+- Bridge: `getPresence`, `getNotifications`, `markNotificationRead`, `invitePlayer`, `acceptInvite` e `reportPlayer`.
+- Operação: runbook para validação do backplane Redis em duas instâncias.
+
+### Limitações
+- Presença exposta pelo SDK é deliberadamente coarse-grained (`online`/`offline`) e não revela conexão, IP ou tenant.
+- Histórico contextual e `markRead` do chat por `matchId` continuam dependentes de metadados no EAF; não foi criada persistência paralela de mensagens.
+- A geração automática de migration exigiu PostgreSQL disponível; a migration foi mantida em duas etapas coerentes (tabelas sociais e colunas de telemetria) sem aplicar banco local.
 ## 2026-07-26 23:05 UTC
 
 ### Tarefa

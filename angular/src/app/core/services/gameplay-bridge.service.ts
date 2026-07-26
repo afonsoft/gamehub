@@ -98,6 +98,15 @@ export interface SdkError {
   correlationId?: string;
 }
 
+export interface GameNotification {
+  id: string;
+  notificationType: string;
+  title: string;
+  payloadJson: string;
+  isRead: boolean;
+  creationTime: string;
+}
+
 export interface GameHubCapabilities {
   protocolVersion: string;
   chat: boolean;
@@ -146,6 +155,7 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly chatMessagesUrl = '/api/services/app/Chat';
   private readonly gameChatUrl = '/api/services/app/GameChat';
   private readonly featureFlagUrl = '/api/services/app/FeatureFlag';
+  private readonly socialUrl = '/api/services/app/GameSocial';
 
   private matchConnection: signalR.HubConnection | null = null;
   private networkConnection: signalR.HubConnection | null = null;
@@ -316,6 +326,86 @@ export class GameplayBridgeService implements GameplayBridge {
         invites: false,
         telemetry: true,
       } satisfies GameHubCapabilities);
+    }
+  }
+
+  async getPresence(requestId: string, userId: number): Promise<void> {
+    if (!this.auth.isLoggedIn()) {
+      this.replyResponse(requestId, undefined, 'Not authenticated');
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ result?: { userId: number; state: string } }>(
+          `${this.socialUrl}/GetPresence?userId=${encodeURIComponent(userId)}`
+        )
+      );
+      this.replyResponse(requestId, this.unwrap(response));
+    } catch {
+      this.replyResponse(requestId, undefined, 'Presence unavailable');
+    }
+  }
+
+  async getNotifications(requestId: string): Promise<void> {
+    if (!this.auth.isLoggedIn()) {
+      this.replyResponse(requestId, undefined, 'Not authenticated');
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ result?: { items: GameNotification[] } }>(
+          `${this.socialUrl}/GetNotifications`
+        )
+      );
+      this.replyResponse(requestId, this.unwrap(response)?.items ?? []);
+    } catch {
+      this.replyResponse(requestId, undefined, 'Notifications unavailable');
+    }
+  }
+
+  async markNotificationRead(requestId: string, notificationId: string): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post(`${this.socialUrl}/MarkNotificationRead`, { notificationId })
+      );
+      this.replyResponse(requestId, { marked: true });
+    } catch {
+      this.replyResponse(requestId, undefined, 'Notification unavailable');
+    }
+  }
+
+  async invitePlayer(requestId: string, payload: Record<string, unknown>): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post(`${this.socialUrl}/InvitePlayer`, payload)
+      );
+      this.replyResponse(requestId, this.unwrap(response));
+    } catch {
+      this.replyResponse(requestId, undefined, 'Invite unavailable');
+    }
+  }
+
+  async acceptInvite(requestId: string, inviteId: string): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post(`${this.socialUrl}/AcceptInvite`, { inviteId })
+      );
+      this.replyResponse(requestId, this.unwrap(response));
+    } catch {
+      this.replyResponse(requestId, undefined, 'Invite unavailable');
+    }
+  }
+
+  async reportPlayer(requestId: string, payload: Record<string, unknown>): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post(`${this.socialUrl}/ReportPlayer`, payload)
+      );
+      this.replyResponse(requestId, { reported: true });
+    } catch {
+      this.replyResponse(requestId, undefined, 'Report unavailable');
     }
   }
 
@@ -999,6 +1089,24 @@ export class GameplayBridgeService implements GameplayBridge {
         break;
       case 'getCapabilities':
         void this.getCapabilities(requestId ?? '');
+        break;
+      case 'getPresence':
+        void this.getPresence(requestId ?? '', Number(payload?.['userId'] ?? 0));
+        break;
+      case 'getNotifications':
+        void this.getNotifications(requestId ?? '');
+        break;
+      case 'markNotificationRead':
+        void this.markNotificationRead(requestId ?? '', String(payload?.['notificationId'] ?? ''));
+        break;
+      case 'invitePlayer':
+        void this.invitePlayer(requestId ?? '', payload ?? {});
+        break;
+      case 'acceptInvite':
+        void this.acceptInvite(requestId ?? '', String(payload?.['inviteId'] ?? ''));
+        break;
+      case 'reportPlayer':
+        void this.reportPlayer(requestId ?? '', payload ?? {});
         break;
       case 'getToken':
         void this.getToken(requestId ?? '');

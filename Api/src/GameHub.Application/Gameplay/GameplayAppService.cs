@@ -99,12 +99,23 @@ namespace GameHub.Gameplay
         public async Task EventAsync(GameplayEventInput input)
         {
             var session = await _playSessionRepository.GetAsync(input.SessionId);
+            if (session.GameId != input.GameId)
+            {
+                throw new InvalidOperationException("Gameplay event game does not match the session.");
+            }
+
+            if (ContainsSensitiveTelemetry(input.PayloadJson))
+            {
+                throw new ArgumentException("Telemetry payload contains restricted data.", nameof(input));
+            }
 
             var ev = new GameplayEvent
             {
                 Id = Guid.NewGuid(),
                 PlaySessionId = input.SessionId,
                 GameId = session.GameId,
+                BuildId = input.BuildId,
+                MatchId = input.MatchId,
                 EventType = input.EventType,
                 EventName = input.EventName,
                 PayloadJson = input.PayloadJson,
@@ -113,6 +124,20 @@ namespace GameHub.Gameplay
 
             await _gameplayEventRepository.InsertAsync(ev);
             await CurrentUnitOfWork.SaveChangesAsync();
+        }
+
+        private static bool ContainsSensitiveTelemetry(string payloadJson)
+        {
+            if (string.IsNullOrWhiteSpace(payloadJson))
+            {
+                return false;
+            }
+
+            var payload = payloadJson.ToLowerInvariant();
+            return payload.Contains("\"token\"")
+                || payload.Contains("\"password\"")
+                || payload.Contains("\"connectionstring\"")
+                || payload.Contains("\"chat\"");
         }
 
         public async Task UpdateFpsAsync(UpdateFpsInput input)

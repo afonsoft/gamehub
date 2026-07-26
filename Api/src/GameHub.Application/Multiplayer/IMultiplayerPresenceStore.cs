@@ -23,6 +23,8 @@ namespace GameHub.Multiplayer
         /// </summary>
         Task<MultiplayerPresenceEntry> GetByConnectionAsync(int? tenantId, string connectionId);
 
+        Task<MultiplayerPresenceEntry> GetByUserAsync(int? tenantId, long userId);
+
         /// <summary>
         /// Refreshes the TTL and last activity timestamp of a connection.
         /// </summary>
