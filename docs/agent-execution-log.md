@@ -1467,3 +1467,55 @@ Continuar a Spec 39 após o PR #63, adicionando autorização contextual e dedup
 
 ### Limitações
 - O histórico contextual de uma partida ainda não pode ser reconstruído pelo EAF porque `ChatMessage` não possui `MatchId`; a próxima evolução deve adicionar metadados no EAF ou um contrato de histórico contextual sem duplicar mensagens.
+
+## 2026-07-26 23:40 UTC
+
+### Tarefa
+Executar as melhorias aprovadas de moderação, analytics e qualidade do portal,
+mantendo o EAF como fonte de verdade compartilhada.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Moderation/UserContentAppService.cs` —
+  rate limit tenant-aware por usuário/jogo via `ICacheManager`.
+- `Api/src/GameHub.Application/Moderation/ModerationAppService.cs` —
+  preenchimento de `ResolvedAt` para reports resolvidos ou dispensados.
+- `Api/src/GameHub.Application/Gameplay/GameMetricsAppService.cs` —
+  exclusão de playtests, vínculo de eventos às sessões de produção e exportação
+  CSV.
+- `Api/src/GameHub.Application/Gameplay/IGameMetricsAppService.cs`
+- `Api/src/GameHub.Application/Gameplay/Dto/GameMetricsExportDto.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/UserContentAppService_Tests.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/ModerationAppService_Tests.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/GameMetricsAppService_Tests.cs`
+- `angular/src/app/core/services/developer.service.ts` —
+  retry limitado e contratos de métricas completos.
+- `angular/src/app/core/services/gameplay-bridge.service.ts` —
+  block/unblock delegados aos endpoints Friendship do EAF.
+- `angular/src/app/developer/games/*` e
+  `angular/src/app/developer/earnings/*` —
+  retry manual, estados acessíveis, foco e tabelas semânticas.
+- `angular/src/app/developer/games/games.component.spec.ts`
+- `angular/src/app/developer/earnings/earnings.component.spec.ts`
+- `docs/eaf/gamehub-eaf-improvements.md` —
+  especificação independente de melhorias do EAF, incluindo `Templates/Api` e
+  `Templates/Angular`.
+
+### Resultado parcial
+- Testes backend direcionados: 15 passaram.
+- Build Angular de produção passou com os dois warnings CSS preexistentes.
+- Testes Angular compilaram, mas o ChromeHeadless não iniciou no ambiente.
+
+## 2026-07-26 23:50 UTC
+
+### Tarefa
+Revisar os módulos e templates do EAF e atualizar a documentação de integração
+do GameHub.
+
+### Resultado
+- A documentação agora registra gaps de cache/rate limit, SignalR/backplane,
+  Data Protection multi-instância, chat contextual, notificações, segurança,
+  KeyVault, OpenTelemetry, Serilog, Worker, Hangfire, webhooks e geração de
+  proxies.
+- Foram incluídos ajustes específicos para `Templates/Api` e
+  `Templates/Angular`, além de um backlog P0/P1/P2.
+- Nenhum arquivo do repositório EAF foi alterado.

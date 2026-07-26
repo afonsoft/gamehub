@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Authorization;
@@ -55,16 +57,16 @@ namespace GameHub.Gameplay
                 sessionsQuery = sessionsQuery.Where(s => s.DeviceType == input.DeviceType);
             }
 
-            var sessions = await sessionsQuery.ToListAsync();
+            var sessions = await sessionsQuery
+                .Where(s => !s.IsPlaytest)
+                .ToListAsync();
 
             var sessionIds = sessions.Select(s => s.Id).ToList();
             var eventsQuery = _gameplayEventRepository.GetAll()
-                .Where(e => e.GameId == gameId && e.OccurredAt >= start && e.OccurredAt < end);
-
-            if (sessionIds.Any())
-            {
-                eventsQuery = eventsQuery.Where(e => sessionIds.Contains(e.PlaySessionId));
-            }
+                .Where(e => e.GameId == gameId
+                    && e.OccurredAt >= start
+                    && e.OccurredAt < end
+                    && sessionIds.Contains(e.PlaySessionId));
 
             var events = await eventsQuery.ToListAsync();
 
@@ -103,6 +105,48 @@ namespace GameHub.Gameplay
                 CommercialBreakCount = events.Count(e => e.EventType == GameplayEventType.CommercialBreakCompleted),
                 RewardedBreakCount = events.Count(e => e.EventType == GameplayEventType.RewardedBreakCompleted),
                 Daily = daily
+            };
+        }
+
+        public async Task<GameMetricsExportDto> ExportCsvAsync(Guid gameId, GameMetricsFilter input)
+        {
+            var result = await GetMetricsAsync(gameId, input);
+            var csv = new StringBuilder();
+            csv.AppendLine(
+                "date,plays,uniquePlayers,avgDurationSeconds," +
+                "loadingFinishedCount,gameplayStartedCount,pageViewCount," +
+                "conversionCount,errorCount,commercialBreakCount,rewardedBreakCount");
+
+            foreach (var item in result.Daily)
+            {
+                csv.Append(item.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.Plays.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.UniquePlayers.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.AvgDurationSeconds.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.LoadingFinishedCount.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.GameplayStartedCount.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.PageViewCount.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.ConversionCount.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.ErrorCount.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.Append(item.CommercialBreakCount.ToString(CultureInfo.InvariantCulture));
+                csv.Append(',');
+                csv.AppendLine(item.RewardedBreakCount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return new GameMetricsExportDto
+            {
+                FileName = "game-metrics.csv",
+                ContentType = "text/csv",
+                Content = csv.ToString()
             };
         }
 

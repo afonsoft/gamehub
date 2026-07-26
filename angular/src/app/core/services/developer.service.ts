@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, retry } from 'rxjs/operators';
 
 export interface DeveloperProfile {
   id?: string;
@@ -176,6 +176,9 @@ export interface GameMetricsDailyItem {
   uniquePlayers: number;
   avgDurationSeconds: number;
   loadingFinishedCount: number;
+  gameplayStartedCount: number;
+  pageViewCount: number;
+  conversionCount: number;
   errorCount: number;
   commercialBreakCount: number;
   rewardedBreakCount: number;
@@ -186,6 +189,9 @@ export interface GameMetricsResult {
   totalUniquePlayers: number;
   averageDurationSeconds: number;
   loadingFinishedCount: number;
+  gameplayStartedCount: number;
+  pageViewCount: number;
+  conversionCount: number;
   errorCount: number;
   commercialBreakCount: number;
   rewardedBreakCount: number;
@@ -293,7 +299,10 @@ export class DeveloperService {
       .set('MaxResultCount', maxResultCount.toString());
     return this.http
       .get<PagedGameSummary | { result?: PagedGameSummary }>(`${this.gameUrl}/GetMyGames`, { params })
-      .pipe(map(response => this.unwrap<PagedGameSummary>(response)));
+      .pipe(
+        retry({ count: 2 }),
+        map(response => this.unwrap<PagedGameSummary>(response)),
+      );
   }
 
   createDraft(input: CreateGameDraftInput): Observable<unknown> {
@@ -378,7 +387,10 @@ export class DeveloperService {
     const params = new HttpParams({ fromObject: this.toEarningsParams(filter) });
     return this.http
       .get<DeveloperEarnings | { result?: DeveloperEarnings }>(`${this.earningsUrl}/GetEarnings`, { params })
-      .pipe(map(response => this.unwrap<DeveloperEarnings>(response)));
+      .pipe(
+        retry({ count: 2 }),
+        map(response => this.unwrap<DeveloperEarnings>(response)),
+      );
   }
 
   private toEarningsParams(filter: DeveloperEarningsFilter): Record<string, string> {

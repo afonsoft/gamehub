@@ -23,6 +23,7 @@ namespace GameHub.Tests.GameHub.Application
         private readonly IModerationAppService _moderationAppService;
         private readonly IRepository<GameBuild, Guid> _buildRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IRepository<UserReport, Guid> _reportRepository;
 
         public ModerationAppService_Tests()
         {
@@ -30,6 +31,7 @@ namespace GameHub.Tests.GameHub.Application
             _moderationAppService = LocalIocManager.Resolve<IModerationAppService>();
             _buildRepository = LocalIocManager.Resolve<IRepository<GameBuild, Guid>>();
             _gameRepository = LocalIocManager.Resolve<IRepository<Game, Guid>>();
+            _reportRepository = LocalIocManager.Resolve<IRepository<UserReport, Guid>>();
         }
 
         [Fact]
@@ -99,6 +101,33 @@ namespace GameHub.Tests.GameHub.Application
 
             var game = await _gameRepository.GetAsync(gameId);
             game.Status.ShouldBe(GameStatus.Rejected);
+        }
+
+        [Fact]
+        public async Task Dado_ReportAberto_Quando_AtualizarParaResolved_Entao_DefineDataDeResolucao()
+        {
+            var reportId = Guid.NewGuid();
+            await UsingDbContextAsync(async context =>
+            {
+                await context.UserReports.AddAsync(new UserReport
+                {
+                    Id = reportId,
+                    TenantId = AbpSession.TenantId,
+                    GameId = Guid.NewGuid(),
+                    UserId = AbpSession.UserId,
+                    Reason = "abuse",
+                    Status = UserReportStatus.Open
+                });
+                await context.SaveChangesAsync();
+            });
+
+            await _moderationAppService.UpdateReportStatusAsync(
+                reportId,
+                UserReportStatus.Resolved);
+
+            var report = await _reportRepository.GetAsync(reportId);
+            report.Status.ShouldBe(UserReportStatus.Resolved);
+            report.ResolvedAt.ShouldNotBeNull();
         }
 
         private Guid SeedGameWithBuild(string title)

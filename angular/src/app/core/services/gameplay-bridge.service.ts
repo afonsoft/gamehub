@@ -409,6 +409,28 @@ export class GameplayBridgeService implements GameplayBridge {
     }
   }
 
+  async blockPlayer(requestId: string, userId: number, tenantId?: number): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post('/api/services/app/Friendship/BlockUser', { userId, tenantId })
+      );
+      this.replyResponse(requestId, { blocked: true });
+    } catch {
+      this.replyResponse(requestId, undefined, 'Block unavailable');
+    }
+  }
+
+  async unblockPlayer(requestId: string, userId: number, tenantId?: number): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post('/api/services/app/Friendship/UnblockUser', { userId, tenantId })
+      );
+      this.replyResponse(requestId, { blocked: false });
+    } catch {
+      this.replyResponse(requestId, undefined, 'Unblock unavailable');
+    }
+  }
+
   async chatDisconnect(): Promise<void> {
     const connection = this.chatConnection;
     this.chatConnection = null;
@@ -1107,6 +1129,20 @@ export class GameplayBridgeService implements GameplayBridge {
         break;
       case 'reportPlayer':
         void this.reportPlayer(requestId ?? '', payload ?? {});
+        break;
+      case 'blockPlayer':
+        void this.blockPlayer(
+          requestId ?? '',
+          Number(payload?.['userId'] ?? 0),
+          payload?.['tenantId'] === undefined ? undefined : Number(payload['tenantId'])
+        );
+        break;
+      case 'unblockPlayer':
+        void this.unblockPlayer(
+          requestId ?? '',
+          Number(payload?.['userId'] ?? 0),
+          payload?.['tenantId'] === undefined ? undefined : Number(payload['tenantId'])
+        );
         break;
       case 'getToken':
         void this.getToken(requestId ?? '');
