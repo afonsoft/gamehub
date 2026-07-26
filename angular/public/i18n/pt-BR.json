@@ -66,7 +66,7 @@
   "docs.ug.publishingWorkflow": "Fluxo de publicação",
   "docs.ug.publishingWorkflowText": "O fluxo é upload, validação, Preview, Inspector, aprovação do build, envio para revisão, feedback e publicação. O Preview abre um build temporário e nunca publica o jogo; o Inspector serve para diagnóstico. Builds inválidos não podem ser enviados para revisão.",
   "docs.ug.sdkChat": "Chat nos jogos",
-  "docs.ug.sdkChatText": "O chat do SDK usa o EAF ChatHub autenticado e não expõe tokens nem a identidade do remetente ao jogo. Conecte com o contexto do jogo, limite mensagens a 500 caracteres, trate estados de reconexão/offline e siga as regras de privacidade e moderação da plataforma.",
+  "docs.ug.sdkChatText": "O chat do SDK usa o EAF ChatHub autenticado para eventos em tempo real e um endpoint de autorização do GameHub para envios. Mensagens de partida exigem participação ativa; a identidade vem da sessão, as mensagens têm limite de 500 caracteres e repetições do mesmo clientMessageId são reconhecidas sem novo envio durante a janela do cache.",
   "docs.ug.report": "Reportar",
   "docs.ug.reportText": "Na página de detalhes do jogo, clique em Reportar jogo e escolha um motivo. Nossa equipe irá revisar.",
   "docs.api.baseUrl": "URL Base",

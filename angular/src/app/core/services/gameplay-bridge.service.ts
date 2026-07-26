@@ -128,6 +128,7 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly networkHubUrl = '/signalr-network';
   private readonly chatHubUrl = '/signalr-chat';
   private readonly chatMessagesUrl = '/api/services/app/Chat';
+  private readonly gameChatUrl = '/api/services/app/GameChat';
 
   private matchConnection: signalR.HubConnection | null = null;
   private networkConnection: signalR.HubConnection | null = null;
@@ -270,10 +271,6 @@ export class GameplayBridgeService implements GameplayBridge {
     if (!this.auth.isLoggedIn()) {
       throw new Error('Chat requires an authenticated user');
     }
-    if (context.matchId) {
-      throw new Error('Match chat is not available for this conversation');
-    }
-
     this.chatContext = context;
     await this.ensureChatConnection();
     return { connected: true };
@@ -288,7 +285,7 @@ export class GameplayBridgeService implements GameplayBridge {
     }
   }
 
-  async chatSend(input: SendChatMessageInput): Promise<{ sent: boolean; clientMessageId: string }> {
+  async chatSend(input: SendChatMessageInput): Promise<{ sent: boolean; duplicate: boolean; clientMessageId: string }> {
     if (!this.chatConnection || !this.chatContext) {
       throw new Error('Chat is not connected');
     }
@@ -297,14 +294,22 @@ export class GameplayBridgeService implements GameplayBridge {
       throw new Error('Chat message cannot be empty');
     }
 
-    const target = this.parseConversationId(input.conversationId);
-    await this.chatConnection.invoke('SendMessage', {
-      Message: text,
-      TenantId: target.tenantId,
-      UserId: target.userId,
-      GroupId: target.groupId,
-    });
-    return { sent: true, clientMessageId: input.clientMessageId };
+    const response = await firstValueFrom(
+      this.http.post<{
+        result?: { accepted?: boolean; duplicate?: boolean; clientMessageId?: string };
+      }>(`${this.gameChatUrl}/Send`, {
+        gameId: this.gameId,
+        conversationId: input.conversationId,
+        text,
+        clientMessageId: input.clientMessageId,
+      }),
+    );
+    const result = this.unwrap<{ accepted?: boolean; duplicate?: boolean; clientMessageId?: string }>(response);
+    return {
+      sent: result?.accepted === true,
+      duplicate: result?.duplicate === true,
+      clientMessageId: result?.clientMessageId ?? input.clientMessageId,
+    };
   }
 
   async chatHistory(conversationId: string, minMessageId?: number): Promise<{ messages: GameHubChatMessage[] }> {

@@ -1409,4 +1409,29 @@ Executar a primeira fatia das Specs 35 e 39: fluxo de publicação no portal e c
 - O bridge rejeita contexto sem `gameId`, exige autenticação e normaliza mensagens para NFC, remove controles e limita a 500 caracteres.
 
 ### Limitações
-- O EAF `ChatHub` não possui autorização contextual por `matchId` nem idempotência server-side de `clientMessageId`; o bridge rejeita match chat nesta fatia para não criar uma falsa garantia de segurança. A extensão necessária deve ser implementada em uma próxima etapa no host sem duplicar persistência.
+- Na primeira fatia, o EAF `ChatHub` não possuía autorização contextual por `matchId` nem idempotência server-side de `clientMessageId`; a autorização foi adicionada posteriormente no `GameChatAppService`, mantendo o EAF como infraestrutura.
+
+## 2026-07-26 22:55 UTC
+
+### Tarefa
+Continuar a Spec 39 após o PR #63, adicionando autorização contextual e deduplicação para envio de mensagens.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Chat/IGameChatAppService.cs`
+- `Api/src/GameHub.Application/Chat/GameChatDtos.cs`
+- `Api/src/GameHub.Application/Chat/GameChatAppService.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/GameChatAppService_Tests.cs`
+- `angular/src/app/core/services/gameplay-bridge.service.ts`
+- `angular/public/i18n/pt-BR.json`
+- `angular/public/i18n/en-US.json`
+- `docs/superpowers/plans/2026-07-26-chat-contextual-authorization.md`
+
+### Resultado
+- O envio passa por `GameChatAppService.SendAsync`, que valida jogo, tenant, partida ativa e participação do usuário.
+- O remetente é derivado da sessão autenticada; campos de identidade do iframe não são aceitos.
+- O `IChatMessageManager` do EAF continua responsável pela persistência e entrega.
+- `clientMessageId` é deduplicado por usuário/jogo/conversa na janela configurada de 10 minutos via `ICacheManager`.
+- Testes cobrem usuário fora da partida e repetição de mensagem.
+
+### Limitações
+- O histórico contextual de uma partida ainda não pode ser reconstruído pelo EAF porque `ChatMessage` não possui `MatchId`; a próxima evolução deve adicionar metadados no EAF ou um contrato de histórico contextual sem duplicar mensagens.
