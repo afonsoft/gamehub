@@ -1,3 +1,18 @@
+## 2026-07-26 23:05 UTC
+
+### Tarefa
+Executar as próximas Specs 39, 40, 36, 34 e 37 após o merge do PR #64.
+
+### Implementado
+- Spec 39: mantida a autorização contextual do chat, com `clientMessageId` idempotente; o histórico de partida permanece explicitamente limitado pela ausência de `MatchId` no `ChatMessage` do EAF.
+- Spec 40: adicionado `getCapabilities` ao bridge, contrato versionado de capacidades e leitura tolerante de feature flags; recursos não disponíveis retornam `false` sem quebrar jogos antigos.
+- Spec 36: validação de períodos invertidos em Earnings e Game Metrics; Earnings agora permite filtro de datas, aviso de estimativa, retry, preservação dos dados anteriores e detalhamento diário expansível.
+- Spec 34: filtro local por status em My Games, confirmação de submissão, mensagens de erro/status e navegação responsiva aprimorada.
+- Spec 37: User Guide ampliado com segurança, privacidade e suporte; SDK Guide documenta capacidades e compatibilidade.
+
+### Limitações
+- Presença, notificações e convites ainda dependem de contratos de domínio específicos; nesta etapa ficam protegidos por feature flags e não são simulados com endpoints inexistentes.
+- Histórico e `markRead` para `matchId` só devem ser habilitados depois que o EAF fornecer metadados contextuais, evitando uma segunda persistência no GameHub.
 ## 2026-07-26 19:00 UTC
 
 ### Tarefa

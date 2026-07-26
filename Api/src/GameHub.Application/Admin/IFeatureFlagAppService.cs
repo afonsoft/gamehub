@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -12,6 +13,11 @@ namespace GameHub.Admin
     public interface IFeatureFlagAppService : IApplicationService
     {
         Task<ListResultDto<FeatureFlagDto>> GetAllAsync();
+
+        /// <summary>
+        /// Gets enabled feature names for compatibility checks in the SDK.
+        /// </summary>
+        Task<List<string>> GetEnabledNamesAsync();
 
         Task<FeatureFlagDto> ToggleAsync(Guid id, bool isEnabled);
     }

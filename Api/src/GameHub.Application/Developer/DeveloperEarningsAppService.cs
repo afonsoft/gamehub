@@ -51,6 +51,7 @@ namespace GameHub.Developer
         public async Task<DeveloperEarningsDto> GetEarningsAsync(GetDeveloperEarningsInput input)
         {
             await EnsureCurrentUserIsNotSupportAsync();
+            ValidateDateRange(input);
 
             var to = (input.To ?? Clock.Now).Date.AddDays(1).AddTicks(-1);
             var from = (input.From ?? to.AddDays(-29)).Date;
@@ -218,6 +219,7 @@ namespace GameHub.Developer
         public async Task<AdReportDto> GetAdReportAsync(GetDeveloperEarningsInput input)
         {
             await EnsureCurrentUserIsNotSupportAsync();
+            ValidateDateRange(input);
 
             var to = (input.To ?? Clock.Now).Date.AddDays(1).AddTicks(-1);
             var from = (input.From ?? to.AddDays(-29)).Date;
@@ -276,6 +278,14 @@ namespace GameHub.Developer
                 AverageCpm = impressions.Count > 0 ? impressions.Sum(i => i.Earnings) / impressions.Count * 1000 : 0,
                 Items = grouped
             };
+        }
+
+        private static void ValidateDateRange(GetDeveloperEarningsInput input)
+        {
+            if (input.From.HasValue && input.To.HasValue && input.From.Value.Date > input.To.Value.Date)
+            {
+                throw new ArgumentException("The earnings period start cannot be after its end.", nameof(input));
+            }
         }
 
         private async Task EnsureCurrentUserIsNotSupportAsync()

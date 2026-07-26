@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Authorization;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using GameHub.Admin.Dto;
@@ -31,6 +32,15 @@ namespace GameHub.Admin
                 .ToListAsync();
 
             return new ListResultDto<FeatureFlagDto>(ObjectMapper.Map<List<FeatureFlagDto>>(flags));
+        }
+
+        [AbpAuthorize]
+        public async Task<List<string>> GetEnabledNamesAsync()
+        {
+            return await _featureFlagRepository.GetAll()
+                .Where(f => !f.IsDeleted && f.IsEnabled && f.Name.StartsWith("sdk."))
+                .Select(f => f.Name)
+                .ToListAsync();
         }
 
         public async Task<FeatureFlagDto> ToggleAsync(Guid id, bool isEnabled)

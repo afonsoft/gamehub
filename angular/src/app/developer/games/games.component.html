@@ -18,9 +18,21 @@
     </div>
     <div class="loading" *ngIf="loading">Loading...</div>
     <div class="games-toolbar" *ngIf="!loading && games.length">
-      <p>{{ games.length }} {{ games.length === 1 ? 'game' : 'games' }} in your catalog</p>
+      <p>{{ filteredGames.length }} of {{ games.length }} {{ games.length === 1 ? 'game' : 'games' }} shown</p>
+      <label>
+        Status
+        <select [(ngModel)]="statusFilter">
+          <option>All</option>
+          <option>Draft</option>
+          <option>InReview</option>
+          <option>Published</option>
+          <option>Rejected</option>
+        </select>
+      </label>
     </div>
-    <div class="games-table-wrap table-scroll" *ngIf="!loading && games.length">
+    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+    <p class="status-message" *ngIf="submissionMessage" role="status">{{ submissionMessage }}</p>
+    <div class="games-table-wrap table-scroll" *ngIf="!loading && filteredGames.length">
       <table class="games-table">
         <thead>
           <tr>
@@ -32,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let game of games">
+          <tr *ngFor="let game of filteredGames">
             <td><span class="game-title">{{ game.title }}</span></td>
             <td><span class="badge status-badge" [class.status-rejected]="game.status === 'Rejected'" [class.status-inreview]="game.status === 'InReview'">{{ game.status }}</span></td>
             <td><span class="badge" *ngIf="game.latestBuildStatus">{{ game.latestBuildStatus }}</span><span class="game-date" *ngIf="!game.latestBuildStatus">Not uploaded</span></td>
@@ -48,6 +60,7 @@
         </tbody>
       </table>
     </div>
+    <p class="empty" *ngIf="!loading && games.length && !filteredGames.length">No games match this status.</p>
     <p class="empty" *ngIf="!loading && !games.length">No games yet. Create your first game.</p>
   </main>
 </div>
