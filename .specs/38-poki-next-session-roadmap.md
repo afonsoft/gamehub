@@ -10,6 +10,11 @@
 Executar a Spec 35 primeiro. Sem versões, preview e Inspector conectados, o
 desenvolvedor não consegue validar com segurança o artefato que será submetido.
 
+### P0 — Chat contextual do SDK
+
+Executar a Spec 39 depois de confirmar os contratos do EAF Chat. A fachada deve
+reutilizar `/signalr-chat`, sem criar uma segunda persistência ou hub paralelo.
+
 ### P1 — Shell e estados do portal
 
 Executar a Spec 34. Consolidar navegação, loading, erro, retry e ações antes de
@@ -24,6 +29,11 @@ etapa do fluxo fica disponível.
 
 Executar a Spec 36 depois que os contratos de período, autorização e agregação
 forem confirmados no backend.
+
+### P2 — Capacidades sociais complementares
+
+Executar a Spec 40 após o chat, começando por presença e notificações antes de
+convites e outras capacidades sociais.
 
 ## Regras de execução
 

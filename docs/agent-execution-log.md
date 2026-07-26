@@ -1344,6 +1344,24 @@ O layout do portal foi melhorado, mas ainda faltava um plano executável para co
 - A Spec 35 é a prioridade P0; as Specs 34 e 37 são as próximas entregas de suporte.
 - A Spec 36 ficou condicionada à confirmação dos contratos de agregação e autorização no backend.
 
+## 2026-07-26 22:55 UTC
+
+### Tarefa
+Adicionar especificações para uso de chat pelo SDK e capacidades sociais complementares.
+
+### Arquivos alterados
+- `.specs/39-poki-sdk-chat-and-social-communication.md` — fachada SDK sobre o ChatHub do EAF, modos de conversa, protocolo, segurança, moderação e reconexão.
+- `.specs/40-poki-sdk-capabilities-next.md` — presença, notificações, convites, telemetria, erros e feature flags.
+- `.specs/38-poki-next-session-roadmap.md` — chat elevado a P0 e capacidades sociais adicionadas ao roadmap.
+
+### Motivação
+O EAF já fornece persistência, histórico e SignalR para chat; o GameHub precisa apenas definir a integração contextual e o contrato seguro que os jogos consumirão.
+
+### Resultado
+- O SDK não deve duplicar `ChatMessage`, `ChatMessageManager` ou `ChatHub`.
+- Chat contextual passa a ser a próxima prioridade P0 após o fluxo de publicação.
+- Presença, notificações e convites foram separados em uma spec complementar para execução incremental.
+
 ## 2026-07-26 22:30 UTC
 
 ### Tarefa
