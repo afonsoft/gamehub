@@ -1324,6 +1324,44 @@ Usar a Poki como referência de mercado para evoluir o GameHub sem copiar marca,
 - Novos specs criados e prontos para revisão.
 - Branch `feature/poki-specs` criada a partir de `main`.
 
+## 2026-07-26 22:45 UTC
+
+### Tarefa
+Criar as especificações dos próximos ajustes do portal do desenvolvedor e do User Guide após o PR #61.
+
+### Arquivos alterados
+- `.specs/34-poki-developer-portal-v3-next-adjustments.md` — shell compartilhado, filtros, estados e acessibilidade.
+- `.specs/35-poki-developer-publishing-workflow.md` — versões, Preview, Inspector e submissão.
+- `.specs/36-poki-developer-analytics-earnings.md` — métricas, receita estimada, filtros e qualidade dos dados.
+- `.specs/37-poki-user-guide-developer-documentation.md` — estrutura operacional do User Guide e internacionalização.
+- `.specs/38-poki-next-session-roadmap.md` — priorização P0/P1/P2 e regras de execução.
+
+### Motivação
+O layout do portal foi melhorado, mas ainda faltava um plano executável para consolidar o fluxo de publicação, conectar Preview/Inspector, evoluir Earnings e manter a documentação alinhada.
+
+### Resultado
+- Cinco specs independentes foram criadas, sem implementar código nesta etapa.
+- A Spec 35 é a prioridade P0; as Specs 34 e 37 são as próximas entregas de suporte.
+- A Spec 36 ficou condicionada à confirmação dos contratos de agregação e autorização no backend.
+
+## 2026-07-26 22:55 UTC
+
+### Tarefa
+Adicionar especificações para uso de chat pelo SDK e capacidades sociais complementares.
+
+### Arquivos alterados
+- `.specs/39-poki-sdk-chat-and-social-communication.md` — fachada SDK sobre o ChatHub do EAF, modos de conversa, protocolo, segurança, moderação e reconexão.
+- `.specs/40-poki-sdk-capabilities-next.md` — presença, notificações, convites, telemetria, erros e feature flags.
+- `.specs/38-poki-next-session-roadmap.md` — chat elevado a P0 e capacidades sociais adicionadas ao roadmap.
+
+### Motivação
+O EAF já fornece persistência, histórico e SignalR para chat; o GameHub precisa apenas definir a integração contextual e o contrato seguro que os jogos consumirão.
+
+### Resultado
+- O SDK não deve duplicar `ChatMessage`, `ChatMessageManager` ou `ChatHub`.
+- Chat contextual passa a ser a próxima prioridade P0 após o fluxo de publicação.
+- Presença, notificações e convites foram separados em uma spec complementar para execução incremental.
+
 ## 2026-07-26 22:30 UTC
 
 ### Tarefa
