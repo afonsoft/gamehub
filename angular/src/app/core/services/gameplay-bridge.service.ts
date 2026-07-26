@@ -91,6 +91,22 @@ export interface ChatPresenceChange {
   state: 'connected' | 'reconnecting' | 'offline';
 }
 
+export interface SdkError {
+  code: string;
+  message: string;
+  retryable: boolean;
+  correlationId?: string;
+}
+
+export interface GameHubCapabilities {
+  protocolVersion: string;
+  chat: boolean;
+  presence: boolean;
+  notifications: boolean;
+  invites: boolean;
+  telemetry: boolean;
+}
+
 export function normalizeChatText(text: string): string {
   return text.normalize('NFC').replace(/[\u0000-\u001F\u007F-\u009F]/g, '').slice(0, 500);
 }
@@ -129,6 +145,7 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly chatHubUrl = '/signalr-chat';
   private readonly chatMessagesUrl = '/api/services/app/Chat';
   private readonly gameChatUrl = '/api/services/app/GameChat';
+  private readonly featureFlagUrl = '/api/services/app/FeatureFlag';
 
   private matchConnection: signalR.HubConnection | null = null;
   private networkConnection: signalR.HubConnection | null = null;
@@ -274,6 +291,32 @@ export class GameplayBridgeService implements GameplayBridge {
     this.chatContext = context;
     await this.ensureChatConnection();
     return { connected: true };
+  }
+
+  async getCapabilities(requestId: string): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ result?: string[] }>(`${this.featureFlagUrl}/GetEnabledNames`),
+      );
+      const enabled = new Set(this.unwrap<string[]>(response) ?? []);
+      this.replyResponse(requestId, {
+        protocolVersion: '1',
+        chat: true,
+        presence: enabled.has('sdk.presence'),
+        notifications: enabled.has('sdk.notifications'),
+        invites: enabled.has('sdk.invites'),
+        telemetry: true,
+      } satisfies GameHubCapabilities);
+    } catch {
+      this.replyResponse(requestId, {
+        protocolVersion: '1',
+        chat: true,
+        presence: false,
+        notifications: false,
+        invites: false,
+        telemetry: true,
+      } satisfies GameHubCapabilities);
+    }
   }
 
   async chatDisconnect(): Promise<void> {
@@ -953,6 +996,9 @@ export class GameplayBridgeService implements GameplayBridge {
         break;
       case 'getUser':
         void this.getUser(requestId ?? '');
+        break;
+      case 'getCapabilities':
+        void this.getCapabilities(requestId ?? '');
         break;
       case 'getToken':
         void this.getToken(requestId ?? '');

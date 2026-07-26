@@ -37,6 +37,7 @@ namespace GameHub.Gameplay
         public async Task<GameMetricsResult> GetMetricsAsync(Guid gameId, GameMetricsFilter input)
         {
             await EnsureGameAccessAsync(gameId);
+            ValidateDateRange(input);
 
             var start = input.From?.Date ?? Clock.Now.AddDays(-30).Date;
             var end = input.To?.Date.AddDays(1) ?? Clock.Now.AddDays(1).Date;
@@ -100,6 +101,14 @@ namespace GameHub.Gameplay
                 RewardedBreakCount = events.Count(e => e.EventType == GameplayEventType.RewardedBreakCompleted),
                 Daily = daily
             };
+        }
+
+        private static void ValidateDateRange(GameMetricsFilter input)
+        {
+            if (input.From.HasValue && input.To.HasValue && input.From.Value.Date > input.To.Value.Date)
+            {
+                throw new ArgumentException("The metrics period start cannot be after its end.", nameof(input));
+            }
         }
 
         private async Task EnsureGameAccessAsync(Guid gameId)

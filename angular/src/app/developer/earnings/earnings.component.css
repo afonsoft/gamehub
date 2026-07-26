@@ -8,6 +8,61 @@
   color: #69707d;
 }
 
+.earnings-filters {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.earnings-filters label {
+  display: grid;
+  gap: 5px;
+  color: #69707d;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.earnings-filters input {
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid #d8dce5;
+  border-radius: 8px;
+}
+
+.btn-secondary {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #d8dce5;
+  border-radius: 8px;
+  background: #fff;
+  color: #34384a;
+  cursor: pointer;
+}
+
+.btn-secondary:disabled,
+.btn-primary:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.error-message {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff0f0;
+  color: #a50e0e;
+}
+
+.earnings-notice {
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff8e1;
+  color: #66510b;
+  font-size: 0.88rem;
+}
+
 .earnings-cards {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

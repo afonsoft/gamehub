@@ -109,6 +109,17 @@ namespace GameHub.Tests.GameHub.Application
             result.Games[0].ContractType.ShouldBe(RevenueContractType.WebExclusive);
         }
 
+        [Fact]
+        public async Task Dado_PeriodoInvertido_Quando_ConsultarEarnings_Entao_RejeitaFiltro()
+        {
+            await Should.ThrowAsync<ArgumentException>(() =>
+                _developerEarningsAppService.GetEarningsAsync(new GetDeveloperEarningsInput
+                {
+                    From = DateTime.UtcNow.Date,
+                    To = DateTime.UtcNow.Date.AddDays(-1)
+                }));
+        }
+
         private async Task<Guid> SeedGameWithProfileAsync()
         {
             var gameId = Guid.NewGuid();

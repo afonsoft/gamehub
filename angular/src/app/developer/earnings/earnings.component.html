@@ -17,9 +17,23 @@
       </div>
     </div>
 
+    <form class="earnings-filters" (ngSubmit)="applyFilter()">
+      <label>
+        From
+        <input type="date" name="from" [(ngModel)]="from">
+      </label>
+      <label>
+        To
+        <input type="date" name="to" [(ngModel)]="to">
+      </label>
+      <button class="btn-primary" type="submit" [disabled]="loading">Apply</button>
+      <button class="btn-secondary" type="button" (click)="from = ''; to = ''; loadEarnings()" [disabled]="loading">Reset</button>
+    </form>
+    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
     <div class="loading" *ngIf="loading">Loading...</div>
 
     <ng-container *ngIf="!loading && earnings">
+      <p class="earnings-notice">Estimated values only; they do not represent confirmed payout. Period: {{ earnings.from | date:'mediumDate' }} – {{ earnings.to | date:'mediumDate' }}.</p>
       <section class="earnings-cards" *ngIf="earnings.games.length">
         <div class="earnings-card primary">
           <span class="earnings-card-label">Gross estimated</span>
@@ -84,8 +98,11 @@
             <h2>{{ game.gameTitle }}</h2>
             <p>Daily revenue breakdown</p>
           </div>
+          <button class="btn-secondary" type="button" (click)="toggleDaily(game.gameId)">
+            {{ isDailyExpanded(game.gameId) ? 'Hide details' : 'Show details' }}
+          </button>
         </div>
-        <div class="table-scroll" *ngIf="game.daily.length">
+        <div class="table-scroll" *ngIf="isDailyExpanded(game.gameId) && game.daily.length">
           <table class="earnings-table">
             <thead>
               <tr>
@@ -107,7 +124,7 @@
             </tbody>
           </table>
         </div>
-        <p class="empty" *ngIf="!game.daily.length">No daily data in the selected range.</p>
+        <p class="empty" *ngIf="isDailyExpanded(game.gameId) && !game.daily.length">No daily data in the selected range.</p>
       </section>
 
       <p class="empty" *ngIf="!earnings.games.length">No earnings data yet. Publish a game and wait for ad events to appear.</p>
