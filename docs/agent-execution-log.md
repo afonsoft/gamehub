@@ -44,6 +44,26 @@ Evoluir a fundação Poki 27 para multiplayer resiliente, signaling WebRTC, pers
 - A validação final da solução e o PR permanecem pendentes após a revisão do diff.
 # GameHub — Agent Execution Log
 
+## 2026-07-26 — Specs de cache e presença multiplayer
+
+### Tarefa
+
+Documentar a próxima evolução do multiplayer usando `ICacheManager`, priorizando presença distribuída sem implementar Pub/Sub/backplane nesta etapa.
+
+### Arquivos criados
+
+- `docs/specs/2026-07-26-multiplayer-cache-presence-design.md` — desenho aprovado e decisões arquiteturais.
+- `.specs/30-poki-icachemanager-multiplayer-cache.md` — abstração de cache baseada em `ICacheManager`.
+- `.specs/31-poki-multiplayer-presenca-icachemanager.md` — presença distribuída com TTL.
+- `.specs/32-poki-multiplayer-cache-operacao-testes.md` — health checks, métricas, testes e rollout.
+- `.specs/33-poki-signalr-backplane-futuro.md` — evolução futura para backplane oficial SignalR.
+
+### Decisões
+
+- `ICacheManager` será usado para estado efêmero e presença, não como transporte Pub/Sub.
+- A presença distribuída não será apresentada como signaling cross-instance.
+- Pub/Sub/backplane permanece separado para evitar acoplamento prematuro e permitir validar a topologia Redis primeiro.
+
 ## 2026-07-26 03:00 UTC
 
 ### Tarefa
