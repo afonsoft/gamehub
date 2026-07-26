@@ -44,6 +44,65 @@ Evoluir a fundação Poki 27 para multiplayer resiliente, signaling WebRTC, pers
 - A validação final da solução e o PR permanecem pendentes após a revisão do diff.
 # GameHub — Agent Execution Log
 
+## 2026-07-26 — Execução das Specs 30–33
+
+### Tarefa
+
+Implementar cache multiplayer com `ICacheManager`, presença com TTL, operação/health
+checks e backplane Redis opcional do SignalR.
+
+### Arquivos principais alterados
+
+- `Api/src/GameHub.Application/Multiplayer/IMultiplayerPresenceStore.cs` e
+  `MultiplayerPresenceEntry.cs` — contrato independente do provider.
+- `Api/src/GameHub.Web.Host/Multiplayer/*` — store ABP, opções, health check e
+  resolução segura da configuração do backplane.
+- `Api/src/GameHub.Web.Host/Hubs/NetworkSignalRHub.cs` — presença distribuída,
+  heartbeat e remoção por TTL/desconexão.
+- `Api/src/GameHub.Web.Host/Startup/WebHostModule.cs` — `Configuration.Caching.UseRedis`
+  condicional e registro do store.
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — backplane SignalR condicional,
+  opções de presença e health check.
+- `Api/src/GameHub.Web.Host/appsettings.*.json` — configuração separada de presença
+  e backplane, desligada por padrão.
+- `Api/test/GameHub.Tests/Multiplayer/*` — testes de TTL, isolamento por tenant e
+  resolução do backplane.
+
+### Decisões e limitações
+
+- `ICacheManager` armazena presença/TTL; não é usado como Pub/Sub.
+- O backplane oficial usa a mesma infraestrutura Redis somente quando explicitamente
+  habilitado e com prefixo de canais próprio.
+- O signaling entre instâncias depende do backplane; presença distribuída sozinha não
+  entrega `Signal`/`Broadcast` para conexões remotas.
+
+### Resultado
+
+- Build Release passou sem warnings.
+- 325 testes passaram e 2 permaneceram skipped em `GameHub.Tests`.
+- O teste de presença cobre provider local; a validação Redis de duas instâncias
+  permanece dependente de ambiente Redis disponível.
+
+## 2026-07-26 — Specs de cache e presença multiplayer
+
+### Tarefa
+
+Documentar a próxima evolução do multiplayer usando `ICacheManager`, priorizando presença distribuída sem implementar Pub/Sub/backplane nesta etapa.
+
+### Arquivos criados
+
+- `docs/specs/2026-07-26-multiplayer-cache-presence-design.md` — desenho aprovado e decisões arquiteturais.
+- `.specs/30-poki-icachemanager-multiplayer-cache.md` — abstração de cache baseada em `ICacheManager`.
+- `.specs/31-poki-multiplayer-presenca-icachemanager.md` — presença distribuída com TTL.
+- `.specs/32-poki-multiplayer-cache-operacao-testes.md` — health checks, métricas, testes e rollout.
+- `.specs/33-poki-signalr-backplane-futuro.md` — evolução futura para backplane oficial SignalR.
+
+### Decisões
+
+- `ICacheManager` será usado para estado efêmero e presença, não como transporte Pub/Sub.
+- A presença distribuída não será apresentada como signaling cross-instance.
+- Pub/Sub/backplane permanece separado para evitar acoplamento prematuro e permitir validar a topologia Redis primeiro.
+
 ## 2026-07-26 03:00 UTC
 
 ### Tarefa

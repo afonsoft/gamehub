@@ -3,15 +3,18 @@ using Abp.Configuration.Startup;
 using Abp.Dependency;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
+using Abp.Runtime.Caching.Redis;
 using Castle.MicroKernel.Registration;
 using Eaf.KeyVault.AspNetCore;
 using Eaf.Middleware.Configuration;
 using Eaf.Middleware.Web;
 using GameHub.Catalog;
 using GameHub.Gameplay;
+using GameHub.Multiplayer;
 using GameHub.Security;
 using GameHub.Storage;
 using GameHub.Web.Caching;
+using GameHub.Web.Multiplayer;
 using GameHub.Web.Security;
 using GameHub.Web.Storage;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +48,8 @@ namespace GameHub.Web.Startup
             IocManager.RegisterAssemblyByConvention(typeof(WebHostModule).GetAssembly());
 
             IocManager.Register<IGameTokenProvider, GameTokenProvider>(DependencyLifeStyle.Transient);
+            IocManager.Register<IMultiplayerPresenceStore, CacheMultiplayerPresenceStore>(
+                DependencyLifeStyle.Transient);
 
             //Enabled or Disabled BackgroundJobs
             Configuration.BackgroundJobs.IsJobExecutionEnabled = true;
@@ -66,6 +71,15 @@ namespace GameHub.Web.Startup
             var redisConnectionString = _appConfiguration["RedisCache:ConnectionString"];
             if (redisCacheEnabled && !string.IsNullOrWhiteSpace(redisConnectionString))
             {
+                Configuration.Caching.UseRedis(options =>
+                {
+                    options.ConnectionString = redisConnectionString;
+                    if (int.TryParse(_appConfiguration["RedisCache:DatabaseId"], out var databaseId))
+                    {
+                        options.DatabaseId = databaseId;
+                    }
+                });
+
                 IocManager.IocContainer.Register(
                     Component.For<IConnectionMultiplexer>()
                         .UsingFactoryMethod(() => ConnectionMultiplexer.Connect(redisConnectionString))

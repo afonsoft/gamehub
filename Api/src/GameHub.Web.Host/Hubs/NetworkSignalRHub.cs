@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Abp.Dependency;
 using GameHub.Multiplayer;
 using GameHub.Security;
 using Microsoft.AspNetCore.SignalR;
+using GameHub.Web.Multiplayer;
 
 namespace GameHub.Web.Hubs
 {
@@ -62,13 +62,19 @@ namespace GameHub.Web.Hubs
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, $"network:{match.Id:N}");
-            _peerRegistry.Register(Context.ConnectionId, match.Id);
+            await _peerRegistry.RegisterAsync(
+                Context.ConnectionId,
+                claims,
+                gameId,
+                match.Id);
             return new { MatchId = match.Id, PeerId = Context.ConnectionId, RoomCode = match.RoomCode };
         }
 
         public async Task Signal(string peerId, object payload)
         {
-            if (!_peerRegistry.TryGetMatch(Context.ConnectionId, out _))
+            var claims = GetClaims();
+            var presence = await _peerRegistry.GetAsync(claims.TenantId, Context.ConnectionId);
+            if (presence == null)
             {
                 throw new HubException("Join a lobby before sending signals.");
             }
@@ -76,15 +82,32 @@ namespace GameHub.Web.Hubs
             await Clients.Client(peerId).SendAsync("Signal", Context.ConnectionId, payload);
         }
 
+        public async Task Heartbeat()
+        {
+            var claims = GetClaims();
+            var presence = await _peerRegistry.GetAsync(claims.TenantId, Context.ConnectionId);
+            if (presence == null)
+            {
+                throw new HubException("Join a lobby before sending heartbeats.");
+            }
+
+            await _peerRegistry.RefreshAsync(
+                claims.TenantId,
+                Context.ConnectionId,
+                presence.MatchId);
+        }
+
         public async Task Broadcast(string channel, object payload)
         {
-            if (!_peerRegistry.TryGetMatch(Context.ConnectionId, out var matchId))
+            var claims = GetClaims();
+            var presence = await _peerRegistry.GetAsync(claims.TenantId, Context.ConnectionId);
+            if (presence == null)
             {
                 throw new HubException("Join a lobby before broadcasting.");
             }
 
             var normalizedChannel = channel is "reliable" or "unreliable" ? channel : "reliable";
-            await Clients.Group($"network:{matchId:N}").SendAsync(
+            await Clients.Group($"network:{presence.MatchId:N}").SendAsync(
                 "Broadcast",
                 normalizedChannel,
                 Context.ConnectionId,
@@ -93,7 +116,10 @@ namespace GameHub.Web.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            _peerRegistry.Remove(Context.ConnectionId);
+            var claims = Context.Items.TryGetValue("GameTokenClaims", out var value)
+                ? value as GameTokenClaims
+                : null;
+            await _peerRegistry.RemoveAsync(claims?.TenantId, Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -128,12 +154,56 @@ namespace GameHub.Web.Hubs
     /// </summary>
     public class NetworkPeerRegistry
     {
-        private readonly ConcurrentDictionary<string, Guid> _matches = new();
+        private readonly IMultiplayerPresenceStore _presenceStore;
+        private readonly MultiplayerPresenceOptions _options;
 
-        public void Register(string connectionId, Guid matchId) => _matches[connectionId] = matchId;
+        public NetworkPeerRegistry(
+            IMultiplayerPresenceStore presenceStore,
+            Microsoft.Extensions.Options.IOptions<MultiplayerPresenceOptions> options)
+        {
+            _presenceStore = presenceStore;
+            _options = options.Value;
+        }
 
-        public void Remove(string connectionId) => _matches.TryRemove(connectionId, out _);
+        public Task RegisterAsync(
+            string connectionId,
+            GameTokenClaims claims,
+            Guid gameId,
+            Guid matchId)
+        {
+            var now = DateTimeOffset.UtcNow;
+            return _presenceStore.RegisterAsync(
+                new MultiplayerPresenceEntry
+                {
+                    TenantId = claims.TenantId,
+                    GameId = gameId,
+                    MatchId = matchId,
+                    ConnectionId = connectionId,
+                    UserId = claims.UserId,
+                    InstanceId = _options.InstanceId,
+                    JoinedAt = now,
+                    LastSeenAt = now
+                },
+                _options.EntryTtl);
+        }
 
-        public bool TryGetMatch(string connectionId, out Guid matchId) => _matches.TryGetValue(connectionId, out matchId);
+        public Task<MultiplayerPresenceEntry> GetAsync(int? tenantId, string connectionId)
+        {
+            return _presenceStore.GetByConnectionAsync(tenantId, connectionId);
+        }
+
+        public Task RefreshAsync(int? tenantId, string connectionId, Guid matchId)
+        {
+            return _presenceStore.RefreshAsync(
+                tenantId,
+                matchId,
+                connectionId,
+                _options.EntryTtl);
+        }
+
+        public Task RemoveAsync(int? tenantId, string connectionId)
+        {
+            return _presenceStore.RemoveByConnectionAsync(tenantId, connectionId);
+        }
     }
 }
