@@ -11,7 +11,7 @@ Distribuir grupos e mensagens dos hubs `/signalr-match` e `/signalr-network` ent
 
 ## Pré-requisitos operacionais
 
-- Provider `ICacheManager`/EAF validado em produção.
+- Provider `ICacheManager`/`IDistributedCache` do EAF validado em produção.
 - Redis compartilhado com TLS, autenticação e capacidade dimensionada.
 - Teste de duas ou mais instâncias concluído.
 - Load balancer com WebSockets habilitado.
@@ -24,6 +24,8 @@ Distribuir grupos e mensagens dos hubs `/signalr-match` e `/signalr-network` ent
 - `AddStackExchangeRedis` somente quando `RedisCache:IsEnabled` e
   `SignalR:Backplane:IsEnabled` forem verdadeiros.
 - `ChannelPrefix` configurável e separado do cache.
+- O EAF continua responsável pela configuração base de `ICacheManager` e
+  `IDistributedCache`.
 - Presença continua usando `ICacheManager`; o backplane é transporte separado.
 
 Ainda requer validação de runtime com duas instâncias e Redis compartilhado antes

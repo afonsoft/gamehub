@@ -1,5 +1,15 @@
 # Prompt 31 — Presença multiplayer distribuída com `ICacheManager`
 
+## Dependência de infraestrutura
+
+O `ICacheManager` usado por esta spec é fornecido pelo EAF. O
+`MiddlewareWebCoreModule` chama o `CacheConfigurer` para selecionar o provider
+ABP e o `RedisConfigurer` para registrar `IDistributedCache`. O GameHub não
+deve configurar Redis novamente no `WebHostModule`.
+
+O GameHub implementa somente o contrato de presença, as chaves tenant-aware,
+o TTL, o heartbeat, o health check e as métricas específicas do multiplayer.
+
 ## Objetivo
 
 Substituir o `NetworkPeerRegistry` puramente local por um registro de presença baseado em cache, preservando as APIs atuais de `/signalr-network`, a reconexão de partidas e a compatibilidade com WebRTC.
@@ -85,6 +95,10 @@ Com somente `ICacheManager`:
 - entrega cross-instance continua fora do escopo.
 
 Essa limitação deve aparecer em documentação, testes e logs operacionais.
+
+O cache compartilhado não implica que `Clients.Client(...)` ou grupos sejam
+compartilhados. Essa responsabilidade pertence ao backplane oficial do
+SignalR, configurado separadamente pelo GameHub quando habilitado.
 
 ## Segurança e multi-tenancy
 

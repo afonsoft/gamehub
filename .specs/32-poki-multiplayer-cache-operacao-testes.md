@@ -1,5 +1,17 @@
 # Prompt 32 — Operação e testes do cache de presença multiplayer
 
+## Configuração delegada ao EAF
+
+`RedisCache:IsEnabled` e `RedisCache:IsRedisEnabled` são lidos pelo EAF.
+`CacheConfigurer` configura o `ICacheManager` com
+`RedisCache:ConnectionString` e `RedisCache:DatabaseId`; `RedisConfigurer`
+configura o `IDistributedCache`. O GameHub não deve repetir essas chamadas.
+
+Este prompt cobre apenas diagnóstico e operação do uso de cache pelo
+multiplayer. O `WebHostModule` pode registrar `IConnectionMultiplexer` para
+caches específicos que usam comandos Redis diretamente, sem substituir a
+configuração central do EAF.
+
 ## Objetivo
 
 Tornar a presença baseada em `ICacheManager` operável, mensurável e verificável em ambientes local, staging e produção, sem transformar cache efêmero em requisito de disponibilidade do catálogo.

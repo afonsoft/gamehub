@@ -3,7 +3,6 @@ using Abp.Configuration.Startup;
 using Abp.Dependency;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
-using Abp.Runtime.Caching.Redis;
 using Castle.MicroKernel.Registration;
 using Eaf.KeyVault.AspNetCore;
 using Eaf.Middleware.Configuration;
@@ -66,20 +65,16 @@ namespace GameHub.Web.Startup
             IocManager.IocContainer.Register(Component.For<StorageOptions>().Instance(storageOptions));
             IocManager.Register<IGameAssetStorage, MinioGameAssetStorage>(DependencyLifeStyle.Transient);
 
-            // Replace in-memory caches with Redis implementations when Redis is enabled
-            var redisCacheEnabled = bool.TryParse(_appConfiguration["RedisCache:IsEnabled"], out var redisEnabled) && redisEnabled;
+            // EAF configures the ABP cache manager and IDistributedCache.
+            // GameHub only registers components that require direct Redis access.
+            var redisCacheEnabled =
+                (bool.TryParse(_appConfiguration["RedisCache:IsRedisEnabled"], out var redisEnabled)
+                    && redisEnabled)
+                || (bool.TryParse(_appConfiguration["RedisCache:IsEnabled"], out var legacyRedisEnabled)
+                    && legacyRedisEnabled);
             var redisConnectionString = _appConfiguration["RedisCache:ConnectionString"];
             if (redisCacheEnabled && !string.IsNullOrWhiteSpace(redisConnectionString))
             {
-                Configuration.Caching.UseRedis(options =>
-                {
-                    options.ConnectionString = redisConnectionString;
-                    if (int.TryParse(_appConfiguration["RedisCache:DatabaseId"], out var databaseId))
-                    {
-                        options.DatabaseId = databaseId;
-                    }
-                });
-
                 IocManager.IocContainer.Register(
                     Component.For<IConnectionMultiplexer>()
                         .UsingFactoryMethod(() => ConnectionMultiplexer.Connect(redisConnectionString))

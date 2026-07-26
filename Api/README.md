@@ -13,9 +13,31 @@ Para documentação detalhada sobre o template API, consulte a pasta [docs](docs
 - **[Module System](docs/MODULE_SYSTEM.md)** - Sistema de módulos do ASP.NET Boilerplate e como criar novos módulos
 - **[Implementations](docs/IMPLEMENTATIONS.md)** - Padrões de implementação e melhores práticas
 
-## Configuração de Banco de Dados
+## Configuração de Infraestrutura
 
-### Provider de Banco de Dados
+### Cache Redis e EAF
+
+A configuração base de cache é fornecida pelo módulo `Eaf.Middleware.Web.Core`
+do EAF. O `CacheConfigurer` configura o `ICacheManager` e o `RedisConfigurer`
+configura o `IDistributedCache`; o GameHub não deve chamar
+`Configuration.Caching.UseRedis(...)` no `WebHostModule`.
+
+As chaves reconhecidas pelo EAF são:
+
+- `RedisCache:IsEnabled` (compatibilidade atual)
+- `RedisCache:IsRedisEnabled` (nome alternativo)
+- `RedisCache:ConnectionString`
+- `RedisCache:DatabaseId`
+
+O GameHub mantém somente responsabilidades específicas: presença multiplayer
+com `IMultiplayerPresenceStore`, caches de catálogo/leaderboard,
+`IConnectionMultiplexer` quando comandos Redis diretos são necessários e o
+backplane opcional do SignalR. Cache compartilhado e backplane não são a mesma
+coisa: o primeiro armazena estado; o segundo distribui mensagens e grupos.
+
+### Configuração de Banco de Dados
+
+#### Provider de Banco de Dados
 
 O template suporta diferentes providers de banco de dados através da configuração `Database:Provider` em `appsettings.json`:
 

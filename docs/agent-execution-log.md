@@ -59,8 +59,9 @@ checks e backplane Redis opcional do SignalR.
   resolução segura da configuração do backplane.
 - `Api/src/GameHub.Web.Host/Hubs/NetworkSignalRHub.cs` — presença distribuída,
   heartbeat e remoção por TTL/desconexão.
-- `Api/src/GameHub.Web.Host/Startup/WebHostModule.cs` — `Configuration.Caching.UseRedis`
-  condicional e registro do store.
+- `Api/src/GameHub.Web.Host/Startup/WebHostModule.cs` — registro do store e dos
+  componentes específicos que exigem `IConnectionMultiplexer`; a configuração
+  base do cache permanece no EAF.
 - `Api/src/GameHub.Web.Host/Startup/Startup.cs` — backplane SignalR condicional,
   opções de presença e health check.
 - `Api/src/GameHub.Web.Host/appsettings.*.json` — configuração separada de presença
@@ -71,6 +72,9 @@ checks e backplane Redis opcional do SignalR.
 ### Decisões e limitações
 
 - `ICacheManager` armazena presença/TTL; não é usado como Pub/Sub.
+- `Eaf.Middleware.Web.Core` é a autoridade para configurar
+  `ICacheManager`/`IDistributedCache` por meio de `CacheConfigurer` e
+  `RedisConfigurer`; o GameHub não duplica `Configuration.Caching.UseRedis`.
 - O backplane oficial usa a mesma infraestrutura Redis somente quando explicitamente
   habilitado e com prefixo de canais próprio.
 - O signaling entre instâncias depende do backplane; presença distribuída sozinha não
@@ -82,6 +86,30 @@ checks e backplane Redis opcional do SignalR.
 - 325 testes passaram e 2 permaneceram skipped em `GameHub.Tests`.
 - O teste de presença cobre provider local; a validação Redis de duas instâncias
   permanece dependente de ambiente Redis disponível.
+
+## 2026-07-26 — Delegação da configuração de cache ao EAF
+
+### Tarefa
+
+Revisar a configuração Redis do GameHub contra o módulo
+`Eaf.Middleware.Web.Core` e remover a duplicação de configuração do provider
+base.
+
+### Descobertas
+
+- `MiddlewareWebCoreModule.PreInitialize` chama `CacheConfigurer.Configure`,
+  que configura o `ICacheManager` e reconhece `RedisCache:IsEnabled` e
+  `RedisCache:IsRedisEnabled`.
+- `EafServiceCollectionMiddlewareExtensions.AddEafConfigurer` chama
+  `RedisConfigurer.Configure`, que registra `IDistributedCache`.
+- `IConnectionMultiplexer`, os caches de catálogo/leaderboard e o backplane
+  SignalR continuam sendo responsabilidades específicas do GameHub.
+
+### Resultado
+
+`WebHostModule` não chama mais `Configuration.Caching.UseRedis(...)`; a
+documentação das Specs 30–33 e dos runbooks passa a apontar o EAF como
+autoridade da configuração base.
 
 ## 2026-07-26 — Specs de cache e presença multiplayer
 
