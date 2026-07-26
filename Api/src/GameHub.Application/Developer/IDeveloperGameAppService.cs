@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -22,6 +23,8 @@ namespace GameHub.Developer
         Task<ListResultDto<BuildDto>> GetBuildsAsync(Guid gameId);
 
         Task<ListResultDto<BuildDto>> GetVersionsAsync(Guid gameId);
+
+        Task<List<DeveloperReviewHistoryItemDto>> GetReviewHistoryAsync(Guid gameId);
 
         Task<BuildDto> ApproveBuildAsync(DeveloperApproveBuildInput input);
 

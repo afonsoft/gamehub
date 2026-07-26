@@ -202,6 +202,51 @@ namespace GameHub.Tests.GameHub.Application
             result.GameBuildId.ShouldBe(buildId);
         }
 
+        [Fact]
+        public async Task Dado_JogoComHistoricoDeRevisoes_Quando_ConsultarHistorico_Entao_RetornaMaisRecentePrimeiro()
+        {
+            var (gameId, buildId) = await SeedGameWithBuildAsync("Review History Game");
+            var olderId = Guid.NewGuid();
+            var newerId = Guid.NewGuid();
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.ModerationReviews.AddRangeAsync(
+                    new ModerationReview
+                    {
+                        Id = olderId,
+                        TenantId = AbpSession.TenantId,
+                        GameId = gameId,
+                        GameBuildId = buildId,
+                        Status = ModerationReviewStatus.Completed,
+                        Decision = ModerationDecision.RequiresChanges,
+                        Notes = "Older feedback",
+                        CreationTime = DateTime.UtcNow.AddMinutes(-10),
+                        CompletedAt = DateTime.UtcNow.AddMinutes(-9)
+                    },
+                    new ModerationReview
+                    {
+                        Id = newerId,
+                        TenantId = AbpSession.TenantId,
+                        GameId = gameId,
+                        GameBuildId = buildId,
+                        Status = ModerationReviewStatus.Pending,
+                        Notes = "Newer feedback",
+                        CreationTime = DateTime.UtcNow.AddMinutes(-2)
+                    });
+                await context.SaveChangesAsync();
+            });
+
+            var result = await _developerGameAppService.GetReviewHistoryAsync(gameId);
+
+            result.Count.ShouldBe(2);
+            result[0].Id.ShouldBe(newerId);
+            result[0].Status.ShouldBe(ModerationReviewStatus.Pending.ToString());
+            result[0].Notes.ShouldBe("Newer feedback");
+            result[1].Id.ShouldBe(olderId);
+            result[1].CompletedAt.ShouldNotBeNull();
+        }
+
         private async Task<(Guid GameId, Guid BuildId)> SeedGameWithBuildAsync(string title)
         {
             var game = await _developerGameAppService.CreateDraftAsync(new CreateGameDraftInput

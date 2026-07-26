@@ -235,6 +235,30 @@ namespace GameHub.Developer
         }
 
         [AbpAuthorize]
+        public async Task<List<DeveloperReviewHistoryItemDto>> GetReviewHistoryAsync(Guid gameId)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            await EnsureCurrentUserOwnsGameAsync(game);
+
+            var reviews = await _moderationReviewRepository.GetAll()
+                .Where(review => review.GameId == gameId && !review.IsDeleted)
+                .OrderByDescending(review => review.CreationTime)
+                .ToListAsync();
+
+            return reviews.Select(review => new DeveloperReviewHistoryItemDto
+            {
+                Id = review.Id,
+                GameId = review.GameId,
+                GameBuildId = review.GameBuildId,
+                Status = review.Status.ToString(),
+                Decision = review.Decision?.ToString() ?? string.Empty,
+                Notes = review.Notes ?? string.Empty,
+                CreatedAt = review.CreationTime,
+                CompletedAt = review.CompletedAt
+            }).ToList();
+        }
+
+        [AbpAuthorize]
         public async Task<CreatePreviewTokenResult> CreatePreviewTokenForBuildAsync(CreatePreviewTokenInput input)
         {
             var game = await _gameRepository.GetAsync(input.GameId);

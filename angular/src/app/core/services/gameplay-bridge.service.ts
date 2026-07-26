@@ -65,6 +65,36 @@ export interface PrivacyConsent {
   consentedAt?: string;
 }
 
+export interface ChatContext {
+  gameId: string;
+  matchId?: string;
+  conversationId?: string;
+}
+
+export interface SendChatMessageInput {
+  conversationId: string;
+  text: string;
+  clientMessageId: string;
+}
+
+export interface GameHubChatMessage {
+  id: string;
+  conversationId: string;
+  senderUserId: number;
+  senderName: string;
+  text: string;
+  sentAt: string;
+  readState: 'read' | 'unread';
+}
+
+export interface ChatPresenceChange {
+  state: 'connected' | 'reconnecting' | 'offline';
+}
+
+export function normalizeChatText(text: string): string {
+  return text.normalize('NFC').replace(/[\u0000-\u001F\u007F-\u009F]/g, '').slice(0, 500);
+}
+
 @Injectable({ providedIn: 'root' })
 export class GameplayBridgeService implements GameplayBridge {
   private readonly gameplayUrl = '/api/services/app/Gameplay';
@@ -96,9 +126,13 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly consentUrl = '/api/services/app/Privacy/GetConsent';
   private readonly matchHubUrl = '/signalr-match';
   private readonly networkHubUrl = '/signalr-network';
+  private readonly chatHubUrl = '/signalr-chat';
+  private readonly chatMessagesUrl = '/api/services/app/Chat';
 
   private matchConnection: signalR.HubConnection | null = null;
   private networkConnection: signalR.HubConnection | null = null;
+  private chatConnection: signalR.HubConnection | null = null;
+  private chatContext: ChatContext | null = null;
   private currentMatchId: string | null = null;
   private onMatchStateChangedCallback?: (state: unknown) => void;
 
@@ -229,6 +263,82 @@ export class GameplayBridgeService implements GameplayBridge {
     await this.networkConnection?.invoke('Heartbeat');
   }
 
+  async chatConnect(context: ChatContext): Promise<{ connected: boolean }> {
+    if (!context.gameId || context.gameId !== this.gameId) {
+      throw new Error('Chat requires the active game context');
+    }
+    if (!this.auth.isLoggedIn()) {
+      throw new Error('Chat requires an authenticated user');
+    }
+    if (context.matchId) {
+      throw new Error('Match chat is not available for this conversation');
+    }
+
+    this.chatContext = context;
+    await this.ensureChatConnection();
+    return { connected: true };
+  }
+
+  async chatDisconnect(): Promise<void> {
+    const connection = this.chatConnection;
+    this.chatConnection = null;
+    this.chatContext = null;
+    if (connection) {
+      await connection.stop();
+    }
+  }
+
+  async chatSend(input: SendChatMessageInput): Promise<{ sent: boolean; clientMessageId: string }> {
+    if (!this.chatConnection || !this.chatContext) {
+      throw new Error('Chat is not connected');
+    }
+    const text = normalizeChatText(input.text);
+    if (!text) {
+      throw new Error('Chat message cannot be empty');
+    }
+
+    const target = this.parseConversationId(input.conversationId);
+    await this.chatConnection.invoke('SendMessage', {
+      Message: text,
+      TenantId: target.tenantId,
+      UserId: target.userId,
+      GroupId: target.groupId,
+    });
+    return { sent: true, clientMessageId: input.clientMessageId };
+  }
+
+  async chatHistory(conversationId: string, minMessageId?: number): Promise<{ messages: GameHubChatMessage[] }> {
+    if (!this.chatContext) {
+      throw new Error('Chat is not connected');
+    }
+    const target = this.parseConversationId(conversationId);
+    const params: Record<string, string> = {};
+    if (minMessageId !== undefined) params['MinMessageId'] = String(minMessageId);
+    if (target.tenantId !== undefined) params['TenantId'] = String(target.tenantId);
+    if (target.userId !== undefined) params['UserId'] = String(target.userId);
+    if (target.groupId !== undefined) params['GroupId'] = String(target.groupId);
+    const query = new URLSearchParams(params).toString();
+    const response = await firstValueFrom(
+      this.http.get<{ result?: { items?: unknown[] } }>(`${this.chatMessagesUrl}/GetUserChatMessages?${query}`),
+    );
+    const result = this.unwrap<{ items?: unknown[] }>(response);
+    return { messages: (result?.items ?? []).map(message => this.mapChatMessage(message)) };
+  }
+
+  async chatMarkRead(conversationId: string): Promise<void> {
+    if (!this.chatContext) {
+      throw new Error('Chat is not connected');
+    }
+    const target = this.parseConversationId(conversationId);
+    await firstValueFrom(
+      this.http.post(`${this.chatMessagesUrl}/MarkAllUnreadMessagesOfUserAsRead`, {
+        TenantId: target.tenantId,
+        UserId: target.userId,
+        GroupId: target.groupId,
+      }),
+    );
+  }
+
   private async ensureNetworkConnection(): Promise<void> {
     if (this.networkConnection) {
       return;
@@ -249,6 +359,75 @@ export class GameplayBridgeService implements GameplayBridge {
 
     await connection.start();
     this.networkConnection = connection;
+  }
+
+  private async ensureChatConnection(): Promise<void> {
+    if (this.chatConnection) {
+      return;
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(this.chatHubUrl, { accessTokenFactory: () => this.getGameToken() })
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+      .configureLogging(signalR.LogLevel.Warning)
+      .build();
+
+    connection.on('getChatMessage', (message: unknown) => {
+      this.reply({ channel: 'gamehub-bridge', action: 'chatMessage', payload: this.mapChatMessage(message) });
+    });
+    connection.onreconnecting(() => {
+      this.replyPresence('reconnecting');
+    });
+    connection.onreconnected(() => {
+      this.replyPresence('connected');
+    });
+    connection.onclose(() => {
+      this.replyPresence('offline');
+    });
+
+    await connection.start();
+    this.chatConnection = connection;
+    this.replyPresence('connected');
+  }
+
+  private replyPresence(state: ChatPresenceChange['state']): void {
+    this.reply({ channel: 'gamehub-bridge', action: 'chatPresenceChanged', payload: { state } });
+  }
+
+  private parseConversationId(conversationId: string): { tenantId?: number; userId?: number; groupId?: number } {
+    const [kind, tenant, target] = conversationId.split(':');
+    const tenantId = Number(tenant);
+    const targetId = Number(target);
+    if (!kind || !Number.isInteger(tenantId) || !Number.isInteger(targetId) || targetId <= 0) {
+      throw new Error('Invalid conversation id');
+    }
+    if (kind === 'user') {
+      return { tenantId, userId: targetId };
+    }
+    if (kind === 'group') {
+      return { tenantId, groupId: targetId };
+    }
+    throw new Error('Unsupported conversation type');
+  }
+
+  private mapChatMessage(message: unknown): GameHubChatMessage {
+    const value = (message as Record<string, unknown> | null) ?? {};
+    const userId = Number(value['UserId'] ?? value['userId'] ?? 0);
+    const tenantId = value['TenantId'] ?? value['tenantId'];
+    const targetUserId = Number(value['TargetUserId'] ?? value['targetUserId'] ?? 0);
+    const targetTenantId = value['TargetTenantId'] ?? value['targetTenantId'] ?? tenantId;
+    const conversationId = targetUserId > 0
+      ? `user:${Number(targetTenantId ?? 0)}:${targetUserId}`
+      : `group:${Number(targetTenantId ?? 0)}:1`;
+    return {
+      id: String(value['Id'] ?? value['id'] ?? ''),
+      conversationId,
+      senderUserId: userId,
+      senderName: String(value['UserName'] ?? value['userName'] ?? ''),
+      text: String(value['Message'] ?? value['message'] ?? ''),
+      sentAt: new Date(String(value['CreationTime'] ?? value['creationTime'] ?? new Date().toISOString())).toISOString(),
+      readState: String(value['ReadState'] ?? value['readState'] ?? '').toLowerCase().includes('unread') ? 'unread' : 'read',
+    };
   }
 
   private setCurrentMatchFromResult(result: unknown): void {
@@ -845,6 +1024,39 @@ export class GameplayBridgeService implements GameplayBridge {
         void this.heartbeatNetwork()
           .then(() => this.replyResponse(requestId ?? '', { sent: true }))
           .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Heartbeat error'));
+        break;
+      case 'chatConnect':
+        void this.chatConnect({
+          gameId: (payload?.['gameId'] as string) ?? '',
+          matchId: payload?.['matchId'] as string | undefined,
+          conversationId: payload?.['conversationId'] as string | undefined,
+        })
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Chat error'));
+        break;
+      case 'chatDisconnect':
+        void this.chatDisconnect()
+          .then(() => this.replyResponse(requestId ?? '', { disconnected: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Chat error'));
+        break;
+      case 'chatSend':
+        void this.chatSend({
+          conversationId: (payload?.['conversationId'] as string) ?? '',
+          text: (payload?.['text'] as string) ?? '',
+          clientMessageId: (payload?.['clientMessageId'] as string) ?? '',
+        })
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Chat error'));
+        break;
+      case 'chatHistory':
+        void this.chatHistory((payload?.['conversationId'] as string) ?? '', payload?.['minMessageId'] as number | undefined)
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Chat error'));
+        break;
+      case 'chatMarkRead':
+        void this.chatMarkRead((payload?.['conversationId'] as string) ?? '')
+          .then(() => this.replyResponse(requestId ?? '', { marked: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Chat error'));
         break;
       case 'loadArbitrary':
         void this.loadArbitrary((payload?.['key'] as string) ?? '')

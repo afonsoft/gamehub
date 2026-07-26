@@ -1,12 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { DeveloperService, BuildItem, UploadResult } from '../../core/services/developer.service';
+import {
+  DeveloperReviewHistoryItem,
+  DeveloperService,
+  BuildItem,
+  UploadResult,
+} from '../../core/services/developer.service';
 
 @Component({
   selector: 'app-developer-builds',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './builds.component.html',
   styleUrl: './builds.component.css',
 })
@@ -15,6 +21,12 @@ export class DeveloperBuildsComponent implements OnInit {
   gameTitle = '';
   builds: BuildItem[] = [];
   uploadResult: UploadResult | null = null;
+  reviewHistory: DeveloperReviewHistoryItem[] = [];
+  errorMessage = '';
+  statusMessage = '';
+  rejectingBuildId: string | null = null;
+  rejectionReason = '';
+  readonly busyBuildIds = new Set<string>();
   loading = false;
   uploading = false;
 
@@ -31,34 +43,79 @@ export class DeveloperBuildsComponent implements OnInit {
   loadBuilds(): void {
     if (!this.gameId) return;
     this.loading = true;
+    this.errorMessage = '';
     this.developerService.getBuilds(this.gameId).subscribe({
-      next: result => {
-        this.builds = result ?? [];
+      next: result => this.loadReviewHistory(result ?? []),
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Unable to load build history.';
+      },
+    });
+  }
+
+  private loadReviewHistory(builds: BuildItem[]): void {
+    this.builds = builds;
+    this.developerService.getReviewHistory(this.gameId).subscribe({
+      next: history => {
+        this.reviewHistory = history ?? [];
         this.loading = false;
       },
       error: () => {
         this.loading = false;
+        this.errorMessage = 'Builds loaded, but review history is unavailable.';
       },
     });
   }
 
   approveBuild(build: BuildItem): void {
+    if (!window.confirm(`Approve build ${build.version}?`)) return;
+    this.setBusy(build.id, true);
     this.developerService.approveBuild(build.id).subscribe({
-      next: () => this.loadBuilds(),
-      error: err => alert(err?.error?.error?.message || 'Unable to approve build.'),
+      next: () => {
+        this.statusMessage = `Build ${build.version} approved.`;
+        this.setBusy(build.id, false);
+        this.loadBuilds();
+      },
+      error: err => {
+        this.statusMessage = err?.error?.error?.message || 'Unable to approve build.';
+        this.setBusy(build.id, false);
+      },
     });
   }
 
+  beginRejectBuild(build: BuildItem): void {
+    this.rejectingBuildId = build.id;
+    this.rejectionReason = '';
+  }
+
+  cancelRejectBuild(): void {
+    this.rejectingBuildId = null;
+    this.rejectionReason = '';
+  }
+
   rejectBuild(build: BuildItem): void {
-    const reason = window.prompt('Rejection reason:');
-    if (!reason) return;
+    const reason = this.rejectionReason.trim();
+    if (!reason) {
+      this.statusMessage = 'Provide a reason before rejecting the build.';
+      return;
+    }
+    this.setBusy(build.id, true);
     this.developerService.rejectBuild(build.id, reason).subscribe({
-      next: () => this.loadBuilds(),
-      error: err => alert(err?.error?.error?.message || 'Unable to reject build.'),
+      next: () => {
+        this.statusMessage = `Build ${build.version} rejected.`;
+        this.cancelRejectBuild();
+        this.setBusy(build.id, false);
+        this.loadBuilds();
+      },
+      error: err => {
+        this.statusMessage = err?.error?.error?.message || 'Unable to reject build.';
+        this.setBusy(build.id, false);
+      },
     });
   }
 
   openInspector(build: BuildItem): void {
+    this.setBusy(build.id, true);
     this.developerService.startInspectorSession(build.gameId, build.id, 'desktop', '1024x768').subscribe({
       next: session => {
         const url = this.router.serializeUrl(
@@ -67,12 +124,17 @@ export class DeveloperBuildsComponent implements OnInit {
           })
         );
         window.open(url, '_blank');
+        this.setBusy(build.id, false);
       },
-      error: err => alert(err?.error?.error?.message || 'Unable to start inspector session.'),
+      error: err => {
+        this.statusMessage = err?.error?.error?.message || 'Unable to start inspector session.';
+        this.setBusy(build.id, false);
+      },
     });
   }
 
   previewOnGameHub(build: BuildItem): void {
+    this.setBusy(build.id, true);
     this.developerService.createPreviewToken(build.gameId, build.version).subscribe({
       next: result => {
         const url = this.router.serializeUrl(
@@ -81,8 +143,12 @@ export class DeveloperBuildsComponent implements OnInit {
           })
         );
         window.open(url, '_blank');
+        this.setBusy(build.id, false);
       },
-      error: err => alert(err?.error?.error?.message || 'Unable to create preview token.'),
+      error: err => {
+        this.statusMessage = err?.error?.error?.message || 'Unable to create preview token.';
+        this.setBusy(build.id, false);
+      },
     });
   }
 
@@ -101,7 +167,20 @@ export class DeveloperBuildsComponent implements OnInit {
       },
       error: () => {
         this.uploading = false;
+        this.statusMessage = 'Unable to upload the build.';
       },
     });
+  }
+
+  isBusy(buildId: string): boolean {
+    return this.busyBuildIds.has(buildId);
+  }
+
+  private setBusy(buildId: string, busy: boolean): void {
+    if (busy) {
+      this.busyBuildIds.add(buildId);
+      return;
+    }
+    this.busyBuildIds.delete(buildId);
   }
 }
