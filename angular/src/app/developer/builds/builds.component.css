@@ -50,3 +50,39 @@
 .badge.status-validated { background: #1a73e8; color: #fff; }
 .badge.status-rejected { background: #ea4335; color: #fff; }
 .badge.status-uploading { background: #9aa0a6; color: #fff; }
+
+.status-message,
+.error-message {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+.status-message { background: #eef6ff; color: #174ea6; }
+.error-message { background: #fff0f0; color: #a50e0e; }
+
+.reject-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  max-width: 260px;
+}
+
+.reject-form textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.review-history {
+  margin-top: 28px;
+}
+
+.review-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.review-item time {
+  color: #5f6368;
+  font-size: 0.8rem;
+}

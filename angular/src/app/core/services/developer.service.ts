@@ -101,6 +101,17 @@ export interface InspectorSessionResult {
   startedAt: string;
 }
 
+export interface DeveloperReviewHistoryItem {
+  id: string;
+  gameId: string;
+  gameBuildId?: string;
+  status: string;
+  decision?: string;
+  notes: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
 export interface DeveloperTeam {
   id?: string;
   name: string;
@@ -321,6 +332,16 @@ export class DeveloperService {
     return this.http
       .get<BuildItem[] | { result?: BuildItem[] }>(`${this.gameUrl}/GetVersions`, { params })
       .pipe(map(response => this.unwrap<BuildItem[]>(response)));
+  }
+
+  getReviewHistory(gameId: string): Observable<DeveloperReviewHistoryItem[]> {
+    const params = new HttpParams().set('gameId', gameId);
+    return this.http
+      .get<DeveloperReviewHistoryItem[] | { result?: DeveloperReviewHistoryItem[] }>(
+        `${this.gameUrl}/GetReviewHistory`,
+        { params },
+      )
+      .pipe(map(response => this.unwrap<DeveloperReviewHistoryItem[]>(response)));
   }
 
   createPreviewToken(gameId: string, version: string): Observable<PreviewTokenResult> {

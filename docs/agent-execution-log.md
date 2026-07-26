@@ -1381,3 +1381,32 @@ As telas usavam tabelas e componentes sem um layout de portal consistente; a doc
 - Build Angular de produção passou.
 - `git diff --check` passou.
 - Rotas `/developer/games` e `/developer/earnings` revisadas visualmente em desktop; o estado vazio e a navegação lateral foram validados.
+
+## 2026-07-26 22:50 UTC
+
+### Tarefa
+Executar a primeira fatia das Specs 35 e 39: fluxo de publicação no portal e chat autenticado no Gameplay Bridge sobre o EAF ChatHub.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Developer/Dto/DeveloperReviewHistoryItemDto.cs`
+- `Api/src/GameHub.Application/Developer/IDeveloperGameAppService.cs`
+- `Api/src/GameHub.Application/Developer/DeveloperGameAppService.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/DeveloperGameAppService_Tests.cs`
+- `angular/src/app/core/services/developer.service.ts`
+- `angular/src/app/developer/builds/builds.component.ts`
+- `angular/src/app/developer/builds/builds.component.html`
+- `angular/src/app/developer/builds/builds.component.css`
+- `angular/src/app/core/services/gameplay-bridge.service.ts`
+- `angular/src/app/core/services/gameplay-bridge.service.spec.ts`
+- `angular/src/app/public/docs/user-guide/user-guide.component.html`
+- `angular/public/i18n/pt-BR.json`
+- `angular/public/i18n/en-US.json`
+
+### Decisões
+- O histórico de revisão é uma projeção autorizada de `ModerationReview`; não há nova entidade.
+- Preview e Inspector continuam usando os endpoints do `DeveloperGameAppService`, que delegam aos serviços existentes.
+- O chat usa o endpoint `/signalr-chat` do EAF, sem segundo hub ou persistência paralela.
+- O bridge rejeita contexto sem `gameId`, exige autenticação e normaliza mensagens para NFC, remove controles e limita a 500 caracteres.
+
+### Limitações
+- O EAF `ChatHub` não possui autorização contextual por `matchId` nem idempotência server-side de `clientMessageId`; o bridge rejeita match chat nesta fatia para não criar uma falsa garantia de segurança. A extensão necessária deve ser implementada em uma próxima etapa no host sem duplicar persistência.

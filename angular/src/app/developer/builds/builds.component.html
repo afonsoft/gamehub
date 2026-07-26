@@ -13,6 +13,8 @@
       <h1>Builds: {{ gameTitle }}</h1>
       <a routerLink="/developer/games">Back to games</a>
     </div>
+    <p class="status-message" *ngIf="statusMessage" role="status">{{ statusMessage }}</p>
+    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
 
     <section class="upload-section">
       <h2>Upload build</h2>
@@ -54,14 +56,34 @@
           <td>{{ build.sizeBytes | number }} bytes</td>
           <td>{{ build.createdAt | date:'short' }}</td>
           <td>
-            <button *ngIf="build.status === 'Validated'" (click)="approveBuild(build)">Approve</button>
-            <button *ngIf="build.status === 'Validated'" (click)="rejectBuild(build)">Reject</button>
-            <button (click)="openInspector(build)">Open in Inspector</button>
-            <button (click)="previewOnGameHub(build)">Preview on Game Hub</button>
+            <button *ngIf="build.status === 'Validated'" (click)="approveBuild(build)" [disabled]="isBusy(build.id)">Approve</button>
+            <button *ngIf="build.status === 'Validated'" (click)="beginRejectBuild(build)" [disabled]="isBusy(build.id)">Reject</button>
+            <button (click)="openInspector(build)" [disabled]="isBusy(build.id)">Open in Inspector</button>
+            <button (click)="previewOnGameHub(build)" [disabled]="isBusy(build.id)">Preview on Game Hub</button>
+            <div class="reject-form" *ngIf="rejectingBuildId === build.id">
+              <label>
+                Rejection reason
+                <textarea [(ngModel)]="rejectionReason" rows="2"></textarea>
+              </label>
+              <button type="button" (click)="rejectBuild(build)" [disabled]="isBusy(build.id)">Confirm rejection</button>
+              <button type="button" (click)="cancelRejectBuild()">Cancel</button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
     <p class="empty" *ngIf="!loading && !builds.length">No builds uploaded yet.</p>
+
+    <section class="review-history" *ngIf="!loading && reviewHistory.length">
+      <h2>Review history</h2>
+      <article *ngFor="let review of reviewHistory" class="review-item">
+        <div>
+          <strong>{{ review.status }}</strong>
+          <span *ngIf="review.decision"> · {{ review.decision }}</span>
+        </div>
+        <time [attr.datetime]="review.createdAt">{{ review.createdAt | date:'medium' }}</time>
+        <p *ngIf="review.notes">{{ review.notes }}</p>
+      </article>
+    </section>
   </main>
 </div>
