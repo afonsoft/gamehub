@@ -31,6 +31,10 @@ namespace GameHub.Gameplay.Dto
         [StringLength(100)]
         public string EventName { get; set; }
 
+        /// <summary>Client-generated idempotency key for retry-safe ingestion.</summary>
+        [StringLength(64)]
+        public string ClientEventId { get; set; }
+
         /// <summary>Arbitrary JSON payload.</summary>
         [StringLength(4096)]
         public string PayloadJson { get; set; }

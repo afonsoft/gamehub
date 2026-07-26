@@ -1458,6 +1458,7 @@ export class GameplayBridgeService implements GameplayBridge {
       gameId: this.gameId,
       eventType,
       eventName: GameplayEventType[eventType],
+      clientEventId: this.createClientEventId(),
       payloadJson: payload,
     };
     this.http.post(`${this.gameplayUrl}/Event`, body).subscribe();
@@ -1470,6 +1471,14 @@ export class GameplayBridgeService implements GameplayBridge {
         sequenceNumber: Date.now(),
       }).subscribe();
     }
+  }
+
+  private createClientEventId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 
   private sendLoadingFinished(): void {

@@ -1519,3 +1519,24 @@ do GameHub.
 - Foram incluídos ajustes específicos para `Templates/Api` e
   `Templates/Angular`, além de um backlog P0/P1/P2.
 - Nenhum arquivo do repositório EAF foi alterado.
+
+## 2026-07-26 23:58 UTC
+
+### Tarefa
+Executar melhorias do GameHub que não dependem de alterações no EAF.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/Moderation/UserReportAppService.cs`
+- `Api/src/GameHub.Application/Gameplay/GameplayAppService.cs`
+- `Api/src/GameHub.Application/Gameplay/Dto/GameplayEventInput.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/UserReportAppService_Tests.cs`
+- `Api/test/GameHub.Tests/GameHub/Application/GameplayAppService_Tests.cs`
+- `angular/src/app/core/services/gameplay-bridge.service.ts`
+
+### Resultado
+- Reports de usuário passaram a ter rate limit por tenant/usuário/jogo.
+- Eventos de gameplay aceitam `ClientEventId` e são deduplicados por janela de
+  retry usando `ICacheManager`.
+- O SDK gera `clientEventId` para telemetria.
+- Captura de erros valida que a sessão pertence ao jogo informado.
+- Nenhuma alteração foi feita no EAF.
