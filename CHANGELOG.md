@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Error Scanner (Poki 26.1)**: `AdminDashboardAppService.GetErrorScannerAsync` aggregates `GameErrorLog` by message/severity and raises health alerts when errors exceed 10/hour; `GameplayBridgeService.reportError` persists errors from the SDK.
+- **Daily Playing Users / Conversion Funnel (Poki 26.2)**: `GameMetricSnapshot` adds `DailyPlayingUsers`, `PageViews`, `LoadingStartedCount`, `LoadingFinishedCount`, and `GameplayStartedCount`; `GameMetricsAggregationJob` computes funnel counts; `AdminDashboardAppService.GetConversionFunnelAsync` returns PageView → Loading → Gameplay conversion stages.
+- **Player Feedback Analytics (Poki 26.3)**: `UserContent` supports `Rating`; `PlayerFeedbackAnalyticsAppService.GetFeedbackSummaryAsync` returns average rating, distribution, sentiment, and recent comments; `GetHealthAlertsAsync` warns for games with `AverageRating < 3.0` and `ReviewCount >= 10`.
+- **Quality Guidelines Gates (Poki 26.4)**: `GameBuildPackageValidator` flags IAP/ads keywords in `index.html`, applies `ProfanityFilter` to titles/descriptions/filenames, detects outgoing links, and computes `QualityScore` on `ValidationSummaryDto`.
+- **External Resources & Analytics Exemptions (Poki 26.5)**: `ExternalResourceExemption` entity, `IExternalResourceAppService` for request/review/list, and validator filters against approved domains when a `gameId` is supplied.
+- **Thumbnail Guide Enforcement (Poki 26.6)**: `ImageHeaderAnalyzer` parses PNG/JPEG/GIF/WebP headers; thumbnail validation enforces min 640x360, 16:9 aspect ratio, max 2 MB, WebP/PNG/JPEG format, and no text overlays (heuristic).
+- **Playtest Difficulty Balancing (Poki 26.7)**: `PlaytestRecording.LevelEvents` JSON column; `PlaytestAppService.GetDifficultyInsightsAsync` aggregates start/death/restart/complete events per level.
+- **Player Fit / Retention (Poki 26.8)**: `AdminDashboardAppService.GetPlayerFitAsync` computes 1d/7d/30d retention, stickiness, and category benchmarks from `PlaySession` history.
+- **Submission / Approval Workflow (Poki 26.11)**: `GameStatus.Submitted`, `InReview`, `ApprovedForPublishing`, and `Rejected` transitions; `DeveloperGameAppService.SubmitForReviewAsync` and `AdminGameAppService.StartReviewAsync`/`ApproveForPublishingAsync`/`RequestChangesAsync`.
+- **Earnings & Ad Reports (Poki 26.12)**: `AdImpression` entity with `Type`, `Provider`, `Country`, `Device`, `Cpm`, and `Earnings`; `AdBreakAppService` records impressions; `DeveloperEarningsAppService.GetAdReportAsync` groups by type, provider, country, and device.
+- EF Core migration `Poki26` for all new entities and columns.
+- Tests for `AdminDashboardAppService` Error Scanner/Conversion Funnel/Player Fit, `PlayerFeedbackAnalyticsAppService`, `ExternalResourceAppService`, `PlaytestAppService` difficulty insights, `DeveloperEarningsAppService` ad report, and `GameBuildPackageValidator` quality rules.
+
 - **Image optimization warnings (Poki 25.1)**: `GameHubConsts.ImageOptimizationWarningSizeBytes` (100 KB); `GameBuildPackageValidator` inspects ZIP image entries and emits `ImageOptimizationWarningDto` with estimated savings and WebP recommendation.
 - **General Team Settings UI (Poki 25.2)**: `IDeveloperTeamAppService.UpdateGeneralSettingsAsync`/`GetGeneralSettingsAsync`; Angular developer portal `/developer/team` page to edit team name, primary contact email and country; Support role blocked from earnings/metrics in `DeveloperEarningsAppService` and `DeveloperDashboardAppService`.
 - **Playtest recordings UI (Poki 25.3)**: `PlaytestRecording` entity with URL, duration, device, country, console output and notes; `IPlaytestAppService.GetRecordingAsync`, `ListRecordingsAsync`, `AddNotesAsync` and `GetAllRecordingsAsync` for moderators; admin Angular page `/app/main/gamehub/playtests` with video player, console output and editable notes.

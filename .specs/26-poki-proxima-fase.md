@@ -1,6 +1,6 @@
 # 26 — Próxima Fase Poki: Quality Guidelines, Error Scanner, Player Fit e Infra de Multiplayer
 
-> **Status:** pendente
+> **Status:** parcial — 26.1 a 26.8, 26.11 e 26.12 implementados; 26.9 (Netlib) e 26.10 (AUDS) pendentes para sessão dedicada.
 > **Base:** análise de `https://sdk.poki.com/new-requirements`, `https://sdk.poki.com/sdk-documentation` e `https://sdk.poki.com/playtesting`
 > **Objetivo:** fechar os gaps remanescentes da documentação Poki e evoluir a plataforma para suportar analytics de erros, player fit, quality gates e multiplayer.
 
@@ -21,7 +21,7 @@ O spec 25 implementou:
 - Suggested categories & SEO validation.
 - Mystery Tile / Playtest Discovery.
 
-Gaps identificados na documentação Poki e no estado atual do GameHub:
+Itens implementados e gaps remanescentes na documentação Poki:
 
 1. **Error Scanner / Painel de erros do jogo** — documentação menciona "Details for all of errors of the past 24 hours, updated hourly". Faltam: `GameError` entity, agregação por jogo/build, dashboard no admin e alertas.
 2. **Daily Playing Users e Conversion Funnel** — Poki rastreia "page visitors and the percentage of users who are able to play". Faltam: DPU, plays/visitas, loading conversion, funnels por device.
@@ -38,7 +38,7 @@ Gaps identificados na documentação Poki e no estado atual do GameHub:
 
 ---
 
-## 26.1 — Error Scanner
+## 26.1 — Error Scanner ✅
 
 ### Requisito
 Capturar e agregar erros do jogo, exibir painel de erros e enviar alertas.
@@ -56,7 +56,7 @@ Capturar e agregar erros do jogo, exibir painel de erros e enviar alertas.
 
 ---
 
-## 26.2 — Daily Playing Users e Conversion Funnel
+## 26.2 — Daily Playing Users e Conversion Funnel ✅
 
 ### Requisito
 Métricas de DPU e conversão de visitas em plays.
@@ -72,7 +72,7 @@ Métricas de DPU e conversão de visitas em plays.
 
 ---
 
-## 26.3 — Player Feedback Analytics
+## 26.3 — Player Feedback Analytics ✅
 
 ### Requisito
 Consolidar avaliações e comentários por jogo.
@@ -88,7 +88,7 @@ Consolidar avaliações e comentários por jogo.
 
 ---
 
-## 26.4 — Quality Guidelines Gates
+## 26.4 — Quality Guidelines Gates ✅
 
 ### Requisito
 Validações automáticas de conteúdo antes da publicação.
@@ -105,7 +105,7 @@ Validações automáticas de conteúdo antes da publicação.
 
 ---
 
-## 26.5 — External Resources & Analytics Exemptions
+## 26.5 — External Resources & Analytics Exemptions ✅
 
 ### Requisito
 Permitir analytics de terceiros mediante aprovação e privacy statement.
@@ -121,7 +121,7 @@ Permitir analytics de terceiros mediante aprovação e privacy statement.
 
 ---
 
-## 26.6 — Thumbnail Guide Enforcement
+## 26.6 — Thumbnail Guide Enforcement ✅
 
 ### Requisito
 Aplicar regras de thumbnail da Poki.
@@ -136,7 +136,7 @@ Aplicar regras de thumbnail da Poki.
 
 ---
 
-## 26.7 — Playtesting Difficulty Balancing
+## 26.7 — Playtesting Difficulty Balancing ✅
 
 ### Requisito
 A partir dos playtest recordings, inferir dificuldade e retenção por nível.
@@ -151,7 +151,7 @@ A partir dos playtest recordings, inferir dificuldade e retenção por nível.
 
 ---
 
-## 26.8 — Player Fit / Web Fit Test
+## 26.8 — Player Fit / Web Fit Test ✅
 
 ### Requisito
 Métricas de retenção e stickiness para decisão de publicação.
@@ -167,7 +167,7 @@ Métricas de retenção e stickiness para decisão de publicação.
 
 ---
 
-## 26.9 — Netlib / Multiplayer (base)
+## 26.9 — Netlib / Multiplayer (base) ⏳
 
 ### Requisito
 Suporte a partidas online leves.
@@ -183,7 +183,7 @@ Suporte a partidas online leves.
 
 ---
 
-## 26.10 — Arbitrary User Data Store (AUDS)
+## 26.10 — Arbitrary User Data Store (AUDS) ⏳
 
 ### Requisito
 Backend genérico de chave/valor JSON para jogos.
@@ -198,7 +198,7 @@ Backend genérico de chave/valor JSON para jogos.
 
 ---
 
-## 26.11 — Submission / Approval Workflow
+## 26.11 — Submission / Approval Workflow ✅
 
 ### Requisito
 Fechamento do ciclo Poki for Developers: submissão e triagem.
@@ -214,7 +214,7 @@ Fechamento do ciclo Poki for Developers: submissão e triagem.
 
 ---
 
-## 26.12 — Earnings & Ad Reports
+## 26.12 — Earnings & Ad Reports ✅
 
 ### Requisito
 Relatórios de ad impressions e revenue detalhados.
@@ -231,5 +231,5 @@ Relatórios de ad impressions e revenue detalhados.
 
 ## Notas
 
-- Itens 26.9 e 26.10 são mais complexos e podem ser delegados a sessões dedicadas.
+- Itens 26.9 e 26.10 são mais complexos e devem ser delegados a uma sessão dedicada; criar `27-poki-multiplayer-auds.md` quando for iniciar.
 - Prioridade sugerida: 26.1 → 26.2 → 26.3 → 26.11 → 26.4 → 26.6 → 26.12 → 26.7 → 26.8 → 26.5 → 26.10 → 26.9.

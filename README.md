@@ -115,14 +115,23 @@ The iframe-hosted game communicates with the platform through the following even
 ### Moderation & Publishing (Admin)
 
 - Review queue with approve/reject actions.
+- Submission workflow: `SubmitForReviewAsync`, `StartReviewAsync`, `ApproveForPublishingAsync`, and `RequestChangesAsync`.
 - Game publish/suspend workflow.
 - Report queue and auditable moderation history.
 - Build validation warnings for external requests, large files, and outgoing links.
+- **Quality Guidelines Gates**: image-optimization warnings, IAP/ads keyword checks, profanity filter on titles/descriptions/filenames, thumbnail guide enforcement (dimensions, aspect ratio, size, format), and outgoing link detection.
+- **External Resources & Analytics Exemptions**: developer-requested domain allowlist with moderator approval and privacy-statement tracking.
 - **Inspector de QA v2**: SDK event timeline, warnings, and scaling tests per session.
+- **Error Scanner**: aggregate `GameErrorLog` entries by message/severity with health alerts when > 10 errors/hour.
+- **Conversion Funnel**: PageView → Loading → Gameplay start conversion from `GameMetricSnapshot`.
+- **Player Feedback Analytics**: average rating, distribution, sentiment, and low-rating alerts.
+- **Player Fit / Retention**: 1d/7d/30d retention, stickiness, and category benchmarks.
+- **Playtest Difficulty Balancing**: per-level death/restart/complete analytics from `PlaytestRecording.LevelEvents`.
 - FPS-based performance alerts and daily metric snapshots; health alerts when < 85% of users per device do not reach 30 FPS.
 - **Onboarding and Engagement guides**: drop-off rate, session duration, median duration, benchmark by category, and suggestions.
 - **Suggested categories & SEO validation** for game publishing.
 - Revenue-share deal types (`WebExclusive`, `NonExclusive`) with split rules and flat-fee support.
+- **Ad Reports**: `AdImpression` records and `DeveloperEarningsAppService.GetAdReportAsync` grouped by type, provider, country, and device.
 - UGC moderation with profanity filtering.
 
 ---
@@ -211,8 +220,10 @@ Web  ← Application
 2. **Build Management** — `GameBuild`, build validation
 3. **Gameplay Analytics** — `PlaySession`, `GameplayEvent`, `GameMetricSnapshot`
 4. **Developer Portal** — `DeveloperProfile`, game submission
-5. **Moderation** — `ModerationReview`, `UserReport`
-6. **Monetization** — `IAdProvider`, `AdBreakResult`, revenue share, and `WebExclusive` discovery
+5. **Moderation** — `ModerationReview`, `UserReport`, `UserContent`
+6. **Monetization** — `IAdProvider`, `AdBreakResult`, `AdImpression`, revenue share, and `WebExclusive` discovery
+7. **Analytics** — `GameMetricSnapshot`, `GameplayEvent`, `GameErrorLog`, retention/funnel/feedback reports
+8. **Quality Gates** — `GameBuildPackageValidator`, `BuildValidationReport`, `InspectorSession`
 
 ### System Flow
 
@@ -354,7 +365,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Count |
 |-------|--------|-------|
-| GameHub.Tests | Pass | 288 passed, 2 skipped |
+| GameHub.Tests | Pass | 296 passed, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passed, 1 skipped |
 | Angular Hub Build | Pass | production build OK |
 | Angular Admin Build | Pass | production build OK |
@@ -365,10 +376,11 @@ Measured with `dotnet test --collect:"XPlat Code Coverage"` and `GameHub.*` asse
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 82.9% | — |
-| GameHub.Application | 79.9% | — |
-| GameHub.EntityFrameworkCore | 1.3% | — |
-| **Overall** | **7.4%** | **50.8%** |
+| GameHub.Core | 77.0% | 53.8% |
+| GameHub.Application | 81.2% | 52.4% |
+| GameHub.EntityFrameworkCore | 1.3% | 42.3% |
+| GameHub.Web.Host | 49.1% | 41.9% |
+| **Overall** | **7.9%** | **51.1%** |
 
 > The overall rate is low because the platform is in early development. The coverage target is 90% line/branch; new domain and application tests should be added incrementally.
 
@@ -410,7 +422,7 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 
 ## Project Status
 
-In active development. The domain model, application layer, EF Core infrastructure, security middleware, public Angular frontend, player accounts, web-exclusives discovery, ad-provider abstraction, inspector QA v2, privacy/UGC/performance features, and FPS telemetry are implemented. Remaining work includes Redis-backed production caches, full MinIO/S3 integration for build storage, and advanced recommendation algorithms.
+In active development. Spec 26 (Error Scanner, DPU/conversion funnel, player feedback analytics, quality guidelines gates, external-resource exemptions, thumbnail enforcement, playtest difficulty balancing, player fit/retention, submission/approval workflow, and ad/earnings reports) is implemented in backend and tests. Remaining work includes Redis-backed production caches, full MinIO/S3 integration for build storage, advanced recommendation algorithms, and the Netlib/multiplayer + Arbitrary User Data Store (AUDS) features (reserved for a dedicated follow-up session).
 
 ---
 
