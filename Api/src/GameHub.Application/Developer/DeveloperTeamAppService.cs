@@ -80,6 +80,20 @@ namespace GameHub.Developer
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Developer_Profile)]
+        public async Task<DeveloperTeamGeneralSettingsDto> UpdateGeneralSettingsAsync(UpdateTeamGeneralSettingsInput input)
+        {
+            var team = await GetCurrentUserTeamAsync(requireDeveloper: true);
+
+            team.Name = input.Name;
+            team.PrimaryContactEmail = input.PrimaryContactEmail;
+            team.Country = input.Country;
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return ObjectMapper.Map<DeveloperTeamGeneralSettingsDto>(team);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Developer_Profile)]
         public async Task<DeveloperTeamDto> GetMyTeamAsync()
         {
             var team = await GetCurrentUserTeamAsync();
@@ -89,6 +103,18 @@ namespace GameHub.Developer
             }
 
             return await GetTeamDtoAsync(team.Id);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Developer_Profile)]
+        public async Task<DeveloperTeamGeneralSettingsDto> GetGeneralSettingsAsync()
+        {
+            var team = await GetCurrentUserTeamAsync();
+            if (team == null)
+            {
+                return null;
+            }
+
+            return ObjectMapper.Map<DeveloperTeamGeneralSettingsDto>(team);
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Developer_Profile)]

@@ -22,6 +22,8 @@ namespace GameHub.Developer.Dto
 
         public decimal PlatformEstimatedRevenue { get; set; }
 
+        public decimal FlatFeeAmount { get; set; }
+
         public decimal DeveloperShare { get; set; }
 
         public RevenueContractType ContractType { get; set; }

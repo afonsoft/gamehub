@@ -23,31 +23,41 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_JogoSemContrato_Quando_CalcularShare_Entao_UsaNonExclusive()
+        public async Task Dado_JogoSemContrato_Quando_CalcularShare_Entao_UsaNonExclusiveSemShare()
         {
             var gameId = await SeedGameAsync("Direct Game", "direct-game");
 
             var result = await _revenueContractAppService.CalculateShareAsync(gameId, TrafficSource.Direct);
 
             result.ContractType.ShouldBe(RevenueContractType.NonExclusive);
-            result.DeveloperShare.ShouldBe(1m);
-            result.PlatformShare.ShouldBe(0m);
+            result.DeveloperShare.ShouldBe(0m);
+            result.PlatformShare.ShouldBe(1m);
         }
 
         [Fact]
-        public async Task Dado_ContratoNonExclusive_Quando_TrafegoPlataforma_Entao_Split50_50()
+        public async Task Dado_ContratoNonExclusive_Quando_TrafegoPlataforma_Entao_DevRecebe0()
         {
             var gameId = await SeedGameAsync("Platform Game", "platform-game");
             await _revenueContractAppService.SetContractAsync(gameId, RevenueContractType.NonExclusive);
 
             var result = await _revenueContractAppService.CalculateShareAsync(gameId, TrafficSource.Platform);
 
-            result.DeveloperShare.ShouldBe(0.5m);
-            result.PlatformShare.ShouldBe(0.5m);
+            result.DeveloperShare.ShouldBe(0m);
+            result.PlatformShare.ShouldBe(1m);
         }
 
         [Fact]
-        public async Task Dado_ContratoWebExclusive_Quando_TrafegoPlataforma_Entao_DevRecebe70()
+        public async Task Dado_ContratoNonExclusive_Quando_DefinirFlatFee_Entao_FlatFeeSalvo()
+        {
+            var gameId = await SeedGameAsync("Flat Fee Game", "flat-fee-game");
+            var contract = await _revenueContractAppService.SetContractAsync(gameId, RevenueContractType.NonExclusive, 500m);
+
+            contract.ContractType.ShouldBe(RevenueContractType.NonExclusive);
+            contract.FlatFeeAmount.ShouldBe(500m);
+        }
+
+        [Fact]
+        public async Task Dado_ContratoWebExclusive_Quando_TrafegoPlataforma_Entao_DevRecebe50()
         {
             var gameId = await SeedGameAsync("Exclusive Game", "exclusive-game");
             await _revenueContractAppService.SetContractAsync(gameId, RevenueContractType.WebExclusive);
@@ -55,8 +65,21 @@ namespace GameHub.Tests.GameHub.Application
             var result = await _revenueContractAppService.CalculateShareAsync(gameId, TrafficSource.Homepage);
 
             result.ContractType.ShouldBe(RevenueContractType.WebExclusive);
-            result.DeveloperShare.ShouldBe(0.7m);
-            result.PlatformShare.ShouldBe(0.3m);
+            result.DeveloperShare.ShouldBe(0.5m);
+            result.PlatformShare.ShouldBe(0.5m);
+        }
+
+        [Fact]
+        public async Task Dado_ContratoWebExclusive_Quando_TrafegoDireto_Entao_DevRecebe100()
+        {
+            var gameId = await SeedGameAsync("Direct Exclusive Game", "direct-exclusive-game");
+            await _revenueContractAppService.SetContractAsync(gameId, RevenueContractType.WebExclusive);
+
+            var result = await _revenueContractAppService.CalculateShareAsync(gameId, TrafficSource.Direct);
+
+            result.ContractType.ShouldBe(RevenueContractType.WebExclusive);
+            result.DeveloperShare.ShouldBe(1m);
+            result.PlatformShare.ShouldBe(0m);
         }
 
         [Fact]

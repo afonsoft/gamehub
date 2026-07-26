@@ -26,21 +26,26 @@ namespace GameHub.Developer
         private readonly IRepository<GameBuild, Guid> _gameBuildRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
+        private readonly IRepository<DeveloperTeamMember, Guid> _teamMemberRepository;
 
         public DeveloperDashboardAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<GameBuild, Guid> gameBuildRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
-            IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository)
+            IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
+            IRepository<DeveloperTeamMember, Guid> teamMemberRepository)
         {
             _gameRepository = gameRepository;
             _gameBuildRepository = gameBuildRepository;
             _developerProfileRepository = developerProfileRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
+            _teamMemberRepository = teamMemberRepository;
         }
 
         public async Task<DeveloperDashboardDto> GetDashboardAsync()
         {
+            await EnsureCurrentUserIsNotSupportAsync();
+
             if (!AbpSession.UserId.HasValue)
             {
                 throw new AbpAuthorizationException("User is not authenticated.");
@@ -136,6 +141,20 @@ namespace GameHub.Developer
                 GameStatus.Rejected => "Corrija os problemas e reenvie",
                 _ => string.Empty
             };
+        }
+
+        private async Task EnsureCurrentUserIsNotSupportAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+            {
+                return;
+            }
+
+            var member = await _teamMemberRepository.FirstOrDefaultAsync(m => m.UserId == AbpSession.UserId.Value);
+            if (member?.Role == DeveloperTeamRole.Support)
+            {
+                throw new AbpAuthorizationException("Support team members cannot access the developer dashboard.");
+            }
         }
     }
 }

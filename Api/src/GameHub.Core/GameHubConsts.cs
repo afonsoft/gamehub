@@ -16,6 +16,9 @@ namespace GameHub
 
         public const long LargeFileWarningSizeBytes = 1L * 1024 * 1024;
 
+        /// <summary>Image assets larger than this threshold trigger an optimization warning.</summary>
+        public const long ImageOptimizationWarningSizeBytes = 100L * 1024;
+
         /// <summary>Estimated gross revenue per commercial break (USD).</summary>
         public const decimal EstimatedCommercialBreakRevenue = 0.002m;
 

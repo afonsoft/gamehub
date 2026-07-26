@@ -18,6 +18,12 @@ namespace GameHub.Monetization
         Search = 3,
 
         /// <summary>Player came from a GameHub internal recommendation or category page.</summary>
-        Platform = 4
+        Platform = 4,
+
+        /// <summary>Player came from the Poki network.</summary>
+        Poki = 5,
+
+        /// <summary>Player came from a paid or tracked campaign.</summary>
+        Campaign = 6
     }
 }

@@ -12,7 +12,7 @@ namespace GameHub.Monetization
     {
         Task<RevenueContractDto> GetByGameAsync(Guid gameId);
 
-        Task<RevenueContractDto> SetContractAsync(Guid gameId, RevenueContractType contractType);
+        Task<RevenueContractDto> SetContractAsync(Guid gameId, RevenueContractType contractType, decimal flatFeeAmount = 0);
 
         Task<RevenueShareResultDto> CalculateShareAsync(Guid gameId, TrafficSource trafficSource);
     }

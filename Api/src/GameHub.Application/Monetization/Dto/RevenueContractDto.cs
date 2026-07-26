@@ -14,6 +14,9 @@ namespace GameHub.Monetization.Dto
 
         public RevenueContractType ContractType { get; set; }
 
+        /// <summary>Flat fee amount for non-exclusive contracts (USD).</summary>
+        public decimal FlatFeeAmount { get; set; }
+
         public DateTime EffectiveDate { get; set; }
 
         public bool IsActive { get; set; }

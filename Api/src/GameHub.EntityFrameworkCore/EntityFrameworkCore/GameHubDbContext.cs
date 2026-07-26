@@ -107,6 +107,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<DeveloperTeamMember> DeveloperTeamMembers { get; set; }
         public virtual DbSet<DeveloperBillingProfile> DeveloperBillingProfiles { get; set; }
         public virtual DbSet<PlaytestSession> PlaytestSessions { get; set; }
+        public virtual DbSet<PlaytestRecording> PlaytestRecordings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

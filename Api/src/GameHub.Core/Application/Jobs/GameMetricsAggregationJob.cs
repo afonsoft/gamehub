@@ -81,19 +81,24 @@ namespace GameHub.Jobs
             IEnumerable<GameplayEvent> events)
         {
             var sessionList = sessions?.ToList() ?? new List<PlaySession>();
+            var productionSessions = sessionList.Where(s => !s.IsPlaytest).ToList();
             var eventList = events?.ToList() ?? new List<GameplayEvent>();
 
-            var uniquePlayerKeys = sessionList
+            var uniquePlayerKeys = productionSessions
                 .Select(s => s.UserId.HasValue ? $"u:{s.UserId.Value}" : $"a:{s.AnonymousIdHash}")
                 .Where(k => !string.IsNullOrEmpty(k))
                 .Distinct()
                 .ToList();
 
-            var avgDuration = sessionList.Any(s => s.EndedAt.HasValue)
-                ? sessionList
+            var avgDuration = productionSessions.Any(s => s.EndedAt.HasValue)
+                ? productionSessions
                     .Where(s => s.EndedAt.HasValue)
                     .Average(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
                 : 0.0;
+
+            var medianDuration = ComputeMedianDuration(productionSessions);
+            var dropOffRate = ComputeOnboardingDropOffRate(productionSessions);
+            var (fpsAcceptable, fpsTotal) = ComputeFpsCounts(productionSessions);
 
             var loadingFinished = eventList.Count(e => e.EventType == GameplayEventType.GameLoadingFinished);
             var errors = eventList.Count(e => e.EventType == GameplayEventType.GameErrorCaptured);
@@ -107,13 +112,17 @@ namespace GameHub.Jobs
 
             if (existing != null)
             {
-                existing.Plays = sessionList.Count;
+                existing.Plays = productionSessions.Count;
                 existing.UniquePlayers = uniquePlayerKeys.Count;
                 existing.AvgDurationSeconds = avgDuration;
+                existing.MedianSessionDurationSeconds = medianDuration;
+                existing.OnboardingDropOffRate = dropOffRate;
                 existing.LoadingFinishedCount = loadingFinished;
                 existing.ErrorCount = errors;
                 existing.CommercialBreakCount = commercialBreaks;
                 existing.RewardedBreakCount = rewardedBreaks;
+                existing.FpsAcceptableSessions = fpsAcceptable;
+                existing.FpsTotalSessions = fpsTotal;
                 return (existing, true);
             }
 
@@ -122,13 +131,17 @@ namespace GameHub.Jobs
                 Id = Guid.NewGuid(),
                 GameId = gameId,
                 Date = date,
-                Plays = sessionList.Count,
+                Plays = productionSessions.Count,
                 UniquePlayers = uniquePlayerKeys.Count,
                 AvgDurationSeconds = avgDuration,
+                MedianSessionDurationSeconds = medianDuration,
+                OnboardingDropOffRate = dropOffRate,
                 LoadingFinishedCount = loadingFinished,
                 ErrorCount = errors,
                 CommercialBreakCount = commercialBreaks,
                 RewardedBreakCount = rewardedBreaks,
+                FpsAcceptableSessions = fpsAcceptable,
+                FpsTotalSessions = fpsTotal
             };
 
             return (snapshot, false);
@@ -144,6 +157,51 @@ namespace GameHub.Jobs
             {
                 await _metricSnapshotRepository.InsertAsync(snapshot);
             }
+        }
+
+        private static double ComputeMedianDuration(List<PlaySession> sessions)
+        {
+            var durations = sessions
+                .Where(s => s.EndedAt.HasValue)
+                .Select(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
+                .OrderBy(d => d)
+                .ToList();
+
+            if (durations.Count == 0)
+            {
+                return 0.0;
+            }
+
+            var mid = durations.Count / 2;
+            return durations.Count % 2 == 0
+                ? (durations[mid - 1] + durations[mid]) / 2.0
+                : durations[mid];
+        }
+
+        private static double ComputeOnboardingDropOffRate(List<PlaySession> sessions)
+        {
+            if (sessions.Count == 0)
+            {
+                return 0.0;
+            }
+
+            var droppedOff = sessions.Count(s =>
+                !s.EndedAt.HasValue
+                || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60);
+
+            return (double)droppedOff / sessions.Count;
+        }
+
+        private static (long Acceptable, long Total) ComputeFpsCounts(List<PlaySession> sessions)
+        {
+            var withFps = sessions.Where(s => s.FpsAverage.HasValue).ToList();
+            if (withFps.Count == 0)
+            {
+                return (0, 0);
+            }
+
+            var acceptable = withFps.Count(s => s.FpsAverage.Value >= 30);
+            return (acceptable, withFps.Count);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace GameHub.Builds
         private static readonly string[] BlockedExtensions = { ".exe", ".dll", ".bat", ".cmd", ".ps1", ".sh" };
         private static readonly string[] DebugFolders = { "node_modules", ".git", "__macosx", "__MACOSX", "test", "tests", "debug", "coverage" };
         private static readonly string[] DebugFileExtensions = { ".map", ".pdb", ".dbg", ".nupkg", ".symbols" };
+        private static readonly string[] ImageExtensions = { ".png", ".jpg", ".jpeg", ".webp", ".gif" };
         private static readonly Regex ExternalUrlRegex = new(@"https?://[^\s""'<>]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex SplashScreenRegex = new(@"\bsplash\b|intro\.html|loading[_\-]?screen|boot[_\-]?screen", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex OutgoingLinkRegex = new(@"(window\.open\s*\(|location\.href\s*=|<a\s+[^>]*href\s*=\s*[ ""']?https?://)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -124,6 +125,33 @@ namespace GameHub.Builds
             {
                 ScanTextEntryAsync(entry, summary, CancellationToken.None).GetAwaiter().GetResult();
             }
+
+            AddImageOptimizationWarningIfNeeded(entry, summary);
+        }
+
+        private static void AddImageOptimizationWarningIfNeeded(ZipArchiveEntry entry, ValidationSummaryDto summary)
+        {
+            var extension = Path.GetExtension(entry.Name).ToLowerInvariant();
+            if (!ImageExtensions.Contains(extension) || entry.Length <= GameHubConsts.ImageOptimizationWarningSizeBytes)
+            {
+                return;
+            }
+
+            var savingsRatio = extension == ".webp" ? 0.15 : extension == ".gif" ? 0.40 : 0.70;
+            var estimatedSavings = (long)(entry.Length * savingsRatio);
+            var recommendation = extension == ".webp"
+                ? "Image is already WebP but still large; consider reducing dimensions or quality."
+                : $"Consider converting {extension} to WebP or compressing to reduce size.";
+
+            summary.ImageOptimizationWarnings.Add(new GameHub.Developer.Dto.ImageOptimizationWarningDto
+            {
+                Path = entry.FullName,
+                CurrentSizeBytes = entry.Length,
+                EstimatedSavingsBytes = estimatedSavings,
+                Recommendation = recommendation
+            });
+
+            summary.Warnings.Add($"Image asset '{entry.FullName}' ({entry.Length / 1024} KB) can be optimized. {recommendation}");
         }
 
         private static async Task ScanTextEntryAsync(ZipArchiveEntry entry, ValidationSummaryDto summary, CancellationToken cancellationToken)

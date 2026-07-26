@@ -10,6 +10,7 @@ using GameHub.Developer;
 using GameHub.Developer.Dto;
 using GameHub.Gameplay;
 using GameHub.Monetization;
+using GameHub.Playtesting;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
@@ -305,6 +306,41 @@ namespace GameHub.Tests.GameHub.Application
             result.ShouldNotBeNull();
             result.Description.ShouldBe("SEO description");
             result.Keywords.ShouldBe("seo, category");
+        }
+
+        [Fact]
+        public async Task Dado_PlaytestDiscovery_Quando_CarregarMysteryTile_Entao_RetornaJogoMisterioso()
+        {
+            var slug = await SeedPublishedGameAsync("Mystery Game");
+            var gameId = await UsingDbContextAsync(async context =>
+            {
+                var game = await context.Games.FirstAsync(g => g.Slug == slug);
+                return game.Id;
+            });
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.PlaytestSessions.AddAsync(new PlaytestSession
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    GameId = gameId,
+                    RequestedByUserId = AbpSession.UserId ?? 1,
+                    Status = PlaytestSessionStatus.Requested,
+                    IsDiscovery = true,
+                    DisplayProbability = 1.0,
+                    CreatedAt = DateTime.UtcNow
+                });
+                await context.SaveChangesAsync();
+            });
+
+            var tile = await _catalogAppService.GetMysteryTileAsync();
+
+            tile.ShouldNotBeNull();
+            tile.GameId.ShouldBe(gameId);
+            tile.IsPlaytest.ShouldBeTrue();
+            tile.Slug.ShouldBe(slug);
+            tile.RecordingConsentPrompt.ShouldNotBeNullOrEmpty();
         }
 
         private async Task<string> SeedPublishedGameAsync(string title, long totalPlays = 0, List<Guid> categoryIds = null)
