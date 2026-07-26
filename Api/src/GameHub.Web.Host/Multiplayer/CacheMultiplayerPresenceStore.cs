@@ -34,10 +34,18 @@ namespace GameHub.Web.Multiplayer
             EnsureValidTtl(ttl);
             entry.LastSeenAt = DateTimeOffset.UtcNow;
             return MeasureAsync(
-                () => _cache.SetAsync(
-                BuildConnectionKey(entry.TenantId, entry.ConnectionId),
-                entry,
-                absoluteExpireTime: DateTimeOffset.UtcNow.Add(ttl)),
+                async () =>
+                {
+                    var expiration = DateTimeOffset.UtcNow.Add(ttl);
+                    await _cache.SetAsync(
+                        BuildConnectionKey(entry.TenantId, entry.ConnectionId),
+                        entry,
+                        absoluteExpireTime: expiration);
+                    await _cache.SetAsync(
+                        BuildUserKey(entry.TenantId, entry.UserId),
+                        entry,
+                        absoluteExpireTime: expiration);
+                },
                 () => GameHubMetrics.PresenceRegistered.Add(1));
         }
 
@@ -55,6 +63,11 @@ namespace GameHub.Web.Multiplayer
         {
             return await _cache.GetOrDefaultAsync(
                 BuildConnectionKey(tenantId, connectionId));
+        }
+
+        public async Task<MultiplayerPresenceEntry> GetByUserAsync(int? tenantId, long userId)
+        {
+            return await _cache.GetOrDefaultAsync(BuildUserKey(tenantId, userId));
         }
 
         public async Task RefreshAsync(
@@ -77,6 +90,10 @@ namespace GameHub.Web.Multiplayer
                 entry,
                 absoluteExpireTime: DateTimeOffset.UtcNow.Add(ttl)),
                 () => GameHubMetrics.PresenceRefreshed.Add(1));
+            await _cache.SetAsync(
+                BuildUserKey(tenantId, entry.UserId),
+                entry,
+                absoluteExpireTime: DateTimeOffset.UtcNow.Add(ttl));
         }
 
         public Task RemoveAsync(int? tenantId, Guid matchId, string connectionId)
@@ -87,7 +104,19 @@ namespace GameHub.Web.Multiplayer
         public Task RemoveByConnectionAsync(int? tenantId, string connectionId)
         {
             return MeasureAsync(
-                () => _cache.RemoveAsync(BuildConnectionKey(tenantId, connectionId)),
+                async () =>
+                {
+                    var entry = await GetByConnectionAsync(tenantId, connectionId);
+                    await _cache.RemoveAsync(BuildConnectionKey(tenantId, connectionId));
+                    if (entry != null)
+                    {
+                        var current = await GetByUserAsync(tenantId, entry.UserId);
+                        if (current?.ConnectionId == connectionId)
+                        {
+                            await _cache.RemoveAsync(BuildUserKey(tenantId, entry.UserId));
+                        }
+                    }
+                },
                 () => GameHubMetrics.PresenceRemoved.Add(1));
         }
 
@@ -121,6 +150,12 @@ namespace GameHub.Web.Multiplayer
 
             var tenantKey = tenantId?.ToString() ?? "host";
             return $"{KeyPrefix}:{tenantKey}:connection:{connectionId}";
+        }
+
+        private static string BuildUserKey(int? tenantId, long userId)
+        {
+            var tenantKey = tenantId?.ToString() ?? "host";
+            return $"{KeyPrefix}:{tenantKey}:user:{userId}";
         }
 
         private void EnsureValidTtl(TimeSpan ttl)

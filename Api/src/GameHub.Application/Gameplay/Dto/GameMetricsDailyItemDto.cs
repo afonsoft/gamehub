@@ -22,6 +22,12 @@ public class GameMetricsDailyItemDto
     /// <summary>Game loading finished events.</summary>
     public long LoadingFinishedCount { get; set; }
 
+    public long GameplayStartedCount { get; set; }
+
+    public long PageViewCount { get; set; }
+
+    public long ConversionCount { get; set; }
+
     /// <summary>Error events.</summary>
     public long ErrorCount { get; set; }
 

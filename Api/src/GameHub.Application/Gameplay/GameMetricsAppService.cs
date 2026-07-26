@@ -96,6 +96,9 @@ namespace GameHub.Gameplay
                     ? endedSessions.Average(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
                     : 0.0,
                 LoadingFinishedCount = events.Count(e => e.EventType == GameplayEventType.GameLoadingFinished),
+                GameplayStartedCount = events.Count(e => e.EventType == GameplayEventType.GameplayStarted),
+                PageViewCount = events.Count(e => e.EventType == GameplayEventType.GamePageViewed),
+                ConversionCount = events.Count(e => string.Equals(e.EventName, "conversion", StringComparison.OrdinalIgnoreCase)),
                 ErrorCount = events.Count(e => e.EventType == GameplayEventType.GameErrorCaptured),
                 CommercialBreakCount = events.Count(e => e.EventType == GameplayEventType.CommercialBreakCompleted),
                 RewardedBreakCount = events.Count(e => e.EventType == GameplayEventType.RewardedBreakCompleted),
@@ -161,6 +164,9 @@ namespace GameHub.Gameplay
                     ? endedSessions.Average(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
                     : 0.0,
                 LoadingFinishedCount = eventList.Count(e => e.EventType == GameplayEventType.GameLoadingFinished),
+                GameplayStartedCount = eventList.Count(e => e.EventType == GameplayEventType.GameplayStarted),
+                PageViewCount = eventList.Count(e => e.EventType == GameplayEventType.GamePageViewed),
+                ConversionCount = eventList.Count(e => string.Equals(e.EventName, "conversion", StringComparison.OrdinalIgnoreCase)),
                 ErrorCount = eventList.Count(e => e.EventType == GameplayEventType.GameErrorCaptured),
                 CommercialBreakCount = eventList.Count(e => e.EventType == GameplayEventType.CommercialBreakCompleted),
                 RewardedBreakCount = eventList.Count(e => e.EventType == GameplayEventType.RewardedBreakCompleted)

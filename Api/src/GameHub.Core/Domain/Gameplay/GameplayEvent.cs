@@ -20,6 +20,8 @@ namespace GameHub.Gameplay
 
         public Guid PlaySessionId { get; set; }
         public Guid GameId { get; set; }
+        public Guid? BuildId { get; set; }
+        public Guid? MatchId { get; set; }
         [Required]
         public GameplayEventType EventType { get; set; }
         [StringLength(128)]

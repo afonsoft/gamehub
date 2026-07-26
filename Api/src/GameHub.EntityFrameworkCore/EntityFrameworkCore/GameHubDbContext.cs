@@ -20,6 +20,7 @@ using GameHub.Playtesting;
 using GameHub.Privacy;
 using GameHub.Multiplayer;
 using GameHub.ArbitraryUserData;
+using GameHub.Social;
 using Abp.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -122,6 +123,8 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<ReplayMetadata> ReplayMetadata { get; set; }
         public virtual DbSet<MultiplayerSecurityEvent> MultiplayerSecurityEvents { get; set; }
         public virtual DbSet<ArbitraryUserDataRecord> ArbitraryUserDataRecords { get; set; }
+        public virtual DbSet<GameInvite> GameInvites { get; set; }
+        public virtual DbSet<GameNotification> GameNotifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
