@@ -89,6 +89,16 @@ namespace GameHub.Multiplayer
                 ?? throw new InvalidOperationException("Match not found.");
         }
 
+        public async Task<MatchState> GetMatchByRoomCodeAsync(string roomCode)
+        {
+            return await _matchRepository.GetAll()
+                .Include(m => m.Participants)
+                .Where(m => m.RoomCode == roomCode && m.Status != MatchStatus.Ended && m.ExpiresAt > Clock.Now)
+                .OrderByDescending(m => m.CreationTime)
+                .FirstOrDefaultAsync()
+                ?? throw new InvalidOperationException("Match not found or expired.");
+        }
+
         public async Task<MatchParticipant> JoinMatchAsync(Guid matchId, long? userId, string anonymousIdHash, string connectionId)
         {
             var match = await _matchRepository.GetAll()

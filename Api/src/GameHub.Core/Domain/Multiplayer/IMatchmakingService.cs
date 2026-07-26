@@ -14,6 +14,8 @@ namespace GameHub.Multiplayer
 
         Task<MatchState> GetMatchAsync(Guid matchId);
 
+        Task<MatchState> GetMatchByRoomCodeAsync(string roomCode);
+
         Task<MatchParticipant> JoinMatchAsync(Guid matchId, long? userId, string anonymousIdHash, string connectionId);
 
         Task<bool> LeaveMatchAsync(Guid matchId, string connectionId);

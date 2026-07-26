@@ -45,8 +45,11 @@ namespace GameHub.Web.Hubs
 
         public async Task<MatchDto> JoinMatchByRoomCode(JoinMatchByRoomCodeInput input)
         {
-            // Implemented through the application service to keep hub thin.
-            throw new NotImplementedException("Use MultiplayerAppService.JoinMatchByRoomCodeAsync via HTTP or implement a lookup here.");
+            var match = await _matchmakingService.GetMatchByRoomCodeAsync(input.RoomCode);
+            await _matchmakingService.JoinMatchAsync(match.Id, AbpSession.UserId, input.AnonymousIdHash, Context.ConnectionId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, match.Id.ToString());
+            await Clients.Group(match.Id.ToString()).SendAsync("PlayerJoined", new { MatchId = match.Id, ConnectionId = Context.ConnectionId });
+            return await JoinMatchGroup(match.Id);
         }
 
         public async Task LeaveMatch(Guid matchId)
