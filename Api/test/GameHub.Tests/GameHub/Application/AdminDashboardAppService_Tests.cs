@@ -22,6 +22,7 @@ namespace GameHub.Tests.GameHub.Application
         private readonly IRepository<ModerationReview, Guid> _reviewRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
         private readonly IRepository<GameplayEvent, Guid> _gameplayEventRepository;
+        private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
 
         public AdminDashboardAppService_Tests()
         {
@@ -31,6 +32,7 @@ namespace GameHub.Tests.GameHub.Application
             _reviewRepository = LocalIocManager.Resolve<IRepository<ModerationReview, Guid>>();
             _playSessionRepository = LocalIocManager.Resolve<IRepository<PlaySession, Guid>>();
             _gameplayEventRepository = LocalIocManager.Resolve<IRepository<GameplayEvent, Guid>>();
+            _errorLogRepository = LocalIocManager.Resolve<IRepository<GameErrorLog, Guid>>();
         }
 
         [Fact]
@@ -204,7 +206,84 @@ namespace GameHub.Tests.GameHub.Application
             metrics.TotalPlays.ShouldBe(0);
         }
 
-        private async Task SeedPlaySessionAsync(Guid gameId, DateTime startedAt, DateTime? endedAt = null, string deviceType = "Desktop", string countryCode = "BR", string browser = "TestBrowser", bool isPlaytest = false)
+        [Fact]
+        public async Task Dado_ErrosRecentes_Quando_ErrorScanner_Entao_AgregaPorMensagem()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Error Scanner Game");
+
+            await UsingDbContextAsync(async context =>
+            {
+                var tenantId = AbpSession.TenantId;
+                await context.GameErrorLogs.AddRangeAsync(
+                    new GameErrorLog(Guid.NewGuid(), null, gameId, "Failed to fetch asset", "Error") { TenantId = tenantId, Timestamp = DateTime.UtcNow.AddHours(-1), Source = "loader" },
+                    new GameErrorLog(Guid.NewGuid(), null, gameId, "Failed to fetch asset", "Error") { TenantId = tenantId, Timestamp = DateTime.UtcNow.AddHours(-2), Source = "loader" },
+                    new GameErrorLog(Guid.NewGuid(), null, gameId, "Audio context not allowed", "Warning") { TenantId = tenantId, Timestamp = DateTime.UtcNow.AddHours(-3), Source = "audio" });
+
+                await context.SaveChangesAsync();
+            });
+
+            var result = await _adminDashboardAppService.GetErrorScannerAsync(gameId, null, 24);
+
+            result.ShouldNotBeNull();
+            result.TotalErrors.ShouldBe(3);
+            result.Items.Count.ShouldBe(2);
+            result.Items.First(i => i.Message == "Failed to fetch asset").Count.ShouldBe(2);
+        }
+
+        [Fact]
+        public async Task Dado_SnapshotsComFunnel_Quando_ConversionFunnel_Entao_RetornaEtapas()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Funnel Game");
+
+            var date = DateTime.UtcNow.Date;
+            await UsingDbContextAsync(async context =>
+            {
+                await context.GameMetricSnapshots.AddAsync(new GameMetricSnapshot
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    GameId = gameId,
+                    Date = date,
+                    PageViews = 100,
+                    LoadingStartedCount = 80,
+                    LoadingFinishedCount = 60,
+                    GameplayStartedCount = 40
+                });
+
+                await context.SaveChangesAsync();
+            });
+
+            var funnel = await _adminDashboardAppService.GetConversionFunnelAsync(gameId, null, null);
+
+            funnel.ShouldNotBeNull();
+            funnel.Stages.Count.ShouldBe(4);
+            funnel.Stages[0].Count.ShouldBe(100);
+            funnel.Stages[3].Count.ShouldBe(40);
+        }
+
+        [Fact]
+        public async Task Dado_SessoesDeVariosDias_Quando_PlayerFit_Entao_RetencaoEStickiness()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Player Fit Game");
+
+            var baseDate = DateTime.UtcNow.Date;
+            var userId = AbpSession.UserId.Value;
+            await SeedPlaySessionAsync(gameId, baseDate, baseDate.AddMinutes(5), userId: userId);
+            await SeedPlaySessionAsync(gameId, baseDate.AddDays(1), baseDate.AddDays(1).AddMinutes(5), userId: userId);
+            await SeedPlaySessionAsync(gameId, baseDate.AddDays(7), baseDate.AddDays(7).AddMinutes(5), userId: userId);
+
+            var fit = await _adminDashboardAppService.GetPlayerFitAsync(gameId);
+
+            fit.ShouldNotBeNull();
+            fit.Retention1d.ShouldBe(1.0);
+            fit.Retention7d.ShouldBe(1.0);
+            fit.Benchmark.ShouldNotBeNull();
+        }
+
+        private async Task SeedPlaySessionAsync(Guid gameId, DateTime startedAt, DateTime? endedAt = null, string deviceType = "Desktop", string countryCode = "BR", string browser = "TestBrowser", bool isPlaytest = false, long? userId = null)
         {
             await UsingDbContextAsync(async context =>
             {
@@ -213,7 +292,7 @@ namespace GameHub.Tests.GameHub.Application
                     Id = Guid.NewGuid(),
                     GameId = gameId,
                     TenantId = AbpSession.TenantId,
-                    UserId = AbpSession.UserId,
+                    UserId = userId ?? AbpSession.UserId,
                     StartedAt = startedAt,
                     EndedAt = endedAt,
                     DeviceType = deviceType,
