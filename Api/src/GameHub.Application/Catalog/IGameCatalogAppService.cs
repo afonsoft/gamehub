@@ -24,5 +24,7 @@ namespace GameHub.Catalog
         Task<SearchResultDto> SearchAsync(SearchInput input, CancellationToken cancellationToken = default);
 
         Task<ListResultDto<GameCardDto>> GetRelatedAsync(Guid gameId, CancellationToken cancellationToken = default);
+
+        Task<MysteryTileDto> GetMysteryTileAsync(CancellationToken cancellationToken = default);
     }
 }

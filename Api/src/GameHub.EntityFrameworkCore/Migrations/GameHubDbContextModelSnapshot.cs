@@ -2842,6 +2842,9 @@ namespace GameHub.Migrations
                     b.Property<double?>("AvgFps")
                         .HasColumnType("double precision");
 
+                    b.Property<double>("AvgSessionDurationSeconds")
+                        .HasColumnType("double precision");
+
                     b.Property<long>("CommercialBreakCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
@@ -2855,6 +2858,16 @@ namespace GameHub.Migrations
                         .HasColumnType("bigint")
                         .HasDefaultValue(0L);
 
+                    b.Property<long>("FpsAcceptableSessions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
+                    b.Property<long>("FpsTotalSessions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
                     b.Property<Guid>("GameId")
                         .HasColumnType("uuid");
 
@@ -2863,8 +2876,18 @@ namespace GameHub.Migrations
                         .HasColumnType("bigint")
                         .HasDefaultValue(0L);
 
+                    b.Property<double>("MedianSessionDurationSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.0);
+
                     b.Property<double?>("MinFps")
                         .HasColumnType("double precision");
+
+                    b.Property<double>("OnboardingDropOffRate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.0);
 
                     b.Property<long>("Plays")
                         .ValueGeneratedOnAdd()
@@ -3015,6 +3038,16 @@ namespace GameHub.Migrations
 
                     b.Property<Guid>("GameId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsPlaytest")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("RecordingConsentGiven")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Referrer")
                         .HasMaxLength(1024)
@@ -3435,6 +3468,9 @@ namespace GameHub.Migrations
                     b.Property<DateTime>("EffectiveDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal>("FlatFeeAmount")
+                        .HasColumnType("numeric");
+
                     b.Property<Guid>("GameId")
                         .HasColumnType("uuid");
 
@@ -3591,6 +3627,71 @@ namespace GameHub.Migrations
                     b.ToTable("gh_PlayerRecentGames", (string)null);
                 });
 
+            modelBuilder.Entity("GameHub.Playtesting.PlaytestRecording", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConsoleOutput")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeviceType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("DurationSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<Guid>("PlaytestSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlaytestSessionId");
+
+                    b.ToTable("gh_PlaytestRecordings", (string)null);
+                });
+
             modelBuilder.Entity("GameHub.Playtesting.PlaytestSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3615,11 +3716,21 @@ namespace GameHub.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<double>("DisplayProbability")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.0);
+
                     b.Property<Guid>("GameId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDiscovery")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("timestamp with time zone");
@@ -4333,6 +4444,17 @@ namespace GameHub.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GameHub.Playtesting.PlaytestRecording", b =>
+                {
+                    b.HasOne("GameHub.Playtesting.PlaytestSession", "PlaytestSession")
+                        .WithMany()
+                        .HasForeignKey("PlaytestSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlaytestSession");
                 });
 
             modelBuilder.Entity("GameHub.Privacy.PlayerPrivacyConsent", b =>

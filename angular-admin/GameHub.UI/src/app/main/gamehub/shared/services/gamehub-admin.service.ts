@@ -98,6 +98,23 @@ export interface InspectorWarning {
   severity: string;
 }
 
+export interface PlaytestRecording {
+  id: string;
+  playtestSessionId: string;
+  url: string;
+  durationSeconds: number;
+  deviceType: string;
+  countryCode: string;
+  consoleOutput: string;
+  notes: string;
+  createdAt: string;
+}
+
+export interface PagedPlaytestRecordings {
+  totalCount: number;
+  items: PlaytestRecording[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -296,6 +313,24 @@ export class GameHubAdminService {
   getInspectorChecklistCompletion(sessionId: string): Observable<InspectorChecklistCompletion> {
     const params = new HttpParams().set('sessionId', sessionId);
     return this.http.get<InspectorChecklistCompletion>(`${this.baseUrl}/api/services/app/Inspector/GetChecklistCompletion`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getPlaytestRecordings(skipCount: number, maxResultCount: number, gameId?: string, deviceType?: string): Observable<PagedPlaytestRecordings> {
+    let params = new HttpParams()
+      .set('SkipCount', skipCount.toString())
+      .set('MaxResultCount', maxResultCount.toString());
+    if (gameId) params = params.set('GameId', gameId);
+    if (deviceType) params = params.set('DeviceType', deviceType);
+    return this.http.get<PagedPlaytestRecordings>(`${this.baseUrl}/api/services/app/Playtest/GetAllRecordings`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  getPlaytestRecording(id: string): Observable<PlaytestRecording> {
+    const params = new HttpParams().set('recordingId', id);
+    return this.http.get<PlaytestRecording>(`${this.baseUrl}/api/services/app/Playtest/GetRecording`, { params }).pipe(map(this.unwrapResult));
+  }
+
+  addPlaytestRecordingNotes(id: string, notes: string): Observable<PlaytestRecording> {
+    return this.http.post<PlaytestRecording>(`${this.baseUrl}/api/services/app/Playtest/AddNotes`, { recordingId: id, notes }).pipe(map(this.unwrapResult));
   }
 
   private unwrapResult = (response: any): any => {

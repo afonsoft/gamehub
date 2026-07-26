@@ -55,7 +55,7 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_PlaytestSolicitado_Quando_EnviarGravacao_Entao_SessaoEhCompletada()
+        public async Task Dado_PlaytestSolicitado_Quando_EnviarGravacao_Entao_SessaoEhCompletadaERecordingCriado()
         {
             var gameId = await SeedGameAndTeamAsync();
 
@@ -64,12 +64,33 @@ namespace GameHub.Tests.GameHub.Application
             var updated = await _playtestAppService.UploadRecordingAsync(new UploadPlaytestRecordingInput
             {
                 PlaytestId = playtest.Id,
-                RecordingUrl = "https://storage.gamehub.local/recordings/test.mp4"
+                RecordingUrl = "https://storage.gamehub.local/recordings/test.mp4",
+                DurationSeconds = 120,
+                DeviceType = "Mobile",
+                CountryCode = "BR",
+                ConsoleOutput = "no errors"
             });
 
             updated.Status.ShouldBe(PlaytestSessionStatus.Completed.ToString());
             updated.RecordingUrl.ShouldBe("https://storage.gamehub.local/recordings/test.mp4");
             updated.CompletedAt.ShouldNotBeNull();
+
+            var recordings = await _playtestAppService.ListRecordingsAsync(playtest.Id);
+            recordings.Items.Count.ShouldBe(1);
+            recordings.Items[0].Url.ShouldBe("https://storage.gamehub.local/recordings/test.mp4");
+            recordings.Items[0].DurationSeconds.ShouldBe(120);
+
+            var notes = await _playtestAppService.AddNotesAsync(new AddPlaytestRecordingNotesInput
+            {
+                RecordingId = recordings.Items[0].Id,
+                Notes = "Sound is too low"
+            });
+
+            notes.Notes.ShouldBe("Sound is too low");
+
+            var byId = await _playtestAppService.GetRecordingAsync(recordings.Items[0].Id);
+            byId.ShouldNotBeNull();
+            byId.Id.ShouldBe(recordings.Items[0].Id);
         }
 
         private async Task<Guid> SeedGameAndTeamAsync()

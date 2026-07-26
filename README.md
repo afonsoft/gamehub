@@ -64,6 +64,8 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - Game aspect ratio metadata (`16:9`, `4:3` or `Any`).
 - Public preview URLs for unpublished game builds (`/preview/:slug/:version?token=...`) with short-lived JWT tokens.
 - Mobile Poki Pill overlay with `movePill(topPercent, topPx)` SDK message and persisted position.
+- **Mystery Tile** on the home page for playtest discovery, with recording-consent prompt.
+- Image-optimization warnings in build validation when uploaded assets exceed 100 KB.
 
 ### Gameplay SDK / Bridge
 
@@ -80,6 +82,7 @@ The iframe-hosted game communicates with the platform through the following even
 | `RewardedBreakRequested` | Rewarded ad requested. |
 | `RewardedBreakCompleted` | Rewarded ad finished. |
 | `AdBreakMute` / `AdBreakUnmute` | Audio muting around ad breaks. |
+| `rewardedBreak` | Rewarded ad UI with green default and non-green rewarded buttons; single reward. |
 | `GameErrorCaptured` | Error captured. |
 | `GameMeasuredEvent` | Measurement or timing event. |
 | `FpsMeasured` | FPS telemetry for performance monitoring. |
@@ -104,9 +107,10 @@ The iframe-hosted game communicates with the platform through the following even
 ### P4D v2 (Teams, Billing & Playtests)
 
 - `DeveloperTeam` and `DeveloperTeamMember` entities with `Developer`, `Support`, and `Billing` roles.
-- `IDeveloperTeamAppService` for create, update, invite, remove, and accept members.
+- `IDeveloperTeamAppService` for create, update, invite, remove, accept members, and general settings (`/developer/team`).
 - `DeveloperBillingProfile` linked to a team with pending-approval workflow.
 - `PlaytestSession` entity and `IPlaytestAppService` for requesting playtests, listing by game, and uploading recordings.
+- `PlaytestRecording` entity with video URL, duration, device, country, console output and notes; admin page `/app/main/gamehub/playtests` with player and annotations.
 
 ### Moderation & Publishing (Admin)
 
@@ -115,7 +119,10 @@ The iframe-hosted game communicates with the platform through the following even
 - Report queue and auditable moderation history.
 - Build validation warnings for external requests, large files, and outgoing links.
 - **Inspector de QA v2**: SDK event timeline, warnings, and scaling tests per session.
-- FPS-based performance alerts and daily metric snapshots.
+- FPS-based performance alerts and daily metric snapshots; health alerts when < 85% of users per device do not reach 30 FPS.
+- **Onboarding and Engagement guides**: drop-off rate, session duration, median duration, benchmark by category, and suggestions.
+- **Suggested categories & SEO validation** for game publishing.
+- Revenue-share deal types (`WebExclusive`, `NonExclusive`) with split rules and flat-fee support.
 - UGC moderation with profanity filtering.
 
 ---
@@ -347,7 +354,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Count |
 |-------|--------|-------|
-| GameHub.Tests | Pass | 279 passed, 2 skipped |
+| GameHub.Tests | Pass | 288 passed, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passed, 1 skipped |
 | Angular Hub Build | Pass | production build OK |
 | Angular Admin Build | Pass | production build OK |
@@ -358,10 +365,10 @@ Measured with `dotnet test --collect:"XPlat Code Coverage"` and `GameHub.*` asse
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 82.4% | — |
-| GameHub.Application | 77.0% | — |
-| GameHub.EntityFrameworkCore | 1.4% | — |
-| **Overall** | **6.9%** | **50.3%** |
+| GameHub.Core | 82.9% | — |
+| GameHub.Application | 79.9% | — |
+| GameHub.EntityFrameworkCore | 1.3% | — |
+| **Overall** | **7.4%** | **50.8%** |
 
 > The overall rate is low because the platform is in early development. The coverage target is 90% line/branch; new domain and application tests should be added incrementally.
 

@@ -27,23 +27,28 @@ namespace GameHub.Developer
         private readonly IRepository<GameMetricSnapshot, Guid> _metricSnapshotRepository;
         private readonly IRepository<RevenueContract, Guid> _revenueContractRepository;
         private readonly IRepository<PlaySession, Guid> _playSessionRepository;
+        private readonly IRepository<DeveloperTeamMember, Guid> _teamMemberRepository;
 
         public DeveloperEarningsAppService(
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
             IRepository<Game, Guid> gameRepository,
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
             IRepository<RevenueContract, Guid> revenueContractRepository,
-            IRepository<PlaySession, Guid> playSessionRepository)
+            IRepository<PlaySession, Guid> playSessionRepository,
+            IRepository<DeveloperTeamMember, Guid> teamMemberRepository)
         {
             _developerProfileRepository = developerProfileRepository;
             _gameRepository = gameRepository;
             _metricSnapshotRepository = metricSnapshotRepository;
             _revenueContractRepository = revenueContractRepository;
             _playSessionRepository = playSessionRepository;
+            _teamMemberRepository = teamMemberRepository;
         }
 
         public async Task<DeveloperEarningsDto> GetEarningsAsync(GetDeveloperEarningsInput input)
         {
+            await EnsureCurrentUserIsNotSupportAsync();
+
             var to = (input.To ?? Clock.Now).Date.AddDays(1).AddTicks(-1);
             var from = (input.From ?? to.AddDays(-29)).Date;
 
@@ -74,7 +79,7 @@ namespace GameHub.Developer
                 .Where(c => gameIds.Contains(c.GameId) && c.IsActive)
                 .GroupBy(c => c.GameId)
                 .Select(g => g.OrderByDescending(c => c.EffectiveDate).First())
-                .ToDictionaryAsync(c => c.GameId, c => c.ContractType);
+                .ToDictionaryAsync(c => c.GameId, c => c);
 
             var trafficShares = await GetTrafficSharesAsync(gameIds);
 
@@ -85,10 +90,12 @@ namespace GameHub.Developer
             foreach (var game in games)
             {
                 var gameSnapshotList = gameSnapshots.GetValueOrDefault(game.Id) ?? new List<GameMetricSnapshot>();
-                var contractType = contracts.GetValueOrDefault(game.Id, RevenueContractType.NonExclusive);
+                var contract = contracts.GetValueOrDefault(game.Id);
+                var contractType = contract?.ContractType ?? RevenueContractType.NonExclusive;
+                var flatFeeAmount = contract?.FlatFeeAmount ?? 0m;
                 var developerShare = ComputeDeveloperShare(contractType, game.Id, trafficShares);
 
-                var earnings = BuildGameEarnings(game, gameSnapshotList, contractType, developerShare);
+                var earnings = BuildGameEarnings(game, gameSnapshotList, contractType, flatFeeAmount, developerShare);
                 gameEarnings.Add(earnings);
             }
 
@@ -108,7 +115,7 @@ namespace GameHub.Developer
             };
         }
 
-        private GameEarningsDto BuildGameEarnings(Game game, List<GameMetricSnapshot> gameSnapshots, RevenueContractType contractType, decimal developerShare)
+        private GameEarningsDto BuildGameEarnings(Game game, List<GameMetricSnapshot> gameSnapshots, RevenueContractType contractType, decimal flatFeeAmount, decimal developerShare)
         {
             var daily = gameSnapshots
                 .GroupBy(s => s.Date.Date)
@@ -131,7 +138,13 @@ namespace GameHub.Developer
 
             var totalCommercialBreaks = daily.Sum(d => d.CommercialBreaks);
             var totalRewardedBreaks = daily.Sum(d => d.RewardedBreaks);
-            var grossRevenue = daily.Sum(d => d.GrossEstimatedRevenue);
+            var adGrossRevenue = daily.Sum(d => d.GrossEstimatedRevenue);
+            var grossRevenue = contractType == RevenueContractType.NonExclusive
+                ? adGrossRevenue + flatFeeAmount
+                : adGrossRevenue;
+            var developerRevenue = contractType == RevenueContractType.NonExclusive
+                ? flatFeeAmount + adGrossRevenue * developerShare
+                : adGrossRevenue * developerShare;
 
             return new GameEarningsDto
             {
@@ -140,9 +153,10 @@ namespace GameHub.Developer
                 TotalPlays = gameSnapshots.Sum(s => s.Plays),
                 CommercialBreaks = totalCommercialBreaks,
                 RewardedBreaks = totalRewardedBreaks,
+                FlatFeeAmount = flatFeeAmount,
                 GrossEstimatedRevenue = grossRevenue,
-                DeveloperEstimatedRevenue = grossRevenue * developerShare,
-                PlatformEstimatedRevenue = grossRevenue * (1m - developerShare),
+                DeveloperEstimatedRevenue = developerRevenue,
+                PlatformEstimatedRevenue = grossRevenue - developerRevenue,
                 DeveloperShare = developerShare,
                 ContractType = contractType,
                 Daily = daily
@@ -195,6 +209,20 @@ namespace GameHub.Developer
             {
                 Source = source;
                 Count = count;
+            }
+        }
+
+        private async Task EnsureCurrentUserIsNotSupportAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+            {
+                return;
+            }
+
+            var member = await _teamMemberRepository.FirstOrDefaultAsync(m => m.UserId == AbpSession.UserId.Value);
+            if (member?.Role == DeveloperTeamRole.Support)
+            {
+                throw new AbpAuthorizationException("Support team members cannot access earnings.");
             }
         }
     }

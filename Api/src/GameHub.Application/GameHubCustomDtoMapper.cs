@@ -146,7 +146,9 @@ namespace GameHub
             configuration.CreateMap<DeveloperProfileStatus, string>().ConvertUsing(s => s.ToString());
 
             configuration.CreateMap<DeveloperTeam, DeveloperTeamDto>();
+            configuration.CreateMap<DeveloperTeam, DeveloperTeamGeneralSettingsDto>();
             configuration.CreateMap<CreateOrUpdateDeveloperTeamInput, DeveloperTeam>();
+            configuration.CreateMap<UpdateTeamGeneralSettingsInput, DeveloperTeam>();
             configuration.CreateMap<DeveloperTeamMember, DeveloperTeamMemberDto>();
             configuration.CreateMap<DeveloperBillingProfile, DeveloperBillingProfileDto>();
             configuration.CreateMap<SaveDeveloperBillingProfileInput, DeveloperBillingProfile>()
@@ -158,6 +160,7 @@ namespace GameHub
             configuration.CreateMap<RequestPlaytestInput, PlaytestSession>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
+            configuration.CreateMap<PlaytestRecording, PlaytestRecordingDto>();
 
             configuration.CreateMap<StoredAsset, UploadImageResultDto>()
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));

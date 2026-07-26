@@ -67,6 +67,12 @@ namespace GameHub.Gameplay
         /// <summary>Minimum FPS reported by the game during the session.</summary>
         public double? FpsMin { get; set; }
 
+        /// <summary>Whether the player has consented to session recording.</summary>
+        public bool RecordingConsentGiven { get; set; }
+
+        /// <summary>Whether this session is part of a playtest and should be excluded from production metrics.</summary>
+        public bool IsPlaytest { get; set; }
+
         public virtual Game Game { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<GameplayEvent> GameplayEvents { get; protected set; } = new List<GameplayEvent>();

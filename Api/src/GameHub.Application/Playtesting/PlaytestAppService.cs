@@ -19,15 +19,18 @@ namespace GameHub.Playtesting
     public class PlaytestAppService : GameHubAppServiceBase, IPlaytestAppService
     {
         private readonly IRepository<PlaytestSession, Guid> _playtestRepository;
+        private readonly IRepository<PlaytestRecording, Guid> _recordingRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<DeveloperTeamMember, Guid> _teamMemberRepository;
 
         public PlaytestAppService(
             IRepository<PlaytestSession, Guid> playtestRepository,
+            IRepository<PlaytestRecording, Guid> recordingRepository,
             IRepository<Game, Guid> gameRepository,
             IRepository<DeveloperTeamMember, Guid> teamMemberRepository)
         {
             _playtestRepository = playtestRepository;
+            _recordingRepository = recordingRepository;
             _gameRepository = gameRepository;
             _teamMemberRepository = teamMemberRepository;
         }
@@ -75,9 +78,78 @@ namespace GameHub.Playtesting
             playtest.Status = PlaytestSessionStatus.Completed;
             playtest.CompletedAt = Clock.Now;
 
+            var recording = new PlaytestRecording
+            {
+                Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
+                PlaytestSessionId = playtest.Id,
+                Url = input.RecordingUrl,
+                DurationSeconds = input.DurationSeconds,
+                DeviceType = input.DeviceType,
+                CountryCode = input.CountryCode,
+                ConsoleOutput = input.ConsoleOutput
+            };
+
+            await _recordingRepository.InsertAsync(recording);
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<PlaytestSessionDto>(playtest);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_Review)]
+        public async Task<PlaytestRecordingDto> GetRecordingAsync(Guid recordingId)
+        {
+            var recording = await _recordingRepository.GetAsync(recordingId);
+            return ObjectMapper.Map<PlaytestRecordingDto>(recording);
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_Review)]
+        public async Task<ListResultDto<PlaytestRecordingDto>> ListRecordingsAsync(Guid playtestId)
+        {
+            var recordings = await _recordingRepository.GetAll()
+                .Where(r => r.PlaytestSessionId == playtestId)
+                .OrderByDescending(r => r.CreationTime)
+                .ToListAsync();
+
+            return new ListResultDto<PlaytestRecordingDto>(ObjectMapper.Map<List<PlaytestRecordingDto>>(recordings));
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_Review)]
+        public async Task<PagedResultDto<PlaytestRecordingDto>> GetAllRecordingsAsync(GetAllPlaytestRecordingsInput input)
+        {
+            var query = _recordingRepository.GetAll()
+                .Include(r => r.PlaytestSession)
+                .AsQueryable();
+
+            if (input.GameId.HasValue)
+            {
+                query = query.Where(r => r.PlaytestSession.GameId == input.GameId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.DeviceType))
+            {
+                query = query.Where(r => r.DeviceType == input.DeviceType);
+            }
+
+            var totalCount = await query.CountAsync();
+            var recordings = await query
+                .OrderByDescending(r => r.CreationTime)
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .ToListAsync();
+
+            return new PagedResultDto<PlaytestRecordingDto>(totalCount, ObjectMapper.Map<List<PlaytestRecordingDto>>(recordings));
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Moderation_Review)]
+        public async Task<PlaytestRecordingDto> AddNotesAsync(AddPlaytestRecordingNotesInput input)
+        {
+            var recording = await _recordingRepository.GetAsync(input.RecordingId);
+            recording.Notes = input.Notes ?? string.Empty;
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return ObjectMapper.Map<PlaytestRecordingDto>(recording);
         }
 
         private async Task EnsureCurrentUserHasAccessToGameAsync(Guid gameId)

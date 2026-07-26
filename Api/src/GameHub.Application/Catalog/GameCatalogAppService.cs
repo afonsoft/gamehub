@@ -11,6 +11,7 @@ using Abp.Domain.Repositories;
 using GameHub.Builds;
 using GameHub.Catalog.Dto;
 using GameHub.Monetization;
+using GameHub.Playtesting;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Catalog
@@ -20,6 +21,7 @@ namespace GameHub.Catalog
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<Category, Guid> _categoryRepository;
         private readonly IRepository<Tag, Guid> _tagRepository;
+        private readonly IRepository<PlaytestSession, Guid> _playtestRepository;
         private readonly IGameCatalogCache _catalogCache;
         private readonly IGameSearchEngine _searchEngine;
         private readonly ITrendingScoreCalculator _trendingScoreCalculator;
@@ -29,6 +31,7 @@ namespace GameHub.Catalog
             IRepository<Game, Guid> gameRepository,
             IRepository<Category, Guid> categoryRepository,
             IRepository<Tag, Guid> tagRepository,
+            IRepository<PlaytestSession, Guid> playtestRepository,
             IGameCatalogCache catalogCache,
             IGameSearchEngine searchEngine,
             ITrendingScoreCalculator trendingScoreCalculator,
@@ -37,6 +40,7 @@ namespace GameHub.Catalog
             _gameRepository = gameRepository;
             _categoryRepository = categoryRepository;
             _tagRepository = tagRepository;
+            _playtestRepository = playtestRepository;
             _catalogCache = catalogCache;
             _searchEngine = searchEngine;
             _trendingScoreCalculator = trendingScoreCalculator;
@@ -130,11 +134,66 @@ namespace GameHub.Catalog
                 PopularThisWeek = popularThisWeek,
                 TopFree = mostPlayed,
                 WebExclusives = webExclusives,
+                MysteryTile = await GetMysteryTileAsync(cancellationToken),
                 Categories = categories
             };
 
             await _catalogCache.SetHomeAsync(result, TimeSpan.FromMinutes(5));
             return result;
+        }
+
+        public async Task<MysteryTileDto> GetMysteryTileAsync(CancellationToken cancellationToken = default)
+        {
+            var playtest = await _playtestRepository.GetAll()
+                .Where(s => s.IsDiscovery && s.Status == PlaytestSessionStatus.Requested)
+                .OrderByDescending(s => s.DisplayProbability)
+                .ThenByDescending(s => s.CreationTime)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (playtest != null)
+            {
+                var game = await _gameRepository.GetAll()
+                    .Where(g => g.Id == playtest.GameId)
+                    .Select(g => new { g.Title, g.Slug, g.ThumbnailUrl })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (game != null)
+                {
+                    return new MysteryTileDto
+                    {
+                        GameId = playtest.GameId,
+                        Title = $"Mystery Game: {game.Title}",
+                        Slug = game.Slug,
+                        ThumbnailUrl = game.ThumbnailUrl,
+                        IsPlaytest = true,
+                        RecordingConsentPrompt = "This is a playtest. Your session may be recorded for QA. Continue?"
+                    };
+                }
+            }
+
+            var published = await _gameRepository.GetAll()
+                .Where(g => g.Status == GameStatus.Published && !g.IsDeleted)
+                .Select(g => new { g.Id, g.Title, g.Slug, g.ThumbnailUrl })
+                .ToListAsync(cancellationToken);
+
+            var fallback = published.Count == 0
+                ? null
+                : published[new Random().Next(published.Count)];
+
+            if (fallback == null)
+            {
+                return null;
+            }
+
+            return new MysteryTileDto
+            {
+                GameId = fallback.Id,
+                Title = $"Mystery Game: {fallback.Title}",
+                Slug = fallback.Slug,
+                ThumbnailUrl = fallback.ThumbnailUrl,
+                IsPlaytest = false,
+                RecordingConsentPrompt = string.Empty
+            };
         }
 
         public async Task<PagedResultDto<GameCardDto>> GetGamesAsync(GetGamesInput input, CancellationToken cancellationToken = default)

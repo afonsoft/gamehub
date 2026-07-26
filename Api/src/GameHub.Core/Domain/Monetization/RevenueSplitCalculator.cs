@@ -10,14 +10,16 @@ namespace GameHub.Monetization
         /// </summary>
         public static decimal GetDeveloperShare(RevenueContractType contractType, TrafficSource trafficSource)
         {
-            if (trafficSource == TrafficSource.Direct)
+            if (contractType == RevenueContractType.NonExclusive)
             {
-                return 1m;
+                // Non-exclusive games receive a flat fee; no additional revenue share is calculated here.
+                return 0m;
             }
 
             if (contractType == RevenueContractType.WebExclusive)
             {
-                return 0.7m;
+                // Web exclusive: 100% for direct traffic; 50% when the platform brings the player.
+                return trafficSource == TrafficSource.Direct ? 1m : 0.5m;
             }
 
             return 0.5m;

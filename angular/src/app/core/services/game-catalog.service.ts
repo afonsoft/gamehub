@@ -46,6 +46,15 @@ export interface GameVoteResult {
   userVote?: 'Like' | 'Dislike' | null;
 }
 
+export interface MysteryTile {
+  gameId: string;
+  title: string;
+  slug: string;
+  thumbnailUrl: string;
+  isPlaytest: boolean;
+  recordingConsentPrompt: string;
+}
+
 export interface HomeResponse {
   highlights: GameCard[];
   newGames: GameCard[];
@@ -54,6 +63,7 @@ export interface HomeResponse {
   popularThisWeek: GameCard[];
   topFree: GameCard[];
   webExclusives: GameCard[];
+  mysteryTile?: MysteryTile;
   categories: Category[];
 }
 

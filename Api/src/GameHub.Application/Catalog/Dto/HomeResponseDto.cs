@@ -34,6 +34,9 @@ public class HomeResponseDto
     /// <summary>Games with active WebExclusive revenue contract.</summary>
     public List<GameCardDto> WebExclusives { get; set; } = new();
 
+    /// <summary>Mystery/discovery tile used for playtests or featured campaigns.</summary>
+    public MysteryTileDto MysteryTile { get; set; }
+
     /// <summary>All active categories for the sidebar/chips.</summary>
     public List<CategoryDto> Categories { get; set; } = new();
 }

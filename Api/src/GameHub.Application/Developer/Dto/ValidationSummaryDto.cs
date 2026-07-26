@@ -33,5 +33,8 @@ namespace GameHub.Developer.Dto
 
         /// <summary>List of external domains detected in the package.</summary>
         public List<string> ExternalDomains { get; set; } = new List<string>();
+
+        /// <summary>Warnings about image assets that can be compressed or converted.</summary>
+        public List<ImageOptimizationWarningDto> ImageOptimizationWarnings { get; set; } = new List<ImageOptimizationWarningDto>();
     }
 }

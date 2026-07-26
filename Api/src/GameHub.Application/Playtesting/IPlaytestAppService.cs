@@ -13,5 +13,13 @@ namespace GameHub.Playtesting
         Task<ListResultDto<PlaytestSessionDto>> GetPlaytestsByGameAsync(Guid gameId);
 
         Task<PlaytestSessionDto> UploadRecordingAsync(UploadPlaytestRecordingInput input);
+
+        Task<PlaytestRecordingDto> GetRecordingAsync(Guid recordingId);
+
+        Task<ListResultDto<PlaytestRecordingDto>> ListRecordingsAsync(Guid playtestId);
+
+        Task<PagedResultDto<PlaytestRecordingDto>> GetAllRecordingsAsync(GetAllPlaytestRecordingsInput input);
+
+        Task<PlaytestRecordingDto> AddNotesAsync(AddPlaytestRecordingNotesInput input);
     }
 }

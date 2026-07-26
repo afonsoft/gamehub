@@ -10,7 +10,11 @@ namespace GameHub.Developer
 
         Task<DeveloperTeamDto> UpdateTeamAsync(CreateOrUpdateDeveloperTeamInput input);
 
+        Task<DeveloperTeamGeneralSettingsDto> UpdateGeneralSettingsAsync(UpdateTeamGeneralSettingsInput input);
+
         Task<DeveloperTeamDto> GetMyTeamAsync();
+
+        Task<DeveloperTeamGeneralSettingsDto> GetGeneralSettingsAsync();
 
         Task<DeveloperTeamMemberDto> InviteMemberAsync(InviteMemberInput input);
 

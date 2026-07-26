@@ -41,14 +41,14 @@ namespace GameHub.Monetization
             return Map(contract);
         }
 
-        public async Task<RevenueContractDto> SetContractAsync(Guid gameId, RevenueContractType contractType)
+        public async Task<RevenueContractDto> SetContractAsync(Guid gameId, RevenueContractType contractType, decimal flatFeeAmount = 0)
         {
             var existing = await _contractRepository.GetAll()
                 .Where(c => c.GameId == gameId && c.IsActive)
                 .OrderByDescending(c => c.EffectiveDate)
                 .FirstOrDefaultAsync();
 
-            if (existing != null && existing.ContractType == contractType)
+            if (existing != null && existing.ContractType == contractType && existing.FlatFeeAmount == flatFeeAmount)
             {
                 return Map(existing);
             }
@@ -60,7 +60,8 @@ namespace GameHub.Monetization
 
             var contract = new RevenueContract(Guid.NewGuid(), gameId, contractType)
             {
-                TenantId = AbpSession.TenantId
+                TenantId = AbpSession.TenantId,
+                FlatFeeAmount = flatFeeAmount
             };
             await _contractRepository.InsertAsync(contract);
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -96,6 +97,7 @@ namespace GameHub.Monetization
                 Id = contract.Id,
                 GameId = contract.GameId,
                 ContractType = contract.ContractType,
+                FlatFeeAmount = contract.FlatFeeAmount,
                 EffectiveDate = contract.EffectiveDate,
                 IsActive = contract.IsActive
             };

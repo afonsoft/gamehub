@@ -215,6 +215,8 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.RewardedBreakCount).HasDefaultValue(0L);
                 b.Property(x => x.FpsAverage);
                 b.Property(x => x.FpsMin);
+                b.Property(x => x.RecordingConsentGiven).IsRequired().HasDefaultValue(false);
+                b.Property(x => x.IsPlaytest).IsRequired().HasDefaultValue(false);
 
                 b.HasIndex(x => new { x.GameId, x.StartedAt });
                 b.HasIndex(x => x.UserId);
@@ -262,12 +264,16 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Plays).HasDefaultValue(0L);
                 b.Property(x => x.UniquePlayers).HasDefaultValue(0L);
                 b.Property(x => x.AvgDurationSeconds).HasDefaultValue(0.0);
+                b.Property(x => x.MedianSessionDurationSeconds).HasDefaultValue(0.0);
+                b.Property(x => x.OnboardingDropOffRate).HasDefaultValue(0.0);
                 b.Property(x => x.LoadingFinishedCount).HasDefaultValue(0L);
                 b.Property(x => x.ErrorCount).HasDefaultValue(0L);
                 b.Property(x => x.CommercialBreakCount).HasDefaultValue(0L);
                 b.Property(x => x.RewardedBreakCount).HasDefaultValue(0L);
                 b.Property(x => x.AvgFps);
                 b.Property(x => x.MinFps);
+                b.Property(x => x.FpsAcceptableSessions).HasDefaultValue(0L);
+                b.Property(x => x.FpsTotalSessions).HasDefaultValue(0L);
 
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => new { x.GameId, x.Date }).IsUnique();
@@ -673,10 +679,32 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Status).IsRequired();
                 b.Property(x => x.Notes).HasMaxLength(2000);
                 b.Property(x => x.RecordingUrl).HasMaxLength(2048);
+                b.Property(x => x.IsDiscovery).IsRequired().HasDefaultValue(false);
+                b.Property(x => x.DisplayProbability).IsRequired().HasDefaultValue(0.0);
                 b.Property(x => x.CreatedAt).IsRequired();
 
                 b.HasIndex(x => new { x.GameId, x.Status });
                 b.HasIndex(x => x.RequestedByUserId);
+            });
+
+            modelBuilder.Entity<PlaytestRecording>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlaytestRecordings", GameHubConsts.DbSchema);
+
+                b.Property(x => x.PlaytestSessionId).IsRequired();
+                b.Property(x => x.Url).HasMaxLength(2048);
+                b.Property(x => x.DurationSeconds).IsRequired().HasDefaultValue(0);
+                b.Property(x => x.DeviceType).HasMaxLength(32);
+                b.Property(x => x.CountryCode).HasMaxLength(2);
+                b.Property(x => x.ConsoleOutput).HasMaxLength(4000);
+                b.Property(x => x.Notes).HasMaxLength(4000);
+
+                b.HasIndex(x => x.PlaytestSessionId);
+
+                b.HasOne(x => x.PlaytestSession)
+                    .WithMany()
+                    .HasForeignKey(x => x.PlaytestSessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

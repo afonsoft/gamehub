@@ -26,6 +26,12 @@ namespace GameHub.Playtesting
         [StringLength(2048)]
         public string RecordingUrl { get; set; }
 
+        /// <summary>Whether this playtest is available for anonymous discovery on the home page.</summary>
+        public bool IsDiscovery { get; set; }
+
+        /// <summary>Probability (0 to 1) that this playtest appears in the Mystery Tile.</summary>
+        public double DisplayProbability { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime? CompletedAt { get; set; }

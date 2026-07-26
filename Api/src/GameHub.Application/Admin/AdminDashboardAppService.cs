@@ -205,7 +205,7 @@ namespace GameHub.Admin
 
             var sessions = await _playSessionRepository.GetAll()
                 .Where(s => s.StartedAt >= startAt && s.StartedAt <= endAt)
-                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt, s.EndedAt, s.DeviceType, s.Browser, s.CountryCode, s.FpsAverage, s.FpsMin })
+                .Select(s => new { s.UserId, s.AnonymousIdHash, s.StartedAt, s.EndedAt, s.DeviceType, s.Browser, s.CountryCode, s.FpsAverage, s.FpsMin, s.IsPlaytest })
                 .ToListAsync();
 
             var events = await _gameplayEventRepository.GetAll()
@@ -213,21 +213,26 @@ namespace GameHub.Admin
                 .Select(e => new { e.GameId, e.EventType })
                 .ToListAsync();
 
-            var totalPlays = sessions.Count;
-            var avgDuration = sessions
+            var productionSessions = sessions.Where(s => !s.IsPlaytest).ToList();
+            var totalPlays = productionSessions.Count;
+            var durations = productionSessions
                 .Where(s => s.EndedAt.HasValue)
                 .Select(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
-                .DefaultIfEmpty(0)
-                .Average();
+                .ToList();
+            var avgDuration = durations.Any() ? durations.Average() : 0.0;
+            var medianDuration = ComputeMedian(durations);
+            var dropOffRate = productionSessions.Count == 0
+                ? 0.0
+                : (double)productionSessions.Count(s => !s.EndedAt.HasValue || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60) / productionSessions.Count;
 
             var today = Clock.Now.Date;
             var monthlySince = today.AddDays(-30);
-            var dailyActiveUsers = sessions
+            var dailyActiveUsers = productionSessions
                 .Where(s => s.StartedAt.Date == today)
                 .Select(s => s.UserId?.ToString() ?? s.AnonymousIdHash)
                 .Distinct()
                 .Count();
-            var monthlyActiveUsers = sessions
+            var monthlyActiveUsers = productionSessions
                 .Where(s => s.StartedAt.Date >= monthlySince)
                 .Select(s => s.UserId?.ToString() ?? s.AnonymousIdHash)
                 .Distinct()
@@ -241,9 +246,11 @@ namespace GameHub.Admin
             var errors = events.Count(e => e.EventType == GameplayEventType.GameErrorCaptured);
             var errorRate = gameplayStarted > 0 ? (double)errors / gameplayStarted : 0;
 
-            var fpsSessions = sessions.Where(s => s.FpsAverage.HasValue).ToList();
+            var fpsSessions = productionSessions.Where(s => s.FpsAverage.HasValue).ToList();
             var averageFps = fpsSessions.Any() ? fpsSessions.Average(s => s.FpsAverage.Value) : (double?)null;
             var minFps = fpsSessions.Any() ? fpsSessions.Min(s => s.FpsMin ?? s.FpsAverage.Value) : (double?)null;
+            var fpsAcceptable = fpsSessions.Count(s => s.FpsAverage >= 30);
+            var fpsByDevice = BuildFpsByDevice(fpsSessions);
 
             return new AdminMetricsSummaryDto
             {
@@ -253,13 +260,18 @@ namespace GameHub.Admin
                 DailyActiveUsers = dailyActiveUsers,
                 MonthlyActiveUsers = monthlyActiveUsers,
                 AverageSessionDurationSeconds = avgDuration,
+                MedianSessionDurationSeconds = medianDuration,
+                OnboardingDropOffRate = dropOffRate,
                 LoadConversionRate = conversionRate,
                 ErrorRate = errorRate,
-                Devices = BuildDistribution(sessions.Select(s => s.DeviceType)),
-                Countries = BuildDistribution(sessions.Select(s => s.CountryCode ?? "Unknown")),
-                Browsers = BuildDistribution(sessions.Select(s => s.Browser)),
+                Devices = BuildDistribution(productionSessions.Select(s => s.DeviceType)),
+                Countries = BuildDistribution(productionSessions.Select(s => s.CountryCode ?? "Unknown")),
+                Browsers = BuildDistribution(productionSessions.Select(s => s.Browser)),
                 AverageFps = averageFps,
-                MinimumFps = minFps
+                MinimumFps = minFps,
+                FpsAcceptableSessions = fpsAcceptable,
+                FpsTotalSessions = fpsSessions.Count,
+                FpsByDevice = fpsByDevice
             };
         }
 
@@ -347,7 +359,170 @@ namespace GameHub.Admin
                 }
             }
 
+            var deviceFpsSessions = await _playSessionRepository.GetAll()
+                .Where(s => s.StartedAt >= since && (s.FpsAverage.HasValue || s.FpsMin.HasValue))
+                .Select(s => new { s.GameId, s.Game.Title, s.DeviceType, s.FpsAverage })
+                .ToListAsync();
+
+            var deviceGroups = deviceFpsSessions.GroupBy(s => new { s.GameId, s.DeviceType });
+            foreach (var group in deviceGroups)
+            {
+                var withFps = group.Where(s => s.FpsAverage.HasValue).ToList();
+                if (withFps.Count < 5)
+                {
+                    continue;
+                }
+
+                var acceptable = withFps.Count(s => s.FpsAverage >= 30);
+                var acceptableRate = (double)acceptable / withFps.Count;
+                if (acceptableRate < 0.85)
+                {
+                    alerts.Add(new AdminHealthAlertDto
+                    {
+                        GameId = group.Key.GameId,
+                        GameTitle = withFps.First().Title,
+                        Reason = $"FPS acceptable rate below 85% on {group.Key.DeviceType}",
+                        Severity = "Warning",
+                        MetricValue = acceptableRate
+                    });
+                }
+            }
+
             return alerts.OrderByDescending(a => a.MetricValue).ToList();
+        }
+
+        public async Task<AdminOnboardingInsightsDto> GetOnboardingInsightsAsync(Guid gameId, DateTime? startDate, DateTime? endDate)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            var end = endDate?.Date ?? Clock.Now.Date;
+            var start = startDate?.Date ?? end.AddDays(-29);
+            var startAt = start;
+            var endAt = end.AddDays(1).AddTicks(-1);
+
+            var sessions = await _playSessionRepository.GetAll()
+                .Where(s => s.GameId == gameId && s.StartedAt >= startAt && s.StartedAt <= endAt && !s.IsPlaytest)
+                .Select(s => new { s.StartedAt, s.EndedAt, s.DeviceType, s.CountryCode })
+                .ToListAsync();
+
+            var dropOffByDevice = sessions
+                .GroupBy(s => string.IsNullOrWhiteSpace(s.DeviceType) ? "Unknown" : s.DeviceType)
+                .Select(g => new MetricDistributionItemDto
+                {
+                    Name = g.Key,
+                    Count = g.Count(s => !s.EndedAt.HasValue || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60),
+                    Percentage = g.Count() == 0 ? 0 : (double)g.Count(s => !s.EndedAt.HasValue || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60) / g.Count()
+                })
+                .ToList();
+
+            var dropOffByCountry = sessions
+                .GroupBy(s => string.IsNullOrWhiteSpace(s.CountryCode) ? "Unknown" : s.CountryCode)
+                .Select(g => new MetricDistributionItemDto
+                {
+                    Name = g.Key,
+                    Count = g.Count(s => !s.EndedAt.HasValue || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60),
+                    Percentage = g.Count() == 0 ? 0 : (double)g.Count(s => !s.EndedAt.HasValue || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60) / g.Count()
+                })
+                .ToList();
+
+            var overallDropOff = sessions.Count == 0 ? 0.0 : (double)sessions.Count(s => !s.EndedAt.HasValue || (s.EndedAt.Value - s.StartedAt).TotalSeconds < 60) / sessions.Count;
+            var suggestions = new List<string>();
+            if (overallDropOff > 0.25)
+            {
+                suggestions.Add("Adicione um botão de skip no tutorial para reduzir o abandono.");
+            }
+            if (dropOffByDevice.Any(d => d.Percentage > 0.35))
+            {
+                suggestions.Add("Verifique a experiência de carregamento no dispositivo com maior taxa de abandono.");
+            }
+
+            return new AdminOnboardingInsightsDto
+            {
+                GameId = gameId,
+                GameTitle = game.Title,
+                StartDate = start,
+                EndDate = end,
+                OverallDropOffRate = overallDropOff,
+                DropOffByDevice = dropOffByDevice,
+                DropOffByCountry = dropOffByCountry,
+                Suggestions = suggestions
+            };
+        }
+
+        public async Task<AdminEngagementInsightsDto> GetEngagementInsightsAsync(Guid gameId, DateTime? startDate, DateTime? endDate)
+        {
+            var game = await _gameRepository.GetAsync(gameId);
+            var end = endDate?.Date ?? Clock.Now.Date;
+            var start = startDate?.Date ?? end.AddDays(-29);
+            var startAt = start;
+            var endAt = end.AddDays(1).AddTicks(-1);
+
+            var sessions = await _playSessionRepository.GetAll()
+                .Where(s => s.GameId == gameId && s.StartedAt >= startAt && s.StartedAt <= endAt && !s.IsPlaytest && s.EndedAt.HasValue)
+                .Select(s => (s.EndedAt.Value - s.StartedAt).TotalSeconds)
+                .ToListAsync();
+
+            var avg = sessions.Any() ? sessions.Average() : 0.0;
+            var median = ComputeMedian(sessions);
+            var benchmark = 120.0;
+            var below = avg < benchmark;
+            var suggestions = new List<string>();
+            if (below)
+            {
+                suggestions.Add("Média de sessão abaixo de 2 minutos; considere adicionar metas diárias ou recompensas de retorno.");
+            }
+            if (median < 60)
+            {
+                suggestions.Add("Mediana de sessão muito curta; avalie o onboarding e o primeiro loop de jogo.");
+            }
+
+            return new AdminEngagementInsightsDto
+            {
+                GameId = gameId,
+                GameTitle = game.Title,
+                StartDate = start,
+                EndDate = end,
+                AverageSessionDurationSeconds = avg,
+                MedianSessionDurationSeconds = median,
+                BenchmarkSeconds = benchmark,
+                BelowBenchmark = below,
+                Suggestions = suggestions
+            };
+        }
+
+        private static double ComputeMedian(List<double> values)
+        {
+            if (values == null || values.Count == 0)
+            {
+                return 0.0;
+            }
+
+            var sorted = values.OrderBy(v => v).ToList();
+            var mid = sorted.Count / 2;
+            return sorted.Count % 2 == 0
+                ? (sorted[mid - 1] + sorted[mid]) / 2.0
+                : sorted[mid];
+        }
+
+        private static List<MetricFpsDistributionItemDto> BuildFpsByDevice(IEnumerable<dynamic> sessions)
+        {
+            var groups = sessions
+                .Where(s => s.FpsAverage != null)
+                .GroupBy(s => string.IsNullOrWhiteSpace(s.DeviceType) ? "Unknown" : s.DeviceType)
+                .Select(g =>
+                {
+                    var total = g.Count();
+                    var acceptable = g.Count(s => s.FpsAverage >= 30);
+                    return new MetricFpsDistributionItemDto
+                    {
+                        Device = g.Key,
+                        TotalSessions = total,
+                        AcceptableSessions = acceptable,
+                        AcceptablePercentage = total == 0 ? 0.0 : (double)acceptable / total
+                    };
+                })
+                .ToList();
+
+            return groups;
         }
 
         private static List<MetricDistributionItemDto> BuildDistribution(IEnumerable<string> values)

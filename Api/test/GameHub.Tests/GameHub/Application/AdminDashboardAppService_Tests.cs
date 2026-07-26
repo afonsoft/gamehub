@@ -160,7 +160,51 @@ namespace GameHub.Tests.GameHub.Application
             });
         }
 
-        private async Task SeedPlaySessionAsync(Guid gameId, DateTime startedAt, DateTime? endedAt = null, string deviceType = "Desktop", string countryCode = "BR", string browser = "TestBrowser")
+        [Fact]
+        public async Task Dado_SessoesComDropOff_Quando_OnboardingInsights_Entao_RetornaTaxaESugestoes()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Onboarding Game");
+            await SeedPlaySessionAsync(gameId, DateTime.UtcNow, DateTime.UtcNow.AddSeconds(30), "Desktop", "BR", "Chrome");
+            await SeedPlaySessionAsync(gameId, DateTime.UtcNow, DateTime.UtcNow.AddSeconds(300), "Mobile", "US", "Safari");
+
+            var result = await _adminDashboardAppService.GetOnboardingInsightsAsync(gameId, null, null);
+
+            result.ShouldNotBeNull();
+            result.OverallDropOffRate.ShouldBeGreaterThan(0);
+            result.DropOffByDevice.Count.ShouldBeGreaterThanOrEqualTo(1);
+            result.Suggestions.Count.ShouldBeGreaterThanOrEqualTo(1);
+        }
+
+        [Fact]
+        public async Task Dado_SessoesComDuracao_Quando_EngagementInsights_Entao_RetornaMedianaEBenchmark()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Engagement Game");
+            await SeedPlaySessionAsync(gameId, DateTime.UtcNow, DateTime.UtcNow.AddSeconds(90), "Desktop", "BR", "Chrome");
+            await SeedPlaySessionAsync(gameId, DateTime.UtcNow, DateTime.UtcNow.AddSeconds(150), "Desktop", "BR", "Chrome");
+
+            var result = await _adminDashboardAppService.GetEngagementInsightsAsync(gameId, null, null);
+
+            result.ShouldNotBeNull();
+            result.AverageSessionDurationSeconds.ShouldBeGreaterThan(0);
+            result.MedianSessionDurationSeconds.ShouldBeGreaterThan(0);
+            result.BenchmarkSeconds.ShouldBe(120);
+        }
+
+        [Fact]
+        public async Task Dado_SessoesPlaytest_Quando_Metricas_Entao_SessoesNaoContamEmPlays()
+        {
+            var gameId = Guid.NewGuid();
+            await SeedGameAsync(gameId, "Playtest Metrics Game");
+            await SeedPlaySessionAsync(gameId, DateTime.UtcNow, DateTime.UtcNow.AddSeconds(60), "Desktop", "BR", "Chrome", isPlaytest: true);
+
+            var metrics = await _adminDashboardAppService.GetMetricsAsync(null, null);
+
+            metrics.TotalPlays.ShouldBe(0);
+        }
+
+        private async Task SeedPlaySessionAsync(Guid gameId, DateTime startedAt, DateTime? endedAt = null, string deviceType = "Desktop", string countryCode = "BR", string browser = "TestBrowser", bool isPlaytest = false)
         {
             await UsingDbContextAsync(async context =>
             {
@@ -174,7 +218,8 @@ namespace GameHub.Tests.GameHub.Application
                     EndedAt = endedAt,
                     DeviceType = deviceType,
                     Browser = browser,
-                    CountryCode = countryCode
+                    CountryCode = countryCode,
+                    IsPlaytest = isPlaytest
                 });
 
                 await context.SaveChangesAsync();

@@ -55,6 +55,88 @@ namespace GameHub.Tests.GameHub.Application
             });
         }
 
+        [Fact]
+        public async Task Dado_JogoComDescricaoCurta_Quando_ValidarSeo_Entao_RetornaAvisos()
+        {
+            var gameId = await SeedGameAsync("SEO Game", shortDescription: "short");
+
+            var result = await _adminGameAppService.ValidateSeoAsync(new ValidateSeoInput { GameId = gameId });
+
+            result.ShouldNotBeNull();
+            result.IsValid.ShouldBeFalse();
+            result.Warnings.Count.ShouldBeGreaterThan(0);
+        }
+
+        [Fact]
+        public async Task Dado_JogoComCategoria_Quando_SugerirCategorias_Entao_RetornaCategoriaCorrespondente()
+        {
+            var gameId = await SeedGameAsync("Racing Turbo", description: "A fast racing game with cars");
+            var categoryId = await SeedCategoryAsync("Racing");
+
+            await UsingDbContextAsync(async context =>
+            {
+                var category = await context.Categories.FindAsync(categoryId);
+                category.Keywords = "racing,cars,fast";
+                await context.SaveChangesAsync();
+            });
+
+            var suggestions = await _adminGameAppService.SuggestCategoriesAsync(new SuggestCategoriesInput { GameId = gameId });
+
+            suggestions.ShouldNotBeEmpty();
+            suggestions.ShouldContain(c => c.Id == categoryId);
+        }
+
+        private async Task<Guid> SeedGameAsync(string title, string shortDescription = "A test game", string description = "Test")
+        {
+            var userId = AbpSession.UserId.Value;
+            var gameId = Guid.NewGuid();
+            var profileId = Guid.NewGuid();
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.DeveloperProfiles.AddAsync(new DeveloperProfile
+                {
+                    Id = profileId,
+                    TenantId = AbpSession.TenantId,
+                    UserId = userId,
+                    DisplayName = "Dev User",
+                    Status = DeveloperProfileStatus.Active
+                });
+
+                await context.Games.AddAsync(new Game(gameId, title, title.ToLowerInvariant().Replace(" ", "-"), shortDescription, profileId)
+                {
+                    TenantId = AbpSession.TenantId,
+                    Status = GameStatus.Draft,
+                    Description = description,
+                    SuggestedDescription = description,
+                    SeoDescription = "short"
+                });
+
+                await context.SaveChangesAsync();
+            });
+
+            return gameId;
+        }
+
+        private async Task<Guid> SeedCategoryAsync(string name)
+        {
+            return await UsingDbContextAsync(async context =>
+            {
+                var category = new Category
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    Name = name,
+                    Slug = name.ToLowerInvariant().Replace(" ", "-"),
+                    SortOrder = 0,
+                    IsActive = true
+                };
+                await context.Categories.AddAsync(category);
+                await context.SaveChangesAsync();
+                return category.Id;
+            });
+        }
+
         private async Task<(Guid gameId, Guid buildId)> CriarJogoEBuildComExternalAsync(bool withPrivacyPolicy = false)
         {
             var userId = AbpSession.UserId.Value;

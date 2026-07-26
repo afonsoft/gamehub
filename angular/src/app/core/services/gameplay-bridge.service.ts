@@ -75,6 +75,7 @@ export class GameplayBridgeService implements GameplayBridge {
   private replyHandler?: (message: unknown) => void;
   private onSaveError?: () => void;
   private onMovePill?: (topPercent?: number, topPx?: number) => void;
+  private onRewardedBreak?: (resolve: (rewarded: boolean) => void) => void;
   private readonly pillPositionKey = 'gamehub_pill_position';
 
   private isLoadingStarted = false;
@@ -137,6 +138,21 @@ export class GameplayBridgeService implements GameplayBridge {
     if (stored && this.onMovePill) {
       this.onMovePill(stored.topPercent, stored.topPx);
     }
+  }
+
+  setOnRewardedBreak(handler?: (resolve: (rewarded: boolean) => void) => void): void {
+    this.onRewardedBreak = handler;
+  }
+
+  async requestRewardedAd(): Promise<{ rewarded: boolean; adBlocked?: boolean }> {
+    if (!this.gameId) {
+      return { rewarded: false };
+    }
+
+    const result = await this.adBreak.requestRewarded(this.gameId, this.sessionId ?? undefined).toPromise();
+    const adBlocked = Boolean(result?.adBlocked);
+    const rewarded = Boolean(result?.completed && result?.rewardGranted && !adBlocked);
+    return { rewarded, adBlocked };
   }
 
   private movePill(topPercent?: number, topPx?: number): void {
@@ -232,7 +248,9 @@ export class GameplayBridgeService implements GameplayBridge {
     this.reply({ channel: 'gamehub-bridge', action: 'adBreakMute' });
 
     let rewardGranted = false;
-    if (this.gameId) {
+    if (this.onRewardedBreak) {
+      rewardGranted = await new Promise<boolean>(resolve => this.onRewardedBreak?.(resolve));
+    } else if (this.gameId) {
       const result = await this.adBreak.requestRewarded(this.gameId, this.sessionId ?? undefined).toPromise();
       rewardGranted = Boolean(result?.completed && result?.rewardGranted && !result?.adBlocked);
       if (result?.adBlocked) {

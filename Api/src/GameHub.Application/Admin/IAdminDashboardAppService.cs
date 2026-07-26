@@ -27,5 +27,9 @@ namespace GameHub.Admin
         Task<AdminMetricsSummaryDto> GetMetricsAsync(DateTime? startDate, DateTime? endDate);
 
         Task<List<AdminHealthAlertDto>> GetHealthAlertsAsync();
+
+        Task<AdminOnboardingInsightsDto> GetOnboardingInsightsAsync(Guid gameId, DateTime? startDate, DateTime? endDate);
+
+        Task<AdminEngagementInsightsDto> GetEngagementInsightsAsync(Guid gameId, DateTime? startDate, DateTime? endDate);
     }
 }

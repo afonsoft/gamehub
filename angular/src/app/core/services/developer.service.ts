@@ -101,6 +101,22 @@ export interface InspectorSessionResult {
   startedAt: string;
 }
 
+export interface DeveloperTeam {
+  id?: string;
+  name: string;
+  primaryContactEmail: string;
+  country: string;
+  createdAt?: string;
+  members?: DeveloperTeamMember[];
+}
+
+export interface DeveloperTeamMember {
+  userId: number;
+  userName: string;
+  email: string;
+  role: string;
+}
+
 export interface DeveloperDashboard {
   totalGames: number;
   publishedGames: number;
@@ -221,6 +237,7 @@ export interface UploadImageResult {
 export class DeveloperService {
   private readonly profileUrl = '/api/services/app/DeveloperProfile';
   private readonly gameUrl = '/api/services/app/DeveloperGame';
+  private readonly teamUrl = '/api/services/app/DeveloperTeam';
   private readonly uploadUrl = '/api/game-builds';
   private readonly assetUrl = '/api/game-assets';
   private readonly dashboardUrl = '/api/services/app/DeveloperDashboard';
@@ -233,6 +250,24 @@ export class DeveloperService {
     return this.http
       .get<DeveloperProfile | { result?: DeveloperProfile }>(`${this.profileUrl}/GetMyProfile`)
       .pipe(map(response => this.unwrap<DeveloperProfile | null>(response)));
+  }
+
+  getTeam(): Observable<DeveloperTeam | null> {
+    return this.http
+      .get<DeveloperTeam | { result?: DeveloperTeam }>(`${this.teamUrl}/GetMyTeam`)
+      .pipe(map(response => this.unwrap<DeveloperTeam | null>(response)));
+  }
+
+  getTeamGeneralSettings(): Observable<DeveloperTeam | null> {
+    return this.http
+      .get<DeveloperTeam | { result?: DeveloperTeam }>(`${this.teamUrl}/GetGeneralSettings`)
+      .pipe(map(response => this.unwrap<DeveloperTeam | null>(response)));
+  }
+
+  updateTeamGeneralSettings(input: DeveloperTeam): Observable<DeveloperTeam> {
+    return this.http
+      .post<DeveloperTeam | { result?: DeveloperTeam }>(`${this.teamUrl}/UpdateGeneralSettings`, input)
+      .pipe(map(response => this.unwrap<DeveloperTeam>(response)));
   }
 
   createOrUpdateProfile(input: CreateOrUpdateProfileInput): Observable<DeveloperProfile> {

@@ -36,11 +36,26 @@ namespace GameHub.Gameplay
         [Required]
         public long RewardedBreakCount { get; set; }
 
+        /// <summary>Average session duration in seconds for this date.</summary>
+        public double AvgSessionDurationSeconds { get; set; }
+
+        /// <summary>Median session duration in seconds for this date.</summary>
+        public double MedianSessionDurationSeconds { get; set; }
+
+        /// <summary>Percentage of sessions that ended within the first 60 seconds.</summary>
+        public double OnboardingDropOffRate { get; set; }
+
         /// <summary>Average FPS aggregated across sessions for this date.</summary>
         public double? AvgFps { get; set; }
 
         /// <summary>Minimum FPS recorded for this date.</summary>
         public double? MinFps { get; set; }
+
+        /// <summary>Number of sessions with acceptable FPS (>= 30).</summary>
+        public long FpsAcceptableSessions { get; set; }
+
+        /// <summary>Total number of sessions that reported FPS.</summary>
+        public long FpsTotalSessions { get; set; }
 
         public virtual Game Game { get; set; }
     }

@@ -64,6 +64,8 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 - Metadados de aspect ratio por jogo (`16:9`, `4:3` ou `Qualquer`).
 - URLs públicas de preview para builds não publicados (`/preview/:slug/:version?token=...`) com tokens JWT de curta duração.
 - Overlay mobile Poki Pill com mensagem `movePill(topPercent, topPx)` do SDK e posição persistida.
+- **Mystery Tile** na home para descoberta de playtests, com prompt de consentimento de gravação.
+- Avisos de otimização de imagem na validação de builds quando assets ultrapassam 100 KB.
 - Consentimento de privacidade in-game com fallback para `localStorage` de usuários anônimos.
 
 ### Gameplay SDK / Bridge
@@ -81,6 +83,7 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 | `RewardedBreakRequested` | Rewarded ad solicitado. |
 | `RewardedBreakCompleted` | Rewarded ad finalizado. |
 | `AdBreakMute` / `AdBreakUnmute` | Mute de áudio durante ad breaks. |
+| `rewardedBreak` | UI de rewarded ad com botão verde padrão e botão não-verde; recompensa única. |
 | `GameErrorCaptured` | Erro capturado. |
 | `GameMeasuredEvent` | Evento de medição ou timing. |
 | `FpsMeasured` | Telemetria de FPS para monitoramento de performance. |
@@ -105,9 +108,10 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 ### P4D v2 (Equipes, Billing e Playtests)
 
 - Entidades `DeveloperTeam` e `DeveloperTeamMember` com papéis `Developer`, `Support` e `Billing`.
-- `IDeveloperTeamAppService` para criar, atualizar, convidar, remover e aceitar membros.
+- `IDeveloperTeamAppService` para criar, atualizar, convidar, remover, aceitar membros e configurações gerais (`/developer/team`).
 - `DeveloperBillingProfile` vinculado a uma equipe com workflow de aprovação pendente.
 - Entidade `PlaytestSession` e `IPlaytestAppService` para solicitar playtests, listar por jogo e fazer upload de gravações.
+- Entidade `PlaytestRecording` com URL do vídeo, duração, dispositivo, país, console output e notas; página admin `/app/main/gamehub/playtests` com player e anotações.
 
 ### Moderação & Publicação (Admin)
 
@@ -116,7 +120,10 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 - Fila de denúncias e histórico auditável de moderação.
 - Avisos de validação de builds para requests externos, arquivos grandes e links externos.
 - **Inspector de QA v2**: timeline de eventos SDK, warnings e scaling tests por sessão.
-- Alertas de performance baseados em FPS e snapshots diários de métricas.
+- Alertas de performance baseados em FPS e snapshots diários de métricas; health alerts quando < 85% dos usuários por dispositivo não atingem 30 FPS.
+- **Guias de Onboarding e Engajamento**: taxa de drop-off, duração de sessão, mediana e benchmark por categoria, com sugestões.
+- **Sugestão de categorias e validação de SEO** para publicação de jogos.
+- Tipos de contrato de revenue share (`WebExclusive`, `NonExclusive`) com regras de split e flat fee.
 - Moderação de UGC com filtro de profanidade.
 
 ---
@@ -294,7 +301,7 @@ cd angular-admin/GameHub.UI && npm ci && npm run build
 
 | Suite | Status | Quantidade |
 |-------|--------|------------|
-| GameHub.Tests | Pass | 279 passados, 2 skipped |
+| GameHub.Tests | Pass | 288 passados, 2 skipped |
 | GameHub.Web.Tests | Pass | 0 passados, 1 skipped |
 | Angular Hub Build | Pass | build de produção OK |
 | Angular Admin Build | Pass | build de produção OK |
@@ -305,10 +312,10 @@ Medido com `dotnet test --collect:"XPlat Code Coverage"` e filtro de assemblies 
 
 | Assembly | Line Rate | Branch Rate |
 |----------|-----------|-------------|
-| GameHub.Core | 82,4% | — |
-| GameHub.Application | 77,0% | — |
-| GameHub.EntityFrameworkCore | 1,4% | — |
-| **Geral** | **6,9%** | **50,3%** |
+| GameHub.Core | 82.9% | — |
+| GameHub.Application | 79.9% | — |
+| GameHub.EntityFrameworkCore | 1.3% | — |
+| **Geral** | **7,4%** | **50,8%** |
 
 > A cobertura geral está baixa porque a plataforma está em desenvolvimento inicial. O target é 90% line/branch; novos testes de domínio e aplicação devem ser adicionados incrementalmente.
 

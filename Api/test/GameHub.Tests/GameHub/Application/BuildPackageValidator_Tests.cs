@@ -104,6 +104,19 @@ namespace GameHub.Tests.GameHub.Application
             result.Warnings.ShouldContain(w => w.Contains("Debugger", StringComparison.OrdinalIgnoreCase));
         }
 
+        [Fact]
+        public async Task Dado_ZipComImagemGrande_Quando_Validar_Entao_DeveGerarImageOptimizationWarning()
+        {
+            var stream = CreateZipWithBinary("assets/hero.png", new byte[200 * 1024]);
+            var validator = new GameBuildPackageValidator();
+
+            var result = await validator.ValidateAsync(stream);
+
+            result.ImageOptimizationWarnings.ShouldNotBeEmpty();
+            result.ImageOptimizationWarnings[0].Path.ShouldBe("assets/hero.png");
+            result.Warnings.ShouldContain(w => w.Contains("hero.png", StringComparison.OrdinalIgnoreCase));
+        }
+
         private static MemoryStream CreateZipWithContent(string entryName, string content)
         {
             var stream = new MemoryStream();
@@ -111,6 +124,22 @@ namespace GameHub.Tests.GameHub.Application
             {
                 var zipEntry = archive.CreateEntry(entryName);
                 using (var writer = new StreamWriter(zipEntry.Open(), Encoding.UTF8))
+                {
+                    writer.Write(content);
+                }
+            }
+
+            stream.Position = 0;
+            return stream;
+        }
+
+        private static MemoryStream CreateZipWithBinary(string entryName, byte[] content)
+        {
+            var stream = new MemoryStream();
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var zipEntry = archive.CreateEntry(entryName);
+                using (var writer = new BinaryWriter(zipEntry.Open()))
                 {
                     writer.Write(content);
                 }

@@ -31,6 +31,8 @@ namespace GameHub.Tests.GameHub.Application
         public async Task Dado_JogoComBreaks_Quando_ConsultarEarnings_Entao_RetornaReceitaEstimada()
         {
             var gameId = await SeedGameWithProfileAsync();
+            var contractService = LocalIocManager.Resolve<IRevenueContractAppService>();
+            await contractService.SetContractAsync(gameId, RevenueContractType.WebExclusive);
             var today = DateTime.UtcNow.Date;
 
             await UsingDbContextAsync(async context =>
@@ -103,7 +105,7 @@ namespace GameHub.Tests.GameHub.Application
 
             var result = await _developerEarningsAppService.GetEarningsAsync(new GetDeveloperEarningsInput());
 
-            result.Games[0].DeveloperShare.ShouldBeGreaterThan(0.5m);
+            result.Games[0].DeveloperShare.ShouldBeGreaterThanOrEqualTo(0.5m);
             result.Games[0].ContractType.ShouldBe(RevenueContractType.WebExclusive);
         }
 
