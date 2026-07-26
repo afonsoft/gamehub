@@ -161,6 +161,38 @@
       return this._postPromise('getToken');
     }
 
+    reconnect() {
+      return this._postPromise('reconnect');
+    }
+
+    spectateMatch(matchId) {
+      return this._postPromise('spectateMatch', { matchId });
+    }
+
+    signal(peerId, payload) {
+      return this._postPromise('signal', { peerId, payload });
+    }
+
+    joinLobby(gameId, mode, maxPlayers) {
+      return this._postPromise('joinLobby', { gameId, mode, maxPlayers });
+    }
+
+    broadcast(channel, payload) {
+      return this._postPromise('broadcast', { channel, payload });
+    }
+
+    loadArbitrary(key) {
+      return this._postPromise('loadArbitrary', { key });
+    }
+
+    saveArbitrary(key, value, ttlSeconds) {
+      return this._postPromise('saveArbitrary', { key, value, ttlSeconds });
+    }
+
+    deleteArbitrary(key) {
+      return this._postPromise('deleteArbitrary', { key });
+    }
+
     captureError(error) {
       this._post('gameErrorCaptured', { error: error?.message || String(error) });
     }
@@ -187,6 +219,14 @@
     login: () => sdk.login(),
     getUser: () => sdk.getUser(),
     getToken: () => sdk.getToken(),
+    reconnect: () => sdk.reconnect(),
+    spectateMatch: (matchId) => sdk.spectateMatch(matchId),
+    signal: (peerId, payload) => sdk.signal(peerId, payload),
+    joinLobby: (gameId, mode, maxPlayers) => sdk.joinLobby(gameId, mode, maxPlayers),
+    broadcast: (channel, payload) => sdk.broadcast(channel, payload),
+    loadArbitrary: (key) => sdk.loadArbitrary(key),
+    saveArbitrary: (key, value, ttlSeconds) => sdk.saveArbitrary(key, value, ttlSeconds),
+    deleteArbitrary: (key) => sdk.deleteArbitrary(key),
     captureError: (error) => sdk.captureError(error),
     gameMeasuredEvent: (category, what, action) => sdk.gameMeasuredEvent(category, what, action),
   };

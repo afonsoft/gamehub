@@ -100,7 +100,30 @@ namespace GameHub.Tests.GameHub.Application
                 Key = "temp"
             });
 
-            value.ShouldBe(string.Empty);
+            value.ShouldBe("{}");
+        }
+
+        [Fact]
+        public async Task Dado_TtlExpirado_Quando_Get_Entao_RetornaObjetoVazio()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync("AUDS Game", "auds-game-expired");
+
+            await _arbitraryUserDataAppService.SetAsync(new SetArbitraryUserDataInput
+            {
+                GameId = gameId,
+                Key = "expired",
+                ValueJson = "{\"x\":1}",
+                TtlSeconds = 0
+            });
+
+            var value = await _arbitraryUserDataAppService.GetAsync(new GetArbitraryUserDataInput
+            {
+                GameId = gameId,
+                Key = "expired"
+            });
+
+            value.ShouldBe("{}");
         }
 
         [Fact]

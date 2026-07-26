@@ -69,6 +69,7 @@ O GameHub é um monolito modular construído sobre o template EAF/ABP para .NET.
 - Consentimento de privacidade in-game com fallback para `localStorage` de usuários anônimos.
 - **Multiplayer / Netlib base**: `Game.SupportsMultiplayer`, `MaxPlayersPerMatch`, `MatchState`, `MatchParticipant`, SignalR `GameHubMatchHub` (`/signalr-match`), matchmaking por código de sala, estado da partida em tempo real e endpoints HTTP de bridge.
 - **Arbitrary User Data Store (AUDS)**: armazenamento chave/valor JSON por jogo com validação de JSON, cota de 100 chaves, limite de 64 KB por valor, prefixo reservado `gamehub_ignore_*` e TTL opcional.
+- **Endurecimento multiplayer/SignalR (Poki 28)**: validação de token escopado ao jogo, janela de reconexão de 30 segundos, espectadores (até 10 por sala), limites de payload/rate limit, signaling WebRTC em `/signalr-network`, limpeza Hangfire e métricas multiplayer/AUDS.
 
 ### Gameplay SDK / Bridge
 
@@ -100,7 +101,8 @@ O jogo executado no iframe se comunica com a plataforma através dos eventos:
 | `createMatch` / `joinMatch` / `joinMatchByRoomCode` | Matchmaking multiplayer via SignalR com código de sala. |
 | `sendMatchState` / `onMatchStateChanged` | Broadcast do estado da partida para os jogadores conectados. |
 | `leaveMatch` | Desconecta do jogador da partida atual. |
-| `saveArbitrary` / `loadArbitrary` / `deleteArbitrary` | Armazenamento arbitrário de dados do jogador (AUDS) com cota e TTL. |
+| `saveArbitrary` / `loadArbitrary` / `deleteArbitrary` | AUDS com cota e TTL; o save retorna `{ saved, quota }`. |
+| `reconnect` / `spectateMatch` / `signal` / `broadcast` | Reconexão, modo espectador e signaling WebRTC. |
 
 ### Portal do Desenvolvedor
 
@@ -375,7 +377,7 @@ GPL-3.0-or-later. Veja [LICENSE](LICENSE) para detalhes.
 
 ## Status do Projeto
 
-Em desenvolvimento ativo. O spec 27 (Netlib/multiplayer base com matchmaking e estado da partida em tempo real via SignalR, além do Arbitrary User Data Store) está implementado no backend, Web Host e bridge Angular. Trabalho restante inclui caches produtivos com Redis, integração MinIO/S3 para armazenamento de builds, algoritmos avançados de recomendação e integração mais profunda do SignalR (autorização no hub, reconexão resiliente e suporte a espectadores).
+Em desenvolvimento ativo. Os specs 27 e 28 fornecem a base multiplayer/AUDS, SignalR autenticado, reconexão resiliente, espectadores, signaling, jobs de limpeza e observabilidade. O trabalho futuro está em `.specs/29-poki-multiplayer-browser-ranked.md`.
 
 ---
 

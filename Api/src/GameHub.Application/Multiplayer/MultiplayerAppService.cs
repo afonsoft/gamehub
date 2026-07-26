@@ -41,7 +41,13 @@ namespace GameHub.Multiplayer
         public async Task<MatchDto> JoinMatchAsync(JoinMatchInput input)
         {
             var userId = AbpSession.UserId;
-            await _matchmakingService.JoinMatchAsync(input.MatchId, userId, input.AnonymousIdHash, input.ConnectionId);
+            var participant = await _matchmakingService.ReactivateParticipantAsync(
+                input.MatchId, userId, input.AnonymousIdHash, input.ConnectionId);
+            if (participant == null)
+            {
+                await _matchmakingService.JoinMatchAsync(
+                    input.MatchId, userId, input.AnonymousIdHash, input.ConnectionId, input.IsSpectator);
+            }
             return await GetMatchAsync(input.MatchId);
         }
 
@@ -59,8 +65,25 @@ namespace GameHub.Multiplayer
             }
 
             var userId = AbpSession.UserId;
-            await _matchmakingService.JoinMatchAsync(match.Id, userId, input.AnonymousIdHash, input.ConnectionId);
+            var participant = await _matchmakingService.ReactivateParticipantAsync(
+                match.Id, userId, input.AnonymousIdHash, input.ConnectionId);
+            if (participant == null)
+            {
+                await _matchmakingService.JoinMatchAsync(
+                    match.Id, userId, input.AnonymousIdHash, input.ConnectionId, input.IsSpectator);
+            }
             return await GetMatchAsync(match.Id);
+        }
+
+        public Task<MatchDto> SpectateMatchAsync(Guid matchId, string anonymousIdHash = null, string connectionId = null)
+        {
+            return JoinMatchAsync(new JoinMatchInput
+            {
+                MatchId = matchId,
+                AnonymousIdHash = anonymousIdHash,
+                ConnectionId = connectionId ?? string.Empty,
+                IsSpectator = true
+            });
         }
 
         public async Task LeaveMatchAsync(LeaveMatchInput input)
@@ -84,7 +107,7 @@ namespace GameHub.Multiplayer
 
         public async Task UpdateMatchStateAsync(UpdateMatchStateInput input)
         {
-            await _matchmakingService.UpdateMatchStateAsync(input.MatchId, input.PayloadJson);
+            await _matchmakingService.UpdateMatchStateAsync(input.MatchId, input.PayloadJson, input.ConnectionId);
         }
 
         public async Task EndMatchAsync(Guid matchId)

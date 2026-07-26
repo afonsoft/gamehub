@@ -12,10 +12,12 @@ namespace GameHub.Tests.GameHub.Application
     public class MatchmakingAppService_Tests : GameHubTestBase
     {
         private readonly IMultiplayerAppService _multiplayerAppService;
+        private readonly IMatchmakingService _matchmakingService;
 
         public MatchmakingAppService_Tests()
         {
             _multiplayerAppService = LocalIocManager.Resolve<IMultiplayerAppService>();
+            _matchmakingService = LocalIocManager.Resolve<IMatchmakingService>();
         }
 
         [Fact]
@@ -89,6 +91,103 @@ namespace GameHub.Tests.GameHub.Application
                 {
                     MatchId = created.Id,
                     ConnectionId = "conn-3"
+                });
+            });
+        }
+
+        [Fact]
+        public async Task Dado_SalaCheia_Quando_SpectateMatch_Entao_EspectadorEntra()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync("Multiplayer Game", "multiplayer-game-spectator");
+            var created = await _multiplayerAppService.CreateMatchAsync(new CreateMatchInput
+            {
+                GameId = gameId,
+                MaxPlayers = 2
+            });
+
+            await _multiplayerAppService.JoinMatchAsync(new JoinMatchInput
+            {
+                MatchId = created.Id,
+                ConnectionId = "player-1"
+            });
+            await _multiplayerAppService.JoinMatchAsync(new JoinMatchInput
+            {
+                MatchId = created.Id,
+                ConnectionId = "player-2"
+            });
+
+            var result = await _multiplayerAppService.SpectateMatchAsync(created.Id, connectionId: "spectator-1");
+
+            result.Participants.Count.ShouldBe(3);
+            result.Participants.ShouldContain(p => p.IsSpectator && p.ConnectionId == "spectator-1");
+        }
+
+        [Fact]
+        public async Task Dado_EspectadorConectado_Quando_AtualizarEstado_Entao_NaoAutorizado()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync("Multiplayer Game", "multiplayer-game-spectator-state");
+            var created = await _multiplayerAppService.CreateMatchAsync(new CreateMatchInput
+            {
+                GameId = gameId,
+                MaxPlayers = 2
+            });
+
+            await _multiplayerAppService.SpectateMatchAsync(created.Id, connectionId: "spectator-1");
+
+            await Should.ThrowAsync<UnauthorizedAccessException>(async () =>
+            {
+                await _multiplayerAppService.UpdateMatchStateAsync(new UpdateMatchStateInput
+                {
+                    MatchId = created.Id,
+                    ConnectionId = "spectator-1",
+                    PayloadJson = "{\"x\":1}"
+                });
+            });
+        }
+
+        [Fact]
+        public async Task Dado_ConexaoDesconectada_Quando_ReconectarEmAte30Segundos_Entao_ReativaParticipante()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync("Multiplayer Game", "multiplayer-game-reconnect");
+            var created = await _multiplayerAppService.CreateMatchAsync(new CreateMatchInput
+            {
+                GameId = gameId,
+                MaxPlayers = 2
+            });
+
+            await _multiplayerAppService.JoinMatchAsync(new JoinMatchInput
+            {
+                MatchId = created.Id,
+                ConnectionId = "old-connection"
+            });
+            await _matchmakingService.DisconnectAsync("old-connection");
+
+            var reconnected = await _multiplayerAppService.JoinMatchAsync(new JoinMatchInput
+            {
+                MatchId = created.Id,
+                ConnectionId = "new-connection"
+            });
+
+            reconnected.Participants.ShouldContain(p => p.IsActive && p.ConnectionId == "new-connection");
+            reconnected.Participants.Count.ShouldBe(1);
+        }
+
+        [Fact]
+        public async Task Dado_PayloadMaiorQue64Kb_Quando_AtualizarEstado_Entao_LancaExcecao()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync("Multiplayer Game", "multiplayer-game-payload");
+            var created = await _multiplayerAppService.CreateMatchAsync(new CreateMatchInput { GameId = gameId });
+
+            await Should.ThrowAsync<InvalidOperationException>(async () =>
+            {
+                await _multiplayerAppService.UpdateMatchStateAsync(new UpdateMatchStateInput
+                {
+                    MatchId = created.Id,
+                    PayloadJson = $"\"{new string('x', 64 * 1024)}\""
                 });
             });
         }

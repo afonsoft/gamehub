@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **SignalR / AUDS deepening (Poki 28)**: authenticated game-scoped SignalR connections, reconnect grace periods, spectator rooms, payload validation and rate limits, the `/signalr-network` WebRTC signaling relay, AUDS TTL cleanup and quota-returning saves, multiplayer/AUDS metrics, Hangfire cleanup jobs, the `Poki28` migration, and bridge/SDK helpers for reconnect, spectating, signaling, broadcasting, and arbitrary data.
+
 - **Error Scanner (Poki 26.1)**: `AdminDashboardAppService.GetErrorScannerAsync` aggregates `GameErrorLog` by message/severity and raises health alerts when errors exceed 10/hour; `GameplayBridgeService.reportError` persists errors from the SDK.
 - **Daily Playing Users / Conversion Funnel (Poki 26.2)**: `GameMetricSnapshot` adds `DailyPlayingUsers`, `PageViews`, `LoadingStartedCount`, `LoadingFinishedCount`, and `GameplayStartedCount`; `GameMetricsAggregationJob` computes funnel counts; `AdminDashboardAppService.GetConversionFunnelAsync` returns PageView → Loading → Gameplay conversion stages.
 - **Player Feedback Analytics (Poki 26.3)**: `UserContent` supports `Rating`; `PlayerFeedbackAnalyticsAppService.GetFeedbackSummaryAsync` returns average rating, distribution, sentiment, and recent comments; `GetHealthAlertsAsync` warns for games with `AverageRating < 3.0` and `ReviewCount >= 10`.

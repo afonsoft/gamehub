@@ -18,6 +18,8 @@ namespace GameHub.Multiplayer
 
         Task<MatchDto> JoinMatchByRoomCodeAsync(JoinMatchByRoomCodeInput input);
 
+        Task<MatchDto> SpectateMatchAsync(Guid matchId, string anonymousIdHash = null, string connectionId = null);
+
         Task LeaveMatchAsync(LeaveMatchInput input);
 
         Task<MatchDto> GetMatchAsync(Guid matchId);

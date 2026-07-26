@@ -209,7 +209,8 @@ namespace GameHub
 
             // Multiplayer
             configuration.CreateMap<MatchState, MatchDto>()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.MaxSpectators, opt => opt.MapFrom(src => MatchmakingService.MaxSpectatorsPerMatch));
             configuration.CreateMap<MatchParticipant, MatchParticipantDto>();
 
             // Configuration / Audit

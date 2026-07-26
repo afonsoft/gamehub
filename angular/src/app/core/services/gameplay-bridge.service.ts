@@ -95,8 +95,10 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly privacyUrl = '/api/services/app/Privacy/GetForGame';
   private readonly consentUrl = '/api/services/app/Privacy/GetConsent';
   private readonly matchHubUrl = '/signalr-match';
+  private readonly networkHubUrl = '/signalr-network';
 
   private matchConnection: signalR.HubConnection | null = null;
+  private networkConnection: signalR.HubConnection | null = null;
   private currentMatchId: string | null = null;
   private onMatchStateChangedCallback?: (state: unknown) => void;
 
@@ -155,6 +157,7 @@ export class GameplayBridgeService implements GameplayBridge {
   }
 
   async createMatch(gameId: string, mode?: string, maxPlayers?: number): Promise<unknown> {
+    this.gameId = gameId;
     await this.ensureMatchConnection();
     const result = await this.matchConnection?.invoke('CreateMatch', {
       gameId,
@@ -185,6 +188,64 @@ export class GameplayBridgeService implements GameplayBridge {
     return result;
   }
 
+  async spectateMatch(matchId: string): Promise<unknown> {
+    await this.ensureMatchConnection();
+    const result = await this.matchConnection?.invoke('SpectateMatch', matchId);
+    this.setCurrentMatchFromResult(result);
+    return result;
+  }
+
+  async reconnectMatch(): Promise<unknown> {
+    await this.ensureMatchConnection();
+    if (!this.currentMatchId) {
+      throw new Error('No current match');
+    }
+    const result = await this.matchConnection?.invoke('JoinMatch', {
+      matchId: this.currentMatchId,
+      anonymousIdHash: this.getAnonymousId(),
+    });
+    this.setCurrentMatchFromResult(result);
+    return result;
+  }
+
+  async signal(peerId: string, payload: unknown): Promise<void> {
+    await this.ensureNetworkConnection();
+    await this.networkConnection?.invoke('Signal', peerId, payload);
+  }
+
+  async joinLobby(gameId: string, mode?: string, maxPlayers?: number): Promise<unknown> {
+    this.gameId = gameId;
+    await this.ensureNetworkConnection();
+    return this.networkConnection?.invoke('JoinLobby', gameId, mode ?? 'default', maxPlayers);
+  }
+
+  async broadcast(channel: 'reliable' | 'unreliable', payload: unknown): Promise<void> {
+    await this.ensureNetworkConnection();
+    await this.networkConnection?.invoke('Broadcast', channel, payload);
+  }
+
+  private async ensureNetworkConnection(): Promise<void> {
+    if (this.networkConnection) {
+      return;
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(this.networkHubUrl, { accessTokenFactory: () => this.getGameToken() })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build();
+
+    connection.on('Signal', (peerId: unknown, payload: unknown) => {
+      this.reply({ channel: 'gamehub-bridge', action: 'signal', payload: { peerId, payload } });
+    });
+    connection.on('Broadcast', (channel: unknown, peerId: unknown, payload: unknown) => {
+      this.reply({ channel: 'gamehub-bridge', action: 'broadcast', payload: { channel, peerId, payload } });
+    });
+
+    await connection.start();
+    this.networkConnection = connection;
+  }
+
   private setCurrentMatchFromResult(result: unknown): void {
     const data = (result as { id?: string } | undefined) ?? {};
     if (data.id) {
@@ -213,7 +274,7 @@ export class GameplayBridgeService implements GameplayBridge {
     }
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(this.matchHubUrl)
+      .withUrl(this.matchHubUrl, { accessTokenFactory: () => this.getGameToken() })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Warning)
       .build();
@@ -743,6 +804,53 @@ export class GameplayBridgeService implements GameplayBridge {
           .then(result => this.replyResponse(requestId ?? '', result))
           .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
         break;
+      case 'reconnect':
+        void this.reconnectMatch()
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'spectateMatch':
+        void this.spectateMatch((payload?.['matchId'] as string) ?? '')
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'signal':
+        void this.signal((payload?.['peerId'] as string) ?? '', payload?.['payload'])
+          .then(() => this.replyResponse(requestId ?? '', { sent: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Signal error'));
+        break;
+      case 'joinLobby':
+        void this.joinLobby(
+          (payload?.['gameId'] as string) ?? this.gameId ?? '',
+          (payload?.['mode'] as string) ?? 'default',
+          payload?.['maxPlayers'] as number | undefined
+        )
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Lobby error'));
+        break;
+      case 'broadcast':
+        void this.broadcast(
+          ((payload?.['channel'] as 'reliable' | 'unreliable') ?? 'reliable'),
+          payload?.['payload']
+        )
+          .then(() => this.replyResponse(requestId ?? '', { sent: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Broadcast error'));
+        break;
+      case 'loadArbitrary':
+        void this.loadArbitrary((payload?.['key'] as string) ?? '')
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'AUDS error'));
+        break;
+      case 'saveArbitrary':
+        void this.saveArbitrary((payload?.['key'] as string) ?? '', payload?.['value'], payload?.['ttlSeconds'] as number | undefined)
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'AUDS error'));
+        break;
+      case 'deleteArbitrary':
+        void this.deleteArbitrary((payload?.['key'] as string) ?? '')
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'AUDS error'));
+        break;
       case 'leaveMatch':
         void this.leaveMatch()
           .then(() => this.replyResponse(requestId ?? '', { left: true }))
@@ -785,6 +893,46 @@ export class GameplayBridgeService implements GameplayBridge {
 
   private getSaveKey(): string {
     return `${this.localSavePrefix}${this.gameId ?? 'unknown'}`;
+  }
+
+  private async getGameToken(): Promise<string> {
+    if (!this.gameId || !this.auth.isLoggedIn()) {
+      return '';
+    }
+
+    const response = await firstValueFrom(
+      this.http.post<{ result?: { token?: string } }>(`${this.playerAccountUrl}/GetToken`, { gameId: this.gameId })
+    );
+    return this.unwrap<{ token?: string }>(response)?.token ?? '';
+  }
+
+  private async loadArbitrary(key: string): Promise<unknown> {
+    const response = await firstValueFrom(this.http.post(`${this.gameplayUrl}/LoadArbitrary`, {
+      gameId: this.gameId,
+      key,
+      anonymousIdHash: this.getAnonymousId(),
+    }));
+    return this.unwrap(response);
+  }
+
+  private async saveArbitrary(key: string, value: unknown, ttlSeconds?: number): Promise<unknown> {
+    const response = await firstValueFrom(this.http.post(`${this.gameplayUrl}/SaveArbitrary`, {
+      gameId: this.gameId,
+      key,
+      valueJson: JSON.stringify(value ?? {}),
+      ttlSeconds,
+      anonymousIdHash: this.getAnonymousId(),
+    }));
+    return this.unwrap(response);
+  }
+
+  private async deleteArbitrary(key: string): Promise<unknown> {
+    const response = await firstValueFrom(this.http.post(`${this.gameplayUrl}/DeleteArbitrary`, {
+      gameId: this.gameId,
+      key,
+      anonymousIdHash: this.getAnonymousId(),
+    }));
+    return this.unwrap(response);
   }
 
   private getLocalSave(): Record<string, unknown> {
