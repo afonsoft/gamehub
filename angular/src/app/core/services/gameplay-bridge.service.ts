@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import * as signalR from '@microsoft/signalr';
 import { AdBreakService } from './ad-break.service';
 import { AuthService } from '../auth/auth.service';
 import { TokenService } from '../auth/token.service';
@@ -93,6 +94,11 @@ export class GameplayBridgeService implements GameplayBridge {
   private readonly playerAccountUrl = '/api/services/app/PlayerAccount';
   private readonly privacyUrl = '/api/services/app/Privacy/GetForGame';
   private readonly consentUrl = '/api/services/app/Privacy/GetConsent';
+  private readonly matchHubUrl = '/signalr-match';
+
+  private matchConnection: signalR.HubConnection | null = null;
+  private currentMatchId: string | null = null;
+  private onMatchStateChangedCallback?: (state: unknown) => void;
 
   constructor(
     private http: HttpClient,
@@ -142,6 +148,99 @@ export class GameplayBridgeService implements GameplayBridge {
 
   setOnRewardedBreak(handler?: (resolve: (rewarded: boolean) => void) => void): void {
     this.onRewardedBreak = handler;
+  }
+
+  onMatchStateChanged(callback: (state: unknown) => void): void {
+    this.onMatchStateChangedCallback = callback;
+  }
+
+  async createMatch(gameId: string, mode?: string, maxPlayers?: number): Promise<unknown> {
+    await this.ensureMatchConnection();
+    const result = await this.matchConnection?.invoke('CreateMatch', {
+      gameId,
+      mode: mode ?? 'default',
+      maxPlayers,
+    });
+    this.setCurrentMatchFromResult(result);
+    return result;
+  }
+
+  async joinMatch(matchId: string): Promise<unknown> {
+    await this.ensureMatchConnection();
+    const result = await this.matchConnection?.invoke('JoinMatch', {
+      matchId,
+      anonymousIdHash: this.getAnonymousId(),
+    });
+    this.setCurrentMatchFromResult(result);
+    return result;
+  }
+
+  async joinMatchByRoomCode(roomCode: string): Promise<unknown> {
+    await this.ensureMatchConnection();
+    const result = await this.matchConnection?.invoke('JoinMatchByRoomCode', {
+      roomCode,
+      anonymousIdHash: this.getAnonymousId(),
+    });
+    this.setCurrentMatchFromResult(result);
+    return result;
+  }
+
+  private setCurrentMatchFromResult(result: unknown): void {
+    const data = (result as { id?: string } | undefined) ?? {};
+    if (data.id) {
+      this.currentMatchId = data.id;
+    }
+  }
+
+  async leaveMatch(): Promise<void> {
+    if (this.matchConnection && this.currentMatchId) {
+      await this.matchConnection.invoke('LeaveMatch', this.currentMatchId);
+    }
+  }
+
+  async sendMatchState(payload: unknown): Promise<void> {
+    if (this.matchConnection && this.currentMatchId) {
+      await this.matchConnection.invoke('SendMatchState', {
+        matchId: this.currentMatchId,
+        payloadJson: JSON.stringify(payload),
+      });
+    }
+  }
+
+  private async ensureMatchConnection(): Promise<void> {
+    if (this.matchConnection) {
+      return;
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(this.matchHubUrl)
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build();
+
+    connection.on('MatchStateChanged', (state: unknown) => {
+      this.onMatchStateChangedCallback?.(state);
+    });
+
+    connection.on('PlayerJoined', (event: unknown) => {
+      const data = (event as { matchId?: string }) ?? {};
+      if (data.matchId && !this.currentMatchId) {
+        this.currentMatchId = data.matchId;
+      }
+    });
+
+    await connection.start();
+    this.matchConnection = connection;
+  }
+
+  private getAnonymousId(): string {
+    const key = 'gamehub_anonymous_id';
+    let id = this.safeLocalStorageGet(key);
+    if (!id) {
+      id = typeof crypto !== 'undefined' ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+      this.safeLocalStorageSet(key, id);
+    }
+    return id;
   }
 
   async requestRewardedAd(): Promise<{ rewarded: boolean; adBlocked?: boolean }> {
@@ -626,6 +725,38 @@ export class GameplayBridgeService implements GameplayBridge {
           (payload?.['consented'] as boolean) ?? true,
           (payload?.['policyVersion'] as string) ?? ''
         );
+        break;
+      case 'createMatch':
+        void this.createMatch(
+          (payload?.['gameId'] as string) ?? '',
+          (payload?.['mode'] as string) ?? 'default',
+          (payload?.['maxPlayers'] as number) ?? undefined
+        ).then(result => this.replyResponse(requestId ?? '', result)).catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'joinMatch':
+        void this.joinMatch((payload?.['matchId'] as string) ?? '')
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'joinMatchByRoomCode':
+        void this.joinMatchByRoomCode((payload?.['roomCode'] as string) ?? '')
+          .then(result => this.replyResponse(requestId ?? '', result))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'leaveMatch':
+        void this.leaveMatch()
+          .then(() => this.replyResponse(requestId ?? '', { left: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'sendMatchState':
+        void this.sendMatchState(payload?.['state'])
+          .then(() => this.replyResponse(requestId ?? '', { sent: true }))
+          .catch(err => this.replyResponse(requestId ?? '', undefined, err instanceof Error ? err.message : 'Match error'));
+        break;
+      case 'onMatchStateChanged':
+        this.onMatchStateChanged((state: unknown) => {
+          this.reply({ channel: 'gamehub-bridge', action: 'matchStateChanged', requestId, payload: state });
+        });
         break;
       case 'movePill':
         this.movePill(
