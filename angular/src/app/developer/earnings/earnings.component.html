@@ -9,10 +9,10 @@
     </nav>
   </aside>
 
-  <main class="dev-main">
+  <main class="dev-main" aria-labelledby="developer-earnings-title">
     <div class="dev-header">
       <div>
-        <h1>Earnings</h1>
+        <h1 id="developer-earnings-title">Earnings</h1>
         <p class="earnings-intro">Track estimated revenue and ad performance across your games.</p>
       </div>
     </div>
@@ -20,17 +20,20 @@
     <form class="earnings-filters" (ngSubmit)="applyFilter()">
       <label>
         From
-        <input type="date" name="from" [(ngModel)]="from">
+        <input type="date" name="from" [(ngModel)]="from" aria-label="Start date">
       </label>
       <label>
         To
-        <input type="date" name="to" [(ngModel)]="to">
+        <input type="date" name="to" [(ngModel)]="to" aria-label="End date">
       </label>
       <button class="btn-primary" type="submit" [disabled]="loading">Apply</button>
       <button class="btn-secondary" type="button" (click)="from = ''; to = ''; loadEarnings()" [disabled]="loading">Reset</button>
     </form>
-    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
-    <div class="loading" *ngIf="loading">Loading...</div>
+    <div class="error-message" *ngIf="errorMessage" role="alert">
+      <span>{{ errorMessage }}</span>
+      <button class="btn-secondary" type="button" (click)="loadEarnings()">Retry</button>
+    </div>
+    <div class="loading" *ngIf="loading" role="status" aria-live="polite">Loading...</div>
 
     <ng-container *ngIf="!loading && earnings">
       <p class="earnings-notice">Estimated values only; they do not represent confirmed payout. Period: {{ earnings.from | date:'mediumDate' }} – {{ earnings.to | date:'mediumDate' }}.</p>
@@ -66,15 +69,16 @@
         </div>
         <div class="table-scroll">
           <table class="earnings-table">
+            <caption class="sr-only">Estimated earnings by game</caption>
             <thead>
               <tr>
-                <th>Game</th>
-                <th>Plays</th>
-                <th>Commercial</th>
-                <th>Rewarded</th>
-                <th>Gross</th>
-                <th>Dev share</th>
-                <th>Developer revenue</th>
+                <th scope="col">Game</th>
+                <th scope="col">Plays</th>
+                <th scope="col">Commercial</th>
+                <th scope="col">Rewarded</th>
+                <th scope="col">Gross</th>
+                <th scope="col">Dev share</th>
+                <th scope="col">Developer revenue</th>
               </tr>
             </thead>
             <tbody>
@@ -98,19 +102,20 @@
             <h2>{{ game.gameTitle }}</h2>
             <p>Daily revenue breakdown</p>
           </div>
-          <button class="btn-secondary" type="button" (click)="toggleDaily(game.gameId)">
+          <button class="btn-secondary" type="button" (click)="toggleDaily(game.gameId)" [attr.aria-expanded]="isDailyExpanded(game.gameId)" [attr.aria-controls]="'daily-' + game.gameId">
             {{ isDailyExpanded(game.gameId) ? 'Hide details' : 'Show details' }}
           </button>
         </div>
-        <div class="table-scroll" *ngIf="isDailyExpanded(game.gameId) && game.daily.length">
+        <div class="table-scroll" *ngIf="isDailyExpanded(game.gameId) && game.daily.length" [id]="'daily-' + game.gameId">
           <table class="earnings-table">
+            <caption class="sr-only">Daily earnings for {{ game.gameTitle }}</caption>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Commercial</th>
-                <th>Rewarded</th>
-                <th>Gross</th>
-                <th>Developer revenue</th>
+                <th scope="col">Date</th>
+                <th scope="col">Commercial</th>
+                <th scope="col">Rewarded</th>
+                <th scope="col">Gross</th>
+                <th scope="col">Developer revenue</th>
               </tr>
             </thead>
             <tbody>

@@ -145,5 +145,98 @@ namespace GameHub.Tests.GameHub.Application
             result.ShouldNotBeNull();
             result.TotalPlays.ShouldBe(1);
         }
+
+        [Fact]
+        public async Task Dado_SessaoDePlaytest_Quando_ConsultarMetricas_Entao_NaoIncluiNaProducao()
+        {
+            var game = await _developerGameAppService.CreateDraftAsync(new CreateGameDraftInput
+            {
+                Title = "Metrics Playtest Game",
+                ShortDescription = "Playtest filtering",
+                AgeRating = "E",
+                Orientation = "Both"
+            });
+            await UsingDbContextAsync(async context =>
+            {
+                await context.PlaySessions.AddRangeAsync(
+                    new PlaySession
+                    {
+                        Id = Guid.NewGuid(),
+                        GameId = game.Id,
+                        TenantId = AbpSession.TenantId,
+                        StartedAt = DateTime.UtcNow,
+                        DeviceType = "Desktop",
+                        Browser = "Test",
+                        IsPlaytest = false
+                    },
+                    new PlaySession
+                    {
+                        Id = Guid.NewGuid(),
+                        GameId = game.Id,
+                        TenantId = AbpSession.TenantId,
+                        StartedAt = DateTime.UtcNow,
+                        DeviceType = "Desktop",
+                        Browser = "Test",
+                        IsPlaytest = true
+                    });
+                await context.SaveChangesAsync();
+            });
+
+            var result = await _gameMetricsAppService.GetMetricsAsync(
+                game.Id,
+                new GameMetricsFilter());
+
+            result.TotalPlays.ShouldBe(1);
+        }
+
+        [Fact]
+        public async Task Dado_MetricasValidas_Quando_ExportarCsv_Entao_RetornaCabecalhoEDados()
+        {
+            var game = await _developerGameAppService.CreateDraftAsync(new CreateGameDraftInput
+            {
+                Title = "Metrics Export Game",
+                ShortDescription = "CSV export",
+                AgeRating = "E",
+                Orientation = "Both"
+            });
+            var sessionDate = DateTime.UtcNow.Date;
+
+            await UsingDbContextAsync(async context =>
+            {
+                await context.PlaySessions.AddAsync(new PlaySession
+                {
+                    Id = Guid.NewGuid(),
+                    GameId = game.Id,
+                    TenantId = AbpSession.TenantId,
+                    UserId = AbpSession.UserId,
+                    StartedAt = sessionDate.AddHours(12),
+                    DeviceType = "Desktop",
+                    Browser = "Test"
+                });
+                await context.SaveChangesAsync();
+            });
+
+            var metrics = await _gameMetricsAppService.GetMetricsAsync(
+                game.Id,
+                new GameMetricsFilter
+                {
+                    From = sessionDate.AddDays(-1),
+                    To = sessionDate.AddDays(1)
+                });
+            metrics.TotalPlays.ShouldBe(1);
+
+            var export = await _gameMetricsAppService.ExportCsvAsync(
+                game.Id,
+                new GameMetricsFilter
+                {
+                    From = sessionDate.AddDays(-1),
+                    To = sessionDate.AddDays(1)
+                });
+
+            export.FileName.ShouldBe("game-metrics.csv");
+            export.ContentType.ShouldBe("text/csv");
+            export.Content.ShouldContain("date,plays,uniquePlayers");
+            export.Content.ShouldContain(",1,1,0");
+        }
     }
 }

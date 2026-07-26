@@ -8,5 +8,7 @@ namespace GameHub.Gameplay
     public interface IGameMetricsAppService : IApplicationService
     {
         Task<GameMetricsResult> GetMetricsAsync(Guid gameId, GameMetricsFilter input);
+
+        Task<GameMetricsExportDto> ExportCsvAsync(Guid gameId, GameMetricsFilter input);
     }
 }

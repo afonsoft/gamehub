@@ -17,6 +17,7 @@ export class DeveloperGamesComponent implements OnInit {
   errorMessage = '';
   statusFilter = 'All';
   submissionMessage = '';
+  submittingGameId: string | null = null;
 
   private readonly developerService = inject(DeveloperService);
 
@@ -54,13 +55,16 @@ export class DeveloperGamesComponent implements OnInit {
       return;
     }
     this.submissionMessage = '';
+    this.submittingGameId = game.id;
     this.developerService.submitForReview(game.id).subscribe({
       next: () => {
         game.status = 'InReview';
         this.submissionMessage = `${game.title} was submitted for review.`;
+        this.submittingGameId = null;
       },
       error: err => {
         this.submissionMessage = err?.error?.error?.message || 'Unable to submit for review.';
+        this.submittingGameId = null;
       },
     });
   }

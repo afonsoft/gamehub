@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Runtime.Caching;
 using GameHub.Authorization;
 using GameHub.Moderation.Dto;
 using Microsoft.EntityFrameworkCore;
@@ -16,15 +17,22 @@ namespace GameHub.Moderation
     {
         private readonly IRepository<UserContent, Guid> _contentRepository;
         private readonly ProfanityFilter _profanityFilter;
+        private readonly ITypedCache<string, string> _rateLimitCache;
 
-        public UserContentAppService(IRepository<UserContent, Guid> contentRepository)
+        public UserContentAppService(
+            IRepository<UserContent, Guid> contentRepository,
+            ICacheManager cacheManager)
         {
             _contentRepository = contentRepository;
             _profanityFilter = new ProfanityFilter();
+            _rateLimitCache = cacheManager
+                .GetCache("GameHub.Moderation.UserContentRateLimit")
+                .AsTyped<string, string>();
         }
 
         public async Task<UserContentDto> SubmitAsync(SubmitUserContentInput input)
         {
+            await EnsureRateLimitAsync(input.GameId);
             var hasProfanity = _profanityFilter.ContainsProfanity(input.Text);
 
             var content = new UserContent
@@ -45,6 +53,29 @@ namespace GameHub.Moderation
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return ObjectMapper.Map<UserContentDto>(content);
+        }
+
+        private async Task EnsureRateLimitAsync(Guid gameId)
+        {
+            var key =
+                $"gamehub:moderation:content:" +
+                $"{AbpSession.TenantId?.ToString() ?? "host"}:" +
+                $"{AbpSession.UserId}:" +
+                $"{gameId:N}";
+
+            var current = await _rateLimitCache.GetOrDefaultAsync(key);
+            var count = int.TryParse(current, out var parsed) ? parsed : 0;
+
+            if (count >= 10)
+            {
+                throw new InvalidOperationException(
+                    "User content rate limit exceeded.");
+            }
+
+            await _rateLimitCache.SetAsync(
+                key,
+                (count + 1).ToString(),
+                absoluteExpireTime: DateTimeOffset.UtcNow.AddMinutes(1));
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Moderation_View)]

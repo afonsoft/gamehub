@@ -76,6 +76,30 @@ namespace GameHub.Tests.GameHub.Application
             result.RequiresModeration.ShouldBeFalse();
         }
 
+        [Fact]
+        public async Task Dado_MuitasSubmissoes_Quando_ExcederLimite_Entao_Rejeita()
+        {
+            var gameId = await CriarJogoAsync();
+
+            for (var index = 0; index < 10; index++)
+            {
+                await _userContentAppService.SubmitAsync(new SubmitUserContentInput
+                {
+                    GameId = gameId,
+                    ContentType = UserContentType.Comment,
+                    Text = $"Comment {index}"
+                });
+            }
+
+            await Should.ThrowAsync<InvalidOperationException>(() =>
+                _userContentAppService.SubmitAsync(new SubmitUserContentInput
+                {
+                    GameId = gameId,
+                    ContentType = UserContentType.Comment,
+                    Text = "One too many"
+                }));
+        }
+
         private async Task<Guid> CriarJogoAsync()
         {
             var userId = AbpSession.UserId.Value;

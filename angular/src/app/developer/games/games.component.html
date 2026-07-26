@@ -8,15 +8,15 @@
       <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
     </nav>
   </aside>
-  <main class="dev-main">
+  <main class="dev-main" aria-labelledby="developer-games-title">
     <div class="dev-header">
       <div>
-        <h1>My Games</h1>
+        <h1 id="developer-games-title">My Games</h1>
         <p>Manage your catalog, builds and review submissions.</p>
       </div>
       <a class="btn-primary" routerLink="/developer/games/create">New Game</a>
     </div>
-    <div class="loading" *ngIf="loading">Loading...</div>
+    <div class="loading" *ngIf="loading" role="status" aria-live="polite">Loading...</div>
     <div class="games-toolbar" *ngIf="!loading && games.length">
       <p>{{ filteredGames.length }} of {{ games.length }} {{ games.length === 1 ? 'game' : 'games' }} shown</p>
       <label>
@@ -30,17 +30,21 @@
         </select>
       </label>
     </div>
-    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+    <div class="error-message" *ngIf="errorMessage" role="alert">
+      <span>{{ errorMessage }}</span>
+      <button class="btn-secondary" type="button" (click)="loadGames()">Retry</button>
+    </div>
     <p class="status-message" *ngIf="submissionMessage" role="status">{{ submissionMessage }}</p>
     <div class="games-table-wrap table-scroll" *ngIf="!loading && filteredGames.length">
       <table class="games-table">
+        <caption class="sr-only">Developer games and available actions</caption>
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Latest Build</th>
-            <th>Last Updated</th>
-            <th>Actions</th>
+            <th scope="col">Title</th>
+            <th scope="col">Status</th>
+            <th scope="col">Latest Build</th>
+            <th scope="col">Last Updated</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -53,7 +57,9 @@
               <div class="actions-cell">
                 <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
                 <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
-                <button class="submit-action" type="button" *ngIf="canSubmitForReview(game)" (click)="submitForReview(game)">Submit for review</button>
+                <button class="submit-action" type="button" *ngIf="canSubmitForReview(game)" (click)="submitForReview(game)" [disabled]="submittingGameId === game.id" [attr.aria-label]="'Submit ' + game.title + ' for review'">
+                  {{ submittingGameId === game.id ? 'Submitting...' : 'Submit for review' }}
+                </button>
               </div>
             </td>
           </tr>

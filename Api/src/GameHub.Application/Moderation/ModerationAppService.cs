@@ -149,6 +149,10 @@ namespace GameHub.Moderation
         {
             var report = await _reportRepository.GetAsync(reportId);
             report.Status = status;
+            report.ResolvedAt = status == UserReportStatus.Resolved ||
+                status == UserReportStatus.Dismissed
+                ? DateTime.UtcNow
+                : null;
             await CurrentUnitOfWork.SaveChangesAsync();
         }
     }
