@@ -37,5 +37,7 @@ namespace GameHub.Admin
         Task<ConversionFunnelDto> GetConversionFunnelAsync(Guid? gameId, DateTime? startDate, DateTime? endDate);
 
         Task<PlayerFitDto> GetPlayerFitAsync(Guid gameId);
+
+        Task<List<MultiplayerMetricsDto>> GetMultiplayerMetricsAsync(Guid? gameId, DateTime? startDate, DateTime? endDate);
     }
 }

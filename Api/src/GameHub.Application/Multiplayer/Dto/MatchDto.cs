@@ -17,6 +17,8 @@ namespace GameHub.Multiplayer.Dto
 
         public int MaxPlayers { get; set; }
 
+        public int MaxSpectators { get; set; }
+
         public string PayloadJson { get; set; } = string.Empty;
 
         public DateTime? ExpiresAt { get; set; }
@@ -35,6 +37,8 @@ namespace GameHub.Multiplayer.Dto
         public string ConnectionId { get; set; } = string.Empty;
 
         public bool IsActive { get; set; }
+
+        public bool IsSpectator { get; set; }
 
         public DateTime JoinedAt { get; set; }
     }

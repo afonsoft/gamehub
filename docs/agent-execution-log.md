@@ -1,3 +1,22 @@
+## 2026-07-26 19:00 UTC
+
+### Tarefa
+Executar `.specs/28-poki-signalr-deepening.md`.
+
+### Arquivos alterados
+- SignalR match/network hubs, autenticação por token e presença com janela de reconexão.
+- Matchmaking, espectadores, validação de payload, rate limiting e métricas.
+- Jobs Hangfire de limpeza de AUDS, participantes desconectados e salas expiradas.
+- Gameplay bridge/SDK, endpoints de AUDS com `{ saved, quota }` e fallback `{}`.
+- Migração EF Core `Poki28`, testes de multiplayer/AUDS e documentação.
+
+### Motivação
+Evoluir a fundação Poki 27 para multiplayer resiliente, signaling WebRTC, persistência temporária e observabilidade.
+
+### Resultado
+- Build Release validado após restore.
+- Testes existentes ajustados ao contrato `{}` para chaves ausentes; novos cenários cobrem espectadores, reconexão, payload e TTL.
+- A validação final da solução e o PR permanecem pendentes após a revisão do diff.
 # GameHub — Agent Execution Log
 
 ## 2026-07-26 03:00 UTC

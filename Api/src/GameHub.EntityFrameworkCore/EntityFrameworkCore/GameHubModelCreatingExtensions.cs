@@ -824,8 +824,11 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.AnonymousIdHash).HasMaxLength(128);
                 b.Property(x => x.ConnectionId).HasMaxLength(256);
                 b.Property(x => x.IsActive).IsRequired();
+                b.Property(x => x.IsSpectator).IsRequired();
                 b.Property(x => x.JoinedAt).IsRequired();
                 b.Property(x => x.LeftAt);
+                b.Property(x => x.DisconnectedAt);
+                b.Property(x => x.GracePeriodEndsAt);
 
                 b.HasIndex(x => new { x.MatchId, x.IsActive });
                 b.HasIndex(x => x.ConnectionId);

@@ -27,6 +27,8 @@ namespace GameHub.Multiplayer.Dto
 
         [StringLength(256)]
         public string ConnectionId { get; set; } = string.Empty;
+
+        public bool IsSpectator { get; set; }
     }
 
     public class JoinMatchByRoomCodeInput
@@ -42,6 +44,8 @@ namespace GameHub.Multiplayer.Dto
 
         [StringLength(256)]
         public string ConnectionId { get; set; } = string.Empty;
+
+        public bool IsSpectator { get; set; }
     }
 
     public class LeaveMatchInput
@@ -60,5 +64,8 @@ namespace GameHub.Multiplayer.Dto
         public Guid MatchId { get; set; }
 
         public string PayloadJson { get; set; } = string.Empty;
+
+        [StringLength(256)]
+        public string ConnectionId { get; set; } = string.Empty;
     }
 }

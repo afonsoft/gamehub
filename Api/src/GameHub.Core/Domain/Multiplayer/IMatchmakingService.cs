@@ -16,12 +16,20 @@ namespace GameHub.Multiplayer
 
         Task<MatchState> GetMatchByRoomCodeAsync(string roomCode);
 
-        Task<MatchParticipant> JoinMatchAsync(Guid matchId, long? userId, string anonymousIdHash, string connectionId);
+        Task<MatchParticipant> JoinMatchAsync(Guid matchId, long? userId, string anonymousIdHash, string connectionId, bool isSpectator = false);
+
+        Task<MatchParticipant> ReactivateParticipantAsync(Guid matchId, long? userId, string anonymousIdHash, string connectionId);
 
         Task<bool> LeaveMatchAsync(Guid matchId, string connectionId);
 
-        Task UpdateMatchStateAsync(Guid matchId, string payloadJson);
+        Task<bool> DisconnectAsync(string connectionId);
+
+        Task UpdateMatchStateAsync(Guid matchId, string payloadJson, string connectionId = null);
 
         Task EndMatchAsync(Guid matchId);
+
+        Task<int> CleanupExpiredMatchesAsync();
+
+        Task<int> CleanupDisconnectedParticipantsAsync();
     }
 }

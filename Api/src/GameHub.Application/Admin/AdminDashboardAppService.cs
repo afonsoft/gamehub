@@ -15,6 +15,7 @@ using GameHub.Catalog;
 using GameHub.Developers;
 using GameHub.Gameplay;
 using GameHub.Moderation;
+using GameHub.Multiplayer;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Admin
@@ -34,6 +35,8 @@ namespace GameHub.Admin
         private readonly IRepository<GameErrorLog, Guid> _errorLogRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
+        private readonly IRepository<MatchState, Guid> _matchRepository;
+        private readonly IRepository<MatchParticipant, Guid> _participantRepository;
 
         public AdminDashboardAppService(
             IRepository<Game, Guid> gameRepository,
@@ -44,7 +47,9 @@ namespace GameHub.Admin
             IRepository<GameMetricSnapshot, Guid> metricSnapshotRepository,
             IRepository<GameErrorLog, Guid> errorLogRepository,
             IRepository<User, long> userRepository,
-            IRepository<DeveloperProfile, Guid> developerProfileRepository)
+            IRepository<DeveloperProfile, Guid> developerProfileRepository,
+            IRepository<MatchState, Guid> matchRepository,
+            IRepository<MatchParticipant, Guid> participantRepository)
         {
             _gameRepository = gameRepository;
             _buildRepository = buildRepository;
@@ -55,6 +60,8 @@ namespace GameHub.Admin
             _errorLogRepository = errorLogRepository;
             _userRepository = userRepository;
             _developerProfileRepository = developerProfileRepository;
+            _matchRepository = matchRepository;
+            _participantRepository = participantRepository;
         }
 
         public async Task<AdminDashboardSummaryDto> GetSummaryAsync()
@@ -732,6 +739,37 @@ namespace GameHub.Admin
                 EndDate = end,
                 Stages = stages
             };
+        }
+
+        public async Task<List<MultiplayerMetricsDto>> GetMultiplayerMetricsAsync(
+            Guid? gameId,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            var start = (startDate ?? Clock.Now.Date.AddDays(-30)).Date;
+            var end = (endDate ?? Clock.Now).Date.AddDays(1);
+            var matches = await _matchRepository.GetAll()
+                .Where(match => (!gameId.HasValue || match.GameId == gameId.Value)
+                                && match.CreationTime >= start
+                                && match.CreationTime < end)
+                .ToListAsync();
+            var participants = await _participantRepository.GetAll()
+                .Where(participant => participant.JoinedAt >= start && participant.JoinedAt < end)
+                .ToListAsync();
+
+            return matches
+                .GroupBy(match => new { match.GameId, Date = match.CreationTime.Date })
+                .Select(group => new MultiplayerMetricsDto
+                {
+                    GameId = group.Key.GameId,
+                    Date = group.Key.Date,
+                    MatchesCreated = group.Count(),
+                    ActiveMatches = group.Count(match => match.Status != MatchStatus.Ended),
+                    PlayersConnected = participants.Count(participant =>
+                        group.Any(match => match.Id == participant.MatchId) && !participant.IsSpectator)
+                })
+                .OrderBy(item => item.Date)
+                .ToList();
         }
 
         private static double ComputeMedian(List<double> values)

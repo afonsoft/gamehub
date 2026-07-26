@@ -200,6 +200,11 @@ namespace GameHub.Gameplay
             return _multiplayerAppService.JoinMatchByRoomCodeAsync(input);
         }
 
+        public Task<MatchDto> SpectateMatchAsync(Guid matchId, string anonymousIdHash = null, string connectionId = null)
+        {
+            return _multiplayerAppService.SpectateMatchAsync(matchId, anonymousIdHash, connectionId);
+        }
+
         public Task LeaveMatchAsync(LeaveMatchInput input)
         {
             return _multiplayerAppService.LeaveMatchAsync(input);
@@ -215,7 +220,7 @@ namespace GameHub.Gameplay
             return _arbitraryUserDataAppService.GetAsync(input);
         }
 
-        public Task SaveArbitraryAsync(SetArbitraryUserDataInput input)
+        public Task<ArbitraryUserDataSaveResultDto> SaveArbitraryAsync(SetArbitraryUserDataInput input)
         {
             return _arbitraryUserDataAppService.SetAsync(input);
         }

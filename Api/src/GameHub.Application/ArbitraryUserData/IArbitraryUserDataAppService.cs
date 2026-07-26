@@ -12,7 +12,7 @@ namespace GameHub.ArbitraryUserData
     {
         Task<string> GetAsync(GetArbitraryUserDataInput input);
 
-        Task SetAsync(SetArbitraryUserDataInput input);
+        Task<ArbitraryUserDataSaveResultDto> SetAsync(SetArbitraryUserDataInput input);
 
         Task DeleteAsync(DeleteArbitraryUserDataInput input);
 

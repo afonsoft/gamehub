@@ -16,6 +16,16 @@ namespace GameHub.Application.Extensions
                     Date = DateTime.UtcNow.Date.AddDays(-1)
                 }),
                 Cron.Daily);
+
+            RecurringJob.AddOrUpdate<CleanupExpiredArbitraryUserDataJob>(
+                "auds-cleanup-expired",
+                job => job.Execute(),
+                Cron.Daily);
+
+            RecurringJob.AddOrUpdate<CleanupMultiplayerJob>(
+                "multiplayer-cleanup",
+                job => job.Execute(),
+                Cron.Hourly);
         }
     }
 }

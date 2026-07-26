@@ -25,13 +25,15 @@ namespace GameHub.Gameplay
 
         Task<MatchDto> JoinMatchByRoomCodeAsync(JoinMatchByRoomCodeInput input);
 
+        Task<MatchDto> SpectateMatchAsync(Guid matchId, string anonymousIdHash = null, string connectionId = null);
+
         Task LeaveMatchAsync(LeaveMatchInput input);
 
         Task SendMatchStateAsync(UpdateMatchStateInput input);
 
         Task<string> LoadArbitraryAsync(GetArbitraryUserDataInput input);
 
-        Task SaveArbitraryAsync(SetArbitraryUserDataInput input);
+        Task<ArbitraryUserDataSaveResultDto> SaveArbitraryAsync(SetArbitraryUserDataInput input);
 
         Task DeleteArbitraryAsync(DeleteArbitraryUserDataInput input);
     }

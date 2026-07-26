@@ -20,8 +20,10 @@ using GameHub.Application.Extensions;
 using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
+using GameHub.Web.Hubs;
 using GameHub.Web.WebHooks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -63,6 +65,8 @@ namespace GameHub.Web.Startup
             }).AddNewtonsoftJson();
 
             services.AddSignalR();
+            services.AddSingleton<IUserIdProvider, GameHubUserIdProvider>();
+            services.AddSingleton<NetworkPeerRegistry>();
 
             //Configure EAF Middleware
             services.AddEafConfigurer(_appConfiguration);
@@ -202,6 +206,7 @@ namespace GameHub.Web.Startup
                 endpoints.MapHub<AbpCommonHub>("/signalr");
                 endpoints.MapHub<ChatHub>("/signalr-chat");
                 endpoints.MapHub<GameHub.Web.Hubs.GameHubMatchHub>("/signalr-match");
+                endpoints.MapHub<NetworkSignalRHub>("/signalr-network");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 

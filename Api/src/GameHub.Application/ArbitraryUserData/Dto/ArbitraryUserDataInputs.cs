@@ -59,4 +59,11 @@ namespace GameHub.ArbitraryUserData.Dto
 
         public long MaxBytesPerValue { get; set; }
     }
+
+    public class ArbitraryUserDataSaveResultDto
+    {
+        public bool Saved { get; set; }
+
+        public ArbitraryUserDataQuotaDto Quota { get; set; } = new();
+    }
 }

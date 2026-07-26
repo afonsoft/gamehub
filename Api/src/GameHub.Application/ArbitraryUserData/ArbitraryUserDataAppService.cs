@@ -7,6 +7,7 @@ using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Timing;
 using GameHub.ArbitraryUserData.Dto;
+using GameHub.Monitoring;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.ArbitraryUserData
@@ -39,10 +40,10 @@ namespace GameHub.ArbitraryUserData
                 .OrderByDescending(r => r.CreationTime)
                 .FirstOrDefaultAsync();
 
-            return record?.ValueJson ?? string.Empty;
+            return record?.ValueJson ?? "{}";
         }
 
-        public async Task SetAsync(SetArbitraryUserDataInput input)
+        public async Task<ArbitraryUserDataSaveResultDto> SetAsync(SetArbitraryUserDataInput input)
         {
             if (input.Key.StartsWith("gamehub_ignore_", StringComparison.OrdinalIgnoreCase))
             {
@@ -71,7 +72,11 @@ namespace GameHub.ArbitraryUserData
                 existing.ValueJson = input.ValueJson ?? string.Empty;
                 existing.ExpiresAt = input.TtlSeconds.HasValue ? Clock.Now.AddSeconds(input.TtlSeconds.Value) : (DateTime?)null;
                 await _repository.UpdateAsync(existing);
-                return;
+                return new ArbitraryUserDataSaveResultDto
+                {
+                    Saved = true,
+                    Quota = await GetQuotaAsync(input.GameId)
+                };
             }
 
             var currentKeyCount = await _repository.GetAll()
@@ -96,6 +101,14 @@ namespace GameHub.ArbitraryUserData
                 ValueJson = input.ValueJson ?? string.Empty,
                 ExpiresAt = input.TtlSeconds.HasValue ? Clock.Now.AddSeconds(input.TtlSeconds.Value) : null
             });
+            GameHubMetrics.AudsKeysStored.Add(1);
+            GameHubMetrics.AudsBytesStored.Add(bytes);
+
+            return new ArbitraryUserDataSaveResultDto
+            {
+                Saved = true,
+                Quota = await GetQuotaAsync(input.GameId)
+            };
         }
 
         public async Task DeleteAsync(DeleteArbitraryUserDataInput input)

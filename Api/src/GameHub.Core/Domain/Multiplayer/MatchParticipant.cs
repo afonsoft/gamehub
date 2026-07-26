@@ -27,9 +27,15 @@ namespace GameHub.Multiplayer
         [Required]
         public bool IsActive { get; set; }
 
+        public bool IsSpectator { get; set; }
+
         public DateTime JoinedAt { get; set; }
 
         public DateTime? LeftAt { get; set; }
+
+        public DateTime? DisconnectedAt { get; set; }
+
+        public DateTime? GracePeriodEndsAt { get; set; }
 
         public virtual MatchState Match { get; set; }
     }
