@@ -66,7 +66,7 @@
   "docs.ug.publishingWorkflow": "Publishing workflow",
   "docs.ug.publishingWorkflowText": "The workflow is upload, validation, Preview, Inspector, build approval, review submission, feedback, and publication. Preview opens a temporary build and never publishes the game; Inspector is for diagnostics. Invalid builds cannot be submitted.",
   "docs.ug.sdkChat": "Chat in games",
-  "docs.ug.sdkChatText": "The SDK chat uses the authenticated EAF ChatHub and does not expose tokens or sender identity to the game. Connect with a game context, limit messages to 500 characters, handle reconnecting/offline states, and follow the platform privacy and moderation rules.",
+  "docs.ug.sdkChatText": "The SDK chat uses the authenticated EAF ChatHub for realtime events and a GameHub authorization endpoint for sends. Match messages require active participation; sender identity comes from the session, messages are limited to 500 characters, and repeated clientMessageId values are acknowledged without sending twice during the cache window.",
   "docs.ug.report": "Reporting",
   "docs.ug.reportText": "On the game detail page, click Report game and choose a reason. Our team will review it.",
   "docs.api.baseUrl": "Base URL",
