@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Multiplayer browser and ranked foundation (Poki 29)**: public match browsing filters, ranked seasons/ratings/queue entries, server-side match history and replay metadata, security audit events, matchmaking metrics, SignalR Redis configuration compatibility, and administrator controls for match closure, participant moderation, and security-event auditing.
+
 - **SignalR / AUDS deepening (Poki 28)**: authenticated game-scoped SignalR connections, reconnect grace periods, spectator rooms, payload validation and rate limits, the `/signalr-network` WebRTC signaling relay, AUDS TTL cleanup and quota-returning saves, multiplayer/AUDS metrics, Hangfire cleanup jobs, the `Poki28` migration, and bridge/SDK helpers for reconnect, spectating, signaling, broadcasting, and arbitrary data.
 
 - **Error Scanner (Poki 26.1)**: `AdminDashboardAppService.GetErrorScannerAsync` aggregates `GameErrorLog` by message/severity and raises health alerts when errors exceed 10/hour; `GameplayBridgeService.reportError` persists errors from the SDK.

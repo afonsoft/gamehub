@@ -37,6 +37,7 @@ namespace GameHub.Admin
         private readonly IRepository<DeveloperProfile, Guid> _developerProfileRepository;
         private readonly IRepository<MatchState, Guid> _matchRepository;
         private readonly IRepository<MatchParticipant, Guid> _participantRepository;
+        private readonly IRepository<MultiplayerSecurityEvent, Guid> _securityEventRepository;
 
         public AdminDashboardAppService(
             IRepository<Game, Guid> gameRepository,
@@ -49,7 +50,8 @@ namespace GameHub.Admin
             IRepository<User, long> userRepository,
             IRepository<DeveloperProfile, Guid> developerProfileRepository,
             IRepository<MatchState, Guid> matchRepository,
-            IRepository<MatchParticipant, Guid> participantRepository)
+            IRepository<MatchParticipant, Guid> participantRepository,
+            IRepository<MultiplayerSecurityEvent, Guid> securityEventRepository)
         {
             _gameRepository = gameRepository;
             _buildRepository = buildRepository;
@@ -62,6 +64,7 @@ namespace GameHub.Admin
             _developerProfileRepository = developerProfileRepository;
             _matchRepository = matchRepository;
             _participantRepository = participantRepository;
+            _securityEventRepository = securityEventRepository;
         }
 
         public async Task<AdminDashboardSummaryDto> GetSummaryAsync()
@@ -770,6 +773,77 @@ namespace GameHub.Admin
                 })
                 .OrderBy(item => item.Date)
                 .ToList();
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Multiplayer_Manage)]
+        public async Task<List<MultiplayerAdminMatchDto>> GetMultiplayerMatchesAsync(int maxResultCount = 100)
+        {
+            var matches = await _matchRepository.GetAll()
+                .Include(match => match.Participants)
+                .Where(match => match.Status != MatchStatus.Ended)
+                .OrderByDescending(match => match.CreationTime)
+                .Take(Math.Min(Math.Max(maxResultCount, 1), 100))
+                .ToListAsync();
+
+            return matches.Select(match => new MultiplayerAdminMatchDto
+            {
+                MatchId = match.Id,
+                GameId = match.GameId,
+                RoomCode = match.RoomCode,
+                Mode = match.Mode,
+                Status = match.Status,
+                ParticipantCount = match.Participants.Count(participant => participant.IsActive),
+                CreatedAt = match.CreationTime
+            }).ToList();
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Multiplayer_Manage)]
+        public async Task CloseMultiplayerMatchAsync(Guid matchId)
+        {
+            var match = await _matchRepository.GetAsync(matchId);
+            match.End();
+            match.Status = MatchStatus.Cancelled;
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Multiplayer_Manage)]
+        public async Task ModerateMultiplayerParticipantAsync(Guid participantId, string reason)
+        {
+            var participant = await _participantRepository.GetAsync(participantId);
+            participant.IsActive = false;
+            participant.LeftAt = Clock.Now;
+            var match = await _matchRepository.GetAsync(participant.MatchId);
+            await _securityEventRepository.InsertAsync(new MultiplayerSecurityEvent
+            {
+                Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
+                MatchId = match.Id,
+                GameId = match.GameId,
+                UserId = participant.UserId,
+                ConnectionId = participant.ConnectionId,
+                EventType = "moderation",
+                Reason = string.IsNullOrWhiteSpace(reason) ? "Participant moderated." : reason,
+                OccurredAt = Clock.Now
+            });
+        }
+
+        [AbpAuthorize(GameHubPermissions.Pages_Multiplayer_Manage)]
+        public async Task<List<MultiplayerSecurityEventDto>> GetMultiplayerSecurityEventsAsync(Guid? gameId, int maxResultCount = 100)
+        {
+            return await _securityEventRepository.GetAll()
+                .Where(item => !gameId.HasValue || item.GameId == gameId.Value)
+                .OrderByDescending(item => item.OccurredAt)
+                .Take(Math.Min(Math.Max(maxResultCount, 1), 100))
+                .Select(item => new MultiplayerSecurityEventDto
+                {
+                    Id = item.Id,
+                    GameId = item.GameId,
+                    MatchId = item.MatchId,
+                    UserId = item.UserId,
+                    EventType = item.EventType,
+                    Reason = item.Reason,
+                    OccurredAt = item.OccurredAt
+                })
+                .ToListAsync();
         }
 
         private static double ComputeMedian(List<double> values)

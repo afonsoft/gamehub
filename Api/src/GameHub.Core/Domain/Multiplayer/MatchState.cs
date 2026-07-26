@@ -40,6 +40,17 @@ namespace GameHub.Multiplayer
 
         public DateTime? ExpiresAt { get; set; }
 
+        [StringLength(64)]
+        public string Region { get; set; }
+
+        public bool IsRanked { get; set; }
+
+        public Guid? RankedSeasonId { get; set; }
+
+        public int? AverageLatencyMs { get; set; }
+
+        public DateTime? CompletedAt { get; set; }
+
         public virtual Game Game { get; set; }
 
         public virtual ICollection<MatchParticipant> Participants { get; protected set; } = new List<MatchParticipant>();

@@ -58,5 +58,7 @@ namespace GameHub.Authorization
         // Gameplay
         public const string Pages_Gameplay = "Pages.Gameplay";
         public const string Pages_Leaderboard = "Pages.Leaderboard";
+        public const string Pages_Multiplayer = "Pages.Multiplayer";
+        public const string Pages_Multiplayer_Manage = "Pages.Multiplayer.Manage";
     }
 }

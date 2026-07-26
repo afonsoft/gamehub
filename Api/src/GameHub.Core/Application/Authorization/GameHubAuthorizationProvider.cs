@@ -59,6 +59,8 @@ namespace GameHub.Authorization
 
             pages.CreateChildPermission(GameHubPermissions.Pages_Gameplay, L("Gameplay"));
             pages.CreateChildPermission(GameHubPermissions.Pages_Leaderboard, L("Leaderboard"));
+            var multiplayer = pages.CreateChildPermission(GameHubPermissions.Pages_Multiplayer, L("Multiplayer"));
+            multiplayer.CreateChildPermission(GameHubPermissions.Pages_Multiplayer_Manage, L("Manage"));
         }
 
         private static ILocalizableString L(string name)

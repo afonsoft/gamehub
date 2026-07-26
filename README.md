@@ -69,6 +69,7 @@ GameHub is a modular monolith built on top of the EAF/ABP template for .NET. It 
 - **Multiplayer / Netlib base**: `Game.SupportsMultiplayer`, `MaxPlayersPerMatch`, `MatchState`, `MatchParticipant`, SignalR `GameHubMatchHub` (`/signalr-match`), room code matchmaking, real-time match state, and HTTP bridge endpoints.
 - **Arbitrary User Data Store (AUDS)**: per-game key/value JSON storage with JSON validation, 100-key quota, 64 KB/value limit, reserved `gamehub_ignore_*` prefix, and optional TTL.
 - **SignalR multiplayer hardening (Poki 28)**: game-scoped token validation, 30-second reconnect grace periods, spectators (up to 10 per room), payload/rate limits, `/signalr-network` WebRTC signaling, Hangfire cleanup, and multiplayer/AUDS metrics.
+- **Ranked multiplayer foundation (Poki 29)**: public match browsing by game/mode/region/latency, ranked seasons and MMR snapshots, queue cancellation/matching, server-owned match history and replay metadata, security audit events, matchmaking metrics, and admin match moderation endpoints.
 
 ### Gameplay SDK / Bridge
 
@@ -430,7 +431,7 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 
 ## Project Status
 
-In active development. Specs 27 and 28 provide the multiplayer/AUDS foundation, authenticated SignalR match handling, reconnect resilience, spectators, signaling, cleanup jobs, and observability. Future work is tracked in `.specs/29-poki-multiplayer-browser-ranked.md`.
+In active development. Specs 27–29 provide the multiplayer/AUDS foundation, authenticated SignalR match handling, reconnect resilience, spectators, signaling, ranked queues, match history, cleanup jobs, and observability.
 
 ---
 
