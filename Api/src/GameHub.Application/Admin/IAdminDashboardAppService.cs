@@ -39,5 +39,13 @@ namespace GameHub.Admin
         Task<PlayerFitDto> GetPlayerFitAsync(Guid gameId);
 
         Task<List<MultiplayerMetricsDto>> GetMultiplayerMetricsAsync(Guid? gameId, DateTime? startDate, DateTime? endDate);
+
+        Task<List<MultiplayerAdminMatchDto>> GetMultiplayerMatchesAsync(int maxResultCount = 100);
+
+        Task CloseMultiplayerMatchAsync(Guid matchId);
+
+        Task ModerateMultiplayerParticipantAsync(Guid participantId, string reason);
+
+        Task<List<MultiplayerSecurityEventDto>> GetMultiplayerSecurityEventsAsync(Guid? gameId, int maxResultCount = 100);
     }
 }

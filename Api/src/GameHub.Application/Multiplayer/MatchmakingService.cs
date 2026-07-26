@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -290,6 +291,29 @@ namespace GameHub.Multiplayer
                                  && p.IsActive
                                  && p.IsSpectator == spectators
                                  && (!p.GracePeriodEndsAt.HasValue || p.GracePeriodEndsAt > Clock.Now));
+        }
+
+        public async Task<IReadOnlyList<MatchState>> BrowseMatchesAsync(
+            Guid? gameId,
+            string mode,
+            string region,
+            int? maxLatencyMs,
+            bool? isRanked,
+            int skipCount,
+            int maxResultCount)
+        {
+            var query = _matchRepository.GetAll()
+                .Include(match => match.Participants)
+                .Where(match => match.Status != MatchStatus.Ended
+                                && match.ExpiresAt > Clock.Now
+                                && (!gameId.HasValue || match.GameId == gameId.Value)
+                                && (string.IsNullOrWhiteSpace(mode) || match.Mode == mode)
+                                && (string.IsNullOrWhiteSpace(region) || match.Region == region)
+                                && (!maxLatencyMs.HasValue || match.AverageLatencyMs <= maxLatencyMs)
+                                && (!isRanked.HasValue || match.IsRanked == isRanked.Value))
+                .OrderByDescending(match => match.CreationTime);
+
+            return await query.Skip(skipCount).Take(Math.Min(Math.Max(maxResultCount, 1), 100)).ToListAsync();
         }
 
         private static void ValidatePayload(string payloadJson)

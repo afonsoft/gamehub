@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using GameHub.Multiplayer.Dto;
@@ -27,5 +28,17 @@ namespace GameHub.Multiplayer
         Task UpdateMatchStateAsync(UpdateMatchStateInput input);
 
         Task EndMatchAsync(Guid matchId);
+
+        Task<List<MatchBrowserDto>> BrowseMatchesAsync(BrowseMatchesInput input);
+
+        Task<RankedQueueDto> EnqueueRankedAsync(EnqueueRankedInput input);
+
+        Task CancelRankedAsync(CancelRankedInput input);
+
+        Task<RankedStatusDto> GetRankedStatusAsync(Guid gameId, string mode);
+
+        Task<List<MatchHistoryDto>> GetMatchHistoryAsync(Guid gameId, int maxResultCount = 20);
+
+        Task CompleteMatchAsync(CompleteMatchInput input);
     }
 }

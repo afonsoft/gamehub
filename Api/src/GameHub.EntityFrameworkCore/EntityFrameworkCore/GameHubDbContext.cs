@@ -115,6 +115,12 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<ExternalResourceExemption> ExternalResourceExemptions { get; set; }
         public virtual DbSet<MatchState> MatchStates { get; set; }
         public virtual DbSet<MatchParticipant> MatchParticipants { get; set; }
+        public virtual DbSet<RankedSeason> RankedSeasons { get; set; }
+        public virtual DbSet<PlayerRating> PlayerRatings { get; set; }
+        public virtual DbSet<RankedQueueEntry> RankedQueueEntries { get; set; }
+        public virtual DbSet<MatchHistory> MatchHistories { get; set; }
+        public virtual DbSet<ReplayMetadata> ReplayMetadata { get; set; }
+        public virtual DbSet<MultiplayerSecurityEvent> MultiplayerSecurityEvents { get; set; }
         public virtual DbSet<ArbitraryUserDataRecord> ArbitraryUserDataRecords { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -185,7 +185,9 @@ namespace GameHub.Migrations.Seed.Host
                 GameHubPermissions.Pages_Developer_Profile,
                 GameHubPermissions.Pages_Developer_Games,
                 GameHubPermissions.Pages_Gameplay,
-                GameHubPermissions.Pages_Leaderboard
+                GameHubPermissions.Pages_Leaderboard,
+                GameHubPermissions.Pages_Multiplayer,
+                GameHubPermissions.Pages_Multiplayer_Manage
             };
         }
 
@@ -217,7 +219,9 @@ namespace GameHub.Migrations.Seed.Host
                 GameHubPermissions.Pages_Users,
                 GameHubPermissions.Pages_Users_Manage,
                 GameHubPermissions.Pages_Gameplay,
-                GameHubPermissions.Pages_Leaderboard
+                GameHubPermissions.Pages_Leaderboard,
+                GameHubPermissions.Pages_Multiplayer,
+                GameHubPermissions.Pages_Multiplayer_Manage
             };
         }
 

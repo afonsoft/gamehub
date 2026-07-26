@@ -1,6 +1,31 @@
 ## 2026-07-26 19:00 UTC
 
 ### Tarefa
+
+Executar o prompt 29 para ampliar o multiplayer com descoberta pública, filas ranqueadas, histórico, replay metadata, métricas e controles administrativos.
+
+### Arquivos alterados
+
+- `Api/src/GameHub.Core/Domain/Multiplayer/*` — temporadas, ratings, filas, histórico, replay metadata, auditoria e dimensões de match.
+- `Api/src/GameHub.Application/Multiplayer/*` — filtros públicos, fila ranqueada, status, histórico e conclusão server-authoritative.
+- `Api/src/GameHub.Application/Admin/*` — operações administrativas de multiplayer.
+- `Api/src/GameHub.EntityFrameworkCore/*` — DbSets, mapeamentos e migration `Poki29`.
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — preservação da configuração SignalR compatível com a infraestrutura atual.
+- `Api/test/GameHub.Tests/GameHub/Application/RankedMultiplayer_Tests.cs` — invariantes de rating e fila.
+
+### Decisões e limitações
+
+- O cliente não define MMR nem altera diretamente o rating persistido; o resultado é finalizado pelo serviço de aplicação após validação de participação.
+- O pacote de backplane Redis do SignalR não está referenciado no projeto; a implementação preserva o hub atual e reutiliza a conexão Redis já existente para caches. Uma adoção explícita de `Microsoft.AspNetCore.SignalR.StackExchangeRedis` pode ser feita em uma mudança de infraestrutura separada.
+
+### Resultado
+
+- Build Release e 314 testes existentes mais 3 testes de rating passaram.
+- Migration `Poki29` gerada.
+
+## 2026-07-26 19:00 UTC
+
+### Tarefa
 Executar `.specs/28-poki-signalr-deepening.md`.
 
 ### Arquivos alterados

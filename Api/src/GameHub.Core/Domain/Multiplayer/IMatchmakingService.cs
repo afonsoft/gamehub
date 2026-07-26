@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GameHub.Multiplayer
@@ -31,5 +32,7 @@ namespace GameHub.Multiplayer
         Task<int> CleanupExpiredMatchesAsync();
 
         Task<int> CleanupDisconnectedParticipantsAsync();
+
+        Task<IReadOnlyList<MatchState>> BrowseMatchesAsync(Guid? gameId, string mode, string region, int? maxLatencyMs, bool? isRanked, int skipCount, int maxResultCount);
     }
 }

@@ -801,9 +801,13 @@ namespace GameHub.EntityFrameworkCore
                 b.Property(x => x.Status).IsRequired();
                 b.Property(x => x.MaxPlayers).IsRequired();
                 b.Property(x => x.PayloadJson).HasMaxLength(8000);
+                b.Property(x => x.Region).HasMaxLength(64);
+                b.Property(x => x.IsRanked).IsRequired();
                 b.Property(x => x.StartedAt);
                 b.Property(x => x.EndedAt);
                 b.Property(x => x.ExpiresAt).IsRequired();
+                b.Property(x => x.AverageLatencyMs);
+                b.Property(x => x.CompletedAt);
 
                 b.HasIndex(x => new { x.GameId, x.Status });
                 b.HasIndex(x => x.RoomCode).IsUnique();
@@ -837,6 +841,80 @@ namespace GameHub.EntityFrameworkCore
                     .WithMany(x => x.Participants)
                     .HasForeignKey(x => x.MatchId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RankedSeason>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "RankedSeasons", GameHubConsts.DbSchema);
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.Mode).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+                b.Property(x => x.StartsAt).IsRequired();
+                b.Property(x => x.IsActive).IsRequired();
+                b.HasIndex(x => new { x.GameId, x.Mode, x.IsActive });
+            });
+
+            modelBuilder.Entity<PlayerRating>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "PlayerRatings", GameHubConsts.DbSchema);
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.SeasonId).IsRequired();
+                b.Property(x => x.UserId).IsRequired();
+                b.Property(x => x.Mode).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Rating).HasDefaultValue(1000);
+                b.HasIndex(x => new { x.GameId, x.SeasonId, x.Mode, x.UserId }).IsUnique();
+            });
+
+            modelBuilder.Entity<RankedQueueEntry>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "RankedQueueEntries", GameHubConsts.DbSchema);
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.SeasonId).IsRequired();
+                b.Property(x => x.UserId).IsRequired();
+                b.Property(x => x.Mode).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Region).HasMaxLength(64);
+                b.Property(x => x.RatingSnapshot).IsRequired();
+                b.Property(x => x.EnqueuedAt).IsRequired();
+                b.Property(x => x.Status).IsRequired();
+                b.HasIndex(x => new { x.GameId, x.SeasonId, x.Mode, x.Region, x.Status, x.EnqueuedAt });
+                b.HasIndex(x => new { x.UserId, x.Status });
+            });
+
+            modelBuilder.Entity<MatchHistory>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "MatchHistories", GameHubConsts.DbSchema);
+                b.Property(x => x.MatchId).IsRequired();
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.Mode).HasMaxLength(64);
+                b.Property(x => x.Status).IsRequired();
+                b.Property(x => x.StartedAt).IsRequired();
+                b.Property(x => x.EndedAt).IsRequired();
+                b.Property(x => x.ResultsJson).HasMaxLength(16000);
+                b.HasIndex(x => new { x.GameId, x.EndedAt });
+                b.HasIndex(x => x.MatchId).IsUnique();
+            });
+
+            modelBuilder.Entity<ReplayMetadata>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "ReplayMetadata", GameHubConsts.DbSchema);
+                b.Property(x => x.MatchHistoryId).IsRequired();
+                b.Property(x => x.StorageKey).HasMaxLength(512);
+                b.Property(x => x.ContentHash).HasMaxLength(128);
+                b.HasIndex(x => x.MatchHistoryId).IsUnique();
+                b.HasIndex(x => x.ExpiresAt);
+            });
+
+            modelBuilder.Entity<MultiplayerSecurityEvent>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "MultiplayerSecurityEvents", GameHubConsts.DbSchema);
+                b.Property(x => x.GameId).IsRequired();
+                b.Property(x => x.EventType).IsRequired().HasMaxLength(64);
+                b.Property(x => x.Reason).IsRequired().HasMaxLength(512);
+                b.Property(x => x.ConnectionId).HasMaxLength(256);
+                b.Property(x => x.PayloadHash).HasMaxLength(128);
+                b.Property(x => x.OccurredAt).IsRequired();
+                b.HasIndex(x => new { x.GameId, x.OccurredAt });
+                b.HasIndex(x => new { x.MatchId, x.EventType });
             });
 
             modelBuilder.Entity<ArbitraryUserDataRecord>(b =>
