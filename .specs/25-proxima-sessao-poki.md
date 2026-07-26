@@ -1,6 +1,6 @@
 # 25 — Próxima Fase Poki: Otimizações Finais, Onboarding e Monetização Avançada
 
-> **Status:** pendente
+> **Status:** implementado em `feature/poki-25-final`
 > **Base:** análise de `https://sdk.poki.com/new-requirements.html`, `https://sdk.poki.com/playtesting` e `https://sdk.poki.com/deals`
 > **Objetivo:** fechar os gaps de UX e qualidade identificados na documentação Poki, evoluir o P4D e preparar a plataforma para testes de onboarding e monetização.
 

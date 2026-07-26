@@ -1,5 +1,41 @@
 # GameHub — Agent Execution Log
 
+## 2026-07-26 01:20 UTC
+
+### Tarefa
+Implementar spec 25 da referência Poki (image optimization warnings, General Team Settings UI, playtest recordings, rewarded ad UX, onboarding/engagement guides, revenue share/deal types, FPS/performance, suggested categories/SEO e Mystery Tile/playtest discovery).
+
+### Arquivos alterados
+- `Api/src/GameHub.Core/GameHubConsts.cs` — limiar de 100 KB para warnings de otimização de imagem.
+- `Api/src/GameHub.Core/Domain/Playtesting/PlaytestRecording.cs`, `PlaytestSession.cs`, `Gameplay/PlaySession.cs`, `Monetization/TrafficSource.cs`, `RevenueContract.cs`/`RevenueSplitCalculator.cs` — entidades e regras de split.
+- `Api/src/GameHub.Application/Builds/GameBuildPackageValidator.cs`, `Developer/Dto/ValidationSummaryDto.cs`, `ImageOptimizationWarningDto.cs` — análise de ZIP e warnings de imagem.
+- `Api/src/GameHub.Application/Developer/*` — `UpdateGeneralSettingsAsync`, `GetGeneralSettingsAsync`, bloqueio de earnings para Support.
+- `Api/src/GameHub.Application/Playtesting/*` — CRUD de gravações de playtest (`PlaytestRecordingDto`, `GetRecordingAsync`, `ListRecordingsAsync`, `AddNotesAsync`, `GetAllRecordingsAsync`).
+- `Api/src/GameHub.Application/Admin/*` — `GetOnboardingInsightsAsync`, `GetEngagementInsightsAsync`, FPS por dispositivo e alertas de saúde.
+- `Api/src/GameHub.Application/Monetization/*` — `FlatFeeAmount` em contratos e cálculo de earnings com split.
+- `Api/src/GameHub.Application/Admin/AdminGameAppService.cs` — `SuggestCategoriesAsync` e `ValidateSeoAsync`.
+- `Api/src/GameHub.Application/Catalog/GameCatalogAppService.cs`, `Dto/MysteryTileDto.cs`, `HomeResponseDto.cs` — `GetMysteryTileAsync` e população na home.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`, `GameHubModelCreatingExtensions.cs` — configuração EF Core das entidades.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260726000000_AddPoki25Phase.*` — migração EF Core.
+- `Api/test/GameHub.Tests/GameHub/Application/AdminDashboardAppService_Tests.cs`, `AdminGameAppService_Tests.cs`, `BuildPackageValidator_Tests.cs`, `PlaytestAppService_Tests.cs`, `GameCatalogAppService_Tests.cs`, `RevenueContractAppService_Tests.cs`, `DeveloperEarningsAppService_Tests.cs` — testes.
+- `angular/src/app/core/services/game-catalog.service.ts`, `gameplay-bridge.service.ts`, `developer.service.ts` — contratos e bridge de anúncios recompensados.
+- `angular/src/app/public/home/home.component.ts/.html` — Mystery Tile na home.
+- `angular/src/app/player/game-frame/game-frame.component.ts/.html/.css` — overlay de rewarded ad com botão verde e botão secundário.
+- `angular/src/app/developer/team/*` — tela de configurações gerais do time.
+- `angular/public/i18n/en-US.json`, `pt-BR.json` — chaves `section.mysteryTile` e `mysteryTile.playtest`.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/playtest/*` — tela de gravações de playtest com vídeo, console e notas.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/shared/services/gamehub-admin.service.ts`, `gamehub-routing.module.ts`, `gamehub.module.ts`, `shared/layout/nav/app-navigation.service.ts` — rota e menu de playtests.
+- `docs/agent-execution-log.md`, `README.md`, `README.pt-BR.md`, `CHANGELOG.md`, `.specs/25-proxima-sessao-poki.md` — documentação.
+
+### Motivação
+Completar a fase 25 da referência Poki: otimização de assets, UX refinada de anúncios recompensados, painéis de onboarding/engagement, regras de revenue share, SEO/sugestão de categorias e discovery via Mystery Tile.
+
+### Resultado
+- `dotnet build Api/GameHub.sln` — 0 warnings, 0 erros.
+- `dotnet test Api/GameHub.sln --no-build` — 288 passaram, 2 skipped.
+- `npm run build` em `angular/` e `angular-admin/GameHub.UI/` — sucesso.
+- Cobertura gerada em `TestResults/Report/Summary.txt`.
+
 ## 2026-07-25 17:15 UTC
 
 ### Tarefa
