@@ -19,6 +19,7 @@ using GameHub.Player;
 using GameHub.Playtesting;
 using GameHub.Privacy;
 using GameHub.Multiplayer;
+using GameHub.MultiTenancy;
 using GameHub.ArbitraryUserData;
 using GameHub.Social;
 using Abp.Logging;
@@ -125,6 +126,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<ArbitraryUserDataRecord> ArbitraryUserDataRecords { get; set; }
         public virtual DbSet<GameInvite> GameInvites { get; set; }
         public virtual DbSet<GameNotification> GameNotifications { get; set; }
+        public virtual DbSet<UserTenantMembership> UserTenantMemberships { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

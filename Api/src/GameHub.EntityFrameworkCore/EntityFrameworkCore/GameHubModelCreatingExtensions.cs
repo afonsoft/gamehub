@@ -11,6 +11,7 @@ using GameHub.Player;
 using GameHub.Playtesting;
 using GameHub.Privacy;
 using GameHub.Multiplayer;
+using GameHub.MultiTenancy;
 using GameHub.ArbitraryUserData;
 using Microsoft.EntityFrameworkCore;
 
@@ -936,6 +937,20 @@ namespace GameHub.EntityFrameworkCore
                     .WithMany()
                     .HasForeignKey(x => x.GameId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserTenantMembership>(b =>
+            {
+                b.ToTable(GameHubConsts.DbTablePrefix + "UserTenantMemberships", GameHubConsts.DbSchema);
+
+                b.Property(x => x.UserId).IsRequired();
+                b.Property(x => x.TenantId).IsRequired();
+                b.Property(x => x.TenantUserId).IsRequired();
+                b.Property(x => x.IsDefault).IsRequired();
+
+                b.HasIndex(x => new { x.UserId, x.TenantId }).IsUnique();
+                b.HasIndex(x => new { x.UserId, x.IsDefault });
+                b.HasIndex(x => x.TenantUserId);
             });
         }
     }

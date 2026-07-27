@@ -3,6 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService, AuthenticateModel } from '../../core/auth/auth.service';
+import { HubAuthService, AvailableTenantResult } from '../../core/auth/hub-auth.service';
+
+interface LoginState {
+  userNameOrEmailAddress: string;
+  password: string;
+  tenants: AvailableTenantResult[];
+}
 
 @Component({
   selector: 'app-login',
@@ -17,6 +24,7 @@ export class LoginComponent {
   error = '';
 
   private readonly auth = inject(AuthService);
+  private readonly hubAuth = inject(HubAuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -27,20 +35,53 @@ export class LoginComponent {
       return;
     }
     this.loading = true;
-    this.auth.login(this.model).subscribe({
-      next: success => {
+    this.hubAuth.getAvailableTenants(this.model).subscribe({
+      next: tenants => {
         this.loading = false;
-        if (success) {
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-          void this.router.navigateByUrl(returnUrl);
-        } else {
-          this.error = 'Invalid username or password.';
+        if (tenants.length === 0) {
+          this.error = 'No available tenants for this account.';
+          return;
         }
+        if (tenants.length === 1) {
+          this.selectTenantAndLogin(tenants[0].tenantId);
+          return;
+        }
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+        const state: LoginState = {
+          userNameOrEmailAddress: this.model.userNameOrEmailAddress,
+          password: this.model.password,
+          tenants,
+        };
+        void this.router.navigate(['/select-tenant'], { state, queryParams: { returnUrl } });
       },
-      error: () => {
+      error: err => {
         this.loading = false;
-        this.error = 'Unable to login. Please try again.';
+        this.error = err?.error?.details || err?.error?.message || 'Invalid username or password.';
       },
     });
+  }
+
+  private selectTenantAndLogin(tenantId: number): void {
+    this.loading = true;
+    this.hubAuth
+      .selectTenant({
+        userNameOrEmailAddress: this.model.userNameOrEmailAddress,
+        password: this.model.password,
+        tenantId,
+      })
+      .subscribe({
+        next: result => {
+          this.loading = false;
+          if (result?.accessToken) {
+            this.auth.finalizeLogin(result.accessToken);
+          } else {
+            this.error = 'Unable to complete login.';
+          }
+        },
+        error: () => {
+          this.loading = false;
+          this.error = 'Unable to complete login. Please try again.';
+        },
+      });
   }
 }

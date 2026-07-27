@@ -25,12 +25,15 @@ namespace GameHub.Tests.DependencyInjection
             var builder = new DbContextOptionsBuilder<GameHubDbContext>();
             builder.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(serviceProvider);
 
-            iocManager.IocContainer.Register(
-                Component
-                    .For<DbContextOptions<GameHubDbContext>>()
-                    .Instance(builder.Options)
-                    .LifestyleSingleton()
-            );
+            if (!iocManager.IocContainer.Kernel.HasComponent(typeof(DbContextOptions<GameHubDbContext>)))
+            {
+                iocManager.IocContainer.Register(
+                    Component
+                        .For<DbContextOptions<GameHubDbContext>>()
+                        .Instance(builder.Options)
+                        .LifestyleSingleton()
+                );
+            }
         }
     }
 }

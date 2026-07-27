@@ -11,6 +11,7 @@ import { Table } from 'primeng/table';
 import { CreateOrEditUserModalComponent } from './create-or-edit-user-modal.component';
 import { EditUserPermissionsModalComponent } from './edit-user-permissions-modal.component';
 import { ImpersonationService } from './impersonation.service';
+import { UserTenantMembershipModalComponent } from './user-tenant-membership-modal.component';
 import { finalize } from 'rxjs/operators';
 import { EntityTypeHistoryModalComponent } from '@app/shared/common/entityHistory/entity-type-history-modal.component';
 import * as _ from 'lodash';
@@ -24,6 +25,7 @@ import * as _ from 'lodash';
 export class UsersComponent extends AppComponentBase implements OnInit {
   @ViewChild('createOrEditUserModal', { static: true }) createOrEditUserModal: CreateOrEditUserModalComponent;
   @ViewChild('editUserPermissionsModal', { static: true }) editUserPermissionsModal: EditUserPermissionsModalComponent;
+  @ViewChild('userTenantMembershipModal', { static: true }) userTenantMembershipModal: UserTenantMembershipModalComponent;
   @ViewChild('entityTypeHistoryModal', { static: true }) entityTypeHistoryModal: EntityTypeHistoryModalComponent;
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
@@ -116,6 +118,10 @@ export class UsersComponent extends AppComponentBase implements OnInit {
 
   reloadPage(): void {
     this.paginator.changePage(this.paginator.getPage());
+  }
+
+  showTenantMembership(user: UserListDto): void {
+    this.userTenantMembershipModal.show(user.id, user.userName);
   }
 
   exportToExcel(): void {

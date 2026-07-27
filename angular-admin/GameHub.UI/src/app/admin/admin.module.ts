@@ -50,6 +50,8 @@ import { UiCustomizationComponent } from './ui-customization/ui-customization.co
 import { CreateOrEditUserModalComponent } from './users/create-or-edit-user-modal.component';
 import { EditUserPermissionsModalComponent } from './users/edit-user-permissions-modal.component';
 import { ImpersonationService } from './users/impersonation.service';
+import { UserTenantAssociationService } from './users/user-tenant-association.service';
+import { UserTenantMembershipModalComponent } from './users/user-tenant-membership-modal.component';
 import { UsersComponent } from './users/users.component';
 
 @NgModule({
@@ -107,10 +109,12 @@ import { UsersComponent } from './users/users.component';
     Theme4ThemeUiSettingsComponent,
     Theme2ThemeUiSettingsComponent,
     Theme3ThemeUiSettingsComponent,
+    UserTenantMembershipModalComponent,
   ],
   exports: [],
   providers: [
     ImpersonationService,
+    UserTenantAssociationService,
     TreeDragDropService,
     { provide: BsDatepickerConfig, useFactory: NgxBootstrapDatePickerConfigService.getDatepickerConfig },
     { provide: BsDaterangepickerConfig, useFactory: NgxBootstrapDatePickerConfigService.getDaterangepickerConfig },

@@ -1,0 +1,25 @@
+<div class="select-tenant-page">
+  <div class="select-tenant-card">
+    <h1>{{ 'SelectTenant' | translate }}</h1>
+    <p class="description">{{ 'SelectTenantDescription' | translate }}</p>
+
+    <form (ngSubmit)="selectTenant()">
+      <div class="form-group">
+        <label for="tenant">{{ 'Tenant' | translate }}</label>
+        <select id="tenant" name="tenant" class="form-control" [(ngModel)]="selectedTenantId" required>
+          <option *ngFor="let tenant of tenants" [value]="tenant.tenantId">
+            {{ tenant.tenantName || tenant.tenancyName }}
+            <span *ngIf="tenant.isDefault" class="default-badge">({{ 'Default' | translate }})</span>
+          </option>
+        </select>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading || !selectedTenantId">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+        {{ 'Continue' | translate }}
+      </button>
+    </form>
+  </div>
+</div>

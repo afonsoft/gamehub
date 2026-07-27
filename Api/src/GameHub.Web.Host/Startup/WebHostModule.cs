@@ -46,9 +46,16 @@ namespace GameHub.Web.Startup
         {
             IocManager.RegisterAssemblyByConvention(typeof(WebHostModule).GetAssembly());
 
-            IocManager.Register<IGameTokenProvider, GameTokenProvider>(DependencyLifeStyle.Transient);
-            IocManager.Register<IMultiplayerPresenceStore, CacheMultiplayerPresenceStore>(
-                DependencyLifeStyle.Transient);
+            if (!IocManager.IocContainer.Kernel.HasComponent(typeof(IGameTokenProvider)))
+            {
+                IocManager.Register<IGameTokenProvider, GameTokenProvider>(DependencyLifeStyle.Transient);
+            }
+
+            if (!IocManager.IocContainer.Kernel.HasComponent(typeof(IMultiplayerPresenceStore)))
+            {
+                IocManager.Register<IMultiplayerPresenceStore, CacheMultiplayerPresenceStore>(
+                    DependencyLifeStyle.Transient);
+            }
 
             //Enabled or Disabled BackgroundJobs
             Configuration.BackgroundJobs.IsJobExecutionEnabled = true;

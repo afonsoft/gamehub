@@ -1,3 +1,4 @@
+using System.Linq;
 using Abp.AspNetCore;
 using Abp.AspNetCore.Configuration;
 using Abp.AspNetCore.Mvc.Antiforgery;
@@ -52,9 +53,12 @@ namespace GameHub.Web.Tests
             //Configure Eaf and Dependency Injection
             return services.AddAbp<GameHubWebTestModule>(options =>
             {
-                options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                   f => f.UseEafSerilog()
-               );
+                if (!options.IocManager.IocContainer.Kernel.GetFacilities().OfType<LoggingFacility>().Any())
+                {
+                    options.IocManager.IocContainer.AddFacility<LoggingFacility>(
+                        f => f.UseEafSerilog()
+                    );
+                }
 
                 options.SetupTest();
             });
@@ -91,12 +95,15 @@ namespace GameHub.Web.Tests
             var options = builder.Options;
 
             var iocManager = serviceProvider.GetRequiredService<IIocManager>();
-            iocManager.IocContainer
-                .Register(
-                    Component.For<DbContextOptions<GameHubDbContext>>()
-                        .Instance(options)
-                        .LifestyleSingleton()
-                );
+            if (!iocManager.IocContainer.Kernel.HasComponent(typeof(DbContextOptions<GameHubDbContext>)))
+            {
+                iocManager.IocContainer
+                    .Register(
+                        Component.For<DbContextOptions<GameHubDbContext>>()
+                            .Instance(options)
+                            .LifestyleSingleton()
+                    );
+            }
         }
     }
 }
