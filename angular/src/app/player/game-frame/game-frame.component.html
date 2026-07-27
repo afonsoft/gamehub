@@ -36,13 +36,19 @@
     <p>{{ 'gameFrame.loading' | translate }}</p>
   </div>
 
+  <div *ngIf="frameLoading" class="loading-overlay frame-loading">
+    <div class="spinner"></div>
+    <p>{{ 'gameFrame.loadingGame' | translate }}</p>
+  </div>
+
   <iframe
     #frame
     *ngIf="started && safeUrl"
     [src]="safeUrl"
-    title="Game"
+    [attr.title]="'gameFrame.playerTitle' | translate"
     width="100%"
     height="100%"
+    loading="eager"
     sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-forms"
     allow="fullscreen; gamepad"
     referrerpolicy="no-referrer"
@@ -72,20 +78,20 @@
 
   <div *ngIf="rewardedBreakPending" class="rewarded-overlay">
     <div class="rewarded-card">
-      <h3 *ngIf="rewardedBreakState === 'idle'">Earn a reward?</h3>
-      <p *ngIf="rewardedBreakState === 'idle'">Watch a short ad to get a bonus.</p>
+      <h3 *ngIf="rewardedBreakState === 'idle'">{{ 'gameFrame.reward.title' | translate }}</h3>
+      <p *ngIf="rewardedBreakState === 'idle'">{{ 'gameFrame.reward.description' | translate }}</p>
 
-      <p *ngIf="rewardedBreakState === 'watching'">Loading reward...</p>
-      <p *ngIf="rewardedBreakState === 'rewarded'">Reward granted!</p>
-      <p *ngIf="rewardedBreakState === 'adblocked'">Ad blocker detected. No reward available.</p>
-      <p *ngIf="rewardedBreakState === 'dismissed'">No reward this time.</p>
+      <p *ngIf="rewardedBreakState === 'watching'">{{ 'gameFrame.reward.watching' | translate }}</p>
+      <p *ngIf="rewardedBreakState === 'rewarded'">{{ 'gameFrame.reward.granted' | translate }}</p>
+      <p *ngIf="rewardedBreakState === 'adblocked'">{{ 'gameFrame.reward.adblocked' | translate }}</p>
+      <p *ngIf="rewardedBreakState === 'dismissed'">{{ 'gameFrame.reward.dismissed' | translate }}</p>
 
       <div class="rewarded-actions" *ngIf="rewardedBreakState === 'idle'">
         <button class="btn-primary btn-reward" (click)="confirmRewardedBreak()">
-          <span class="reward-icon">⭐</span> Watch for reward
+          <span class="reward-icon">⭐</span> {{ 'gameFrame.reward.confirm' | translate }}
         </button>
         <button class="btn-secondary" (click)="declineRewardedBreak()">
-          No thanks
+          {{ 'gameFrame.reward.decline' | translate }}
         </button>
       </div>
     </div>
