@@ -1,0 +1,45 @@
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ companyId ? 'Edit Company' : 'New Company' }}</span>
+        </h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet">
+      <div class="m-portlet__body">
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+        <form (ngSubmit)="save()">
+          <div class="form-group">
+            <label>Tenancy Name</label>
+            <input type="text" class="form-control" [(ngModel)]="company.tenancyName" name="tenancyName" required />
+          </div>
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" class="form-control" [(ngModel)]="company.name" name="name" required />
+          </div>
+          <div class="form-group">
+            <label>Primary Contact Email</label>
+            <input type="email" class="form-control" [(ngModel)]="company.primaryContactEmail" name="primaryContactEmail" required />
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" class="form-control" [(ngModel)]="company.country" name="country" />
+          </div>
+
+          <div class="m-portlet__foot">
+            <button type="submit" class="btn btn-primary" [disabled]="saving">
+              <i class="la la-save"></i> {{ saving ? 'Saving...' : 'Save' }}
+            </button>
+            <a class="btn btn-secondary" routerLink="/app/main/companies">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ company?.name || 'Company' }} Employees</span>
+        </h3>
+        <span class="m-section__sub">Manage employees and developers linked to this tenant.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+        <div class="form-row align-items-end mb-3">
+          <div class="form-group col-md-5 mb-0">
+            <label>Email / Username</label>
+            <input type="text" class="form-control" [(ngModel)]="inviteModel.emailOrUserName" name="emailOrUserName" placeholder="user@example.com" />
+          </div>
+          <div class="form-group col-md-3 mb-0">
+            <label>Role</label>
+            <select class="form-control" [(ngModel)]="inviteModel.role" name="role">
+              <option value="Developer">Developer</option>
+              <option value="Support">Support</option>
+              <option value="Billing">Billing</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2 mb-0">
+            <div class="form-check mt-4">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="inviteModel.isDefault" name="isDefault" id="isDefault" />
+              <label class="form-check-label" for="isDefault">Default</label>
+            </div>
+          </div>
+          <div class="form-group col-md-2 mb-0">
+            <button class="btn btn-primary btn-block" (click)="invite()" [disabled]="saving">
+              <i class="la la-plus"></i> Invite
+            </button>
+          </div>
+        </div>
+
+        <div class="primeng-datatable-container">
+          <p-table
+            [value]="employees"
+            [paginator]="false"
+            [scrollable]="true"
+            scrollHeight="300px"
+            styleClass="p-datatable-striped p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 150px">Username</th>
+                <th style="width: 220px">Email</th>
+                <th style="width: 100px">Role</th>
+                <th style="width: 80px">Default</th>
+                <th style="width: 120px">Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-employee>
+              <tr>
+                <td>{{ employee.userName }}</td>
+                <td>{{ employee.emailAddress }}</td>
+                <td>{{ employee.role }}</td>
+                <td class="text-center">
+                  <i *ngIf="employee.isDefault" class="la la-check text-success"></i>
+                </td>
+                <td>
+                  <button *ngIf="!employee.isDefault" class="btn btn-sm btn-outline-primary mr-1" (click)="setDefault(employee)">
+                    Set Default
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="remove(employee)">
+                    <i class="la la-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5" class="text-center">No employees found.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

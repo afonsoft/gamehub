@@ -2,13 +2,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
-using Abp.MultiTenancy;
 using Abp.UI;
 using Eaf.Middleware.Authorization.Users;
 using Eaf.Middleware.MultiTenancy;
 using GameHub.Authorization.Dto;
 using GameHub.Developers;
-using Microsoft.AspNetCore.Identity;
 
 namespace GameHub.Authorization
 {
@@ -31,12 +29,12 @@ namespace GameHub.Authorization
         [AbpAllowAnonymous]
         public async Task<RegisterOutput> RegisterAsync(RegisterInput input)
         {
-            var defaultTenant = await _tenantRepository.FirstOrDefaultAsync(t => t.TenancyName == AbpTenantBase.DefaultTenantName);
-            var tenantId = !input.IsDeveloper && defaultTenant != null ? (int?)defaultTenant.Id : null;
+            var playerTenant = await _tenantRepository.FirstOrDefaultAsync(t => t.TenancyName == GameHubConsts.PlayerTenantName);
+            var tenantId = !input.IsDeveloper && playerTenant != null ? (int?)playerTenant.Id : null;
 
             var user = tenantId.HasValue
                 ? await CreatePlayerUserInTenantAsync(input, tenantId.Value)
-                : await CreateHostUserAsync(input);
+                : await CreateDeveloperUserAsync(input);
 
             return new RegisterOutput
             {
@@ -72,11 +70,11 @@ namespace GameHub.Authorization
             }
         }
 
-        private async Task<User> CreateHostUserAsync(RegisterInput input)
+        private async Task<User> CreateDeveloperUserAsync(RegisterInput input)
         {
             var user = new User
             {
-                TenantId = null,
+                TenantId = AbpSession.TenantId,
                 UserName = input.UserName,
                 Name = input.Name,
                 Surname = input.Surname,

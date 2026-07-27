@@ -19,6 +19,9 @@ import { ReportListComponent } from './reports/report-list.component';
 import { InspectorComponent } from './inspector/inspector.component';
 import { InspectorSessionComponent } from './inspector/inspector-session.component';
 import { PlaytestRecordingListComponent } from './playtest/playtest-recording-list.component';
+import { CompanyListComponent } from './companies/company-list.component';
+import { CompanyEditComponent } from './companies/company-edit.component';
+import { CompanyEmployeesComponent } from './companies/company-employees.component';
 import { gameDetailResolver } from './resolvers/game-detail.resolver';
 import { moderationDetailResolver } from './resolvers/moderation-detail.resolver';
 import { categoryEditResolver } from './resolvers/category-edit.resolver';
@@ -47,6 +50,10 @@ const routes: Routes = [
   { path: 'inspector/session/:id', component: InspectorSessionComponent, data: { permission: 'Pages.Builds.View' } },
   { path: 'playtests', component: PlaytestRecordingListComponent, data: { permission: 'Pages.Moderation.View' } },
   { path: 'reports', component: ReportListComponent, data: { permission: 'Pages.Reports.Manage' } },
+  { path: 'companies', component: CompanyListComponent, data: { permission: 'Pages.Companies' } },
+  { path: 'companies/create', component: CompanyEditComponent, data: { permission: 'Pages.Companies.Manage' } },
+  { path: 'companies/:id/edit', component: CompanyEditComponent, data: { permission: 'Pages.Companies.Manage' } },
+  { path: 'companies/:id/employees', component: CompanyEmployeesComponent, data: { permission: 'Pages.Company.Employees' } },
   { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];
 

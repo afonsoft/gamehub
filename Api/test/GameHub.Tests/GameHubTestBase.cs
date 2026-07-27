@@ -48,6 +48,21 @@ namespace GameHub.Tests
                 new TenantRoleAndUserBuilder(context, 1).Create();
             });
 
+            // Seed player tenant
+            AbpSession.TenantId = null;
+            UsingDbContext(context =>
+            {
+                NormalizeDbContext(context);
+                new PlayerTenantBuilder(context).Create();
+            });
+
+            AbpSession.TenantId = 2;
+            UsingDbContext(context =>
+            {
+                NormalizeDbContext(context);
+                new TenantRoleAndUserBuilder(context, 2).Create();
+            });
+
             LoginAsDefaultTenantAdmin();
 
             // Seed GameHub roles and permissions

@@ -13,7 +13,7 @@ export interface UserTenantMembershipDto {
 export interface AssociateUserToTenantInput {
   userId: number;
   tenantId: number;
-  isDefault: boolean;
+  isDefault?: boolean;
 }
 
 export interface RemoveUserTenantAssociationInput {
@@ -33,18 +33,18 @@ export class UserTenantAssociationService {
   constructor(private readonly http: HttpClient) {}
 
   getByUser(userId: number): Observable<UserTenantMembershipDto[]> {
-    return this.http.post<UserTenantMembershipDto[]>(`${this.baseUrl}/GetAllByUser`, { userId });
+    return this.http.post<UserTenantMembershipDto[]>(`${this.baseUrl}/GetUserMemberships`, { userId });
   }
 
   associate(input: AssociateUserToTenantInput): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/AssociateUserToTenant`, input);
+    return this.http.post<void>(`${this.baseUrl}/Associate`, input);
   }
 
   remove(input: RemoveUserTenantAssociationInput): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/RemoveUserTenantAssociation`, input);
+    return this.http.post<void>(`${this.baseUrl}/RemoveAssociation`, input);
   }
 
   setDefault(input: SetDefaultTenantInput): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/SetDefaultTenant`, input);
+    return this.http.post<void>(`${this.baseUrl}/SetDefault`, input);
   }
 }

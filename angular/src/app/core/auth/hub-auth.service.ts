@@ -26,11 +26,12 @@ export interface SelectTenantResult {
 @Injectable({ providedIn: 'root' })
 export class HubAuthService {
   private readonly http = inject(HttpClient);
-  private readonly availableTenantsUrl = '/api/hub-auth/available-tenants';
-  private readonly selectTenantUrl = '/api/hub-auth/select-tenant';
+  private readonly availableTenantsUrl = '/api/hub/auth/available-tenants';
+  private readonly selectTenantUrl = '/api/hub/auth/select-tenant';
 
   getAvailableTenants(model: { userNameOrEmailAddress: string; password: string }): Observable<AvailableTenantResult[]> {
-    return this.http.post<AvailableTenantResult[]>(this.availableTenantsUrl, model);
+    return this.http.post<AvailableTenantResult[] | { result?: AvailableTenantResult[] }>(this.availableTenantsUrl, model)
+      .pipe(map(response => this.unwrap(response)));
   }
 
   selectTenant(model: SelectTenantModel): Observable<SelectTenantResult> {

@@ -33,6 +33,9 @@ namespace GameHub.Migrations.Seed
             new DefaultTenantBuilder(context).Create();
             new TenantRoleAndUserBuilder(context, 1).Create();
 
+            //Player tenant seed (in host database).
+            new PlayerTenantBuilder(context).Create();
+
             //Host seed
             new InitialHostDbBuilder(context).Create();
 

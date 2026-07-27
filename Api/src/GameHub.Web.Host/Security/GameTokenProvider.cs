@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Abp.Runtime.Security;
 using Eaf.Middleware.Web.Authentication;
 using GameHub.Security;
 using Microsoft.Extensions.Configuration;
@@ -32,8 +33,12 @@ namespace GameHub.Web.Security
             var claims = new List<Claim>
             {
                 new Claim("sub", userId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(AbpClaimTypes.UserId, userId.ToString()),
                 new Claim("gameId", gameId.ToString()),
-                new Claim("tenantId", tenantId?.ToString() ?? "0")
+                new Claim("tenantId", tenantId?.ToString() ?? "0"),
+                new Claim(AbpClaimTypes.TenantId, tenantId?.ToString() ?? "0"),
+                new Claim("tenantid", tenantId?.ToString() ?? "0")
             };
 
             return await _tokenAuthenticationService.CreateAccessTokenAsync(claims, expiration);
@@ -44,8 +49,12 @@ namespace GameHub.Web.Security
             var claims = new List<Claim>
             {
                 new Claim("sub", userId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(AbpClaimTypes.UserId, userId.ToString()),
                 new Claim("gameId", gameId.ToString()),
                 new Claim("tenantId", tenantId?.ToString() ?? "0"),
+                new Claim(AbpClaimTypes.TenantId, tenantId?.ToString() ?? "0"),
+                new Claim("tenantid", tenantId?.ToString() ?? "0"),
                 new Claim("version", version),
                 new Claim("preview", "true")
             };

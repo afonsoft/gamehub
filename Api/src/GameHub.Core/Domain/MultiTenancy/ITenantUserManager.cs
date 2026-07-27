@@ -15,5 +15,10 @@ namespace GameHub.MultiTenancy
         /// Removes the membership and deletes the shadow user inside the tenant.
         /// </summary>
         Task RemoveMembershipAsync(long hostUserId, int tenantId);
+
+        /// <summary>
+        /// Sets the membership as the default for the host user, clearing any other default.
+        /// </summary>
+        Task SetDefaultAsync(long hostUserId, int tenantId);
     }
 }

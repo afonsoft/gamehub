@@ -6,6 +6,7 @@ import { SearchPageComponent } from './search-page/search-page.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { SelectTenantComponent } from './select-tenant/select-tenant.component';
+import { CompanyComponent } from './company/company.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { PlayerComponent } from './player/player.component';
 import { guestGuard } from '../core/auth/guest.guard';
@@ -20,6 +21,7 @@ export const publicRoutes: Routes = [
   { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
   { path: 'select-tenant', loadComponent: () => import('./select-tenant/select-tenant.component').then(m => m.SelectTenantComponent), canActivate: [guestGuard] },
   { path: 'register', loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent), canActivate: [guestGuard] },
+  { path: 'company/:tenancyName', loadComponent: () => import('./company/company.component').then(m => m.CompanyComponent) },
   { path: 'player', component: PlayerComponent },
   { path: '**', component: NotFoundComponent },
 ];

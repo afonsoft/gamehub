@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Authorization.Users;
+using Abp.Data;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.IdentityFramework;
@@ -39,45 +40,64 @@ namespace GameHub.MultiTenancy
 
         public virtual async Task<UserTenantMembership> EnsureMembershipAsync(long hostUserId, int tenantId, bool isDefault = false)
         {
+            User hostUser;
             using (_unitOfWorkManager.Current.DisableFilter(AbpDataFilters.MayHaveTenant))
             {
-                var hostUser = await _userRepository.GetAsync(hostUserId);
-                if (hostUser.TenantId != null)
-                    throw new UserFriendlyException(L("OnlyHostUsersCanBeAssociatedWithMultipleTenants"));
+                hostUser = await _userRepository.GetAsync(hostUserId);
+            }
 
-                await _tenantRepository.GetAsync(tenantId);
+            if (hostUser.TenantId != null)
+                throw new UserFriendlyException(L("OnlyHostUsersCanBeAssociatedWithMultipleTenants"));
 
-                var existing = await _membershipRepository.FirstOrDefaultAsync(m => m.UserId == hostUserId && m.TenantId == tenantId);
-                if (existing != null)
+            await _tenantRepository.GetAsync(tenantId);
+
+            var existing = await _membershipRepository.FirstOrDefaultAsync(m => m.UserId == hostUserId && m.TenantId == tenantId);
+            if (existing != null)
+            {
+                if (isDefault)
                 {
-                    if (isDefault)
-                    {
-                        await ClearDefaultFlagAsync(hostUserId);
-                        existing.IsDefault = true;
-                        await _membershipRepository.UpdateAsync(existing);
-                        await CurrentUnitOfWork.SaveChangesAsync();
-                    }
-
-                    await UpdateShadowUserAsync(existing.TenantUserId, tenantId, hostUser);
-                    return existing;
+                    await ClearDefaultFlagAsync(hostUserId);
+                    existing.IsDefault = true;
+                    await _membershipRepository.UpdateAsync(existing);
+                    await CurrentUnitOfWork.SaveChangesAsync();
                 }
 
-                if (isDefault)
-                    await ClearDefaultFlagAsync(hostUserId);
+                await UpdateShadowUserAsync(existing.TenantUserId, tenantId, hostUser);
+                return existing;
+            }
 
-                var shadowUser = await CreateOrUpdateShadowUserAsync(hostUser, tenantId, null);
+            if (isDefault)
+                await ClearDefaultFlagAsync(hostUserId);
 
-                var membership = new UserTenantMembership
+            var shadowUser = await CreateOrUpdateShadowUserAsync(hostUser, tenantId, null);
+
+            var membership = new UserTenantMembership
+            {
+                UserId = hostUserId,
+                TenantId = tenantId,
+                TenantUserId = shadowUser.Id,
+                IsDefault = isDefault,
+            };
+
+            await _membershipRepository.InsertAsync(membership);
+            await CurrentUnitOfWork.SaveChangesAsync();
+            return membership;
+        }
+
+        public virtual async Task SetDefaultAsync(long hostUserId, int tenantId)
+        {
+            using (_unitOfWorkManager.Current.DisableFilter(AbpDataFilters.MayHaveTenant))
+            {
+                var membership = await _membershipRepository.FirstOrDefaultAsync(m => m.UserId == hostUserId && m.TenantId == tenantId);
+                if (membership == null)
                 {
-                    UserId = hostUserId,
-                    TenantId = tenantId,
-                    TenantUserId = shadowUser.Id,
-                    IsDefault = isDefault,
-                };
+                    throw new UserFriendlyException(L("UserIsNotMemberOfTenant"));
+                }
 
-                await _membershipRepository.InsertAsync(membership);
+                await ClearDefaultFlagAsync(hostUserId);
+                membership.IsDefault = true;
+                await _membershipRepository.UpdateAsync(membership);
                 await CurrentUnitOfWork.SaveChangesAsync();
-                return membership;
             }
         }
 
@@ -101,7 +121,10 @@ namespace GameHub.MultiTenancy
 
         private async Task<User> CreateOrUpdateShadowUserAsync(User hostUser, int tenantId, long? existingShadowUserId)
         {
-            using (CurrentUnitOfWork.SetTenantId(tenantId))
+            // Re-enable MayHaveTenant filter inside the tenant so all User/UserRole/Role queries
+            // are scoped to the target tenant. The outer EnsureMembershipAsync disabled it to read the host user.
+            using (CurrentUnitOfWork.SetTenantId(tenantId, switchMustHaveTenantEnableDisable: false))
+            using (CurrentUnitOfWork.EnableFilter(AbpDataFilters.MayHaveTenant))
             {
                 User shadowUser;
                 if (existingShadowUserId.HasValue)

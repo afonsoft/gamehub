@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
+using GameHub;
 using GameHub.Catalog;
 using GameHub.Multiplayer;
 using GameHub.Chat;
@@ -21,7 +22,7 @@ namespace GameHub.Tests.GameHub.Application
         [Fact]
         public async Task Dado_UsuarioForaDaPartida_Quando_EnviarMensagem_Entao_Rejeita()
         {
-            LoginAsDefaultTenantAdmin();
+            LoginAsPlayerTenantAdmin();
             var (gameId, matchId) = await SeedMatchAsync("Chat Authorization Game");
 
             await Should.ThrowAsync<InvalidOperationException>(() =>
@@ -37,7 +38,7 @@ namespace GameHub.Tests.GameHub.Application
         [Fact]
         public async Task Dado_MensagemRepetida_Quando_EnviarNovamente_Entao_RetornaDuplicada()
         {
-            LoginAsDefaultTenantAdmin();
+            LoginAsPlayerTenantAdmin();
             var (gameId, matchId) = await SeedMatchAsync("Chat Deduplication Game", includeCurrentUser: true);
             var clientMessageId = Guid.NewGuid().ToString("N");
 
@@ -58,6 +59,11 @@ namespace GameHub.Tests.GameHub.Application
 
             first.Duplicate.ShouldBeFalse();
             second.Duplicate.ShouldBeTrue();
+        }
+
+        private void LoginAsPlayerTenantAdmin()
+        {
+            LoginAsTenant(GameHubConsts.PlayerTenantName, Abp.Authorization.Users.AbpUserBase.AdminUserName);
         }
 
         private async Task<(Guid GameId, Guid MatchId)> SeedMatchAsync(string title, bool includeCurrentUser = false)

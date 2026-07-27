@@ -42,8 +42,10 @@ namespace GameHub.Tests.GameHub.Application
             result.ShouldNotBeNull();
             result.UserName.ShouldBe("playerone");
 
+            AbpSession.TenantId = 2;
             var user = await GetUserByUserNameAsync("playerone");
             user.ShouldNotBeNull();
+            user.TenantId.ShouldBe(2);
             (await _userManager.IsInRoleAsync(user, "Player")).ShouldBeTrue();
             (await _userManager.IsInRoleAsync(user, "Developer")).ShouldBeFalse();
         }
@@ -51,6 +53,8 @@ namespace GameHub.Tests.GameHub.Application
         [Fact]
         public async Task Dado_DadosValidos_Quando_RegistrarDeveloper_Entao_CriaUsuarioPerfilDeveloperEAtribuiRoles()
         {
+            AbpSession.TenantId = null;
+
             var input = new RegisterInput
             {
                 Name = "Dev",
@@ -68,6 +72,7 @@ namespace GameHub.Tests.GameHub.Application
 
             var user = await GetUserByUserNameAsync("devtwo");
             user.ShouldNotBeNull();
+            user.TenantId.ShouldBeNull();
             (await _userManager.IsInRoleAsync(user, "Player")).ShouldBeTrue();
             (await _userManager.IsInRoleAsync(user, "Developer")).ShouldBeTrue();
 

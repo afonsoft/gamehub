@@ -57,6 +57,11 @@ namespace GameHub.Authorization
             developer.CreateChildPermission(GameHubPermissions.Pages_Developer_Profile, L("Profile"));
             developer.CreateChildPermission(GameHubPermissions.Pages_Developer_Games, L("Games"));
 
+            var companies = pages.CreateChildPermission(GameHubPermissions.Pages_Companies, L("Companies"));
+            companies.CreateChildPermission(GameHubPermissions.Pages_Companies_Manage, L("Manage"));
+            var companyEmployees = companies.CreateChildPermission(GameHubPermissions.Pages_Company_Employees, L("Employees"));
+            companyEmployees.CreateChildPermission(GameHubPermissions.Pages_Company_Employees_Manage, L("Manage"));
+
             pages.CreateChildPermission(GameHubPermissions.Pages_Gameplay, L("Gameplay"));
             pages.CreateChildPermission(GameHubPermissions.Pages_Leaderboard, L("Leaderboard"));
             var multiplayer = pages.CreateChildPermission(GameHubPermissions.Pages_Multiplayer, L("Multiplayer"));
