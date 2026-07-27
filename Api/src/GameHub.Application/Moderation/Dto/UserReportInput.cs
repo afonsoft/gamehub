@@ -20,5 +20,9 @@ namespace GameHub.Moderation.Dto
         /// <summary>Descrição detalhada opcional.</summary>
         [StringLength(2000)]
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>Identificador de idempotência enviado pelo cliente.</summary>
+        [StringLength(64)]
+        public string ClientRequestId { get; set; } = string.Empty;
     }
 }

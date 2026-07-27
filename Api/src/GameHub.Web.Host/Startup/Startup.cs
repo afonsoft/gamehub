@@ -21,6 +21,7 @@ using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
 using GameHub.Web.Hubs;
+using GameHub.Web.Filters;
 using GameHub.Web.Middleware;
 using GameHub.Web.Multiplayer;
 using GameHub.Web.WebHooks;
@@ -65,6 +66,7 @@ namespace GameHub.Web.Startup
             {
                 options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute());
                 options.Filters.Add<SerilogMvcLoggingAttribute>();
+                options.Filters.Add<GameHubExceptionFilter>();
                 options.Filters.Add(new ResponseCacheAttribute() { NoStore = true, Location = ResponseCacheLocation.None });
             }).AddNewtonsoftJson();
 

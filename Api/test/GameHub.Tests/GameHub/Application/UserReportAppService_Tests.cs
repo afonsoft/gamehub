@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using GameHub.Catalog;
+using GameHub.Exceptions;
 using GameHub.Moderation;
 using GameHub.Moderation.Dto;
 using Shouldly;
@@ -19,7 +20,7 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_MaisDeDezReports_Quando_SubmeterNoMesmoMinuto_Entao_RejeitaPorRateLimit()
+        public async Task Dado_MaisDeDezReports_Quando_SubmeterNoMesmoMinuto_Entao_RejeitaComRateLimited()
         {
             LoginAsDefaultTenantAdmin();
             var gameId = await SeedGameAsync();
@@ -33,12 +34,52 @@ namespace GameHub.Tests.GameHub.Application
                 });
             }
 
-            await Should.ThrowAsync<InvalidOperationException>(() =>
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
                 _userReportAppService.SubmitAsync(new UserReportInput
                 {
                     GameId = gameId,
                     Reason = "eleventh-report"
                 }));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.RateLimited);
+        }
+
+        [Fact]
+        public async Task Dado_MesmoClientRequestId_Quando_SubmeterDuasVezes_Entao_RetornaOMesmoReport()
+        {
+            LoginAsDefaultTenantAdmin();
+            var gameId = await SeedGameAsync();
+
+            var first = await _userReportAppService.SubmitAsync(new UserReportInput
+            {
+                GameId = gameId,
+                Reason = "cheating",
+                ClientRequestId = "report-123"
+            });
+
+            var second = await _userReportAppService.SubmitAsync(new UserReportInput
+            {
+                GameId = gameId,
+                Reason = "different",
+                ClientRequestId = "report-123"
+            });
+
+            first.ReportId.ShouldBe(second.ReportId);
+        }
+
+        [Fact]
+        public async Task Dado_JogoInexistente_Quando_Submeter_Entao_RetornaInvalidContext()
+        {
+            LoginAsDefaultTenantAdmin();
+
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
+                _userReportAppService.SubmitAsync(new UserReportInput
+                {
+                    GameId = Guid.NewGuid(),
+                    Reason = "invalid"
+                }));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.InvalidContext);
         }
 
         private async Task<Guid> SeedGameAsync()
