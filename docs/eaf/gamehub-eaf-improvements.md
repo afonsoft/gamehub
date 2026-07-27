@@ -510,3 +510,46 @@ O EAF deve adicionar documentação específica para:
 | P1 | Health checks e métricas de cache/SignalR/Hangfire | Melhora operação e alertas |
 | P1 | Atualização dos templates API/Angular e testes | Evita regressão em novos projetos |
 | P2 | Guias de KeyVault, Worker, webhooks e cache alternativo | Reduz risco operacional e tempo de adoção |
+
+## EAF 9.3.0 — análise de compatibilidade
+
+A tag `9.3.0` foi comparada com `9.2.0` nos templates `Templates/Api` e
+`Templates/Angular/Eaf.ProjectName.UI`.
+
+### Template API
+
+As mudanças relevantes para consumidores incluem:
+
+- contratos públicos para chat contextual, rate limit, auditoria de moderação e
+  erros estáveis;
+- middleware e configuração de headers de segurança;
+- CORS mais restritivo em produção;
+- correlation ID, rate limiting e proteção de dados;
+- atualização dos exemplos de referência para os pacotes EAF `9.3.0`;
+- seed de idiomas que atualiza registros existentes em vez de ignorá-los;
+- exemplos Docker e documentação operacional revisados.
+
+O GameHub já possui implementações próprias para os fluxos de jogo, moderação,
+telemetria e portal. Portanto, os contratos do template não são copiados como
+segunda camada; a integração continua sendo feita pelos módulos EAF consumidos
+via NuGet.
+
+### Template Angular
+
+O template `9.3.0` remove componentes de exemplo (`Airplanes` e o Hangfire
+genérico), adiciona contratos de consumidor/correlation ID e melhora o layout
+do chat. A correção visual de switches usa label alinhado em 34px, com margem
+lateral e largura calculada.
+
+O GameHub não possui a árvore Angular do template EAF nem esses componentes
+genéricos. A correção equivalente foi aplicada aos checkboxes de plataformas,
+categorias e tags dos formulários de criação/edição de jogos, preservando o
+layout próprio do portal.
+
+### Limites da adoção
+
+- arquivos `obj/` e `package-lock.json` gerados não são editados manualmente;
+- remoções de componentes do template não são aplicadas ao GameHub;
+- configuração de cache, SignalR, chat, notificações e identidade continua sob
+  responsabilidade do EAF, sem registro duplicado no GameHub;
+- a validação final depende do restore/build com os pacotes publicados `9.3.0`.
