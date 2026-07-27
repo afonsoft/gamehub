@@ -34,8 +34,26 @@ namespace GameHub.Web.Middleware
 
             var rule = ResolveRule(context);
             var partitionKey = rule.GetPartitionKey(context);
+            var clientRequestId = GetClientRequestId(context);
             var bucket = GetBucket(rule.Window);
             var key = $"rate-limit:{rule.Name}:{partitionKey}:{bucket}";
+
+            if (IsMutableMethod(context.Request.Method) && !string.IsNullOrWhiteSpace(clientRequestId))
+            {
+                var idempotencyKey = $"idempotency:{clientRequestId}";
+                if (await IsDuplicateRequestAsync(idempotencyKey))
+                {
+                    _logger.LogInformation("Duplicate request detected for client request id {ClientRequestId}", clientRequestId);
+                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    AddRateLimitHeaders(context, rule.Limit, Math.Max(0, rule.Limit - await GetCountAsync(key) - 1), bucket + rule.Window);
+                    return;
+                }
+
+                await _cache.SetStringAsync(
+                    idempotencyKey,
+                    context.Request.Path.Value ?? "",
+                    new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+            }
 
             var count = await GetCountAsync(key);
             var limit = rule.Limit;
@@ -85,6 +103,25 @@ namespace GameHub.Web.Middleware
                 return RateLimitRules.Upload;
 
             return RateLimitRules.Default;
+        }
+
+        private static string GetClientRequestId(HttpContext context)
+        {
+            return context.Request.Headers["X-Client-Request-Id"].ToString();
+        }
+
+        private static bool IsMutableMethod(string method)
+        {
+            return method.Equals(HttpMethods.Post, StringComparison.OrdinalIgnoreCase)
+                || method.Equals(HttpMethods.Put, StringComparison.OrdinalIgnoreCase)
+                || method.Equals(HttpMethods.Patch, StringComparison.OrdinalIgnoreCase)
+                || method.Equals(HttpMethods.Delete, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private async Task<bool> IsDuplicateRequestAsync(string idempotencyKey)
+        {
+            var value = await _cache.GetStringAsync(idempotencyKey);
+            return !string.IsNullOrEmpty(value);
         }
 
         private static string GetPartitionKey(HttpContext context, bool perSession)

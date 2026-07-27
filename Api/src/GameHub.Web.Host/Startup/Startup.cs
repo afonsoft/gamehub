@@ -21,7 +21,9 @@ using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
 using GameHub.Web.Hubs;
+using GameHub.EntityFrameworkCore;
 using GameHub.Web.Filters;
+using GameHub.Web.HealthChecks;
 using GameHub.Web.Middleware;
 using GameHub.Web.Multiplayer;
 using GameHub.Web.WebHooks;
@@ -95,8 +97,14 @@ namespace GameHub.Web.Startup
             //Configure HealthChecks
             services.AddEafHealthChecks();
             services.AddHealthChecks()
+                .AddCheck<GameHubDbContextHealthCheck>(
+                    "database",
+                    HealthStatus.Unhealthy)
                 .AddCheck<MultiplayerPresenceHealthCheck>(
                     "multiplayer_presence_cache",
+                    HealthStatus.Degraded)
+                .AddCheck<RedisCacheHealthCheck>(
+                    "redis_cache",
                     HealthStatus.Degraded);
             //Configure OpenTelemetry
             services.AddEafOpenTelemetry(options =>
@@ -233,6 +241,7 @@ namespace GameHub.Web.Startup
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
+            app.UseMiddleware<PublicErrorMiddleware>();
             app.UseJwtTokenMiddleware();
             app.UseAbpRequestLocalization();
             app.UseRouting();
