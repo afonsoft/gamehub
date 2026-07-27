@@ -1,0 +1,51 @@
+<div class="dev-layout">
+  <header class="dev-mobile-header">
+    <a routerLink="/" class="dev-brand" aria-label="GameHub Home">
+      <img src="/assets/logo.svg" alt="GameHub" width="32" height="32" />
+      <span>GameHub</span>
+    </a>
+    <button
+      type="button"
+      class="dev-menu-toggle"
+      (click)="toggleMobileNav()"
+      [attr.aria-expanded]="isMobileNavOpen()"
+      aria-controls="dev-navigation"
+      [attr.aria-label]="isMobileNavOpen() ? 'Close navigation menu' : 'Open navigation menu'">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <aside class="dev-sidebar" [class.open]="isMobileNavOpen()" id="dev-navigation" aria-label="Developer navigation">
+    <div class="dev-sidebar-header">
+      <h2 id="dev-nav-title">Developer</h2>
+      <p class="dev-sidebar-subtitle">Portal</p>
+    </div>
+    <nav class="dev-nav" aria-labelledby="dev-nav-title">
+      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">
+        Dashboard
+      </a>
+      <a routerLink="/developer/games" routerLinkActive="active" (click)="closeMobileNav()">
+        My Games
+      </a>
+      <a routerLink="/developer/earnings" routerLinkActive="active" (click)="closeMobileNav()">
+        Earnings
+      </a>
+      <a routerLink="/developer/team" routerLinkActive="active" (click)="closeMobileNav()">
+        Team
+      </a>
+      <a routerLink="/developer/profile" routerLinkActive="active" (click)="closeMobileNav()">
+        Profile
+      </a>
+    </nav>
+    <div class="dev-sidebar-footer">
+      <a routerLink="/" (click)="closeMobileNav()">Back to GameHub</a>
+      <button type="button" class="dev-logout" (click)="logout()" *ngIf="isAuthenticated()">Logout</button>
+    </div>
+  </aside>
+
+  <main class="dev-content" role="main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <div class="dev-overlay" *ngIf="isMobileNavOpen()" (click)="closeMobileNav()" aria-hidden="true"></div>
+</div>

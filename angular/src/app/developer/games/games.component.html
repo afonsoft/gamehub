@@ -1,13 +1,4 @@
 <div class="dev-page">
-  <aside class="dev-sidebar">
-    <h2>Developer</h2>
-    <nav>
-      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
-      <a routerLink="/developer/earnings" routerLinkActive="active">Earnings</a>
-      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
-    </nav>
-  </aside>
   <main class="dev-main" aria-labelledby="developer-games-title">
     <div class="dev-header">
       <div>
@@ -16,12 +7,22 @@
       </div>
       <a class="btn-primary" routerLink="/developer/games/create">New Game</a>
     </div>
-    <div class="loading" *ngIf="loading" role="status" aria-live="polite">Loading...</div>
-    <div class="games-toolbar" *ngIf="!loading && games.length">
-      <p>{{ filteredGames.length }} of {{ games.length }} {{ games.length === 1 ? 'game' : 'games' }} shown</p>
+
+    <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">
+      <span class="sr-only">Loading games</span>
+      <span class="skeleton-line" aria-hidden="true"></span>
+    </div>
+
+    <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
+      <span>{{ error.message }}</span>
+      <app-button variant="secondary" (appClick)="loadGames()" [disabled]="state().loading">Retry</app-button>
+    </div>
+
+    <div class="games-toolbar" *ngIf="!state().loading && !state().error && filteredGames().length">
+      <p>{{ filteredGames().length }} of {{ state().games.length }} {{ state().games.length === 1 ? 'game' : 'games' }} shown</p>
       <label>
         Status
-        <select [(ngModel)]="statusFilter">
+        <select [(ngModel)]="statusFilter" aria-label="Filter games by status">
           <option>All</option>
           <option>Draft</option>
           <option>InReview</option>
@@ -30,12 +31,10 @@
         </select>
       </label>
     </div>
-    <div class="error-message" *ngIf="errorMessage" role="alert">
-      <span>{{ errorMessage }}</span>
-      <button class="btn-secondary" type="button" (click)="loadGames()">Retry</button>
-    </div>
-    <p class="status-message" *ngIf="submissionMessage" role="status">{{ submissionMessage }}</p>
-    <div class="games-table-wrap table-scroll" *ngIf="!loading && filteredGames.length">
+
+    <p class="status-message" *ngIf="submissionMessage()" role="status">{{ submissionMessage() }}</p>
+
+    <div class="games-table-wrap table-scroll" *ngIf="!state().loading && !state().error && filteredGames().length">
       <table class="games-table">
         <caption class="sr-only">Developer games and available actions</caption>
         <thead>
@@ -48,17 +47,30 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let game of filteredGames">
+          <tr *ngFor="let game of filteredGames()">
             <td><span class="game-title">{{ game.title }}</span></td>
-            <td><span class="badge status-badge" [class.status-rejected]="game.status === 'Rejected'" [class.status-inreview]="game.status === 'InReview'">{{ game.status }}</span></td>
-            <td><span class="badge" *ngIf="game.latestBuildStatus">{{ game.latestBuildStatus }}</span><span class="game-date" *ngIf="!game.latestBuildStatus">Not uploaded</span></td>
+            <td>
+              <span class="badge status-badge"
+                [class.status-rejected]="game.status === 'Rejected'"
+                [class.status-inreview]="game.status === 'InReview'">
+                {{ game.status }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" *ngIf="game.latestBuildStatus">{{ game.latestBuildStatus }}</span>
+              <span class="game-date" *ngIf="!game.latestBuildStatus">Not uploaded</span>
+            </td>
             <td><span class="game-date">{{ game.lastUpdated | date:'mediumDate' }}</span></td>
             <td>
               <div class="actions-cell">
                 <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
                 <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
-                <button class="submit-action" type="button" *ngIf="canSubmitForReview(game)" (click)="submitForReview(game)" [disabled]="submittingGameId === game.id" [attr.aria-label]="'Submit ' + game.title + ' for review'">
-                  {{ submittingGameId === game.id ? 'Submitting...' : 'Submit for review' }}
+                <button class="submit-action" type="button"
+                  *ngIf="canSubmitForReview(game)"
+                  (click)="submitForReview(game)"
+                  [disabled]="submittingGameId() === game.id"
+                  [attr.aria-label]="'Submit ' + game.title + ' for review'">
+                  {{ submittingGameId() === game.id ? 'Submitting...' : 'Submit for review' }}
                 </button>
               </div>
             </td>
@@ -66,7 +78,8 @@
         </tbody>
       </table>
     </div>
-    <p class="empty" *ngIf="!loading && games.length && !filteredGames.length">No games match this status.</p>
-    <p class="empty" *ngIf="!loading && !games.length">No games yet. Create your first game.</p>
+
+    <p class="empty" *ngIf="!state().loading && !state().error && state().games.length && !filteredGames().length">No games match this status.</p>
+    <p class="empty" *ngIf="!state().loading && !state().error && state().empty">No games yet. <a routerLink="/developer/games/create">Create your first game</a>.</p>
   </main>
 </div>

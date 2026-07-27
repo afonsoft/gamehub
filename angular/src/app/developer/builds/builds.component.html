@@ -1,82 +1,86 @@
 <div class="dev-page">
-  <aside class="dev-sidebar">
-    <h2>Developer</h2>
-    <nav>
-      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
-      <a routerLink="/developer/earnings" routerLinkActive="active">Earnings</a>
-      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
-    </nav>
-  </aside>
-  <main class="dev-main">
+  <main class="dev-main" aria-labelledby="developer-builds-title">
     <div class="dev-header">
-      <h1>Builds: {{ gameTitle }}</h1>
+      <h1 id="developer-builds-title">Builds: {{ gameTitle }}</h1>
       <a routerLink="/developer/games">Back to games</a>
     </div>
-    <p class="status-message" *ngIf="statusMessage" role="status">{{ statusMessage }}</p>
-    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
 
-    <section class="upload-section">
-      <h2>Upload build</h2>
-      <input type="file" accept=".zip" (change)="uploadFile($event)" [disabled]="uploading" />
-      <p class="hint">Accepted: .zip — max 100 MB. After upload, approve the build here before submitting the game for review.</p>
-      <div class="validation-card" *ngIf="uploadResult?.validationSummary">
-        <h3>Validation: {{ uploadResult!.validationSummary!.isValid ? 'Valid' : 'Invalid' }}</h3>
-        <p>Size: {{ uploadResult!.validationSummary!.packageSizeBytes | number }} bytes</p>
-        <p>Has index.html: {{ uploadResult!.validationSummary!.hasIndexHtml ? 'Yes' : 'No' }}</p>
-        <p>Path: {{ uploadResult!.validationSummary!.indexHtmlPath || '-' }}</p>
-        <ul *ngIf="uploadResult!.validationSummary!.errors?.length">
-          <li *ngFor="let err of uploadResult!.validationSummary!.errors" class="error">{{ err }}</li>
+    <p class="status-message" *ngIf="statusMessage()" role="status">{{ statusMessage() }}</p>
+
+    <section class="upload-section" aria-labelledby="upload-build-title">
+      <h2 id="upload-build-title">Upload build</h2>
+      <label class="file-input-label">
+        Choose .zip file
+        <input type="file" accept=".zip" (change)="uploadFile($event)" [disabled]="uploading()" aria-describedby="upload-hint" />
+      </label>
+      <p id="upload-hint" class="hint">Accepted: .zip — max 100 MB. After upload, approve the build here before submitting the game for review.</p>
+      <div class="validation-card" *ngIf="uploadResult()?.validationSummary as summary">
+        <h3>Validation: {{ summary.isValid ? 'Valid' : 'Invalid' }}</h3>
+        <p>Size: {{ summary.packageSizeBytes | number }} bytes</p>
+        <p>Has index.html: {{ summary.hasIndexHtml ? 'Yes' : 'No' }}</p>
+        <p>Path: {{ summary.indexHtmlPath || '-' }}</p>
+        <ul *ngIf="summary.errors?.length">
+          <li *ngFor="let err of summary.errors" class="error">{{ err }}</li>
         </ul>
-        <ul *ngIf="uploadResult!.validationSummary!.warnings?.length">
-          <li *ngFor="let warn of uploadResult!.validationSummary!.warnings" class="warning">{{ warn }}</li>
+        <ul *ngIf="summary.warnings?.length">
+          <li *ngFor="let warn of summary.warnings" class="warning">{{ warn }}</li>
         </ul>
       </div>
-      <p class="result" *ngIf="uploadResult">Uploaded build {{ uploadResult.version }} ({{ uploadResult.status }})</p>
+      <p class="result" *ngIf="uploadResult()">Uploaded build {{ uploadResult()?.version }} ({{ uploadResult()?.status }})</p>
     </section>
 
     <h2>Build history</h2>
-    <div class="loading" *ngIf="loading">Loading...</div>
-    <table class="games-table" *ngIf="!loading && builds.length">
-      <thead>
-        <tr>
-          <th>Version</th>
-          <th>Build #</th>
-          <th>Status</th>
-          <th>Size</th>
-          <th>Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let build of builds">
-          <td>{{ build.version }}</td>
-          <td>#{{ build.buildNumber }}</td>
-          <td><span class="badge" [class]="'badge status-' + build.status.toLowerCase()">{{ build.status }}</span></td>
-          <td>{{ build.sizeBytes | number }} bytes</td>
-          <td>{{ build.createdAt | date:'short' }}</td>
-          <td>
-            <button *ngIf="build.status === 'Validated'" (click)="approveBuild(build)" [disabled]="isBusy(build.id)">Approve</button>
-            <button *ngIf="build.status === 'Validated'" (click)="beginRejectBuild(build)" [disabled]="isBusy(build.id)">Reject</button>
-            <button (click)="openInspector(build)" [disabled]="isBusy(build.id)">Open in Inspector</button>
-            <button (click)="previewOnGameHub(build)" [disabled]="isBusy(build.id)">Preview on Game Hub</button>
-            <div class="reject-form" *ngIf="rejectingBuildId === build.id">
-              <label>
-                Rejection reason
-                <textarea [(ngModel)]="rejectionReason" rows="2"></textarea>
-              </label>
-              <button type="button" (click)="rejectBuild(build)" [disabled]="isBusy(build.id)">Confirm rejection</button>
-              <button type="button" (click)="cancelRejectBuild()">Cancel</button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p class="empty" *ngIf="!loading && !builds.length">No builds uploaded yet.</p>
+    <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
+      <span>{{ error.message }}</span>
+      <app-button variant="secondary" (appClick)="loadBuilds()" [disabled]="state().loading">Retry</app-button>
+    </div>
+    <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">Loading builds...</div>
 
-    <section class="review-history" *ngIf="!loading && reviewHistory.length">
-      <h2>Review history</h2>
-      <article *ngFor="let review of reviewHistory" class="review-item">
+    <div class="table-scroll" *ngIf="!state().loading && !state().error && state().builds.length">
+      <table class="games-table">
+        <caption class="sr-only">Build history and actions</caption>
+        <thead>
+          <tr>
+            <th scope="col">Version</th>
+            <th scope="col">Build #</th>
+            <th scope="col">Status</th>
+            <th scope="col">Size</th>
+            <th scope="col">Created</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let build of state().builds">
+            <td>{{ build.version }}</td>
+            <td>#{{ build.buildNumber }}</td>
+            <td><span class="badge" [class]="'status-' + build.status.toLowerCase()">{{ build.status }}</span></td>
+            <td>{{ build.sizeBytes | number }} bytes</td>
+            <td>{{ build.createdAt | date:'short' }}</td>
+            <td>
+              <div class="actions-cell">
+                <app-button variant="secondary" *ngIf="build.status === 'Validated'" (appClick)="approveBuild(build)" [disabled]="isBusy(build.id)">Approve</app-button>
+                <app-button variant="ghost" *ngIf="build.status === 'Validated'" (appClick)="beginRejectBuild(build)" [disabled]="isBusy(build.id)">Reject</app-button>
+                <app-button variant="secondary" (appClick)="openInspector(build)" [disabled]="isBusy(build.id)">Open in Inspector</app-button>
+                <app-button variant="secondary" (appClick)="previewOnGameHub(build)" [disabled]="isBusy(build.id)">Preview on Game Hub</app-button>
+              </div>
+              <div class="reject-form" *ngIf="rejectingBuildId() === build.id">
+                <label>
+                  Rejection reason
+                  <textarea [ngModel]="rejectionReason()" (ngModelChange)="rejectionReason.set($event)" rows="2" [disabled]="isBusy(build.id)"></textarea>
+                </label>
+                <app-button variant="primary" (appClick)="rejectBuild(build)" [disabled]="isBusy(build.id)">Confirm rejection</app-button>
+                <app-button variant="ghost" (appClick)="cancelRejectBuild()" [disabled]="isBusy(build.id)">Cancel</app-button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="empty" *ngIf="!state().loading && !state().error && !state().builds.length">No builds uploaded yet.</p>
+
+    <section class="review-history" *ngIf="!state().loading && reviewHistory().length" aria-labelledby="review-history-title">
+      <h2 id="review-history-title">Review history</h2>
+      <article *ngFor="let review of reviewHistory()" class="review-item">
         <div>
           <strong>{{ review.status }}</strong>
           <span *ngIf="review.decision"> · {{ review.decision }}</span>

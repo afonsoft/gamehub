@@ -1,66 +1,64 @@
 <div class="dev-page">
-  <aside class="dev-sidebar">
-    <h2>Developer</h2>
-    <nav>
-      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
-      <a routerLink="/developer/earnings" routerLinkActive="active">Earnings</a>
-      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
-    </nav>
-  </aside>
-
   <main class="dev-main" aria-labelledby="developer-earnings-title">
     <div class="dev-header">
       <div>
         <h1 id="developer-earnings-title">Earnings</h1>
         <p class="earnings-intro">Track estimated revenue and ad performance across your games.</p>
       </div>
+      <app-button variant="primary" (appClick)="exportCsv()" [disabled]="state().loading || !earnings()?.games?.length">
+        Export CSV
+      </app-button>
     </div>
 
     <form class="earnings-filters" (ngSubmit)="applyFilter()">
       <label>
         From
-        <input type="date" name="from" [(ngModel)]="from" aria-label="Start date">
+        <input type="date" name="from" [ngModel]="from()" (ngModelChange)="from.set($event)" aria-label="Start date">
       </label>
       <label>
         To
-        <input type="date" name="to" [(ngModel)]="to" aria-label="End date">
+        <input type="date" name="to" [ngModel]="to()" (ngModelChange)="to.set($event)" aria-label="End date">
       </label>
-      <button class="btn-primary" type="submit" [disabled]="loading">Apply</button>
-      <button class="btn-secondary" type="button" (click)="from = ''; to = ''; loadEarnings()" [disabled]="loading">Reset</button>
+      <app-button variant="primary" type="submit" [disabled]="state().loading">Apply</app-button>
+      <app-button variant="secondary" (appClick)="from.set(''); to.set(''); loadEarnings()" [disabled]="state().loading">Reset</app-button>
     </form>
-    <div class="error-message" *ngIf="errorMessage" role="alert">
-      <span>{{ errorMessage }}</span>
-      <button class="btn-secondary" type="button" (click)="loadEarnings()">Retry</button>
-    </div>
-    <div class="loading" *ngIf="loading" role="status" aria-live="polite">Loading...</div>
 
-    <ng-container *ngIf="!loading && earnings">
-      <p class="earnings-notice">Estimated values only; they do not represent confirmed payout. Period: {{ earnings.from | date:'mediumDate' }} – {{ earnings.to | date:'mediumDate' }}.</p>
-      <section class="earnings-cards" *ngIf="earnings.games.length">
+    <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
+      <span>{{ error.message }}</span>
+      <app-button variant="secondary" (appClick)="loadEarnings()" [disabled]="state().loading">Retry</app-button>
+    </div>
+
+    <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">Loading earnings...</div>
+
+    <ng-container *ngIf="!state().loading && !state().error && earnings() as e">
+      <p class="earnings-notice">
+        Estimated values only; they do not represent confirmed payout. Period: {{ e.from | date:'mediumDate' }} – {{ e.to | date:'mediumDate' }}.
+      </p>
+
+      <section class="earnings-cards" *ngIf="e.games.length">
         <div class="earnings-card primary">
           <span class="earnings-card-label">Gross estimated</span>
-          <span class="earnings-card-value">{{ formatCurrency(earnings.totalGrossEstimatedRevenue) }}</span>
+          <span class="earnings-card-value">{{ formatCurrency(e.totalGrossEstimatedRevenue) }}</span>
         </div>
         <div class="earnings-card">
           <span class="earnings-card-label">Developer estimated</span>
-          <span class="earnings-card-value">{{ formatCurrency(earnings.totalDeveloperEstimatedRevenue) }}</span>
+          <span class="earnings-card-value">{{ formatCurrency(e.totalDeveloperEstimatedRevenue) }}</span>
         </div>
         <div class="earnings-card">
           <span class="earnings-card-label">Platform estimated</span>
-          <span class="earnings-card-value">{{ formatCurrency(earnings.totalPlatformEstimatedRevenue) }}</span>
+          <span class="earnings-card-value">{{ formatCurrency(e.totalPlatformEstimatedRevenue) }}</span>
         </div>
         <div class="earnings-card">
           <span class="earnings-card-label">Commercial breaks</span>
-          <span class="earnings-card-value">{{ earnings.totalCommercialBreaks | number }}</span>
+          <span class="earnings-card-value">{{ e.totalCommercialBreaks | number }}</span>
         </div>
         <div class="earnings-card">
           <span class="earnings-card-label">Rewarded breaks</span>
-          <span class="earnings-card-value">{{ earnings.totalRewardedBreaks | number }}</span>
+          <span class="earnings-card-value">{{ e.totalRewardedBreaks | number }}</span>
         </div>
       </section>
 
-      <section class="earnings-panel" *ngIf="earnings.games.length">
+      <section class="earnings-panel" *ngIf="e.games.length">
         <div class="earnings-panel-header">
           <div>
             <h2>Performance by game</h2>
@@ -82,7 +80,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let game of earnings.games; trackBy: trackByGame">
+              <tr *ngFor="let game of e.games; trackBy: trackByGame">
                 <td><span class="earnings-game">{{ game.gameTitle }}</span></td>
                 <td><span class="earnings-number">{{ game.totalPlays | number }}</span></td>
                 <td><span class="earnings-number">{{ game.commercialBreaks | number }}</span></td>
@@ -96,7 +94,7 @@
         </div>
       </section>
 
-      <section class="earnings-panel" *ngFor="let game of earnings.games; trackBy: trackByGame">
+      <section class="earnings-panel" *ngFor="let game of e.games; trackBy: trackByGame">
         <div class="earnings-panel-header">
           <div>
             <h2>{{ game.gameTitle }}</h2>
@@ -120,7 +118,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let day of game.daily; trackBy: trackByDay">
-                <td><span class="earnings-number">{{ day.date | date:'mediumDate' }}</span></td>
+                <td>{{ day.date | date:'mediumDate' }}</td>
                 <td><span class="earnings-number">{{ day.commercialBreaks | number }}</span></td>
                 <td><span class="earnings-number">{{ day.rewardedBreaks | number }}</span></td>
                 <td><span class="earnings-number">{{ formatCurrency(day.grossEstimatedRevenue) }}</span></td>
@@ -129,10 +127,10 @@
             </tbody>
           </table>
         </div>
-        <p class="empty" *ngIf="isDailyExpanded(game.gameId) && !game.daily.length">No daily data in the selected range.</p>
+        <p class="empty" *ngIf="isDailyExpanded(game.gameId) && !game.daily.length">No daily data available for this period.</p>
       </section>
 
-      <p class="empty" *ngIf="!earnings.games.length">No earnings data yet. Publish a game and wait for ad events to appear.</p>
+      <p class="empty" *ngIf="!e.games.length">No earnings data for the selected period.</p>
     </ng-container>
   </main>
 </div>

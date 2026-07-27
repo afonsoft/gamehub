@@ -1,7 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DeveloperGamesComponent } from './games.component';
 import { DeveloperService } from '../../core/services/developer.service';
+import { ErrorMapperService } from '../../core/services/error-mapper.service';
+import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { provideRouter } from '@angular/router';
 
 describe('DeveloperGamesComponent', () => {
   let fixture: ComponentFixture<DeveloperGamesComponent>;
@@ -27,8 +31,12 @@ describe('DeveloperGamesComponent', () => {
     developerService.submitForReview.and.returnValue(of({}));
 
     await TestBed.configureTestingModule({
-      imports: [DeveloperGamesComponent],
-      providers: [{ provide: DeveloperService, useValue: developerService }],
+      imports: [DeveloperGamesComponent, ButtonComponent],
+      providers: [
+        { provide: DeveloperService, useValue: developerService },
+        ErrorMapperService,
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DeveloperGamesComponent);
@@ -37,16 +45,21 @@ describe('DeveloperGamesComponent', () => {
   });
 
   it('loads games and exposes the filtered collection', () => {
-    expect(component.games.length).toBe(1);
-    expect(component.filteredGames[0].title).toBe('Test game');
+    expect(component.state().games.length).toBe(1);
+    expect(component.filteredGames()[0].title).toBe('Test game');
+    expect(component.state().loading).toBeFalse();
+    expect(component.state().empty).toBeFalse();
   });
 
   it('shows a retryable error when loading fails', () => {
-    developerService.getMyGames.and.returnValue(throwError(() => new Error('network')));
+    const error = new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' });
+    developerService.getMyGames.and.returnValue(throwError(() => error));
 
     component.loadGames();
 
-    expect(component.errorMessage).toBe('Unable to load your games. Try again.');
-    expect(component.loading).toBeFalse();
+    expect(component.state().error?.message).toBe('An unexpected error occurred. Please try again later.');
+    expect(component.state().error?.code).toBe('temporarily_unavailable');
+    expect(component.state().error?.retryable).toBeTrue();
+    expect(component.state().loading).toBeFalse();
   });
 });
