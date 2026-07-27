@@ -1,15 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+
+import { forkJoin } from 'rxjs';
 import { PlayerService, PlayerFavorite, PlayerRecentGame } from '../../core/services/player.service';
 import { TokenService } from '../../core/auth/token.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { GameCard } from '../../core/services/game-catalog.service';
+import { GameCardComponent } from '../../shared/ui/game-card/game-card.component';
+import { SkeletonComponent } from '../../shared/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, GameCardComponent, SkeletonComponent],
   templateUrl: './player.component.html',
   styleUrl: './player.component.css',
 })
@@ -34,29 +37,27 @@ export class PlayerComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.playerService.getFavorites().subscribe({
-      next: favorites => {
+    forkJoin({
+      favorites: this.playerService.getFavorites(),
+      recent: this.playerService.getRecent(),
+    }).subscribe({
+      next: ({ favorites, recent }) => {
         this.favorites = favorites;
+        this.recent = recent;
         this.loading = false;
+
+        if (this.isAuthenticated) {
+          this.playerService.mergeLocalData().subscribe(() => {
+            this.playerService.clearLocalData();
+            this.playerService.getFavorites().subscribe(f => (this.favorites = f));
+            this.playerService.getRecent().subscribe(r => (this.recent = r));
+          });
+        }
       },
       error: () => {
         this.loading = false;
       },
     });
-
-    this.playerService.getRecent().subscribe({
-      next: recent => {
-        this.recent = recent;
-      },
-    });
-
-    if (this.isAuthenticated) {
-      this.playerService.mergeLocalData().subscribe(() => {
-        this.playerService.clearLocalData();
-        this.playerService.getFavorites().subscribe(f => (this.favorites = f));
-        this.playerService.getRecent().subscribe(r => (this.recent = r));
-      });
-    }
   }
 
   removeFavorite(gameId: string): void {

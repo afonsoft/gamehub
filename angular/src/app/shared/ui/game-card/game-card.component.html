@@ -4,6 +4,9 @@
     <img class="animated" *ngIf="game.animatedThumbnailUrl" [src]="game.animatedThumbnailUrl" [alt]="game.title" loading="lazy" />
     <span class="badge web-exclusive" *ngIf="game.isWebExclusive">{{ 'gameDetail.webExclusive' | translate }}</span>
     <span class="badge desktop-only" *ngIf="!game.supportsMobile">Desktop</span>
+    <div class="card-actions">
+      <ng-content select="[cardAction]"></ng-content>
+    </div>
   </div>
   <div class="meta">
     <h3>{{ game.title }}</h3>
@@ -16,6 +19,9 @@
       <span class="stars-empty">★★★★★</span>
       <span class="stars-filled" [style.width.%]="(game.averageRating / 5) * 100">★★★★★</span>
       <span class="rating-text">{{ game.averageRating | number:'1.1-1' }} ({{ game.totalVotes | number }} {{ 'games.votes' | translate }})</span>
+    </div>
+    <div class="extra">
+      <ng-content select="[cardExtra]"></ng-content>
     </div>
   </div>
 </a>

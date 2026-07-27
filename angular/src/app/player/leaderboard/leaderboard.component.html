@@ -8,7 +8,7 @@
     <section class="submit-score" *ngIf="isLoggedIn(); else loginCta">
       <h2>{{ 'leaderboard.submit' | translate }}</h2>
       <div class="score-row">
-        <input type="number" [(ngModel)]="score" placeholder="Score" min="0" />
+        <input type="number" [(ngModel)]="score" [placeholder]="'leaderboard.score' | translate" min="0" />
         <app-button variant="primary" (appClick)="submitScore()" [disabled]="submitting">{{ submitting ? ('common.loading' | translate) : ('leaderboard.submit' | translate) }}</app-button>
       </div>
     </section>
@@ -26,31 +26,59 @@
   </app-card>
 
   <app-card class="top-list">
-    <h2>{{ 'leaderboard.topPlayers' | translate }}</h2>
-    <table *ngIf="entries.length; else empty">
-      <thead>
-        <tr>
-          <th>{{ 'leaderboard.rank' | translate }}</th>
-          <th>{{ 'leaderboard.player' | translate }}</th>
-          <th>{{ 'leaderboard.score' | translate }}</th>
-          <th>{{ 'leaderboard.date' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let entry of entries">
-          <td>
-            <app-badge *ngIf="entry.rank <= 3" [label]="'#' + entry.rank" [variant]="entry.rank === 1 ? 'success' : entry.rank === 2 ? 'primary' : 'warning'"></app-badge>
-            <span *ngIf="entry.rank > 3">#{{ entry.rank }}</span>
-          </td>
-          <td>{{ entry.displayName || 'Player ' + entry.userId }}</td>
-          <td>{{ entry.score | number }}</td>
-          <td>{{ entry.updatedAt | date:'short' }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <ng-template #empty>
-      <p class="empty">{{ 'leaderboard.empty' | translate }}</p>
+    <div class="top-list-header">
+      <h2>{{ 'leaderboard.topPlayers' | translate }}</h2>
+      <div class="size-controls">
+        <button
+          *ngFor="let size of pageSizes"
+          class="size-button"
+          [class.active]="take === size"
+          [disabled]="loadingEntries"
+          (click)="setTake(size)">
+          {{ size }}
+        </button>
+      </div>
+    </div>
+
+    <div class="skeleton-table" *ngIf="loadingEntries; else leaderboardTable">
+      <div class="skeleton-row" *ngFor="let _ of [1,2,3,4,5]">
+        <app-skeleton width="2rem" height="1rem"></app-skeleton>
+        <app-skeleton width="60%" height="1rem"></app-skeleton>
+        <app-skeleton width="4rem" height="1rem"></app-skeleton>
+        <app-skeleton width="5rem" height="1rem"></app-skeleton>
+      </div>
+    </div>
+
+    <ng-template #leaderboardTable>
+      <table *ngIf="entries.length; else empty">
+        <thead>
+          <tr>
+            <th>{{ 'leaderboard.rank' | translate }}</th>
+            <th>{{ 'leaderboard.player' | translate }}</th>
+            <th>{{ 'leaderboard.score' | translate }}</th>
+            <th>{{ 'leaderboard.date' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of entries">
+            <td>
+              <app-badge *ngIf="entry.rank <= 3" [label]="'#' + entry.rank" [variant]="entry.rank === 1 ? 'success' : entry.rank === 2 ? 'primary' : 'warning'"></app-badge>
+              <span *ngIf="entry.rank > 3">#{{ entry.rank }}</span>
+            </td>
+            <td>{{ entry.displayName || 'Player ' + entry.userId }}</td>
+            <td>{{ entry.score | number }}</td>
+            <td>{{ entry.updatedAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #empty>
+        <p class="empty">{{ 'leaderboard.empty' | translate }}</p>
+      </ng-template>
     </ng-template>
+
+    <div class="load-more" *ngIf="canLoadMore && !loadingEntries">
+      <app-button variant="secondary" (appClick)="loadMore()">{{ 'leaderboard.loadMore' | translate }}</app-button>
+    </div>
   </app-card>
 </div>
 

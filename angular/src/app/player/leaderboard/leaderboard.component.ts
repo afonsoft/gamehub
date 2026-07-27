@@ -9,11 +9,12 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { CardComponent } from '../../shared/ui/card/card.component';
 import { BadgeComponent } from '../../shared/ui/badge/badge.component';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { SkeletonComponent } from '../../shared/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leaderboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, TranslatePipe, CardComponent, BadgeComponent, ButtonComponent],
+  imports: [CommonModule, RouterLink, FormsModule, TranslatePipe, CardComponent, BadgeComponent, ButtonComponent, SkeletonComponent],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.css',
 })
@@ -23,7 +24,11 @@ export class LeaderboardComponent implements OnInit {
   myRank: LeaderboardEntry | null = null;
   score = 0;
   loaded = false;
+  loadingEntries = false;
   submitting = false;
+
+  readonly pageSizes = [10, 25, 50];
+  take = 10;
 
   private readonly route = inject(ActivatedRoute);
   private readonly leaderboardService = inject(LeaderboardService);
@@ -47,14 +52,18 @@ export class LeaderboardComponent implements OnInit {
   }
 
   loadLeaderboard(gameId: string): void {
-    this.leaderboardService.getTop(gameId, 10).subscribe({
+    this.loadingEntries = true;
+    this.leaderboardService.getTop(gameId, this.take).subscribe({
       next: entries => {
         this.entries = entries ?? [];
+        this.loadingEntries = false;
       },
       error: () => {
         this.entries = [];
+        this.loadingEntries = false;
       },
     });
+
     if (this.isLoggedIn()) {
       this.leaderboardService.getMyRank(gameId).subscribe({
         next: rank => {
@@ -64,7 +73,30 @@ export class LeaderboardComponent implements OnInit {
           this.myRank = null;
         },
       });
+    } else {
+      this.myRank = null;
     }
+  }
+
+  setTake(take: number): void {
+    if (this.take === take || !this.game) {
+      return;
+    }
+    this.take = take;
+    this.loadLeaderboard(this.game.id);
+  }
+
+  loadMore(): void {
+    if (!this.game || !this.canLoadMore) {
+      return;
+    }
+    const next = this.pageSizes.find(size => size > this.take) ?? this.pageSizes[this.pageSizes.length - 1];
+    this.take = next;
+    this.loadLeaderboard(this.game.id);
+  }
+
+  get canLoadMore(): boolean {
+    return this.game !== null && this.take < this.pageSizes[this.pageSizes.length - 1] && this.entries.length >= this.take;
   }
 
   submitScore(): void {
