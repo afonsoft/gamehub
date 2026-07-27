@@ -44,61 +44,19 @@
   gap: 1.25rem;
 }
 
-.game-card {
-  position: relative;
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.game-card-skeleton {
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: 1rem;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.game-card .thumb {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-}
-
-.game-card .thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.game-card .meta {
-  padding: 0.9rem;
-  flex: 1;
-}
-
-.game-card .meta h3 {
-  font-size: 1rem;
-  margin: 0 0 0.25rem;
-}
-
-.game-card .short-desc {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.game-card .sessions {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin-top: 0.35rem;
+  gap: 0.75rem;
 }
 
 .remove {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
   width: 1.75rem;
   height: 1.75rem;
   border: none;
@@ -108,6 +66,9 @@
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .empty {
@@ -117,7 +78,8 @@
 }
 
 @media (max-width: 640px) {
-  .game-grid {
+  .game-grid,
+  .skeleton-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 0.85rem;
   }

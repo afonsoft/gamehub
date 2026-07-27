@@ -70,6 +70,15 @@
   color: #fff;
 }
 
+.card-actions {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: flex;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
 .meta {
   padding: 0.9rem;
   display: flex;
@@ -152,6 +161,16 @@
   color: #6b7280;
   font-size: 0.8rem;
   margin-left: 5rem;
+}
+
+.extra {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-top: 0.2rem;
+}
+
+.extra:empty {
+  display: none;
 }
 
 @media (max-width: 640px) {

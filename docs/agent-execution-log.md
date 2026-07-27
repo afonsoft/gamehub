@@ -1,3 +1,28 @@
+## 2026-07-27 23:35 UTC
+
+### Tarefa
+Melhorar leaderboard e páginas do jogador (Spec 17-C / 19.8): loading skeleton, paginação, unificação de cards com `GameCardComponent`.
+
+### Implementado
+- `GameCardComponent` estendido com slots `<ng-content select="[cardAction]">` e `<ng-content select="[cardExtra]">` para ações (ex: remover favorito) e conteúdo extra (ex: número de partidas).
+- `leaderboard.component.ts/.html/.css`:
+  - Estados `loadingEntries` e `take` (10/25/50).
+  - Skeleton enquanto carrega entradas.
+  - Controles rápidos `Top 10 / 25 / 50` e botão `Load more`.
+  - `My rank` e CTA de login mantidos.
+- `player.component.ts/.html/.css`:
+  - Loading skeleton durante `forkJoin` de favoritos/recentes.
+  - Cards de favoritos e recentes substituídos por `<app-game-card>`.
+  - Botão remover favorito projetado via `cardAction`; contagem de partidas projetada via `cardExtra`.
+  - Estilos `.game-card` duplicados removidos.
+- Chaves i18n: `leaderboard.loadMore`, `leaderboard.loading`, `player.removeFavorite` em `en-US.json` e `pt-BR.json`.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` em `angular/`: OK (aviso residual de budget em `home.component.css`).
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+- `npm test` não executado por falta de ChromeHeadless no ambiente.
+
 ## 2026-07-27 22:30 UTC
 
 ### Tarefa

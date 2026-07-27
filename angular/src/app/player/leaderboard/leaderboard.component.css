@@ -27,8 +27,44 @@ app-card {
 
 .submit-score h2,
 .top-list h2 {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 1.125rem;
+}
+
+.top-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.size-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.size-button {
+  padding: 6px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  background: #fff;
+  color: #5f6368;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.size-button.active {
+  background: #ff5e57;
+  color: #fff;
+  border-color: #ff5e57;
+}
+
+.size-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .score-row {
@@ -73,6 +109,27 @@ app-card {
   padding: 24px 0;
 }
 
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 3rem 2fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 .empty-state {
   text-align: center;
   padding: 48px 24px;
@@ -92,5 +149,9 @@ app-card {
   .top-list td {
     padding: 8px 4px;
     font-size: 0.9rem;
+  }
+
+  .skeleton-row {
+    grid-template-columns: 2.5rem 1.5fr 1fr 1fr;
   }
 }

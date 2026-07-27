@@ -9,19 +9,26 @@
     <button [class.active]="activeTab === 'recent'" (click)="setTab('recent')">{{ 'player.recent' | translate }}</button>
   </nav>
 
+  <div class="skeleton-grid" *ngIf="loading">
+    <div class="game-card-skeleton" *ngFor="let _ of [1,2,3,4,5,6]">
+      <app-skeleton width="100%" height="160px" radius="1rem"></app-skeleton>
+      <app-skeleton width="70%" height="1rem"></app-skeleton>
+      <app-skeleton width="40%" height="0.8rem"></app-skeleton>
+    </div>
+  </div>
+
   <div class="tab-content" *ngIf="!loading">
     <section *ngIf="activeTab === 'favorites'">
       <div class="game-grid" *ngIf="favorites?.length; else emptyFavorites">
-        <a class="game-card" *ngFor="let item of favorites" [routerLink]="['/play', item.game.slug]">
-          <div class="thumb">
-            <img [src]="item.game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="item.game.title" loading="lazy" />
-          </div>
-          <div class="meta">
-            <h3>{{ item.game.title }}</h3>
-            <p class="short-desc" *ngIf="item.game.shortDescription">{{ item.game.shortDescription }}</p>
-          </div>
-          <button class="remove" (click)="$event.preventDefault(); $event.stopPropagation(); removeFavorite(item.gameId)">×</button>
-        </a>
+        <app-game-card *ngFor="let item of favorites; trackBy: trackByGame" [game]="item.game">
+          <button
+            cardAction
+            class="remove"
+            (click)="$event.preventDefault(); $event.stopPropagation(); removeFavorite(item.gameId)"
+            [attr.aria-label]="'player.removeFavorite' | translate">
+            ×
+          </button>
+        </app-game-card>
       </div>
       <ng-template #emptyFavorites>
         <p class="empty">{{ 'player.emptyFavorites' | translate }}</p>
@@ -30,16 +37,9 @@
 
     <section *ngIf="activeTab === 'recent'">
       <div class="game-grid" *ngIf="recent?.length; else emptyRecent">
-        <a class="game-card" *ngFor="let item of recent" [routerLink]="['/play', item.game.slug]">
-          <div class="thumb">
-            <img [src]="item.game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="item.game.title" loading="lazy" />
-          </div>
-          <div class="meta">
-            <h3>{{ item.game.title }}</h3>
-            <p class="short-desc" *ngIf="item.game.shortDescription">{{ item.game.shortDescription }}</p>
-            <span class="sessions">{{ item.totalSessions }} {{ 'player.sessions' | translate }}</span>
-          </div>
-        </a>
+        <app-game-card *ngFor="let item of recent; trackBy: trackByGame" [game]="item.game">
+          <span cardExtra>{{ item.totalSessions }} {{ 'player.sessions' | translate }}</span>
+        </app-game-card>
       </div>
       <ng-template #emptyRecent>
         <p class="empty">{{ 'player.emptyRecent' | translate }}</p>
