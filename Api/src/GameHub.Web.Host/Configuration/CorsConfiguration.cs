@@ -81,7 +81,7 @@ namespace GameHub.Web.Configuration
                     "Abp.Localization.CultureName",
                     ".AspNetCore.Culture",
                     "Accept-Language")
-                .WithExposedHeaders("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset")
+                .WithExposedHeaders("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "Retry-After")
                 .AllowCredentials()
                 .SetPreflightMaxAge(TimeSpan.FromSeconds(600));
         }

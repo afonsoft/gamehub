@@ -1,5 +1,18 @@
 # Evoluções necessárias no EAF para o GameHub
 
+## Status (2026-07-27)
+
+Parte das evoluções foi implementada na branch `feature/eaf-spec-50-contextual-chat-contracts` do repositório `afonsoft/EAF`:
+
+- `ChatMessage` e `ChatMessageDto` receberam campos opcionais `ConversationId`, `GameId`, `MatchId`, `ContextType` e `ClientMessageId`.
+- `SendChatMessageInput` atualizado com os mesmos campos opcionais.
+- Criados `GetChatHistoryInput`, `MarkChatReadInput` e adicionados `GetHistoryAsync`/`MarkReadAsync` em `IChatAppService` e `ChatAppService`.
+- Criados contratos compartilhados: `PublicErrorContract`, `ContextualChatMessageContract`, `RateLimitContract`, `ModerationAuditContract`.
+- Criados `IRateLimitManager`/`RateLimitDecision` (Core) e implementação `RateLimitManager` (Application) sobre `ICacheManager`.
+- Criado `IModerationAuditWriter` com `NullModerationAuditWriter` padrão.
+
+Pendente: adaptar os templates EAF (`Templates/Api`, `Templates/Angular`) para registrar middlewares de segurança/rate-limit e publicar pacotes EAF 9.4.0 para consumo pelo GameHub.
+
 ## Objetivo
 
 Registrar, separadamente do código do GameHub, os contratos e capacidades que

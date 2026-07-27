@@ -2,10 +2,14 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Abp;
 using Abp.Domain.Repositories;
+using Abp.Runtime.Caching;
 using Abp.Timing;
-using GameHub.Multiplayer;
+using GameHub.Catalog;
+using GameHub.Exceptions;
 using GameHub.Moderation;
+using GameHub.Multiplayer;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Social
@@ -15,27 +19,43 @@ namespace GameHub.Social
     /// </summary>
     public class GameSocialAppService : GameHubAppServiceBase, IGameSocialAppService
     {
+        private static readonly TimeSpan RateLimitWindow = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(5);
+        private const int MaxReportsPerMinute = 10;
+
         private readonly IRepository<GameInvite, Guid> _inviteRepository;
         private readonly IRepository<GameNotification, Guid> _notificationRepository;
         private readonly IRepository<MatchState, Guid> _matchRepository;
         private readonly IRepository<MatchParticipant, Guid> _participantRepository;
-        private readonly IMultiplayerPresenceStore _presenceStore;
         private readonly IRepository<UserReport, Guid> _reportRepository;
+        private readonly IRepository<Game, Guid> _gameRepository;
+        private readonly IMultiplayerPresenceStore _presenceStore;
+        private readonly ITypedCache<string, string> _rateLimitCache;
+        private readonly ITypedCache<string, string> _idempotencyCache;
 
         public GameSocialAppService(
             IRepository<GameInvite, Guid> inviteRepository,
             IRepository<GameNotification, Guid> notificationRepository,
             IRepository<MatchState, Guid> matchRepository,
             IRepository<MatchParticipant, Guid> participantRepository,
+            IRepository<UserReport, Guid> reportRepository,
+            IRepository<Game, Guid> gameRepository,
             IMultiplayerPresenceStore presenceStore,
-            IRepository<UserReport, Guid> reportRepository)
+            ICacheManager cacheManager)
         {
             _inviteRepository = inviteRepository;
             _notificationRepository = notificationRepository;
             _matchRepository = matchRepository;
             _participantRepository = participantRepository;
-            _presenceStore = presenceStore;
             _reportRepository = reportRepository;
+            _gameRepository = gameRepository;
+            _presenceStore = presenceStore;
+            _rateLimitCache = cacheManager
+                .GetCache("GameHub.Social.ReportRateLimit")
+                .AsTyped<string, string>();
+            _idempotencyCache = cacheManager
+                .GetCache("GameHub.Social.ReportIdempotency")
+                .AsTyped<string, string>();
         }
 
         public async Task<GameInviteDto> InvitePlayerAsync(InvitePlayerInput input)
@@ -46,7 +66,10 @@ namespace GameHub.Social
 
             if (match == null || match.Status == MatchStatus.Ended || match.Status == MatchStatus.Cancelled)
             {
-                throw new InvalidOperationException("Match is not available.");
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "A partida não está disponível.",
+                    retryable: false);
             }
 
             await EnsureActiveParticipantAsync(input.MatchId, inviterUserId);
@@ -55,7 +78,10 @@ namespace GameHub.Social
             var expiresAt = input.ExpiresAt ?? Clock.Now.AddMinutes(15);
             if (expiresAt <= Clock.Now)
             {
-                throw new ArgumentException("Invite expiration must be in the future.", nameof(input));
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "O convite deve expirar no futuro.",
+                    retryable: false);
             }
 
             var existing = await _inviteRepository.FirstOrDefaultAsync(item =>
@@ -71,7 +97,7 @@ namespace GameHub.Social
 
             var invite = new GameInvite
             {
-                Id = Guid.NewGuid(),
+                Id = SequentialGuidGenerator.Instance.Create(),
                 TenantId = AbpSession.TenantId,
                 GameId = input.GameId,
                 MatchId = input.MatchId,
@@ -85,7 +111,7 @@ namespace GameHub.Social
 
             await _notificationRepository.InsertAsync(new GameNotification
             {
-                Id = Guid.NewGuid(),
+                Id = SequentialGuidGenerator.Instance.Create(),
                 TenantId = AbpSession.TenantId,
                 UserId = input.InviteeUserId,
                 NotificationType = "match_invite",
@@ -109,7 +135,10 @@ namespace GameHub.Social
                 .FirstOrDefaultAsync(item => item.Id == inviteId && item.InviteeUserId == userId);
             if (invite == null || invite.Status != "pending" || invite.ExpiresAt <= Clock.Now)
             {
-                throw new InvalidOperationException("Invite is not available.");
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "O convite não está disponível.",
+                    retryable: false);
             }
 
             await EnsureActiveParticipantAsync(invite.MatchId, userId);
@@ -169,27 +198,95 @@ namespace GameHub.Social
         public async Task ReportPlayerAsync(ReportPlayerInput input)
         {
             var userId = RequireUserId();
+
             if (input.ReportedUserId <= 0 || input.ReportedUserId == userId)
             {
-                throw new ArgumentException("A different player must be reported.", nameof(input));
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "É necessário reportar um jogador diferente de você.",
+                    retryable: false);
             }
 
-            if (string.IsNullOrWhiteSpace(input.Reason) || input.Reason.Length > 128)
+            if (string.IsNullOrWhiteSpace(input.Reason) || input.Reason.Trim().Length > 128)
             {
-                throw new ArgumentException("A valid report reason is required.", nameof(input));
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "O motivo do report é obrigatório e deve ter até 128 caracteres.",
+                    retryable: false);
+            }
+
+            if (!await _gameRepository.GetAll().AnyAsync(g => g.Id == input.GameId && !g.IsDeleted))
+            {
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "O jogo informado não foi encontrado.",
+                    retryable: false);
+            }
+
+            await EnsureRateLimitAsync(input.GameId);
+
+            var idempotencyKey = BuildIdempotencyKey(input.GameId, input.ClientRequestId);
+            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+            {
+                var existingId = await _idempotencyCache.GetOrDefaultAsync(idempotencyKey);
+                if (existingId != null)
+                {
+                    return;
+                }
             }
 
             await _reportRepository.InsertAsync(new UserReport
             {
-                Id = Guid.NewGuid(),
+                Id = SequentialGuidGenerator.Instance.Create(),
                 TenantId = AbpSession.TenantId,
                 GameId = input.GameId,
                 UserId = input.ReportedUserId,
-                Reason = input.Reason,
+                Reason = input.Reason.Trim(),
                 Status = UserReportStatus.Open,
                 CreationTime = Clock.Now
             });
             await CurrentUnitOfWork.SaveChangesAsync();
+
+            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+            {
+                await _idempotencyCache.SetAsync(
+                    idempotencyKey,
+                    "1",
+                    absoluteExpireTime: DateTimeOffset.UtcNow.Add(IdempotencyWindow));
+            }
+        }
+
+        private async Task EnsureRateLimitAsync(Guid gameId)
+        {
+            var key =
+                $"gamehub:social:report:" +
+                $"{AbpSession.TenantId?.ToString() ?? "host"}:" +
+                $"{AbpSession.UserId}:" +
+                $"{gameId:N}";
+
+            var current = await _rateLimitCache.GetOrDefaultAsync(key);
+            var count = int.TryParse(current, out var parsed) ? parsed : 0;
+
+            if (count >= MaxReportsPerMinute)
+            {
+                throw new GameHubException(
+                    GameHubErrorCodes.RateLimited,
+                    "Limite de envio de reports excedido. Tente novamente mais tarde.",
+                    retryable: true);
+            }
+
+            await _rateLimitCache.SetAsync(
+                key,
+                (count + 1).ToString(),
+                absoluteExpireTime: DateTimeOffset.UtcNow.Add(RateLimitWindow));
+        }
+
+        private static string BuildIdempotencyKey(Guid gameId, string clientRequestId)
+        {
+            if (string.IsNullOrWhiteSpace(clientRequestId))
+                return null;
+
+            return $"gamehub:social:report:idempotency:{gameId:N}:{clientRequestId.Trim()}";
         }
 
         private async Task EnsureActiveParticipantAsync(Guid matchId, long userId)
@@ -198,7 +295,10 @@ namespace GameHub.Social
                 .AnyAsync(item => item.MatchId == matchId && item.UserId == userId && item.IsActive);
             if (!isParticipant)
             {
-                throw new InvalidOperationException("User is not an active match participant.");
+                throw new GameHubException(
+                    GameHubErrorCodes.NotAuthorized,
+                    "O usuário não é um participante ativo da partida.",
+                    retryable: false);
             }
         }
 
@@ -206,7 +306,10 @@ namespace GameHub.Social
         {
             if (!AbpSession.UserId.HasValue)
             {
-                throw new InvalidOperationException("Authentication is required.");
+                throw new GameHubException(
+                    GameHubErrorCodes.NotAuthenticated,
+                    "Autenticação é obrigatória.",
+                    retryable: false);
             }
 
             return AbpSession.UserId.Value;

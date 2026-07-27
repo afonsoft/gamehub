@@ -11,6 +11,7 @@ using Abp.Timing;
 using GameHub.Authorization;
 using GameHub.Catalog;
 using GameHub.Developers;
+using GameHub.Exceptions;
 using GameHub.Gameplay.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,11 @@ namespace GameHub.Gameplay
             var sessionsQuery = _playSessionRepository.GetAll()
                 .Where(s => s.GameId == gameId && s.StartedAt >= start && s.StartedAt < end);
 
+            if (!input.IsPlaytest)
+            {
+                sessionsQuery = sessionsQuery.Where(s => !s.IsPlaytest);
+            }
+
             if (!string.IsNullOrWhiteSpace(input.CountryCode))
             {
                 sessionsQuery = sessionsQuery.Where(s => s.CountryCode == input.CountryCode);
@@ -57,16 +63,40 @@ namespace GameHub.Gameplay
                 sessionsQuery = sessionsQuery.Where(s => s.DeviceType == input.DeviceType);
             }
 
-            var sessions = await sessionsQuery
-                .Where(s => !s.IsPlaytest)
-                .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(input.TrafficSource) &&
+                Enum.TryParse<GameHub.Monetization.TrafficSource>(input.TrafficSource, true, out var trafficSource))
+            {
+                sessionsQuery = sessionsQuery.Where(s => s.TrafficSource == trafficSource);
+            }
 
+            if (!string.IsNullOrWhiteSpace(input.UtmSource))
+            {
+                sessionsQuery = sessionsQuery.Where(s => s.UtmSource == input.UtmSource);
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.UtmMedium))
+            {
+                sessionsQuery = sessionsQuery.Where(s => s.UtmMedium == input.UtmMedium);
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.UtmCampaign))
+            {
+                sessionsQuery = sessionsQuery.Where(s => s.UtmCampaign == input.UtmCampaign);
+            }
+
+            var sessions = await sessionsQuery.ToListAsync();
             var sessionIds = sessions.Select(s => s.Id).ToList();
+
             var eventsQuery = _gameplayEventRepository.GetAll()
                 .Where(e => e.GameId == gameId
                     && e.OccurredAt >= start
                     && e.OccurredAt < end
                     && sessionIds.Contains(e.PlaySessionId));
+
+            if (input.BuildId.HasValue)
+            {
+                eventsQuery = eventsQuery.Where(e => e.BuildId == input.BuildId.Value);
+            }
 
             var events = await eventsQuery.ToListAsync();
 
@@ -119,7 +149,7 @@ namespace GameHub.Gameplay
 
             foreach (var item in result.Daily)
             {
-                csv.Append(item.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                csv.Append(EscapeCsv(item.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)));
                 csv.Append(',');
                 csv.Append(item.Plays.ToString(CultureInfo.InvariantCulture));
                 csv.Append(',');
@@ -144,17 +174,38 @@ namespace GameHub.Gameplay
 
             return new GameMetricsExportDto
             {
-                FileName = "game-metrics.csv",
+                FileName = $"metrics-{gameId:N}-{Clock.Now:yyyyMMdd}.csv",
                 ContentType = "text/csv",
                 Content = csv.ToString()
             };
+        }
+
+        private static string EscapeCsv(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            if (value.Contains('"'))
+            {
+                value = value.Replace("\"", "\"\"");
+            }
+
+            if (value.Contains(',') || value.Contains('\n') || value.Contains('\r'))
+            {
+                value = $"\"{value}\"";
+            }
+
+            return value;
         }
 
         private static void ValidateDateRange(GameMetricsFilter input)
         {
             if (input.From.HasValue && input.To.HasValue && input.From.Value.Date > input.To.Value.Date)
             {
-                throw new ArgumentException("The metrics period start cannot be after its end.", nameof(input));
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "A data inicial não pode ser posterior à data final.",
+                    retryable: false);
             }
         }
 
@@ -162,7 +213,10 @@ namespace GameHub.Gameplay
         {
             if (!AbpSession.UserId.HasValue)
             {
-                throw new AbpAuthorizationException("User is not authenticated.");
+                throw new GameHubException(
+                    GameHubErrorCodes.NotAuthenticated,
+                    "Usuário não autenticado.",
+                    retryable: false);
             }
 
             var game = await _gameRepository.GetAll()
@@ -172,7 +226,10 @@ namespace GameHub.Gameplay
 
             if (game == null)
             {
-                throw new AbpAuthorizationException("Game not found.");
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "Jogo não encontrado.",
+                    retryable: false);
             }
 
             var isAdmin = PermissionChecker.IsGranted(GameHubPermissions.Pages_Dashboard_View);
@@ -180,7 +237,10 @@ namespace GameHub.Gameplay
 
             if (!isOwner && !isAdmin)
             {
-                throw new AbpAuthorizationException("You do not have access to this game's metrics.");
+                throw new GameHubException(
+                    GameHubErrorCodes.NotAuthorized,
+                    "Você não tem acesso às métricas deste jogo.",
+                    retryable: false);
             }
         }
 

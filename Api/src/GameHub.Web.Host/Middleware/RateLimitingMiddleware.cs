@@ -1,9 +1,10 @@
+using GameHub;
+using GameHub.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
-using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -49,15 +50,12 @@ namespace GameHub.Web.Middleware
                 var retryAfter = Math.Max(1, (int)(reset - DateTimeOffset.UtcNow).TotalSeconds);
                 context.Response.Headers["Retry-After"] = retryAfter.ToString();
 
-                var response = new
+                var response = new SdkError
                 {
-                    success = false,
-                    error = new
-                    {
-                        code = "GameHub.RateLimitExceeded",
-                        message = "Too many requests. Please try again later.",
-                        retryAfterSeconds = retryAfter
-                    }
+                    Code = GameHubErrorCodes.RateLimited,
+                    Message = "Too many requests. Please try again later.",
+                    Retryable = true,
+                    CorrelationId = context.TraceIdentifier
                 };
 
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response), Encoding.UTF8);

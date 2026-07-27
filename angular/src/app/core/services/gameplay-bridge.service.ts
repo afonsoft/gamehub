@@ -6,6 +6,7 @@ import * as signalR from '@microsoft/signalr';
 import { AdBreakService } from './ad-break.service';
 import { AuthService } from '../auth/auth.service';
 import { TokenService } from '../auth/token.service';
+import { SdkError } from '../../shared/models/sdk-error.model';
 import { environment } from '../../../environments/environment';
 
 export enum GameplayEventType {
@@ -89,13 +90,6 @@ export interface GameHubChatMessage {
 
 export interface ChatPresenceChange {
   state: 'connected' | 'reconnecting' | 'offline';
-}
-
-export interface SdkError {
-  code: string;
-  message: string;
-  retryable: boolean;
-  correlationId?: string;
 }
 
 export interface GameNotification {

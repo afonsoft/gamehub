@@ -27,6 +27,10 @@ public class CompleteReviewInput
     [Required]
     [StringLength(2000, MinimumLength = 10)]
     public string Notes { get; set; } = string.Empty;
+
+    /// <summary>Identificador de idempotência enviado pelo cliente.</summary>
+    [StringLength(64)]
+    public string ClientRequestId { get; set; } = string.Empty;
 }
 
 /// <summary>

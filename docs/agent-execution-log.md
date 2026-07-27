@@ -1,3 +1,21 @@
+## 2026-07-27 01:35 UTC
+
+### Tarefa
+Executar plano `docs/superpowers/plans/2026-07-27-gamehub-next-steps.md` — Fases 1 a 7 (Specs 46–51, hardening EAF 9.3.0, evoluções EAF).
+
+### Implementado
+- Fase 1: hardening EAF 9.3.0 replicado no host (`DataProtection`, CSP/SecurityHeaders/RateLimit middlewares, `SdkError`, `GameHubExceptionFilter`, CORS com `Retry-After` exposto, appsettings por ambiente).
+- Fase 2 (Spec 46): `ClientRequestId` em DTOs de moderação; rate limit e idempotência em `UserContentAppService`, `UserReportAppService`, `ModerationAppService` e `GameSocialAppService`; validação de jogo/tenant; exceções mapeadas para `SdkError` via `GameHubException`.
+- Fase 3 (Spec 47): filtros ampliados em `GameMetricsFilter` (build, traffic source, UTM, playtest), CSV com escaping RFC 4180 e nome dinâmico, deduplicação e validação de eventos de gameplay.
+- Fase 4/5 (Specs 48/49): `SdkError` compartilhado no Angular, `error.interceptor` com retry, correlation ID e normalização de erros; `gameplay-bridge` reutiliza contrato.
+- Fase 6 (Spec 50, EAF): campos contextuais (`ConversationId`, `GameId`, `MatchId`, `ContextType`, `ClientMessageId`) em `ChatMessage`; DTOs `GetChatHistoryInput`/`MarkChatReadInput`; métodos `GetHistoryAsync`/`MarkReadAsync` em `IChatAppService`/`ChatAppService`; contratos `PublicErrorContract`, `ContextualChatMessageContract`, `RateLimitContract`, `ModerationAuditContract`; `IRateLimitManager` e `IModerationAuditWriter` com implementação padrão.
+- Validação: build e testes .NET passam (GameHub: 344 passed, 2 skipped; EAF: build OK, 1 teste pré-existente falhando em `ProfileAppServiceBddTests`), builds Angular (`angular` e `angular-admin`) e `docker compose config` OK.
+
+### Limitações
+- EAF: teste `ProfileAppServiceBddTests.Dado_PerfilValido_Quando_UpdateCurrentUserProfile_Entao_DeveAtualizarUsuario` falha com `NullReferenceException` em `SettingManager.ChangeSettingForUserAsync`; não alterado nesta execução.
+- Refresh token no Angular depende de endpoint no `TokenAuthController` ainda não disponível; o interceptor atual limpa o token e redireciona para `/login`.
+- Templates EAF não foram modificados nesta execução; as melhorias foram concentradas nos módulos Core/Application.
+
 ## 2026-07-26 23:25 UTC
 
 ### Tarefa

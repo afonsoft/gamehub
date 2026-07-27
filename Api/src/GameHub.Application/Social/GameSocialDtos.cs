@@ -74,6 +74,11 @@ namespace GameHub.Social
 
         public long ReportedUserId { get; set; }
 
-        public string Reason { get; set; }
+        [System.ComponentModel.DataAnnotations.StringLength(128)]
+        public string Reason { get; set; } = string.Empty;
+
+        /// <summary>Identificador de idempotência enviado pelo cliente.</summary>
+        [System.ComponentModel.DataAnnotations.StringLength(64)]
+        public string ClientRequestId { get; set; } = string.Empty;
     }
 }

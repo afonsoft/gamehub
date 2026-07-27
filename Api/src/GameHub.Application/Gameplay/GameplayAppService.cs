@@ -7,6 +7,7 @@ using Abp.Runtime.Caching;
 using Abp.Timing;
 using GameHub;
 using GameHub.Catalog;
+using GameHub.Exceptions;
 using GameHub.Gameplay.Dto;
 using GameHub.Player;
 using GameHub.Player.Dto;
@@ -108,12 +109,18 @@ namespace GameHub.Gameplay
             var session = await _playSessionRepository.GetAsync(input.SessionId);
             if (session.GameId != input.GameId)
             {
-                throw new InvalidOperationException("Gameplay event game does not match the session.");
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "O evento não corresponde ao jogo da sessão.",
+                    retryable: false);
             }
 
             if (ContainsSensitiveTelemetry(input.PayloadJson))
             {
-                throw new ArgumentException("Telemetry payload contains restricted data.", nameof(input));
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "O payload de telemetria contém dados restritos.",
+                    retryable: false);
             }
 
             if (!string.IsNullOrWhiteSpace(input.ClientEventId))
@@ -161,6 +168,11 @@ namespace GameHub.Gameplay
             return payload.Contains("\"token\"")
                 || payload.Contains("\"password\"")
                 || payload.Contains("\"connectionstring\"")
+                || payload.Contains("\"apikey\"")
+                || payload.Contains("\"secret\"")
+                || payload.Contains("\"email\"")
+                || payload.Contains("\"cookie\"")
+                || payload.Contains("\"authorization\"")
                 || payload.Contains("\"chat\"");
         }
 
@@ -217,8 +229,10 @@ namespace GameHub.Gameplay
             var session = await _playSessionRepository.GetAsync(input.SessionId);
             if (session.GameId != input.GameId)
             {
-                throw new InvalidOperationException(
-                    "Game error session does not match the game.");
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "O erro não corresponde ao jogo da sessão.",
+                    retryable: false);
             }
 
             var error = new GameErrorLog

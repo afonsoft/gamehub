@@ -2,14 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Abp;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Runtime.Caching;
+using Abp.Timing;
 using GameHub.Admin.Dto;
 using GameHub.Authorization;
 using GameHub.Catalog;
+using GameHub.Exceptions;
 using GameHub.Moderation.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +24,13 @@ namespace GameHub.Moderation
     public class UserReportAppService : GameHubAppServiceBase, IUserReportAppService
     {
         private static readonly TimeSpan RateLimitWindow = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(5);
         private const int MaxReportsPerMinute = 10;
+
         private readonly IRepository<UserReport, Guid> _userReportRepository;
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly ITypedCache<string, string> _rateLimitCache;
+        private readonly ITypedCache<string, string> _idempotencyCache;
 
         public UserReportAppService(
             IRepository<UserReport, Guid> userReportRepository,
@@ -36,27 +42,86 @@ namespace GameHub.Moderation
             _rateLimitCache = cacheManager
                 .GetCache("GameHub.Moderation.UserReportRateLimit")
                 .AsTyped<string, string>();
+            _idempotencyCache = cacheManager
+                .GetCache("GameHub.Moderation.UserReportIdempotency")
+                .AsTyped<string, string>();
         }
 
         public async Task<UserReportDto> SubmitAsync(UserReportInput input)
         {
-            await _gameRepository.GetAsync(input.GameId);
+            await ValidateInputAsync(input);
             await EnsureRateLimitAsync(input.GameId);
+
+            var idempotencyKey = BuildIdempotencyKey(input.GameId, input.ClientRequestId);
+            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+            {
+                var existingId = await _idempotencyCache.GetOrDefaultAsync(idempotencyKey);
+                if (existingId != null)
+                {
+                    var existing = await _userReportRepository.GetAsync(Guid.Parse(existingId));
+                    return ObjectMapper.Map<UserReportDto>(existing);
+                }
+            }
 
             var report = new UserReport
             {
-                Id = Guid.NewGuid(),
+                Id = SequentialGuidGenerator.Instance.Create(),
+                TenantId = AbpSession.TenantId,
                 GameId = input.GameId,
                 UserId = AbpSession.UserId,
-                Reason = input.Reason,
-                Description = input.Description,
-                Status = UserReportStatus.Open
+                Reason = input.Reason.Trim(),
+                Description = input.Description?.Trim() ?? string.Empty,
+                Status = UserReportStatus.Open,
+                CreationTime = Clock.Now
             };
 
             await _userReportRepository.InsertAsync(report);
             await CurrentUnitOfWork.SaveChangesAsync();
 
+            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+            {
+                await _idempotencyCache.SetAsync(
+                    idempotencyKey,
+                    report.Id.ToString(),
+                    absoluteExpireTime: DateTimeOffset.UtcNow.Add(IdempotencyWindow));
+            }
+
             return ObjectMapper.Map<UserReportDto>(report);
+        }
+
+        private async Task ValidateInputAsync(UserReportInput input)
+        {
+            if (!AbpSession.UserId.HasValue)
+            {
+                throw new GameHubException(
+                    GameHubErrorCodes.NotAuthenticated,
+                    "É necessário estar autenticado para reportar.",
+                    retryable: false);
+            }
+
+            if (!await _gameRepository.GetAll().AnyAsync(g => g.Id == input.GameId && !g.IsDeleted))
+            {
+                throw new GameHubException(
+                    GameHubErrorCodes.InvalidContext,
+                    "O jogo informado não foi encontrado.",
+                    retryable: false);
+            }
+
+            if (string.IsNullOrWhiteSpace(input.Reason) || input.Reason.Trim().Length > 128)
+            {
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "O motivo do report é obrigatório e deve ter até 128 caracteres.",
+                    retryable: false);
+            }
+
+            if (!string.IsNullOrEmpty(input.Description) && input.Description.Length > 2000)
+            {
+                throw new GameHubException(
+                    GameHubErrorCodes.ValidationFailed,
+                    "A descrição do report deve ter até 2000 caracteres.",
+                    retryable: false);
+            }
         }
 
         private async Task EnsureRateLimitAsync(Guid gameId)
@@ -72,14 +137,24 @@ namespace GameHub.Moderation
 
             if (count >= MaxReportsPerMinute)
             {
-                throw new InvalidOperationException(
-                    "User report rate limit exceeded.");
+                throw new GameHubException(
+                    GameHubErrorCodes.RateLimited,
+                    "Limite de envio de reports excedido. Tente novamente mais tarde.",
+                    retryable: true);
             }
 
             await _rateLimitCache.SetAsync(
                 key,
                 (count + 1).ToString(),
                 absoluteExpireTime: DateTimeOffset.UtcNow.Add(RateLimitWindow));
+        }
+
+        private static string BuildIdempotencyKey(Guid gameId, string clientRequestId)
+        {
+            if (string.IsNullOrWhiteSpace(clientRequestId))
+                return null;
+
+            return $"gamehub:moderation:report:idempotency:{gameId:N}:{clientRequestId.Trim()}";
         }
 
         [AbpAuthorize(GameHubPermissions.Pages_Reports_Manage)]

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Eaf.Middleware.Authorization.Users;
+using GameHub.Exceptions;
 using GameHub.Social;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
@@ -55,8 +56,10 @@ namespace GameHub.Tests.GameHub.Application
                 await context.SaveChangesAsync();
             });
 
-            await Should.ThrowAsync<InvalidOperationException>(() =>
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
                 _socialAppService.AcceptInviteAsync(invite.InviteId));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.InvalidContext);
         }
 
         private async Task<(Guid GameId, Guid MatchId, long TargetUserId)> SeedMatchAsync()

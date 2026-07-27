@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using GameHub.Catalog;
 using GameHub.Developers;
+using GameHub.Exceptions;
 using GameHub.Moderation;
 using GameHub.Moderation.Dto;
 using Shouldly;
@@ -77,7 +78,7 @@ namespace GameHub.Tests.GameHub.Application
         }
 
         [Fact]
-        public async Task Dado_MuitasSubmissoes_Quando_ExcederLimite_Entao_Rejeita()
+        public async Task Dado_MuitasSubmissoes_Quando_ExcederLimite_Entao_RejeitaComRateLimited()
         {
             var gameId = await CriarJogoAsync();
 
@@ -91,13 +92,53 @@ namespace GameHub.Tests.GameHub.Application
                 });
             }
 
-            await Should.ThrowAsync<InvalidOperationException>(() =>
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
                 _userContentAppService.SubmitAsync(new SubmitUserContentInput
                 {
                     GameId = gameId,
                     ContentType = UserContentType.Comment,
                     Text = "One too many"
                 }));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.RateLimited);
+        }
+
+        [Fact]
+        public async Task Dado_MesmoClientRequestId_Quando_SubmeterDuasVezes_Entao_RetornaOMesmoConteudo()
+        {
+            var gameId = await CriarJogoAsync();
+
+            var first = await _userContentAppService.SubmitAsync(new SubmitUserContentInput
+            {
+                GameId = gameId,
+                ContentType = UserContentType.Comment,
+                Text = "Ótimo jogo!",
+                ClientRequestId = "req-123"
+            });
+
+            var second = await _userContentAppService.SubmitAsync(new SubmitUserContentInput
+            {
+                GameId = gameId,
+                ContentType = UserContentType.Comment,
+                Text = "Texto diferente",
+                ClientRequestId = "req-123"
+            });
+
+            first.Id.ShouldBe(second.Id);
+        }
+
+        [Fact]
+        public async Task Dado_JogoInexistente_Quando_Submeter_Entao_RetornaInvalidContext()
+        {
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
+                _userContentAppService.SubmitAsync(new SubmitUserContentInput
+                {
+                    GameId = Guid.NewGuid(),
+                    ContentType = UserContentType.Comment,
+                    Text = "Comentário"
+                }));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.InvalidContext);
         }
 
         private async Task<Guid> CriarJogoAsync()
