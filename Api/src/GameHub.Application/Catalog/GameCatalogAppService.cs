@@ -219,6 +219,31 @@ namespace GameHub.Catalog
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(input.Device))
+            {
+                var device = input.Device.ToLowerInvariant();
+                if (device == "desktop")
+                {
+                    query = query.Where(g => g.SupportsDesktop);
+                }
+                else if (device == "mobile")
+                {
+                    query = query.Where(g => g.SupportsMobile);
+                }
+                else if (device == "tablet")
+                {
+                    query = query.Where(g => g.SupportsTablet);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.Orientation))
+            {
+                if (Enum.TryParse<GameOrientation>(input.Orientation, true, out var orientation))
+                {
+                    query = query.Where(g => g.Orientation == orientation || g.Orientation == GameOrientation.Both);
+                }
+            }
+
             if (input.MinRating > 0)
             {
                 query = query.Where(g => g.AverageRating.HasValue && (decimal)g.AverageRating.Value >= input.MinRating);
@@ -452,6 +477,25 @@ namespace GameHub.Catalog
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(input.Exclusivity))
+            {
+                var exclusivity = input.Exclusivity.ToLowerInvariant();
+                if (exclusivity == "webexclusive")
+                {
+                    query = query.Where(g => g.RevenueContracts.Any(c => c.IsActive && c.ContractType == RevenueContractType.WebExclusive));
+                }
+                else if (exclusivity == "nonexclusive")
+                {
+                    query = query.Where(g => !g.RevenueContracts.Any(c => c.IsActive && c.ContractType == RevenueContractType.WebExclusive));
+                }
+            }
+
+            if (input.MinRating.HasValue)
+            {
+                var min = (double)input.MinRating.Value;
+                query = query.Where(g => g.AverageRating.HasValue && g.AverageRating.Value >= min);
+            }
+
             var total = await query.CountAsync(cancellationToken);
             var items = await query
                 .OrderByDescending(g => g.TotalPlays)
@@ -520,6 +564,8 @@ namespace GameHub.Catalog
             builder
                 .Append(input.Device).Append('|')
                 .Append(input.Orientation).Append('|')
+                .Append(input.Exclusivity).Append('|')
+                .Append(input.MinRating).Append('|')
                 .Append(input.SkipCount).Append('|')
                 .Append(input.MaxResultCount);
 

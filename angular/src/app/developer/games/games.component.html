@@ -1,33 +1,34 @@
 <div class="dev-page">
+  <app-confirm-dialog #submitConfirm></app-confirm-dialog>
   <main class="dev-main" aria-labelledby="developer-games-title">
     <div class="dev-header">
       <div>
-        <h1 id="developer-games-title">My Games</h1>
-        <p>Manage your catalog, builds and review submissions.</p>
+        <h1 id="developer-games-title">{{ 'dev.myGamesTitle' | translate }}</h1>
+        <p>{{ 'dev.myGamesDescription' | translate }}</p>
       </div>
-      <a class="btn-primary" routerLink="/developer/games/create">New Game</a>
+      <a class="btn-primary" routerLink="/developer/games/create">{{ 'dev.newGame' | translate }}</a>
     </div>
 
     <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">
-      <span class="sr-only">Loading games</span>
+      <span class="sr-only">{{ 'common.loading' | translate }}</span>
       <span class="skeleton-line" aria-hidden="true"></span>
     </div>
 
     <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
       <span>{{ error.message }}</span>
-      <app-button variant="secondary" (appClick)="loadGames()" [disabled]="state().loading">Retry</app-button>
+      <app-button variant="secondary" (appClick)="loadGames()" [disabled]="state().loading">{{ 'dev.retry' | translate }}</app-button>
     </div>
 
     <div class="games-toolbar" *ngIf="!state().loading && !state().error && filteredGames().length">
-      <p>{{ filteredGames().length }} of {{ state().games.length }} {{ state().games.length === 1 ? 'game' : 'games' }} shown</p>
+      <p>{{ filteredGames().length }} / {{ state().games.length }}</p>
       <label>
-        Status
-        <select [(ngModel)]="statusFilter" aria-label="Filter games by status">
-          <option>All</option>
-          <option>Draft</option>
-          <option>InReview</option>
-          <option>Published</option>
-          <option>Rejected</option>
+        {{ 'dev.status' | translate }}
+        <select [(ngModel)]="statusFilter" [attr.aria-label]="'dev.status' | translate">
+          <option value="All">All</option>
+          <option value="Draft">Draft</option>
+          <option value="InReview">In Review</option>
+          <option value="Published">Published</option>
+          <option value="Rejected">Rejected</option>
         </select>
       </label>
     </div>
@@ -36,14 +37,14 @@
 
     <div class="games-table-wrap table-scroll" *ngIf="!state().loading && !state().error && filteredGames().length">
       <table class="games-table">
-        <caption class="sr-only">Developer games and available actions</caption>
+        <caption class="sr-only">{{ 'dev.myGamesDescription' | translate }}</caption>
         <thead>
           <tr>
-            <th scope="col">Title</th>
-            <th scope="col">Status</th>
+            <th scope="col">{{ 'dev.title' | translate }}</th>
+            <th scope="col">{{ 'dev.status' | translate }}</th>
             <th scope="col">Latest Build</th>
             <th scope="col">Last Updated</th>
-            <th scope="col">Actions</th>
+            <th scope="col">{{ 'dev.buildActions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -63,14 +64,14 @@
             <td><span class="game-date">{{ game.lastUpdated | date:'mediumDate' }}</span></td>
             <td>
               <div class="actions-cell">
-                <a [routerLink]="['/developer/games', game.id, 'edit']">Edit</a>
+                <a [routerLink]="['/developer/games', game.id, 'edit']">{{ 'dev.editGame' | translate }}</a>
                 <a [routerLink]="['/developer/games', game.id, 'builds']">Builds</a>
                 <button class="submit-action" type="button"
                   *ngIf="canSubmitForReview(game)"
                   (click)="submitForReview(game)"
                   [disabled]="submittingGameId() === game.id"
                   [attr.aria-label]="'Submit ' + game.title + ' for review'">
-                  {{ submittingGameId() === game.id ? 'Submitting...' : 'Submit for review' }}
+                  {{ submittingGameId() === game.id ? ('dev.submittingForReview' | translate) : ('dev.submitForReview' | translate) }}
                 </button>
               </div>
             </td>
@@ -80,6 +81,6 @@
     </div>
 
     <p class="empty" *ngIf="!state().loading && !state().error && state().games.length && !filteredGames().length">No games match this status.</p>
-    <p class="empty" *ngIf="!state().loading && !state().error && state().empty">No games yet. <a routerLink="/developer/games/create">Create your first game</a>.</p>
+    <p class="empty" *ngIf="!state().loading && !state().error && state().empty">No games yet. <a routerLink="/developer/games/create">{{ 'dev.createGame' | translate }}</a>.</p>
   </main>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,6 +7,8 @@ import { takeUntil } from 'rxjs/operators';
 import { DeveloperService, GameSummary } from '../../core/services/developer.service';
 import { ErrorMapperService, SdkError } from '../../core/services/error-mapper.service';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 export interface GamesPageState {
   loading: boolean;
@@ -18,11 +20,13 @@ export interface GamesPageState {
 @Component({
   selector: 'app-developer-games',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent, ConfirmDialogComponent, TranslatePipe],
   templateUrl: './games.component.html',
   styleUrl: './games.component.css',
 })
 export class DeveloperGamesComponent implements OnInit, OnDestroy {
+  @ViewChild('submitConfirm') submitConfirm!: ConfirmDialogComponent;
+
   private readonly developerService = inject(DeveloperService);
   private readonly errorMapper = inject(ErrorMapperService);
   private readonly destroy$ = new Subject<void>();
@@ -84,8 +88,9 @@ export class DeveloperGamesComponent implements OnInit, OnDestroy {
     return (game.status === 'Draft' || game.status === 'Rejected') && game.latestBuildStatus === 'Approved';
   }
 
-  submitForReview(game: GameSummary): void {
-    if (!window.confirm(`Submit ${game.title} for review?`)) {
+  async submitForReview(game: GameSummary): Promise<void> {
+    const confirmed = await this.submitConfirm.open('dev.submitForReviewConfirm', 'dev.submitForReviewMessage');
+    if (!confirmed) {
       return;
     }
 

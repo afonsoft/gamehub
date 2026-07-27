@@ -30,6 +30,10 @@ export const developerRoutes: Routes = [
         loadComponent: () => import('./builds/builds.component').then(m => m.DeveloperBuildsComponent),
       },
       {
+        path: 'games/:id/metrics',
+        loadComponent: () => import('./metrics/metrics.component').then(m => m.GameMetricsComponent),
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./profile/profile.component').then(m => m.DeveloperProfileComponent),
       },

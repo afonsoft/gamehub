@@ -196,6 +196,10 @@ export class GameCatalogService {
     tags: string[] = [],
     skipCount = 0,
     maxResultCount = 24,
+    device?: string,
+    orientation?: string,
+    exclusivity?: 'All' | 'WebExclusive' | 'NonExclusive',
+    minRating?: number,
   ): Observable<PagedGames> {
     let params = new HttpParams()
       .set('Query', query)
@@ -203,6 +207,10 @@ export class GameCatalogService {
       .set('MaxResultCount', maxResultCount.toString());
     categories.forEach(c => (params = params.append('Categories', c)));
     tags.forEach(t => (params = params.append('Tags', t)));
+    if (device) params = params.set('Device', device);
+    if (orientation) params = params.set('Orientation', orientation);
+    if (exclusivity && exclusivity !== 'All') params = params.set('Exclusivity', exclusivity);
+    if (minRating && minRating > 0) params = params.set('MinRating', minRating.toString());
     return this.http.get<PagedGames>(`${this.apiUrl}/Search`, { params }).pipe(
       map(response => this.unwrap<PagedGames>(response)),
     );

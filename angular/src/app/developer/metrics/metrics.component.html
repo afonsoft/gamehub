@@ -1,0 +1,149 @@
+<div class="dev-page">
+  <main class="dev-main" aria-labelledby="game-metrics-title">
+    <div class="dev-header">
+      <div>
+        <h1 id="game-metrics-title">{{ 'dev.metricsTitle' | translate }}: {{ gameTitle }}</h1>
+        <p>{{ 'dev.metricsDescription' | translate }}</p>
+      </div>
+      <a routerLink="/developer/games">{{ 'dev.backToGames' | translate }}</a>
+    </div>
+
+    <p class="status-message" *ngIf="state().error as error" role="status">{{ (error.message || '') | translate }}</p>
+
+    <form class="metrics-filters" (ngSubmit)="applyFilter()">
+      <label>
+        {{ 'dev.from' | translate }}
+        <input type="date" name="from" [ngModel]="from()" (ngModelChange)="from.set($event)" [attr.aria-label]="'dev.from' | translate" />
+      </label>
+      <label>
+        {{ 'dev.to' | translate }}
+        <input type="date" name="to" [ngModel]="to()" (ngModelChange)="to.set($event)" [attr.aria-label]="'dev.to' | translate" />
+      </label>
+      <label>
+        {{ 'dev.countryCode' | translate }}
+        <input type="text" name="countryCode" [ngModel]="countryCode()" (ngModelChange)="countryCode.set($event)" maxlength="2" [attr.aria-label]="'dev.countryCode' | translate" />
+      </label>
+      <label>
+        {{ 'dev.device' | translate }}
+        <select name="deviceType" [ngModel]="deviceType()" (ngModelChange)="deviceType.set($event)" [attr.aria-label]="'dev.device' | translate">
+          <option value="">{{ 'games.all' | translate }}</option>
+          <option value="desktop">{{ 'dev.desktop' | translate }}</option>
+          <option value="mobile">{{ 'dev.mobile' | translate }}</option>
+          <option value="tablet">{{ 'dev.tablet' | translate }}</option>
+        </select>
+      </label>
+      <label>
+        {{ 'dev.trafficSource' | translate }}
+        <input type="text" name="trafficSource" [ngModel]="trafficSource()" (ngModelChange)="trafficSource.set($event)" [attr.aria-label]="'dev.trafficSource' | translate" />
+      </label>
+      <label>
+        {{ 'dev.utmSource' | translate }}
+        <input type="text" name="utmSource" [ngModel]="utmSource()" (ngModelChange)="utmSource.set($event)" [attr.aria-label]="'dev.utmSource' | translate" />
+      </label>
+      <label>
+        {{ 'dev.utmMedium' | translate }}
+        <input type="text" name="utmMedium" [ngModel]="utmMedium()" (ngModelChange)="utmMedium.set($event)" [attr.aria-label]="'dev.utmMedium' | translate" />
+      </label>
+      <label>
+        {{ 'dev.utmCampaign' | translate }}
+        <input type="text" name="utmCampaign" [ngModel]="utmCampaign()" (ngModelChange)="utmCampaign.set($event)" [attr.aria-label]="'dev.utmCampaign' | translate" />
+      </label>
+      <app-button variant="primary" type="submit" [disabled]="state().loading">{{ 'dev.apply' | translate }}</app-button>
+      <app-button variant="secondary" type="button" (appClick)="resetFilter()" [disabled]="state().loading">{{ 'dev.reset' | translate }}</app-button>
+      <app-button variant="secondary" type="button" (appClick)="exportCsv()" [disabled]="state().loading || !result()">{{ 'dev.exportCsv' | translate }}</app-button>
+    </form>
+
+    <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">
+      <span class="sr-only">{{ 'common.loading' | translate }}</span>
+      <span class="skeleton-line" aria-hidden="true"></span>
+    </div>
+
+    <ng-container *ngIf="!state().loading && result() as r">
+      <p class="hint">{{ 'dev.metricsNotice' | translate }}</p>
+
+      <section class="metrics-cards" aria-label="{{ 'dev.metricsSummary' | translate }}">
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.totalPlays' | translate }}</span>
+          <span class="metric-value">{{ r.totalPlays | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.uniquePlayers' | translate }}</span>
+          <span class="metric-value">{{ r.totalUniquePlayers | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.avgDuration' | translate }}</span>
+          <span class="metric-value">{{ formatDuration(r.averageDurationSeconds) }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.loadingFinished' | translate }}</span>
+          <span class="metric-value">{{ r.loadingFinishedCount | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.gameplayStarted' | translate }}</span>
+          <span class="metric-value">{{ r.gameplayStartedCount | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.pageViews' | translate }}</span>
+          <span class="metric-value">{{ r.pageViewCount | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.conversions' | translate }}</span>
+          <span class="metric-value">{{ r.conversionCount | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.errors' | translate }}</span>
+          <span class="metric-value">{{ r.errorCount | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.commercialBreaks' | translate }}</span>
+          <span class="metric-value">{{ r.commercialBreakCount | number }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ 'dev.rewardedBreaks' | translate }}</span>
+          <span class="metric-value">{{ r.rewardedBreakCount | number }}</span>
+        </div>
+      </section>
+
+      <section class="metrics-panel" *ngIf="r.daily.length" aria-labelledby="daily-metrics-title">
+        <h2 id="daily-metrics-title">{{ 'dev.dailyMetrics' | translate }}</h2>
+        <div class="table-scroll">
+          <table class="games-table">
+            <caption class="sr-only">{{ 'dev.dailyMetrics' | translate }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'dev.date' | translate }}</th>
+                <th scope="col">{{ 'dev.plays' | translate }}</th>
+                <th scope="col">{{ 'dev.uniquePlayers' | translate }}</th>
+                <th scope="col">{{ 'dev.avgDuration' | translate }}</th>
+                <th scope="col">{{ 'dev.loadingFinished' | translate }}</th>
+                <th scope="col">{{ 'dev.gameplayStarted' | translate }}</th>
+                <th scope="col">{{ 'dev.pageViews' | translate }}</th>
+                <th scope="col">{{ 'dev.conversions' | translate }}</th>
+                <th scope="col">{{ 'dev.errors' | translate }}</th>
+                <th scope="col">{{ 'dev.commercialBreaks' | translate }}</th>
+                <th scope="col">{{ 'dev.rewardedBreaks' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let day of r.daily">
+                <td>{{ day.date | date:'mediumDate' }}</td>
+                <td>{{ day.plays | number }}</td>
+                <td>{{ day.uniquePlayers | number }}</td>
+                <td>{{ formatDuration(day.avgDurationSeconds) }}</td>
+                <td>{{ day.loadingFinishedCount | number }}</td>
+                <td>{{ day.gameplayStartedCount | number }}</td>
+                <td>{{ day.pageViewCount | number }}</td>
+                <td>{{ day.conversionCount | number }}</td>
+                <td>{{ day.errorCount | number }}</td>
+                <td>{{ day.commercialBreakCount | number }}</td>
+                <td>{{ day.rewardedBreakCount | number }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <p class="empty" *ngIf="!r.daily.length">{{ 'dev.noMetrics' | translate }}</p>
+    </ng-container>
+  </main>
+</div>

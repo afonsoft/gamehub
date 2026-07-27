@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,6 +12,8 @@ import {
 } from '../../core/services/developer.service';
 import { ErrorMapperService, SdkError } from '../../core/services/error-mapper.service';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 export interface BuildsPageState {
   loading: boolean;
@@ -23,11 +25,13 @@ export interface BuildsPageState {
 @Component({
   selector: 'app-developer-builds',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent, ConfirmDialogComponent, TranslatePipe],
   templateUrl: './builds.component.html',
   styleUrl: './builds.component.css',
 })
 export class DeveloperBuildsComponent implements OnInit, OnDestroy {
+  @ViewChild('approveConfirm') approveConfirm!: ConfirmDialogComponent;
+
   gameId = '';
   gameTitle = '';
   uploadResult = signal<UploadResult | null>(null);
@@ -101,8 +105,9 @@ export class DeveloperBuildsComponent implements OnInit, OnDestroy {
       });
   }
 
-  approveBuild(build: BuildItem): void {
-    if (!window.confirm(`Approve build ${build.version}?`)) return;
+  async approveBuild(build: BuildItem): Promise<void> {
+    const confirmed = await this.approveConfirm.open('dev.approveBuildConfirm', 'dev.approveBuildConfirm');
+    if (!confirmed) return;
     this.setBusy(build.id, true);
     this.developerService.approveBuild(build.id)
       .pipe(takeUntil(this.destroy$))

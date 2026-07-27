@@ -1,18 +1,33 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DeveloperService, UpdateGameMetadataInput, UploadImageResult } from '../../core/services/developer.service';
 import { GameCatalogService, GameDetail, Category, Tag } from '../../core/services/game-catalog.service';
+import { ErrorMapperService, SdkError } from '../../core/services/error-mapper.service';
+import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+
+interface GameEditPageState {
+  loading: boolean;
+  saving: boolean;
+  submitting: boolean;
+  error: SdkError | null;
+}
 
 @Component({
   selector: 'app-game-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent, ConfirmDialogComponent, TranslatePipe],
   templateUrl: './game-edit.component.html',
   styleUrl: './game-edit.component.css',
 })
-export class GameEditComponent implements OnInit {
+export class GameEditComponent implements OnInit, OnDestroy {
+  @ViewChild('submitConfirm') submitConfirm!: ConfirmDialogComponent;
+
   gameId = '';
   input: UpdateGameMetadataInput = {
     gameId: '',
@@ -34,22 +49,25 @@ export class GameEditComponent implements OnInit {
   categories: Category[] = [];
   tags: Tag[] = [];
   status = '';
+  latestBuildStatus = '';
   thumbnailUrl = '';
   animatedThumbnailUrl = '';
   thumbnailStatus = '';
   heroImageUrl = '';
-  loading = false;
-  saving = false;
-  submitting = false;
-  uploadingThumbnail = false;
-  uploadingAnimatedThumbnail = false;
-  uploadingHero = false;
-  error = '';
+
+  readonly state = signal<GameEditPageState>({
+    loading: true,
+    saving: false,
+    submitting: false,
+    error: null,
+  });
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly developerService = inject(DeveloperService);
   private readonly catalog = inject(GameCatalogService);
+  private readonly errorMapper = inject(ErrorMapperService);
+  private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.gameId = this.route.snapshot.paramMap.get('id') ?? '';
@@ -57,86 +75,107 @@ export class GameEditComponent implements OnInit {
     this.loadData();
   }
 
-  loadData(): void {
-    this.loading = true;
-    this.catalog.getHome().subscribe({
-      next: home => {
-        this.categories = home?.categories ?? [];
-      },
-      error: () => {
-        this.categories = [];
-      },
-    });
-    this.catalog.getTags().subscribe({
-      next: tagList => {
-        this.tags = tagList ?? [];
-      },
-      error: () => {
-        this.tags = [];
-      },
-    });
-    this.developerService.getMyGames(0, 100).subscribe({
-      next: result => {
-        const game = (result?.items ?? []).find(g => g.id === this.gameId);
-        if (game?.slug) {
-          this.catalog.getBySlug(game.slug).subscribe({
-            next: detail => {
-              this.loading = false;
-              if (detail) {
-                this.mapDetail(detail);
-              }
-            },
-            error: () => {
-              this.loading = false;
-            },
-          });
-        } else {
-          this.loading = false;
-        }
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  save(): void {
-    this.error = '';
+  loadData(): void {
+    this.state.update(s => ({ ...s, loading: true, error: null }));
+    this.catalog.getHome()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: home => {
+          this.categories = home?.categories ?? [];
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, error: this.errorMapper.map(err) })),
+      });
+
+    this.catalog.getTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tagList => {
+          this.tags = tagList ?? [];
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, error: this.errorMapper.map(err) })),
+      });
+
+    this.developerService.getMyGames(0, 100)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: result => {
+          const game = (result?.items ?? []).find(g => g.id === this.gameId);
+          if (game?.slug) {
+            this.latestBuildStatus = game.latestBuildStatus ?? '';
+            this.loadDetail(game.slug);
+          } else {
+            this.state.update(s => ({ ...s, loading: false }));
+          }
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, loading: false, error: this.errorMapper.map(err) })),
+      });
+  }
+
+  private loadDetail(slug: string): void {
+    this.catalog.getBySlug(slug)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: detail => {
+          this.state.update(s => ({ ...s, loading: false }));
+          if (detail) {
+            this.mapDetail(detail);
+          }
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, loading: false, error: this.errorMapper.map(err) })),
+      });
+  }
+
+  async save(): Promise<void> {
+    this.state.update(s => ({ ...s, saving: true, error: null }));
     if (!this.input.title || !this.input.shortDescription) {
-      this.error = 'Please fill in the required fields.';
+      this.state.update(s => ({
+        ...s,
+        saving: false,
+        error: { code: 'validation_failed', message: 'dev.requiredFields', retryable: false },
+      }));
       return;
     }
-    this.saving = true;
-    this.developerService.updateMetadata(this.input).subscribe({
-      next: () => {
-        this.saving = false;
-        void this.router.navigate(['/developer/games']);
-      },
-      error: () => {
-        this.saving = false;
-        this.error = 'Unable to save game. Please try again.';
-      },
-    });
+    this.developerService.updateMetadata(this.input)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.state.update(s => ({ ...s, saving: false }));
+          void this.router.navigate(['/developer/games']);
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, saving: false, error: this.errorMapper.map(err) })),
+      });
   }
 
-  submitForReview(): void {
-    this.error = '';
-    this.submitting = true;
-    this.developerService.submitForReview(this.gameId).subscribe({
-      next: () => {
-        this.submitting = false;
-        this.status = 'InReview';
-        void this.router.navigate(['/developer/games']);
-      },
-      error: () => {
-        this.submitting = false;
-        this.error = 'Unable to submit for review. Please try again.';
-      },
-    });
+  async submitForReview(): Promise<void> {
+    const confirmed = await this.submitConfirm.open('dev.submitForReviewConfirm', 'dev.submitForReviewMessage');
+    if (!confirmed) {
+      return;
+    }
+    this.state.update(s => ({ ...s, submitting: true, error: null }));
+    this.developerService.submitForReview(this.gameId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.state.update(s => ({ ...s, submitting: false }));
+          this.status = 'InReview';
+          void this.router.navigate(['/developer/games']);
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, submitting: false, error: this.errorMapper.map(err) })),
+      });
   }
 
   canSubmitForReview(): boolean {
-    return this.status === 'Draft' || this.status === 'Rejected';
+    return (this.status === 'Draft' || this.status === 'Rejected') && this.latestBuildStatus === 'Approved';
+  }
+
+  retry(): void {
+    this.state.update(s => ({ ...s, error: null }));
+    this.loadData();
   }
 
   toggleCategory(id: string): void {
@@ -157,63 +196,33 @@ export class GameEditComponent implements OnInit {
     return (this.input.tagIds ?? []).includes(id);
   }
 
-  private toggle(list: string[], id: string): string[] {
-    const index = list.indexOf(id);
-    if (index >= 0) {
-      list.splice(index, 1);
-    } else {
-      list.push(id);
-    }
-    return [...list];
-  }
-
   onThumbnailSelected(event: Event): void {
-    const file = this.extractFile(event);
-    if (!file) return;
-    this.uploadingThumbnail = true;
-    this.developerService.uploadThumbnail(this.gameId, file).subscribe({
-      next: (result: UploadImageResult) => {
-        this.thumbnailUrl = result.url;
-        this.uploadingThumbnail = false;
-      },
-      error: () => {
-        this.uploadingThumbnail = false;
-        this.error = 'Unable to upload thumbnail.';
-      },
-    });
+    this.uploadImage(event, (file: File) => this.developerService.uploadThumbnail(this.gameId, file), url => (this.thumbnailUrl = url));
   }
 
   onAnimatedThumbnailSelected(event: Event): void {
-    const file = this.extractFile(event);
-    if (!file) return;
-    this.uploadingAnimatedThumbnail = true;
-    this.developerService.uploadAnimatedThumbnail(this.gameId, file).subscribe({
-      next: (result: UploadImageResult) => {
-        this.animatedThumbnailUrl = result.url;
-        this.thumbnailStatus = 'Pending';
-        this.uploadingAnimatedThumbnail = false;
-      },
-      error: () => {
-        this.uploadingAnimatedThumbnail = false;
-        this.error = 'Unable to upload animated thumbnail.';
-      },
-    });
+    this.uploadImage(
+      event,
+      (file: File) => this.developerService.uploadAnimatedThumbnail(this.gameId, file),
+      () => (this.thumbnailStatus = 'Pending')
+    );
   }
 
   onHeroSelected(event: Event): void {
+    this.uploadImage(event, (file: File) => this.developerService.uploadHero(this.gameId, file), url => (this.heroImageUrl = url));
+  }
+
+  private uploadImage(event: Event, upload: (file: File) => any, onSuccess: (url: string) => void): void {
     const file = this.extractFile(event);
     if (!file) return;
-    this.uploadingHero = true;
-    this.developerService.uploadHero(this.gameId, file).subscribe({
-      next: (result: UploadImageResult) => {
-        this.heroImageUrl = result.url;
-        this.uploadingHero = false;
-      },
-      error: () => {
-        this.uploadingHero = false;
-        this.error = 'Unable to upload hero image.';
-      },
-    });
+    upload(file)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result: UploadImageResult) => {
+          onSuccess(result.url);
+        },
+        error: (err: unknown) => this.state.update(s => ({ ...s, error: this.errorMapper.map(err) })),
+      });
   }
 
   isImageUrl(url: string): boolean {
@@ -251,5 +260,15 @@ export class GameEditComponent implements OnInit {
       categoryIds: (detail.categories ?? []).map(c => c.id),
       tagIds: (detail.tags ?? []).map(t => t.id),
     };
+  }
+
+  private toggle(list: string[], id: string): string[] {
+    const index = list.indexOf(id);
+    if (index >= 0) {
+      list.splice(index, 1);
+    } else {
+      list.push(id);
+    }
+    return [...list];
   }
 }

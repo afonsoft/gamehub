@@ -1,40 +1,40 @@
-<div class="team-settings-page">
-  <header class="developer-header">
-    <nav>
-      <a routerLink="/developer">Dashboard</a>
-      <a routerLink="/developer/games">My Games</a>
-      <a routerLink="/developer/team" routerLinkActive="active">Team</a>
-      <a routerLink="/developer/profile">Profile</a>
-    </nav>
-  </header>
-
-  <div class="page-content">
-    <h2>Team Settings</h2>
-
-    <div class="loading" *ngIf="loading">Loading...</div>
-
-    <div *ngIf="error" class="error">{{ error }}</div>
-    <div *ngIf="saved" class="success">Team settings saved successfully.</div>
-
-    <form *ngIf="!loading" (ngSubmit)="save()" class="settings-form">
-      <label>
-        Team name
-        <input type="text" [(ngModel)]="team.name" name="name" required />
-      </label>
-
-      <label>
-        Primary contact email
-        <input type="email" [(ngModel)]="team.primaryContactEmail" name="primaryContactEmail" required />
-      </label>
-
-      <label>
-        Country
-        <input type="text" [(ngModel)]="team.country" name="country" />
-      </label>
-
-      <button type="submit" [disabled]="saving">
-        {{ saving ? 'Saving...' : 'Save settings' }}
-      </button>
-    </form>
+<main class="dev-main" aria-labelledby="developer-team-title">
+  <div class="dev-header">
+    <h1 id="developer-team-title">{{ 'dev.teamTitle' | translate }}</h1>
   </div>
-</div>
+
+  <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">
+    <span class="sr-only">{{ 'common.loading' | translate }}</span>
+    <span class="skeleton-line" aria-hidden="true"></span>
+  </div>
+
+  <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
+    <span>{{ error.message | translate }}</span>
+    <app-button variant="secondary" (appClick)="retry()" [disabled]="state().loading">{{ 'dev.retry' | translate }}</app-button>
+  </div>
+
+  <p class="success" *ngIf="state().saved">{{ 'dev.teamSaved' | translate }}</p>
+
+  <form *ngIf="!state().loading" (ngSubmit)="save()" class="game-form">
+    <label>
+      {{ 'dev.teamName' | translate }} *
+      <input type="text" [(ngModel)]="team.name" name="name" required />
+    </label>
+
+    <label>
+      {{ 'dev.primaryContactEmail' | translate }} *
+      <input type="email" [(ngModel)]="team.primaryContactEmail" name="primaryContactEmail" required />
+    </label>
+
+    <label>
+      {{ 'dev.country' | translate }}
+      <input type="text" [(ngModel)]="team.country" name="country" />
+    </label>
+
+    <p class="error" *ngIf="state().error && !state().loading" role="alert">{{ (state().error?.message || '') | translate }}</p>
+
+    <div class="actions">
+      <app-button type="submit" variant="primary" [disabled]="state().saving">{{ state().saving ? ('dev.saving' | translate) : ('dev.save' | translate) }}</app-button>
+    </div>
+  </form>
+</main>

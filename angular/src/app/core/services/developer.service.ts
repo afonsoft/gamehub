@@ -168,6 +168,10 @@ export interface GameMetricsFilter {
   to?: string;
   countryCode?: string;
   deviceType?: string;
+  trafficSource?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 }
 
 export interface GameMetricsDailyItem {
@@ -416,6 +420,10 @@ export class DeveloperService {
     if (filter.to) params['to'] = filter.to;
     if (filter.countryCode) params['countryCode'] = filter.countryCode;
     if (filter.deviceType) params['deviceType'] = filter.deviceType;
+    if (filter.trafficSource) params['trafficSource'] = filter.trafficSource;
+    if (filter.utmSource) params['utmSource'] = filter.utmSource;
+    if (filter.utmMedium) params['utmMedium'] = filter.utmMedium;
+    if (filter.utmCampaign) params['utmCampaign'] = filter.utmCampaign;
     return params;
   }
 
