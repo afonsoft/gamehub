@@ -1,3 +1,25 @@
+## 2026-07-27 02:30 UTC
+
+### Tarefa
+Replicar ajustes da migração EAF 9.3.1 (PR #249 / Templates API + Angular) nos projetos reais do GameHub: `Api` e `angular-admin`.
+
+### Implementado
+- Atualizado `Api/common.props` e todos os `PackageReference` EAF de `9.3.0` para `9.3.1`.
+- Adicionados contratos compartilhados em `GameHub.Core/Application/Contracts`: `PublicErrorContract`, `ContextualChatMessageContract`, `RateLimitContract`/`RateLimitDecision`/`IRateLimitManager`, `ModerationAuditContract`/`IModerationAuditWriter`.
+- Registrado `IRateLimitManager` (→ `RateLimitManager`) e `IModerationAuditWriter` (→ `NullModerationAuditWriter`) no `PostInitialize` de `GameHubApplicationModule`.
+- Criados `angular-admin/GameHub.UI/src/app/shared/eaf-contracts/eaf-contracts.ts` e `eaf-correlation-id.interceptor.ts`.
+- Atualizado `ContextualChatMessage` com campos contextuais (`conversationId`, `gameId`, `matchId`, `contextType`, `clientMessageId`, `creationTime`) e adicionados `RateLimitDecision`, `RateLimitContract` e `ModerationAuditContract`.
+- Registrado `EafCorrelationIdInterceptor` antes de `EafHttpInterceptor` em `root.module.ts`.
+
+### Validação
+- Build .NET `Api/GameHub.sln` (Release): 0 erros, 0 warnings.
+- Testes `Api/GameHub.sln`: 344 passed, 2 skipped, 0 failed.
+- Build Angular `angular-admin/GameHub.UI`: production build OK.
+- Testes Angular: 215 SUCCESS.
+
+### Observações
+- O build do GameHub depende dos pacotes EAF `9.3.1`, que foram gerados localmente a partir do repositório `EAF` (`Eaf.sln` Release) durante a validação; em CI o feed deverá conter a versão `9.3.1`.
+
 ## 2026-07-27 01:35 UTC
 
 ### Tarefa

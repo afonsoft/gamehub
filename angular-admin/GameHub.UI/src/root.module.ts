@@ -12,6 +12,7 @@ import { CommonModule } from '@shared/common/common.module';
 import { AppSessionService } from '@shared/common/session/app-session.service';
 import { CookieConsentService } from '@shared/common/session/cookie-consent.service';
 import { AppUiCustomizationService } from '@shared/common/ui/app-ui-customization.service';
+import { EafCorrelationIdInterceptor } from '@app/shared/eaf-contracts/eaf-correlation-id.interceptor';
 import { DomHelper } from '@shared/helpers/DomHelper';
 import { UrlHelper } from '@shared/helpers/UrlHelper';
 import { API_BASE_URL, UiCustomizationSettingsDto } from '@shared/service-proxies/service-proxies';
@@ -207,6 +208,8 @@ function handleLogoutRequest(authService: AppAuthService) {
   ],
   declarations: [RootComponent],
   providers: [
+    EafCorrelationIdInterceptor,
+    { provide: HTTP_INTERCEPTORS, useClass: EafCorrelationIdInterceptor, multi: true },
     EafHttpInterceptor,
     { provide: HTTP_INTERCEPTORS, useClass: EafHttpInterceptor, multi: true },
     { provide: API_BASE_URL, useFactory: getRemoteServiceBaseUrl },
