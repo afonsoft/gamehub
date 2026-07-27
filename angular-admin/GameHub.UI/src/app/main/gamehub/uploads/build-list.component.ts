@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { LazyLoadEvent } from 'primeng/api';
 import { GameHubAdminService, BuildListItem, PagedBuildList } from '../shared/services/gamehub-admin.service';
 
@@ -6,6 +7,7 @@ import { GameHubAdminService, BuildListItem, PagedBuildList } from '../shared/se
   standalone: false,
   selector: 'app-build-list',
   templateUrl: './build-list.component.html',
+  animations: [appModuleAnimation()],
 })
 export class BuildListComponent implements OnInit {
   builds: BuildListItem[] = [];

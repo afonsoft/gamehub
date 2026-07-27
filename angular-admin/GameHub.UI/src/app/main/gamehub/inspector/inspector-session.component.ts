@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ActivatedRoute } from '@angular/router';
 import {
   GameHubAdminService,
@@ -18,6 +19,7 @@ interface ChecklistQuestion {
   selector: 'app-inspector-session',
   standalone: false,
   templateUrl: './inspector-session.component.html',
+  animations: [appModuleAnimation()],
 })
 export class InspectorSessionComponent implements OnInit {
   session: InspectorSessionDetail | null = null;

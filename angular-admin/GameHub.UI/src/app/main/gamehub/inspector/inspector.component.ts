@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { Router } from '@angular/router';
 import {
   GameHubAdminService,
@@ -10,6 +11,7 @@ import {
   selector: 'app-inspector',
   standalone: false,
   templateUrl: './inspector.component.html',
+  animations: [appModuleAnimation()],
 })
 export class InspectorComponent implements OnInit {
   reports: ValidationReport[] = [];

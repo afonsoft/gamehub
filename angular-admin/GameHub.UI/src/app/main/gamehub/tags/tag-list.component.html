@@ -1,21 +1,54 @@
-<div class="gamehub-tag-list">
-  <h1>Tags</h1>
-  <p-table [value]="tags" [paginator]="false">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Name</th>
-        <th>Slug</th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-tag>
-      <tr>
-        <td>{{ tag.name }}</td>
-        <td>{{ tag.slug }}</td>
-        <td>
-          <button class="btn btn-sm btn-danger" (click)="delete(tag)">Delete</button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Tags</span>
+        </h3>
+        <span class="m-section__sub">Manage game catalog tags.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="tags"
+              [paginator]="false"
+              [scrollable]="true"
+              scrollHeight="400px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 250px">Name</th>
+                  <th style="width: 250px">Slug</th>
+                  <th style="width: 120px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-tag>
+                <tr>
+                  <td>{{ tag.name }}</td>
+                  <td>{{ tag.slug }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-danger" (click)="delete(tag)">
+                      <i class="la la-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3" class="text-center">No tags found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

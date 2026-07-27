@@ -1,69 +1,114 @@
-<div class="content">
-  <div class="m-portlet m-portlet--mobile">
-    <div class="m-portlet__head" *ngIf="game">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">{{ game.title }}</h3>
-        </div>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ game?.title || 'Game Detail' }}</span>
+        </h3>
+        <span class="m-section__sub">Details, builds and moderation actions for this game.</span>
+      </div>
+      <div class="col text-right mt-3 mt-md-0" *ngIf="game">
+        <button class="btn btn-danger" (click)="suspend()" [disabled]="suspending || !canSuspend()">
+          <i class="la la-ban"></i> {{ suspending ? 'Suspending...' : 'Suspend' }}
+        </button>
       </div>
     </div>
-    <div class="m-portlet__body" *ngIf="game">
-      <p><strong>Slug:</strong> {{ game.slug }}</p>
-      <p><strong>Status:</strong> <span class="m-badge m-badge--info">{{ game.status }}</span></p>
-      <p><strong>Developer:</strong> {{ game.developerName }}</p>
-      <p><strong>Age Rating:</strong> {{ game.ageRating }}</p>
-      <p><strong>Orientation:</strong> {{ game.orientation }}</p>
-      <p><strong>Total Plays:</strong> {{ game.totalPlays | number }}</p>
-      <p><strong>Average Rating:</strong> {{ game.averageRating | number:'1.1-1' }}</p>
-      <p><strong>Short Description:</strong></p>
-      <p>{{ game.shortDescription }}</p>
+  </div>
 
-      <p><strong>Suggested Description:</strong></p>
-      <p>{{ game.suggestedDescription || '-' }}</p>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile" *ngIf="game">
+      <div class="m-portlet__body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Slug:</strong> {{ game.slug }}</p>
+            <p><strong>Status:</strong> <span class="m-badge m-badge--wide" [ngClass]="{
+              'm-badge--info': game.status === 'Draft',
+              'm-badge--warning': game.status === 'InReview',
+              'm-badge--success': game.status === 'Published',
+              'm-badge--danger': game.status === 'Rejected' || game.status === 'Suspended'
+            }">{{ game.status }}</span></p>
+            <p><strong>Developer:</strong> {{ game.developerName }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Age Rating:</strong> {{ game.ageRating }}</p>
+            <p><strong>Orientation:</strong> {{ game.orientation }}</p>
+            <p><strong>Total Plays:</strong> {{ game.totalPlays | number }}</p>
+            <p><strong>Average Rating:</strong> {{ game.averageRating | number:'1.1-1' }}</p>
+          </div>
+        </div>
 
-      <p><strong>SEO Description:</strong></p>
-      <p>{{ game.seoDescription || '-' }}</p>
+        <hr />
 
-      <p><strong>Aspect Ratio:</strong> {{ game.aspectRatio || '-' }}</p>
+        <div class="row">
+          <div class="col-md-4"><strong>Short Description</strong><p>{{ game.shortDescription }}</p></div>
+          <div class="col-md-4"><strong>Suggested Description</strong><p>{{ game.suggestedDescription || '-' }}</p></div>
+          <div class="col-md-4"><strong>SEO Description</strong><p>{{ game.seoDescription || '-' }}</p></div>
+        </div>
 
-      <p><strong>Animated Thumbnail:</strong></p>
-      <p>{{ game.animatedThumbnailUrl || '-' }}</p>
-      <p><strong>Thumbnail Status:</strong> <span class="m-badge m-badge--info">{{ game.thumbnailStatus || '-' }}</span></p>
-      <div class="btn-group" *ngIf="game.animatedThumbnailUrl">
-        <button class="btn btn-success" (click)="approveThumbnail()" [disabled]="thumbnailAction">Approve Thumbnail</button>
-        <button class="btn btn-danger" (click)="rejectThumbnail()" [disabled]="thumbnailAction">Reject Thumbnail</button>
+        <p><strong>Aspect Ratio:</strong> {{ game.aspectRatio || '-' }}</p>
+        <p><strong>Animated Thumbnail:</strong> {{ game.animatedThumbnailUrl || '-' }}</p>
+        <p><strong>Thumbnail Status:</strong> <span class="m-badge m-badge--wide" [class.m-badge--info]="true">{{ game.thumbnailStatus || '-' }}</span></p>
+
+        <div class="btn-group" *ngIf="game.animatedThumbnailUrl">
+          <button class="btn btn-success" (click)="approveThumbnail()" [disabled]="thumbnailAction">
+            <i class="la la-check"></i> Approve Thumbnail
+          </button>
+          <button class="btn btn-danger" (click)="rejectThumbnail()" [disabled]="thumbnailAction">
+            <i class="la la-times"></i> Reject Thumbnail
+          </button>
+        </div>
+
+        <hr />
+
+        <h5 class="m--font-bold">Build History</h5>
+        <div class="align-items-center" *ngIf="game.buildHistory?.length">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="game.buildHistory"
+              [paginator]="false"
+              [scrollable]="true"
+              scrollHeight="300px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 120px">Version</th>
+                  <th style="width: 120px">Status</th>
+                  <th style="width: 120px">Size</th>
+                  <th style="width: 260px">Public URL</th>
+                  <th style="width: 150px">Uploaded</th>
+                  <th style="width: 100px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-build>
+                <tr>
+                  <td>{{ build.version }}</td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [ngClass]="{
+                      'm-badge--info': build.status === 'Uploaded',
+                      'm-badge--success': build.status === 'Approved' || build.status === 'Published',
+                      'm-badge--danger': build.status === 'Rejected'
+                    }">{{ build.status }}</span>
+                  </td>
+                  <td>{{ build.sizeBytes | number }} bytes</td>
+                  <td>{{ build.publicBaseUrl || '-' }}</td>
+                  <td>{{ build.createdAt | date:'short' }}</td>
+                  <td>
+                    <a [routerLink]="['/app/main/gamehub/uploads', build.id]" class="btn btn-sm btn-primary">
+                      <i class="la la-files-o"></i> Files
+                    </a>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">No builds uploaded.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        <p *ngIf="!game.buildHistory?.length">No builds uploaded.</p>
       </div>
-
-      <div class="btn-group">
-        <button class="btn btn-danger" (click)="suspend()" [disabled]="suspending || !canSuspend()">{{ suspending ? 'Suspending...' : 'Suspend' }}</button>
-      </div>
-
-      <h4>Build History</h4>
-      <p-table [value]="game.buildHistory" *ngIf="game.buildHistory?.length">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Version</th>
-            <th>Status</th>
-            <th>Size</th>
-            <th>Public URL</th>
-            <th>Uploaded</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-build>
-          <tr>
-            <td>{{ build.version }}</td>
-            <td><span class="m-badge m-badge--info">{{ build.status }}</span></td>
-            <td>{{ build.sizeBytes | number }} bytes</td>
-            <td>{{ build.publicBaseUrl || '-' }}</td>
-            <td>{{ build.createdAt | date:'short' }}</td>
-            <td>
-              <a [routerLink]="['/app/main/gamehub/uploads', build.id]" class="btn btn-sm btn-primary">Files</a>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-      <p *ngIf="!game.buildHistory?.length">No builds uploaded.</p>
     </div>
   </div>
 </div>

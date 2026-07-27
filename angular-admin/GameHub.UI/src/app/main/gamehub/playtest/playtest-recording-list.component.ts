@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { LazyLoadEvent } from 'primeng/api';
 import { GameHubAdminService, PagedPlaytestRecordings, PlaytestRecording } from '../shared/services/gamehub-admin.service';
 
@@ -6,6 +7,7 @@ import { GameHubAdminService, PagedPlaytestRecordings, PlaytestRecording } from 
   standalone: false,
   selector: 'app-playtest-recording-list',
   templateUrl: './playtest-recording-list.component.html',
+  animations: [appModuleAnimation()],
 })
 export class PlaytestRecordingListComponent implements OnInit {
   recordings: PlaytestRecording[] = [];
