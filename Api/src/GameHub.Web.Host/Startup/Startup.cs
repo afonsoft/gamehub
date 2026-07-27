@@ -5,6 +5,7 @@ using Abp.AspNetCore.Mvc.Extensions;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Extensions;
 using Abp.PlugIns;
+using Abp.Timing;
 using Castle.Facilities.Logging;
 using Eaf.AspNetCore.Configuration;
 using Eaf.AspNetCore.Hangfire.Configuration;
@@ -12,11 +13,13 @@ using Eaf.AspNetCore.SignalR.Chat;
 using Eaf.Castle.Logging.SerilogIntegration;
 using Eaf.Middleware.Configuration;
 using Eaf.Middleware.Swagger;
+using Eaf.Middleware.Web.Authentication;
 using Eaf.Middleware.Web.Authentication.JwtBearer;
 using Eaf.Middleware.Web.Serilog;
 using Eaf.Middleware.Web.Startup;
 using Eaf.Middleware.Web.Swagger;
 using GameHub.Application.Extensions;
+using GameHub.Web.Authentication;
 using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
@@ -37,6 +40,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -59,6 +63,7 @@ namespace GameHub.Web.Startup
         {
             _hostingEnvironment = env;
             _appConfiguration = env.GetAppConfiguration();
+            Clock.Provider = ClockProviders.Utc;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -93,6 +98,17 @@ namespace GameHub.Web.Startup
 
             //Configure EAF Middleware
             services.AddEafConfigurer(_appConfiguration);
+
+            // Register GameHubDbContext and its options explicitly so health checks and middleware can resolve it.
+            var defaultConnectionString = _appConfiguration.GetConnectionString(GameHubConsts.ConnectionStringName);
+            services.AddSingleton(sp =>
+            {
+                var builder = new DbContextOptionsBuilder<GameHubDbContext>();
+                GameHubDbContextConfigurer.Configure(builder, defaultConnectionString, _appConfiguration["Database:Provider"]);
+                return builder.Options;
+            });
+            services.AddScoped<GameHubDbContext>();
+            services.AddTransient<ITokenAuthenticationService, JwtTokenAuthenticationService>();
 
             //Configure HealthChecks
             services.AddEafHealthChecks();

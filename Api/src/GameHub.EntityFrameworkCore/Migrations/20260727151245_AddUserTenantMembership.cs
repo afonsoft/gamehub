@@ -12,18 +12,6 @@ namespace GameHub.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<Guid>(
-                name: "BuildId",
-                table: "gh_GameplayEvents",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "MatchId",
-                table: "gh_GameplayEvents",
-                type: "uuid",
-                nullable: true);
-
             migrationBuilder.AddColumn<string>(
                 name: "ClientMessageId",
                 table: "EafChatMessages",
@@ -96,14 +84,6 @@ namespace GameHub.Migrations
         {
             migrationBuilder.DropTable(
                 name: "gh_UserTenantMemberships");
-
-            migrationBuilder.DropColumn(
-                name: "BuildId",
-                table: "gh_GameplayEvents");
-
-            migrationBuilder.DropColumn(
-                name: "MatchId",
-                table: "gh_GameplayEvents");
 
             migrationBuilder.DropColumn(
                 name: "ClientMessageId",

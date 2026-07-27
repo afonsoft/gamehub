@@ -2,6 +2,7 @@ using Abp;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Collections.Extensions;
 using Abp.Dependency;
+using Abp.Timing;
 using Castle.Facilities.Logging;
 using System;
 
@@ -14,6 +15,7 @@ namespace GameHub.Migrator
 
         public static void Main(string[] args)
         {
+            Clock.Provider = ClockProviders.Utc;
             ParseArgs(args);
 
             bool.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_Docker_Enabled"), out bool isDockerEnabled);

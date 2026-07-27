@@ -13,13 +13,13 @@ namespace GameHub.Migrations
         {
             migrationBuilder.AddColumn<Guid>(
                 name: "BuildId",
-                table: "GameplayEvents",
+                table: "gh_GameplayEvents",
                 type: "uuid",
                 nullable: true);
 
             migrationBuilder.AddColumn<Guid>(
                 name: "MatchId",
-                table: "GameplayEvents",
+                table: "gh_GameplayEvents",
                 type: "uuid",
                 nullable: true);
 
@@ -80,11 +80,11 @@ namespace GameHub.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "BuildId",
-                table: "GameplayEvents");
+                table: "gh_GameplayEvents");
 
             migrationBuilder.DropColumn(
                 name: "MatchId",
-                table: "GameplayEvents");
+                table: "gh_GameplayEvents");
 
             migrationBuilder.DropTable(
                 name: "GameInvites");
