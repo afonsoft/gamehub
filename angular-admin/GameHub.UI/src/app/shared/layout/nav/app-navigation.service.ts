@@ -31,6 +31,7 @@ export class AppNavigationService {
       new AppMenuItem('Feature Flags', 'Pages.GameHubDashboard.FeatureFlags', 'la la-cog', '/app/main/gamehub/dashboard/flags'),
       new AppMenuItem('Audit Log', 'Pages.GameHubDashboard.AuditLog', 'la la-folder-open', '/app/main/gamehub/dashboard/audit'),
       new AppMenuItem('Users', 'Pages.Users.Manage', 'la la-users', '/app/main/gamehub/users'),
+      new AppMenuItem('Companies', 'Pages.Companies', 'la la-building', '/app/main/companies'),
       new AppMenuItem('Tenants', 'Pages.Tenants', 'la la-building', '/app/admin/tenants'),
     ]);
   }

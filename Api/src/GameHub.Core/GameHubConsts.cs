@@ -27,6 +27,8 @@ namespace GameHub
 
         public const string LocalizationSourceName = "GameHub";
 
+        public const string PlayerTenantName = "Player";
+
         public const string ConnectionStringName = "Default";
 
         public const string DefaultCorsPolicyName = "GameHubCorsPolicy";

@@ -1,3 +1,63 @@
+## 2026-07-27 17:20 UTC
+
+### Tarefa
+Finalizar o plano `2026-07-27-gamehub-tenant-player-company-portals.md`: corrigir replicação de roles/permissões para company tenants, garantir que o chat use sempre o tenant `Player`, e validar tudo com build, testes e simulação Docker.
+
+### Implementado
+- Backend:
+  - `TenantUserManager` ajustado para `DisableFilter(MayHaveTenant)` no escopo mínimo e `EnableFilter(MayHaveTenant)` + `SetTenantId` na criação do shadow user, eliminando `DuplicateUserName`.
+  - `GameHubPermissions` centralizou listas de permissões (`AllPermissions`, `AdminPermissions`, `ModeratorPermissions`, `DeveloperPermissions`, `PlayerPermissions`).
+  - `GameHubPermissionSeeder` refatorado para usar as listas de `GameHubPermissions`.
+  - `CompanyAppService` passou a semear roles `Developer` e `Player` com permissões ao criar uma empresa.
+  - `CompanyEmployeeAppService` agora atribui a role `Developer` ao shadow user no tenant da empresa.
+  - `GameChatAppService` refatorado: valida o jogo ignorando filtro de tenant, força o contexto do tenant `Player` para envio de mensagens e remove `.GetAwaiter().GetResult()` dos helpers.
+- Documentação:
+  - Criados `.specs/55-eaf-tenant-login-improvements.md` e `docs/superpowers/plans/2026-07-27-eaf-tenant-login-improvements.md` com melhorias propostas para o EAF (outra sessão).
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 365 passed, 2 skipped, 0 failed.
+- Docker Compose (Postgres/Redis/MinIO): backend `Healthy`, `angular-hub` (`:4600`) e `angular-admin` (`:4602`) respondendo.
+- Simulação end-to-end via `curl`:
+  - `POST /api/services/app/Company/Create` -> empresa `simacme3` criada (tenant id 5).
+  - `POST /api/services/app/CompanyEmployee/RegisterAndJoin` -> funcionário `gamedev3` cadastrado e vinculado.
+  - `POST /api/hub/auth/select-tenant` para `gamedev3` no tenant 5 -> JWT com role `Developer`.
+  - `POST /api/services/app/DeveloperGame/CreateDraft` -> jogo `Simulation Puzzle 3` criado no tenant da empresa.
+  - `POST /api/services/app/GameChat/Send` pelo player `playerone` no tenant `Player` para `playertwo`, referenciando o jogo da empresa -> mensagem aceita (`accepted: true`).
+
+### Observações
+- `GameHub.Web.Tests` continua com `HomeController_Tests.About_Test` marcado como Skip.
+- O fluxo de UI nos portais `angular` e `angular-admin` não foi validado manualmente nesta sessão; os builds Docker dos frontends já estavam OK e não foram alterados.
+
+## 2026-07-27 17:00 UTC
+
+### Tarefa
+Executar as fases 1-6 do plano `2026-07-27-gamehub-tenant-player-company-portals.md`: tenant Player, APIs de empresa/funcionários, chat/SDK tenant-aware, portais admin/hub e testes/documentação.
+
+### Implementado
+- Backend:
+  - `GameHubConsts.PlayerTenantName` e seed de `Player` tenant via `PlayerTenantBuilder`.
+  - `RegistrationAppService` cria jogadores no tenant `Player` e desenvolvedores/funcionários como host users.
+  - Permissões de empresa `Pages.Companies`, `Pages.Companies.Manage`, `Pages.Company.Employees`, `Pages.Company.Employees.Manage` em `GameHubPermissions` e seeder.
+  - `CompanyAppService` e `CompanyEmployeeAppService` (CRUD de tenants/empresas, convite/remoção/default de funcionários, registro público `RegisterAndJoinAsync`).
+  - `GameChatAppService` sempre resolve e envia pelo tenant `Player`, mapeando usuários host para shadow users quando necessário.
+  - `GameTokenProvider` emite JWTs com claims `AbpClaimTypes.UserId`, `AbpClaimTypes.TenantId` e `tenantid` para compatibilidade EAF.
+- Frontend:
+  - `angular-admin`: `CompanyService`, telas `company-list`, `company-edit`, `company-employees`, ajuste de rotas e menu lateral.
+  - `angular` (hub): `CompanyService`, página pública `company/:tenancyName` com formulário de cadastro/adesão à empresa.
+  - `hub-auth.service.ts` e `login/select-tenant` ajustados para rotas `/api/hub/auth/*` e unwrap de resposta ABP.
+- Testes: `GameHubTestBase` semeia tenant `Player`; testes de `GameChatAppService` e `RegistrationAppService` atualizados para o novo fluxo; `TenantAppService_Tests` ajustado para 2 tenants.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 358 passed, 2 skipped, 0 failed.
+- `npm run build` no `angular-admin/GameHub.UI`: production build OK.
+- `npm test` no `angular-admin/GameHub.UI` (CHROME_BIN apontado para Playwright Chromium): 215 SUCCESS.
+- `npm run build` no `angular`: production build OK.
+- `npm test` no `angular` (CHROME_BIN apontado para Playwright Chromium): 8 SUCCESS.
+
+### Observações
+- `GameHub.Web.Tests` continua com `HomeController_Tests.About_Test` marcado como Skip.
+- Docker Compose completo com simulação end-to-end foi executado em sessão anterior (PR #75); o novo fluxo de empresa/funcionário ainda precisa de validação E2E com banco real.
+
 ## 2026-07-27 16:20 UTC
 
 ### Tarefa

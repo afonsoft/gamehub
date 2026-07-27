@@ -4,12 +4,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Abp;
 using Abp.Authorization;
+using Abp.Data;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.Runtime.Caching;
+using Abp.Timing;
 using Eaf.Middleware.Chat;
 using Eaf.Middleware.Authorization.Users;
+using Eaf.Middleware.MultiTenancy;
 using GameHub.Catalog;
 using GameHub.Multiplayer;
+using GameHub.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Chat
@@ -25,6 +30,8 @@ namespace GameHub.Chat
         private const int MaxMessagesPerMinute = 30;
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<MatchState, Guid> _matchRepository;
+        private readonly IRepository<Tenant, int> _tenantRepository;
+        private readonly IRepository<UserTenantMembership, long> _membershipRepository;
         private readonly IChatMessageManager _chatMessageManager;
         private readonly ITypedCache<string, string> _deduplicationCache;
         private readonly ITypedCache<string, string> _rateLimitCache;
@@ -32,11 +39,15 @@ namespace GameHub.Chat
         public GameChatAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<MatchState, Guid> matchRepository,
+            IRepository<Tenant, int> tenantRepository,
+            IRepository<UserTenantMembership, long> membershipRepository,
             IChatMessageManager chatMessageManager,
             ICacheManager cacheManager)
         {
             _gameRepository = gameRepository;
             _matchRepository = matchRepository;
+            _tenantRepository = tenantRepository;
+            _membershipRepository = membershipRepository;
             _chatMessageManager = chatMessageManager;
             _deduplicationCache = cacheManager
                 .GetCache("GameHub.Chat.Deduplication")
@@ -59,8 +70,15 @@ namespace GameHub.Chat
                 throw new ArgumentException("Chat message cannot be empty.", nameof(input));
             }
 
-            await _gameRepository.GetAsync(input.GameId);
-            var deduplicationKey = BuildDeduplicationKey(input);
+            using (UnitOfWorkManager.Current.DisableFilter(AbpDataFilters.MayHaveTenant))
+            {
+                await _gameRepository.GetAsync(input.GameId);
+            }
+
+            var playerTenant = await _tenantRepository.FirstOrDefaultAsync(t => t.TenancyName == GameHubConsts.PlayerTenantName)
+                ?? throw new InvalidOperationException("Player tenant is not configured.");
+
+            var deduplicationKey = await BuildDeduplicationKeyAsync(input, playerTenant.Id);
             if (await _deduplicationCache.GetOrDefaultAsync(deduplicationKey) != null)
             {
                 return new GameChatMessageResult
@@ -71,23 +89,27 @@ namespace GameHub.Chat
                 };
             }
 
-            await EnsureRateLimitAsync(input.GameId);
-            var conversation = ParseConversation(input.ConversationId);
-            var sender = await UserManager.GetUserByIdAsync(AbpSession.UserId.Value);
-            var senderIdentifier = new UserIdentifier(AbpSession.TenantId, sender.Id);
+            await EnsureRateLimitAsync(input.GameId, playerTenant.Id);
 
-            if (conversation.Kind == ConversationKind.Match)
+            using (UnitOfWorkManager.Current.SetTenantId(playerTenant.Id))
+            using (UnitOfWorkManager.Current.EnableFilter(AbpDataFilters.MayHaveTenant))
             {
-                await SendToMatchAsync(conversation.MatchId.Value, input.GameId, senderIdentifier, sender, text);
-            }
-            else
-            {
-                await SendToUserAsync(conversation, senderIdentifier, sender, text);
+                var conversation = ParseConversation(input.ConversationId);
+                var (sender, senderIdentifier) = await ResolveChatSenderAsync(playerTenant.Id);
+
+                if (conversation.Kind == ConversationKind.Match)
+                {
+                    await SendToMatchAsync(conversation.MatchId.Value, input.GameId, senderIdentifier, sender, text);
+                }
+                else
+                {
+                    await SendToUserAsync(conversation, senderIdentifier, sender, text);
+                }
             }
 
             await _deduplicationCache.SetAsync(
                 deduplicationKey,
-                DateTime.UtcNow.ToString("O"),
+                Clock.Now.ToString("O"),
                 absoluteExpireTime: DateTimeOffset.UtcNow.Add(DeduplicationWindow));
 
             return new GameChatMessageResult
@@ -96,6 +118,27 @@ namespace GameHub.Chat
                 Duplicate = false,
                 ClientMessageId = input.ClientMessageId
             };
+        }
+
+        private async Task<(User Sender, UserIdentifier SenderIdentifier)> ResolveChatSenderAsync(int playerTenantId)
+        {
+            User sender;
+            if (AbpSession.TenantId == playerTenantId)
+            {
+                sender = await UserManager.GetUserByIdAsync(AbpSession.UserId.Value);
+                return (sender, new UserIdentifier(playerTenantId, sender.Id));
+            }
+
+            var membership = await _membershipRepository.FirstOrDefaultAsync(m =>
+                m.UserId == AbpSession.UserId.Value && m.TenantId == playerTenantId);
+
+            if (membership == null)
+            {
+                throw new InvalidOperationException("User is not a member of the Player tenant.");
+            }
+
+            sender = await UserManager.GetUserByIdAsync(membership.TenantUserId);
+            return (sender, new UserIdentifier(playerTenantId, sender.Id));
         }
 
         private async Task SendToMatchAsync(
@@ -129,7 +172,7 @@ namespace GameHub.Chat
             {
                 await _chatMessageManager.SendMessageAsync(
                     senderIdentifier,
-                    new UserIdentifier(match.TenantId, target),
+                    new UserIdentifier(AbpSession.TenantId.Value, target),
                     text,
                     null,
                     sender.UserName,
@@ -143,21 +186,22 @@ namespace GameHub.Chat
             User sender,
             string text)
         {
-            if (conversation.TenantId != AbpSession.TenantId || conversation.UserId == senderIdentifier.UserId)
+            var chatTenantId = AbpSession.TenantId.Value;
+            if (conversation.TenantId != chatTenantId || conversation.UserId == senderIdentifier.UserId)
             {
                 throw new InvalidOperationException("Conversation target is not allowed.");
             }
 
             await _chatMessageManager.SendMessageAsync(
                 senderIdentifier,
-                new UserIdentifier(conversation.TenantId, conversation.UserId.Value),
+                new UserIdentifier(chatTenantId, conversation.UserId.Value),
                 text,
                 null,
                 sender.UserName,
                 null);
         }
 
-        private string BuildDeduplicationKey(SendGameChatMessageInput input)
+        private async Task<string> BuildDeduplicationKeyAsync(SendGameChatMessageInput input, int playerTenantId)
         {
             if (string.IsNullOrWhiteSpace(input.ClientMessageId))
             {
@@ -166,12 +210,13 @@ namespace GameHub.Chat
                     nameof(SendGameChatMessageInput.ClientMessageId));
             }
 
-            return $"gamehub:chat:dedup:{AbpSession.TenantId?.ToString() ?? "host"}:{AbpSession.UserId}:{input.GameId:N}:{input.ConversationId}:{input.ClientMessageId}";
+            var chatTenantId = playerTenantId.ToString();
+            return $"gamehub:chat:dedup:{chatTenantId}:{AbpSession.UserId}:{input.GameId:N}:{input.ConversationId}:{input.ClientMessageId}";
         }
 
-        private async Task EnsureRateLimitAsync(Guid gameId)
+        private async Task EnsureRateLimitAsync(Guid gameId, int playerTenantId)
         {
-            var key = $"gamehub:chat:rate:{AbpSession.TenantId?.ToString() ?? "host"}:{AbpSession.UserId}:{gameId:N}";
+            var key = $"gamehub:chat:rate:{playerTenantId}:{AbpSession.UserId}:{gameId:N}";
             var current = await _rateLimitCache.GetOrDefaultAsync(key);
             var count = int.TryParse(current, out var parsed) ? parsed : 0;
             if (count >= MaxMessagesPerMinute)
