@@ -12,11 +12,12 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { BadgeComponent } from '../../shared/ui/badge/badge.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton/skeleton.component';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { GameCardComponent } from '../../shared/ui/game-card/game-card.component';
 
 @Component({
   selector: 'app-game-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, TranslatePipe, BadgeComponent, SkeletonComponent, ButtonComponent],
+  imports: [CommonModule, RouterLink, FormsModule, TranslatePipe, BadgeComponent, SkeletonComponent, ButtonComponent, GameCardComponent],
   templateUrl: './game-detail.component.html',
   styleUrl: './game-detail.component.css',
 })

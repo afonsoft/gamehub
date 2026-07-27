@@ -165,6 +165,7 @@
   "games.noResults": "No games found for your filters.",
   "games.loadMore": "Load more",
   "games.rating": "rating",
+  "games.plays": "plays",
   "games.votes": "votes",
   "games.exclusivity": "Exclusivity",
   "games.allExclusivities": "All",

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -9,12 +9,12 @@ import { GameCatalogService, GameCard, Category, PagedGames } from '../../core/s
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { SkeletonComponent } from '../../shared/ui/skeleton/skeleton.component';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
-import { BadgeComponent } from '../../shared/ui/badge/badge.component';
+import { GameCardComponent } from '../../shared/ui/game-card/game-card.component';
 
 @Component({
   selector: 'app-games',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, SkeletonComponent, ButtonComponent, BadgeComponent],
+  imports: [CommonModule, FormsModule, TranslatePipe, SkeletonComponent, ButtonComponent, GameCardComponent],
   templateUrl: './games.component.html',
   styleUrl: './games.component.css',
 })

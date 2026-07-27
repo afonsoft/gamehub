@@ -1,0 +1,21 @@
+<a class="card" [routerLink]="['/play', game.slug]" [attr.aria-label]="game.title">
+  <div class="thumb" [class.animated]="game.animatedThumbnailUrl">
+    <img class="static" [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+    <img class="animated" *ngIf="game.animatedThumbnailUrl" [src]="game.animatedThumbnailUrl" [alt]="game.title" loading="lazy" />
+    <span class="badge web-exclusive" *ngIf="game.isWebExclusive">{{ 'gameDetail.webExclusive' | translate }}</span>
+    <span class="badge desktop-only" *ngIf="!game.supportsMobile">Desktop</span>
+  </div>
+  <div class="meta">
+    <h3>{{ game.title }}</h3>
+    <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
+    <div class="categories" *ngIf="game.categories?.length">
+      <span class="category-chip" *ngFor="let category of game.categories | slice:0:maxCategories">{{ category.name }}</span>
+    </div>
+    <span class="plays">{{ game.totalPlays | number }} {{ 'games.plays' | translate }}</span>
+    <div class="rating" *ngIf="game.totalVotes">
+      <span class="stars-empty">★★★★★</span>
+      <span class="stars-filled" [style.width.%]="(game.averageRating / 5) * 100">★★★★★</span>
+      <span class="rating-text">{{ game.averageRating | number:'1.1-1' }} ({{ game.totalVotes | number }} {{ 'games.votes' | translate }})</span>
+    </div>
+  </div>
+</a>
