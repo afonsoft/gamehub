@@ -1,3 +1,17 @@
+## 2026-07-27 02:39 UTC
+
+### Tarefa
+Atualizar dependências EAF para 9.3.1 e sincronizar documentação.
+
+### Implementado
+- Verificados todos os `PackageReference` EAF em `Api/**/*.csproj`: já apontam para `9.3.1`.
+- Atualizado `docs/packages.md` para refletir `Eaf.*` 9.3.1.
+- Atualizado `docs/technologies.md` para refletir NuGet `EAF.*` 9.3.1.
+
+### Validação
+- `dotnet build Api/GameHub.sln -c Release`: 0 erros, 0 warnings.
+- `dotnet test Api/GameHub.sln -c Release --no-build`: 344 passed, 2 skipped, 0 failed.
+
 ## 2026-07-27 02:30 UTC
 
 ### Tarefa

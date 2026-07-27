@@ -4,7 +4,7 @@
 
 Principais pacotes definidos em `common.props` e `.csproj`:
 
-- `Eaf.*` 9.3.0 — camadas EAF/ABP, observabilidade, segurança e Key Vault.
+- `Eaf.*` 9.3.1 — camadas EAF/ABP, observabilidade, segurança e Key Vault.
 - `Abp.*` 10.4.0 — framework ABP.
 - `Microsoft.EntityFrameworkCore.*` 10.0.8 — EF Core.
 - `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.0 — provider PostgreSQL.
