@@ -8,6 +8,7 @@ export interface TokenPayload {
   'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'?: string;
   'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'?: string;
   userId?: string;
+  tenantid?: string;
   role?: string | string[];
   'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string | string[];
   exp?: number;
@@ -85,6 +86,16 @@ export class TokenService {
       payload?.nameidentifier ??
       payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
       payload?.sub;
+    if (!raw) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  getTenantId(): number | null {
+    const payload = this.getPayload();
+    const raw = payload?.tenantid;
     if (!raw) {
       return null;
     }

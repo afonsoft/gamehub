@@ -165,6 +165,15 @@
                         </li>
                         <li>
                           <a
+                            (click)="showTenantMembership(record)"
+                            *ngIf="permission.isGranted('Pages.Administration.Users.Edit')"
+                            href="javascript:;"
+                          >
+                            {{ 'TenantMembership' | localize }}
+                          </a>
+                        </li>
+                        <li>
+                          <a
                             (click)="createOrEditUserModal.show(record.id, record.authenticationSource)"
                             *ngIf="permission.isGranted('Pages.Administration.Users.Edit')"
                             href="javascript:;"
@@ -285,5 +294,6 @@
 
   <createOrEditUserModal (modalSave)="reloadPage()" #createOrEditUserModal> </createOrEditUserModal>
   <editUserPermissionsModal #editUserPermissionsModal> </editUserPermissionsModal>
+  <userTenantMembershipModal #userTenantMembershipModal></userTenantMembershipModal>
   <entityTypeHistoryModal #entityTypeHistoryModal></entityTypeHistoryModal>
 </div>

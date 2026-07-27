@@ -48,6 +48,10 @@ export class AuthService {
   private readonly authUrl = '/api/TokenAuth/Authenticate';
   private readonly registerUrl = '/api/services/app/Registration/Register';
 
+  /**
+   * Authenticates using the legacy token endpoint.
+   * Prefer the HubAuth flow for multi-tenant selection.
+   */
   login(model: AuthenticateModel): Observable<boolean> {
     return this.http.post<AuthenticateResultModel | { result?: AuthenticateResultModel }>(this.authUrl, model).pipe(
       map(response => this.unwrap(response)),
@@ -88,6 +92,11 @@ export class AuthService {
         return of({ success: false, error: message });
       })
     );
+  }
+
+  finalizeLogin(accessToken: string, returnUrl?: string): void {
+    this.tokenService.setToken(accessToken);
+    void this.router.navigateByUrl(returnUrl || '/');
   }
 
   logout(returnUrl?: string): void {

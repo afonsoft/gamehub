@@ -24,6 +24,8 @@ using GameHub.Admin.Dto;
 using GameHub.Storage;
 using GameHub.Multiplayer;
 using GameHub.Multiplayer.Dto;
+using GameHub.MultiTenancy;
+using GameHub.MultiTenancy.Dto;
 using Abp.Auditing;
 
 namespace GameHub
@@ -215,6 +217,9 @@ namespace GameHub
 
             // Configuration / Audit
             configuration.CreateMap<FeatureFlag, FeatureFlagDto>();
+
+            // Multi-tenancy
+            configuration.CreateMap<UserTenantMembership, UserTenantMembershipDto>();
 
             configuration.CreateMap<Abp.Auditing.AuditLog, AuditLogDto>()
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => $"{src.ServiceName}.{src.MethodName}"))

@@ -9,6 +9,7 @@ using Eaf.Middleware.Authorization.Roles;
 using Eaf.Middleware.Authorization.Users;
 using Eaf.Middleware.MultiTenancy;
 using GameHub.EntityFrameworkCore;
+using GameHub.Migrations.Seed;
 using GameHub.Migrations.Seed.Host;
 using GameHub.Migrations.Seed.Tenants;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,13 @@ namespace GameHub.Tests
             {
                 NormalizeDbContext(context);
                 new GameHubPermissionSeeder(context).Create();
+            });
+
+            // Link host admin to the default tenant so multi-tenancy login tests work.
+            UsingDbContext(null, context =>
+            {
+                NormalizeDbContext(context);
+                SeedHelper.LinkHostAdminToDefaultTenant(context);
             });
         }
 

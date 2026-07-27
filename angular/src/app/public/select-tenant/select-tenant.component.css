@@ -1,0 +1,50 @@
+.select-tenant-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: #f5f6f7;
+}
+
+.select-tenant-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.select-tenant-card h1 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.select-tenant-card .description {
+  margin-bottom: 1.5rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.default-badge {
+  margin-left: 0.25rem;
+  color: #28a745;
+  font-size: 0.875rem;
+}

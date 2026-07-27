@@ -9,6 +9,7 @@ using Abp.Zero.Configuration;
 using Abp.Zero.EntityFrameworkCore;
 using Abp.EntityFrameworkCore;
 using Castle.MicroKernel.Registration;
+using Eaf.Middleware.Web.Authentication;
 using GameHub.EntityFrameworkCore;
 using GameHub.Security;
 using GameHub.Storage;
@@ -22,6 +23,7 @@ using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Abp.MultiTenancy;
+using GameHub.Tests.MultiTenancy;
 
 namespace GameHub.Tests
 {
@@ -60,9 +62,10 @@ namespace GameHub.Tests
             Clock.Provider = ClockProviders.Utc;
 
             RegisterFakeService<AbpZeroDbMigrator<GameHubDbContext>>();
-            IocManager.Register<IGameAssetStorage, FakeGameAssetStorage>(DependencyLifeStyle.Transient);
-            IocManager.Register<IGameTokenProvider, FakeGameTokenProvider>(DependencyLifeStyle.Transient);
-            IocManager.Register<IMultiplayerPresenceStore, CacheMultiplayerPresenceStore>(
+            IocManager.RegisterIfNot<IGameAssetStorage, FakeGameAssetStorage>(DependencyLifeStyle.Transient);
+            IocManager.RegisterIfNot<IGameTokenProvider, FakeGameTokenProvider>(DependencyLifeStyle.Transient);
+            IocManager.RegisterIfNot<ITokenAuthenticationService, FakeTokenAuthenticationService>(DependencyLifeStyle.Transient);
+            IocManager.RegisterIfNot<IMultiplayerPresenceStore, CacheMultiplayerPresenceStore>(
                 DependencyLifeStyle.Transient);
 
             Configuration.ReplaceService<IEmailSender, NullEmailSender>(DependencyLifeStyle.Transient);

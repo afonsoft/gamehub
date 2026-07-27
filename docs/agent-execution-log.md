@@ -1,3 +1,28 @@
+## 2026-07-27 15:15 UTC
+
+### Tarefa
+Executar plano `docs/superpowers/plans/2026-07-27-gamehub-tenant-companies-and-user-associations.md`.
+
+### Implementado
+- Domínio: `UserTenantMembership`, `ITenantUserManager`/`TenantUserManager`, `IUserTenantMembershipRepository`.
+- Aplicação: `UserTenantAssociationAppService` com DTOs e métodos para associar, remover, definir default e listar memberships.
+- Web API: `HubAuthController` com `available-tenants` e `select-tenant` para login multi-tenant no hub público.
+- Migração/seed: migration `AddUserTenantMembership` e `SeedHelper.LinkHostAdminToDefaultTenant`; test base vincula admin ao Default.
+- `angular-admin`: modal `UserTenantMembershipModalComponent` e serviço `UserTenantAssociationService` integrados na grid de usuários.
+- `angular`: `HubAuthService`, tela `SelectTenantComponent`, ajuste no `LoginComponent` para fluxo de seleção de empresa/tenant e `TokenService.getTenantId()`.
+- Testes: `TenantUserManager_Tests`, `UserTenantAssociationAppService_Tests`, `HubAuthController_Tests`.
+
+### Validação
+- `dotnet build Api/GameHub.sln -c Release`: 0 erros, 0 warnings.
+- `dotnet test Api/test/GameHub.Tests/GameHub.Tests.csproj -c Release`: 358 passed, 2 skipped, 0 failed.
+- `npm run build` no `angular-admin/GameHub.UI`: production build OK.
+- `npm test` no `angular-admin/GameHub.UI` (CHROME_BIN apontado para Playwright Chromium): 215 SUCCESS.
+- `npm run build` no `angular`: production build OK.
+- `npm test` no `angular` (CHROME_BIN apontado para Playwright Chromium): 8 SUCCESS.
+
+### Observações
+- `GameHub.Web.Tests` continua sem testes ativos; `HomeController_Tests.About_Test` é `[Fact(Skip = ...)]`. A infraestrutura foi ajustada para evitar duplo registro de `DbContextOptions`/`CacheMultiplayerPresenceStore` quando `GameHubTestModule` e `WebHostModule` são carregados juntos.
+
 ## 2026-07-27 14:22 UTC
 
 ### Tarefa

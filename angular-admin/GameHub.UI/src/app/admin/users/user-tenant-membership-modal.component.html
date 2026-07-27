@@ -1,0 +1,76 @@
+<div
+  (onHidden)="close()"
+  [config]="{ backdrop: 'static' }"
+  bsModal
+  class="modal fade"
+  role="dialog"
+  #userTenantMembershipModal
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span>{{ 'TenantMembership' | localize }}</span>
+          <span *ngIf="userName" class="text-muted"> - {{ userName }}</span>
+        </h5>
+        <button aria-label="Close" class="close" type="button" (click)="close()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" [busyIf]="busy">
+        <div class="form-row align-items-end mb-3">
+          <div class="form-group col-md-8 mb-0">
+            <label for="TenantSelect">{{ 'Tenant' | localize }}</label>
+            <select id="TenantSelect" class="form-control" [(ngModel)]="selectedTenantId" name="selectedTenantId">
+              <option [ngValue]="undefined">-- {{ 'Select' | localize }} --</option>
+              <option *ngFor="let tenant of tenants" [ngValue]="tenant.id">{{ tenant.name || tenant.tenancyName }}</option>
+            </select>
+          </div>
+          <div class="form-group col-md-4 mb-0">
+            <button class="btn btn-primary" (click)="associate()" [disabled]="!selectedTenantId || saving" type="button">
+              <i class="fa fa-plus"></i>
+              {{ 'Add' | localize }}
+            </button>
+          </div>
+        </div>
+
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>{{ 'Tenant' | localize }}</th>
+              <th class="text-center" style="width: 120px">{{ 'Default' | localize }}</th>
+              <th class="text-center" style="width: 160px">{{ 'Actions' | localize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let membership of memberships">
+              <td>{{ getTenantName(membership.tenantId) }}</td>
+              <td class="text-center">
+                <i *ngIf="membership.isDefault" class="fa fa-check text-success"></i>
+              </td>
+              <td class="text-center">
+                <button
+                  *ngIf="!membership.isDefault"
+                  class="btn btn-sm btn-outline-primary mr-1"
+                  (click)="setDefault(membership.tenantId)"
+                  type="button"
+                >
+                  {{ 'SetDefault' | localize }}
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="remove(membership.tenantId)" type="button">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="memberships.length === 0">
+              <td colspan="3" class="text-center text-muted">{{ 'NoData' | localize }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="close()" type="button">{{ 'Close' | localize }}</button>
+      </div>
+    </div>
+  </div>
+</div>
