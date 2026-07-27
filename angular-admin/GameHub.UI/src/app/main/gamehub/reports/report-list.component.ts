@@ -11,6 +11,9 @@ import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
 export class ReportListComponent implements OnInit {
   reports: any[] = [];
   filter = 'Open';
+  updating: { [reportId: string]: boolean } = {};
+
+  readonly statuses = ['All', 'Open', 'UnderReview', 'Resolved', 'Dismissed'];
 
   constructor(private readonly adminService: GameHubAdminService) {}
 
@@ -21,7 +24,7 @@ export class ReportListComponent implements OnInit {
   loadReports(): void {
     this.adminService.getReports().subscribe(result => {
       this.reports = (result?.items || []).filter((r: any) =>
-        this.filter === 'All' ? true : (r.status || '').toLowerCase() === this.filter.toLowerCase(),
+        this.filter === 'All' ? true : (r.status || '') === this.filter,
       );
     });
   }
@@ -29,5 +32,23 @@ export class ReportListComponent implements OnInit {
   setFilter(status: string): void {
     this.filter = status;
     this.loadReports();
+  }
+
+  updateStatus(report: any, status: string): void {
+    if (!report || this.updating[report.reportId]) {
+      return;
+    }
+
+    this.updating[report.reportId] = true;
+    this.adminService.updateReportStatus(report.reportId, status).subscribe({
+      next: () => {
+        this.updating[report.reportId] = false;
+        report.status = status;
+        this.loadReports();
+      },
+      error: () => {
+        this.updating[report.reportId] = false;
+      },
+    });
   }
 }
