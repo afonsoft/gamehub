@@ -1,117 +1,141 @@
-<div class="m-content" *ngIf="!session && !loading">
-  <p>Session not found.</p>
-</div>
-
-<div class="m-content" *ngIf="session">
-  <div class="m-portlet m-portlet--mobile">
-    <div class="m-portlet__head">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">Inspector Session</h3>
-        </div>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Inspector Session</span>
+        </h3>
+        <span class="m-section__sub">Inspect and validate a QA session.</span>
       </div>
     </div>
-    <div class="m-portlet__body">
-      <div class="row">
-        <div class="col-md-3">
-          <label>Device Preset / Resolution</label>
-          <select class="form-control" [(ngModel)]="devicePreset" (ngModelChange)="selectPreset($event)">
-            <option *ngFor="let p of presets" [value]="p.value">{{ p.label }}</option>
-          </select>
+  </div>
+
+  <div class="m-content" *ngIf="!session && !loading">
+    <p>Session not found.</p>
+  </div>
+
+  <div class="m-content" *ngIf="session">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <form autocomplete="off" class="horizontal-form">
+          <div class="m-form m-form--label-align-right">
+            <div class="row align-items-end m--margin-bottom-10">
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <label for="InspectorDevicePreset">Device Preset / Resolution</label>
+                <select id="InspectorDevicePreset" class="form-control" [(ngModel)]="devicePreset" name="devicePreset" (ngModelChange)="selectPreset($event)">
+                  <option *ngFor="let p of presets" [value]="p.value">{{ p.label }}</option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-lg-3 col-md-6 col-sm-12 mt-3 mt-md-0">
+                <label for="InspectorResolution">Width x Height</label>
+                <input id="InspectorResolution" class="form-control" [(ngModel)]="resolution" name="resolution" />
+              </div>
+              <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mt-3 mt-md-0">
+                <button class="btn btn-primary btn-block" type="button" (click)="rerunValidation()" [disabled]="validating">
+                  <i class="la la-refresh"></i> Re-run
+                </button>
+              </div>
+              <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mt-3 mt-md-0">
+                <a class="btn btn-info btn-block" [href]="getPreviewUrl()" target="_blank">
+                  <i class="la la-external-link"></i> Open preview
+                </a>
+              </div>
+              <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mt-3 mt-md-0">
+                <button class="btn btn-secondary btn-block" type="button" (click)="toggleQr()">
+                  <i class="la la-mobile"></i> {{ showQr ? 'Hide QR' : 'Mobile QR' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div *ngIf="showQr && qrUrl" class="m--margin-top-20 text-center">
+          <img [src]="qrUrl" alt="Mobile preview QR code" />
+          <p class="text-muted">{{ getMobilePreviewUrl() }}</p>
         </div>
-        <div class="col-md-2">
-          <label>Width x Height</label>
-          <input class="form-control" [(ngModel)]="resolution" />
+
+        <p *ngIf="unexpectedWarnings.length" class="m--margin-top-20 alert alert-warning">
+          <i class="la la-warning"></i> Unexpected behavior detected: {{ unexpectedWarnings.length }} warning(s)
+        </p>
+
+        <p *ngIf="completion" class="m--margin-top-20">
+          <strong>Checklist:</strong> {{ completion.completionPercentage }}% ({{ completion.answeredQuestions }}/{{ completion.totalQuestions }})
+        </p>
+
+        <hr />
+
+        <h5 class="m--font-bold">Sandbox</h5>
+        <div class="inspector-frame-wrapper" [style.width]="getResolutionStyle()?.width" [style.height]="getResolutionStyle()?.height">
+          <iframe
+            *ngIf="session?.gameId"
+            [src]="getPreviewUrl()"
+            class="inspector-frame"
+            sandbox="allow-scripts allow-same-origin allow-pointer-lock"
+          ></iframe>
         </div>
-        <div class="col-md-2">
-          <label>&nbsp;</label>
-          <button class="btn btn-primary btn-block" (click)="rerunValidation()" [disabled]="validating">
-            Re-run validation
-          </button>
+
+        <hr />
+
+        <h5 class="m--font-bold">QA Checklist</h5>
+        <div class="row">
+          <div class="col-md-4" *ngFor="let q of checklistQuestions">
+            <label>{{ q.label }}</label>
+            <select class="form-control" [ngModel]="getAnswer(q.id)" (ngModelChange)="saveAnswer(q.id, $event)" [name]="'checklist-' + q.id">
+              <option value="">Not answered</option>
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+              <option value="na">N/A</option>
+            </select>
+          </div>
         </div>
-        <div class="col-md-2">
-          <label>&nbsp;</label>
-          <a class="btn btn-info btn-block" [href]="getPreviewUrl()" target="_blank">Open preview</a>
+
+        <hr />
+
+        <h5 class="m--font-bold">SDK Events</h5>
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="session.events"
+              [paginator]="true"
+              [rows]="25"
+              [scrollable]="true"
+              scrollHeight="250px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 80px">#</th>
+                  <th style="width: 180px">Event</th>
+                  <th style="width: 350px">Payload</th>
+                  <th style="width: 140px">Timestamp</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-event>
+                <tr>
+                  <td>{{ event.sequenceNumber }}</td>
+                  <td>{{ event.eventType }}</td>
+                  <td>{{ event.payload || '-' }}</td>
+                  <td>{{ event.timestamp | date:'short' }}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center">No events recorded.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
         </div>
-        <div class="col-md-2">
-          <label>&nbsp;</label>
-          <button class="btn btn-secondary btn-block" (click)="toggleQr()">
-            {{ showQr ? 'Hide QR' : 'Mobile QR' }}
-          </button>
-        </div>
+
+        <hr />
+
+        <h5 class="m--font-bold">Warnings</h5>
+        <p *ngIf="!session.warnings?.length">No warnings.</p>
+        <ul class="list-group" *ngIf="session.warnings?.length">
+          <li *ngFor="let warning of session.warnings" class="list-group-item" [class.list-group-item-danger]="warning.severity === 'Critical'">
+            <strong>{{ warning.severity }}</strong> — {{ warning.category }}: {{ warning.message }}
+          </li>
+        </ul>
       </div>
-
-      <div *ngIf="showQr && qrUrl" class="m--margin-top-20 text-center">
-        <img [src]="qrUrl" alt="Mobile preview QR code" />
-        <p class="text-muted">{{ getMobilePreviewUrl() }}</p>
-      </div>
-
-      <p *ngIf="unexpectedWarnings.length" class="m--margin-top-20 alert alert-warning">
-        Unexpected behavior detected: {{ unexpectedWarnings.length }} warning(s)
-      </p>
-
-      <p *ngIf="completion" class="m--margin-top-20">
-        Checklist: {{ completion.completionPercentage }}% ({{ completion.answeredQuestions }}/{{ completion.totalQuestions }})
-      </p>
-
-      <hr />
-
-      <h5>Sandbox</h5>
-      <div class="inspector-frame-wrapper" [style.width]="getResolutionStyle()?.width" [style.height]="getResolutionStyle()?.height">
-        <iframe
-          *ngIf="session?.gameId"
-          [src]="getPreviewUrl()"
-          class="inspector-frame"
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock"
-        ></iframe>
-      </div>
-
-      <hr />
-
-      <h5>QA Checklist</h5>
-      <div class="row">
-        <div class="col-md-4" *ngFor="let q of checklistQuestions">
-          <label>{{ q.label }}</label>
-          <select class="form-control" [ngModel]="getAnswer(q.id)" (ngModelChange)="saveAnswer(q.id, $event)">
-            <option value="">Not answered</option>
-            <option value="pass">Pass</option>
-            <option value="fail">Fail</option>
-            <option value="na">N/A</option>
-          </select>
-        </div>
-      </div>
-
-      <hr />
-
-      <h5>SDK Events</h5>
-      <p-table [value]="session.events" [paginator]="true" [rows]="25">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>#</th>
-            <th>Event</th>
-            <th>Payload</th>
-            <th>Timestamp</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-event>
-          <tr>
-            <td>{{ event.sequenceNumber }}</td>
-            <td>{{ event.eventType }}</td>
-            <td>{{ event.payload || '-' }}</td>
-            <td>{{ event.timestamp | date:'short' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-
-      <hr />
-
-      <h5>Warnings</h5>
-      <p *ngIf="!session.warnings?.length">No warnings.</p>
-      <ul class="list-group" *ngIf="session.warnings?.length">
-        <li *ngFor="let warning of session.warnings" class="list-group-item" [class.list-group-item-danger]="warning.severity === 'Critical'">
-          <strong>{{ warning.severity }}</strong> — {{ warning.category }}: {{ warning.message }}
-        </li>
-      </ul>
     </div>
   </div>
 </div>

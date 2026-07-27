@@ -1,55 +1,75 @@
-<div class="m-subheader">
-  <div class="d-flex align-items-center">
-    <h3 class="m-subheader__title">Users</h3>
-  </div>
-</div>
-<div class="m-content">
-  <div class="m-portlet">
-    <div class="m-portlet__head">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">All Users</h3>
-        </div>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Users</span>
+        </h3>
+        <span class="m-section__sub">Platform users and their developer status.</span>
       </div>
     </div>
-    <div class="m-portlet__body">
-      <div *ngIf="loading" class="text-center">Loading...</div>
-      <table class="table table-striped" *ngIf="!loading">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Full Name</th>
-            <th>Active</th>
-            <th>Developer</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.userName }}</td>
-            <td>{{ user.emailAddress }}</td>
-            <td>{{ user.fullName }}</td>
-            <td>
-              <span class="m-badge" [ngClass]="user.isActive ? 'm-badge--success' : 'm-badge--danger'">
-                {{ user.isActive ? 'Yes' : 'No' }}
-              </span>
-            </td>
-            <td>
-              <span class="m-badge" [ngClass]="user.isDeveloper ? 'm-badge--success' : 'm-badge--default'">
-                {{ user.isDeveloper ? 'Yes' : 'No' }}
-              </span>
-            </td>
-            <td>{{ user.creationTime | date:'short' }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="row" *ngIf="totalCount > maxResultCount">
-        <div class="col-6">
-          <button class="btn btn-primary" (click)="previousPage()" [disabled]="skipCount === 0">Previous</button>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="users"
+              [paginator]="false"
+              [scrollable]="true"
+              [loading]="loading"
+              scrollHeight="400px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 150px">Username</th>
+                  <th style="width: 220px">Email</th>
+                  <th style="width: 200px">Full Name</th>
+                  <th style="width: 100px">Active</th>
+                  <th style="width: 100px">Developer</th>
+                  <th style="width: 140px">Created</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-user>
+                <tr>
+                  <td>{{ user.userName }}</td>
+                  <td>{{ user.emailAddress }}</td>
+                  <td>{{ user.fullName }}</td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [class.m-badge--success]="user.isActive" [class.m-badge--danger]="!user.isActive">
+                      {{ user.isActive ? 'Yes' : 'No' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [class.m-badge--success]="user.isDeveloper" [class.m-badge--metal]="!user.isDeveloper">
+                      {{ user.isDeveloper ? 'Yes' : 'No' }}
+                    </span>
+                  </td>
+                  <td>{{ user.creationTime | date:'short' }}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">No users found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
         </div>
-        <div class="col-6 text-right">
-          <button class="btn btn-primary" (click)="nextPage()" [disabled]="skipCount + maxResultCount >= totalCount">Next</button>
+
+        <div class="row mt-3" *ngIf="totalCount > maxResultCount">
+          <div class="col-6">
+            <button class="btn btn-primary" (click)="previousPage()" [disabled]="skipCount === 0">
+              <i class="la la-angle-left"></i> Previous
+            </button>
+          </div>
+          <div class="col-6 text-right">
+            <button class="btn btn-primary" (click)="nextPage()" [disabled]="skipCount + maxResultCount >= totalCount">
+              Next <i class="la la-angle-right"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

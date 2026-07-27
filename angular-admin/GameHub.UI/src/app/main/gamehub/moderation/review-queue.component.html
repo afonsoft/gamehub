@@ -1,38 +1,78 @@
-<div class="gamehub-review-queue">
-  <h1>Moderation Queue</h1>
-
-  <div class="quick-filters">
-    <button class="btn btn-sm" [class.btn-primary]="filter === 'All'" (click)="setFilter('All')">All</button>
-    <button class="btn btn-sm" [class.btn-primary]="filter === 'Pending'" (click)="setFilter('Pending')">Pending</button>
-    <button class="btn btn-sm" [class.btn-primary]="filter === 'Approved'" (click)="setFilter('Approved')">Approved</button>
-    <button class="btn btn-sm" [class.btn-primary]="filter === 'Rejected'" (click)="setFilter('Rejected')">Rejected</button>
-    <button class="btn btn-sm" [class.btn-primary]="filter === 'RequiresChanges'" (click)="setFilter('RequiresChanges')">Requires Changes</button>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Moderation Queue</span>
+        </h3>
+        <span class="m-section__sub">Review submitted games and approve or reject them.</span>
+      </div>
+    </div>
   </div>
 
-  <p-table [value]="reviews" [paginator]="false">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Game</th>
-        <th>Developer</th>
-        <th>Submitted</th>
-        <th>Version</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-review>
-      <tr>
-        <td>{{ review.gameTitle }}</td>
-        <td>{{ review.developerName || '-' }}</td>
-        <td>{{ review.createdAt | date:'short' }}</td>
-        <td>{{ review.version || '-' }}</td>
-        <td><span class="m-badge m-badge--info">{{ review.status }}</span></td>
-        <td>
-          <a [routerLink]="['/app/main/gamehub/moderation', review.reviewId]" class="btn btn-sm btn-primary">Review</a>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div class="row align-items-center m--margin-bottom-10">
+          <div class="col-xl-12">
+            <div class="btn-group" role="group" aria-label="Review filters">
+              <button class="btn" [class.btn-primary]="filter === 'All'" [class.btn-secondary]="filter !== 'All'" (click)="setFilter('All')">All</button>
+              <button class="btn" [class.btn-primary]="filter === 'Pending'" [class.btn-secondary]="filter !== 'Pending'" (click)="setFilter('Pending')">Pending</button>
+              <button class="btn" [class.btn-primary]="filter === 'Approved'" [class.btn-secondary]="filter !== 'Approved'" (click)="setFilter('Approved')">Approved</button>
+              <button class="btn" [class.btn-primary]="filter === 'Rejected'" [class.btn-secondary]="filter !== 'Rejected'" (click)="setFilter('Rejected')">Rejected</button>
+              <button class="btn" [class.btn-primary]="filter === 'RequiresChanges'" [class.btn-secondary]="filter !== 'RequiresChanges'" (click)="setFilter('RequiresChanges')">Requires Changes</button>
+            </div>
+          </div>
+        </div>
 
-  <p *ngIf="!reviews.length" class="empty">No reviews found.</p>
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="reviews"
+              [paginator]="false"
+              [scrollable]="true"
+              scrollHeight="400px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 220px">Game</th>
+                  <th style="width: 180px">Developer</th>
+                  <th style="width: 140px">Submitted</th>
+                  <th style="width: 100px">Version</th>
+                  <th style="width: 120px">Status</th>
+                  <th style="width: 100px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-review>
+                <tr>
+                  <td>{{ review.gameTitle }}</td>
+                  <td>{{ review.developerName || '-' }}</td>
+                  <td>{{ review.createdAt | date:'short' }}</td>
+                  <td>{{ review.version || '-' }}</td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [ngClass]="{
+                      'm-badge--warning': review.status === 'Pending',
+                      'm-badge--success': review.status === 'Approved',
+                      'm-badge--danger': review.status === 'Rejected',
+                      'm-badge--info': review.status === 'RequiresChanges'
+                    }">{{ review.status }}</span>
+                  </td>
+                  <td>
+                    <a [routerLink]="['/app/main/gamehub/moderation', review.reviewId]" class="btn btn-sm btn-primary">
+                      <i class="la la-eye"></i> Review
+                    </a>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">No reviews found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

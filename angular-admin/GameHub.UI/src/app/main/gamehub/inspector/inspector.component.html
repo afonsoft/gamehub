@@ -1,86 +1,136 @@
-<div class="m-content">
-  <div class="m-portlet m-portlet--mobile">
-    <div class="m-portlet__head">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">Inspector / QA</h3>
-        </div>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Inspector / QA</span>
+        </h3>
+        <span class="m-section__sub">Run validation and QA sessions on game builds.</span>
       </div>
     </div>
-    <div class="m-portlet__body">
-      <h5>Validation Reports</h5>
-      <p *ngIf="!reports?.length && !loading">No validation reports found.</p>
-      <p-table [value]="reports" [loading]="loading" [paginator]="true" [rows]="25">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Game</th>
-            <th>Version</th>
-            <th>Status</th>
-            <th>External</th>
-            <th>Warnings</th>
-            <th>Errors</th>
-            <th>Created</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-report>
-          <tr>
-            <td>{{ report.gameTitle || '-' }}</td>
-            <td>{{ report.version || '-' }}</td>
-            <td>
-              <span class="m-badge" [class.m-badge--success]="report.isValid" [class.m-badge--danger]="!report.isValid">
-                {{ report.isValid ? 'Valid' : 'Invalid' }}
-              </span>
-            </td>
-            <td>{{ report.hasExternalRequests ? 'Yes' : 'No' }}</td>
-            <td>{{ report.warningsCount }}</td>
-            <td>{{ report.errorsCount }}</td>
-            <td>{{ report.createdAt | date:'short' }}</td>
-            <td>
-              <button class="btn btn-sm btn-primary" (click)="selectedGameId = report.gameId; startSession(report.gameId)">Start Session</button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+  </div>
 
-      <hr />
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <h5 class="m--font-bold">Validation Reports</h5>
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="reports"
+              [loading]="loading"
+              [paginator]="true"
+              [rows]="25"
+              [scrollable]="true"
+              scrollHeight="250px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 180px">Game</th>
+                  <th style="width: 100px">Version</th>
+                  <th style="width: 100px">Status</th>
+                  <th style="width: 100px">External</th>
+                  <th style="width: 90px">Warnings</th>
+                  <th style="width: 90px">Errors</th>
+                  <th style="width: 140px">Created</th>
+                  <th style="width: 140px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-report>
+                <tr>
+                  <td>{{ report.gameTitle || '-' }}</td>
+                  <td>{{ report.version || '-' }}</td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [class.m-badge--success]="report.isValid" [class.m-badge--danger]="!report.isValid">
+                      {{ report.isValid ? 'Valid' : 'Invalid' }}
+                    </span>
+                  </td>
+                  <td>{{ report.hasExternalRequests ? 'Yes' : 'No' }}</td>
+                  <td>{{ report.warningsCount }}</td>
+                  <td>{{ report.errorsCount }}</td>
+                  <td>{{ report.createdAt | date:'short' }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary" (click)="selectedGameId = report.gameId; startSession(report.gameId)">
+                      <i class="la la-play"></i> Start
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="8" class="text-center">No validation reports found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
 
-      <h5>QA Sessions</h5>
-      <div class="row">
-        <div class="col-md-4">
-          <input class="form-control" [(ngModel)]="selectedGameId" placeholder="Game ID" />
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-primary btn-block" (click)="loadSessions()">Load Sessions</button>
-        </div>
-        <div class="col-md-2" *ngIf="selectedGameId">
-          <button class="btn btn-success btn-block" (click)="startSession(selectedGameId)">New Session</button>
+        <hr />
+
+        <h5 class="m--font-bold">QA Sessions</h5>
+        <form autocomplete="off" class="horizontal-form">
+          <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-10">
+              <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                <label for="InspectorGameId">Game ID</label>
+                <input id="InspectorGameId" class="form-control" [(ngModel)]="selectedGameId" name="selectedGameId" placeholder="Game ID" />
+              </div>
+              <div class="col-xl-2 col-lg-3 col-md-3 col-sm-6 mt-3 mt-md-0">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary btn-block" type="button" (click)="loadSessions()">
+                  <i class="la la-search"></i> Load
+                </button>
+              </div>
+              <div class="col-xl-2 col-lg-3 col-md-3 col-sm-6 mt-3 mt-md-0" *ngIf="selectedGameId">
+                <label>&nbsp;</label>
+                <button class="btn btn-success btn-block" type="button" (click)="startSession(selectedGameId)">
+                  <i class="la la-plus"></i> New Session
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="sessions"
+              [paginator]="true"
+              [rows]="25"
+              [scrollable]="true"
+              scrollHeight="250px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 150px">Started</th>
+                  <th style="width: 140px">Device</th>
+                  <th style="width: 140px">Resolution</th>
+                  <th style="width: 120px">Status</th>
+                  <th style="width: 120px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-session>
+                <tr>
+                  <td>{{ session.startedAt | date:'short' }}</td>
+                  <td>{{ session.devicePreset || '-' }}</td>
+                  <td>{{ session.resolution || '-' }}</td>
+                  <td>{{ session.status }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary" (click)="openSession(session.id)">
+                      <i class="la la-eye"></i> Open
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center">No sessions loaded.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
         </div>
       </div>
-
-      <p *ngIf="!sessions?.length" class="mt-3">No sessions loaded.</p>
-      <p-table [value]="sessions" [paginator]="true" [rows]="25" class="mt-3">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Started</th>
-            <th>Device</th>
-            <th>Resolution</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-session>
-          <tr>
-            <td>{{ session.startedAt | date:'short' }}</td>
-            <td>{{ session.devicePreset || '-' }}</td>
-            <td>{{ session.resolution || '-' }}</td>
-            <td>{{ session.status }}</td>
-            <td>
-              <button class="btn btn-sm btn-primary" (click)="openSession(session.id)">Open</button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
     </div>
   </div>
 </div>

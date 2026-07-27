@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Authorization;
@@ -11,6 +13,7 @@ using GameHub.Catalog;
 using GameHub.Developer.Dto;
 using GameHub.Developers;
 using GameHub.Gameplay;
+using GameHub.Gameplay.Dto;
 using GameHub.Monetization;
 using Microsoft.EntityFrameworkCore;
 
@@ -278,6 +281,75 @@ namespace GameHub.Developer
                 AverageCpm = impressions.Count > 0 ? impressions.Sum(i => i.Earnings) / impressions.Count * 1000 : 0,
                 Items = grouped
             };
+        }
+
+        public async Task<GameMetricsExportDto> ExportCsvAsync(GetDeveloperEarningsInput input)
+        {
+            var earnings = await GetEarningsAsync(input);
+            var csv = new StringBuilder();
+            csv.AppendLine("game,date,plays,commercial_breaks,rewarded_breaks,gross_estimated_revenue,developer_share,developer_estimated_revenue");
+
+            foreach (var game in earnings.Games)
+            {
+                foreach (var day in game.Daily)
+                {
+                    csv.Append(EscapeCsv(game.GameTitle));
+                    csv.Append(',');
+                    csv.Append(day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append('-');
+                    csv.Append(',');
+                    csv.Append(day.CommercialBreaks.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(day.RewardedBreaks.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(day.GrossEstimatedRevenue.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(game.DeveloperShare.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.AppendLine(day.DeveloperEstimatedRevenue.ToString(CultureInfo.InvariantCulture));
+                }
+
+                if (game.Daily.Count == 0)
+                {
+                    csv.Append(EscapeCsv(game.GameTitle));
+                    csv.Append(',');
+                    csv.Append(string.Empty);
+                    csv.Append(',');
+                    csv.Append(game.TotalPlays.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(game.CommercialBreaks.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(game.RewardedBreaks.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(game.GrossEstimatedRevenue.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.Append(game.DeveloperShare.ToString(CultureInfo.InvariantCulture));
+                    csv.Append(',');
+                    csv.AppendLine(game.DeveloperEstimatedRevenue.ToString(CultureInfo.InvariantCulture));
+                }
+            }
+
+            return new GameMetricsExportDto
+            {
+                FileName = $"earnings-{Clock.Now:yyyyMMdd}.csv",
+                ContentType = "text/csv",
+                Content = csv.ToString()
+            };
+        }
+
+        private static string EscapeCsv(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            if (value.Contains('"'))
+                value = value.Replace("\"", "\"\"");
+
+            if (value.Contains(',') || value.Contains('\n') || value.Contains('\r'))
+                value = $"\"{value}\"";
+
+            return value;
         }
 
         private static void ValidateDateRange(GetDeveloperEarningsInput input)

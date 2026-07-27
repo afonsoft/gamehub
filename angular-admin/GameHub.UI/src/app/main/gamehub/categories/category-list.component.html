@@ -1,25 +1,61 @@
-<div class="gamehub-category-list">
-  <h1>Categories</h1>
-  <p-table [value]="categories" [paginator]="false">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Name</th>
-        <th>Slug</th>
-        <th>Sort Order</th>
-        <th>Active</th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-category>
-      <tr>
-        <td>{{ category.name }}</td>
-        <td>{{ category.slug }}</td>
-        <td>{{ category.sortOrder }}</td>
-        <td>{{ category.isActive }}</td>
-        <td>
-          <button class="btn btn-sm btn-danger" (click)="delete(category)">Delete</button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Categories</span>
+        </h3>
+        <span class="m-section__sub">Manage game catalog categories.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="categories"
+              [paginator]="false"
+              [scrollable]="true"
+              scrollHeight="400px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 220px">Name</th>
+                  <th style="width: 180px">Slug</th>
+                  <th style="width: 120px">Sort Order</th>
+                  <th style="width: 100px">Active</th>
+                  <th style="width: 120px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-category>
+                <tr>
+                  <td>{{ category.name }}</td>
+                  <td>{{ category.slug }}</td>
+                  <td>{{ category.sortOrder }}</td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [class.m-badge--success]="category.isActive" [class.m-badge--metal]="!category.isActive">
+                      {{ category.isActive ? 'Yes' : 'No' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-danger" (click)="delete(category)">
+                      <i class="la la-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center">No categories found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

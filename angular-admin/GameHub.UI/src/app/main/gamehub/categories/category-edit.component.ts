@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
 
@@ -6,6 +7,7 @@ import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
   standalone: false,
   selector: 'gamehub-category-edit',
   templateUrl: './category-edit.component.html',
+  animations: [appModuleAnimation()],
 })
 export class CategoryEditComponent implements OnInit {
   category: any = { isActive: true };

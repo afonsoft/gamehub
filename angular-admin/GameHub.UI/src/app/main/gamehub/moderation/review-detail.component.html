@@ -1,78 +1,129 @@
-<div class="gamehub-review-detail" *ngIf="review">
-  <div class="m-portlet m-portlet--mobile">
-    <div class="m-portlet__head">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">Review: {{ review.gameTitle }}</h3>
-        </div>
-      </div>
-    </div>
-    <div class="m-portlet__body">
-      <p><strong>Game:</strong> {{ review.gameTitle }}</p>
-      <p><strong>Developer:</strong> {{ review.developerName || '-' }}</p>
-      <p><strong>Build:</strong> {{ review.gameBuildId }}</p>
-      <p><strong>Version:</strong> {{ review.version || '-' }}</p>
-      <p><strong>Status:</strong> <span class="m-badge m-badge--info">{{ review.status }}</span></p>
-      <p><strong>Submitted:</strong> {{ review.createdAt | date:'short' }}</p>
-
-      <h4>Validation Summary</h4>
-      <div *ngIf="review.validationSummary">
-        <p>Valid: {{ review.validationSummary.isValid ? 'Yes' : 'No' }}</p>
-        <p>Size: {{ review.validationSummary.packageSizeBytes | number }} bytes</p>
-        <p>Has index.html: {{ review.validationSummary.hasIndexHtml ? 'Yes' : 'No' }}</p>
-        <ul *ngIf="review.validationSummary.errors?.length">
-          <li *ngFor="let err of review.validationSummary.errors">{{ err }}</li>
-        </ul>
-      </div>
-      <p *ngIf="!review.validationSummary">No validation summary available.</p>
-
-      <h4>Moderation History</h4>
-      <p-table [value]="review.history || []" *ngIf="(review.history || []).length">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Date</th>
-            <th>Decision</th>
-            <th>Reviewer</th>
-            <th>Notes</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-entry>
-          <tr>
-            <td>{{ entry.createdAt | date:'short' }}</td>
-            <td>{{ entry.decision }}</td>
-            <td>{{ entry.reviewerName || '-' }}</td>
-            <td>{{ entry.notes || '-' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-      <p *ngIf="!(review.history || []).length">No previous reviews.</p>
-
-      <div class="btn-group" *ngIf="review.status === 'Pending'">
-        <button class="btn btn-success" (click)="openModal('Approved')">Approve</button>
-        <button class="btn btn-danger" (click)="openModal('Rejected')">Reject</button>
-        <button class="btn btn-warning" (click)="openModal('RequiresChanges')">Require Changes</button>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ review?.gameTitle || 'Review' }}</span>
+        </h3>
+        <span class="m-section__sub">Moderation review details and decision.</span>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal" *ngIf="modalOpen" tabindex="-1" role="dialog" style="display:block;">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ modalDecision }}</h5>
-        <button type="button" class="close" (click)="closeModal()"><span>&times;</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea class="form-control" [(ngModel)]="notes" rows="4"></textarea>
+  <div class="m-content" *ngIf="review">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Game:</strong> {{ review.gameTitle }}</p>
+            <p><strong>Developer:</strong> {{ review.developerName || '-' }}</p>
+            <p><strong>Build:</strong> {{ review.gameBuildId }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Version:</strong> {{ review.version || '-' }}</p>
+            <p><strong>Status:</strong> <span class="m-badge m-badge--wide" [ngClass]="{
+              'm-badge--warning': review.status === 'Pending',
+              'm-badge--success': review.status === 'Approved',
+              'm-badge--danger': review.status === 'Rejected',
+              'm-badge--info': review.status === 'RequiresChanges'
+            }">{{ review.status }}</span></p>
+            <p><strong>Submitted:</strong> {{ review.createdAt | date:'short' }}</p>
+          </div>
         </div>
-        <p *ngIf="modalDecision === 'Rejected'" class="text-muted">Reason is required for rejection.</p>
+
+        <hr />
+
+        <h5 class="m--font-bold">Validation Summary</h5>
+        <div *ngIf="review.validationSummary">
+          <div class="row">
+            <div class="col-md-4"><p><strong>Valid:</strong> <span class="m-badge m-badge--wide" [class.m-badge--success]="review.validationSummary.isValid" [class.m-badge--danger]="!review.validationSummary.isValid">{{ review.validationSummary.isValid ? 'Yes' : 'No' }}</span></p></div>
+            <div class="col-md-4"><p><strong>Size:</strong> {{ review.validationSummary.packageSizeBytes | number }} bytes</p></div>
+            <div class="col-md-4"><p><strong>Has index.html:</strong> {{ review.validationSummary.hasIndexHtml ? 'Yes' : 'No' }}</p></div>
+          </div>
+          <ul *ngIf="review.validationSummary.errors?.length" class="list-group">
+            <li *ngFor="let err of review.validationSummary.errors" class="list-group-item list-group-item-danger">{{ err }}</li>
+          </ul>
+        </div>
+        <p *ngIf="!review.validationSummary">No validation summary available.</p>
+
+        <hr />
+
+        <h5 class="m--font-bold">Moderation History</h5>
+        <div class="align-items-center" *ngIf="(review.history || []).length">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="review.history || []"
+              [paginator]="false"
+              [scrollable]="true"
+              scrollHeight="250px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 150px">Date</th>
+                  <th style="width: 120px">Decision</th>
+                  <th style="width: 150px">Reviewer</th>
+                  <th style="width: 300px">Notes</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-entry>
+                <tr>
+                  <td>{{ entry.createdAt | date:'short' }}</td>
+                  <td>
+                    <span class="m-badge m-badge--wide" [ngClass]="{
+                      'm-badge--success': entry.decision === 'Approved',
+                      'm-badge--danger': entry.decision === 'Rejected',
+                      'm-badge--info': entry.decision === 'RequiresChanges'
+                    }">{{ entry.decision }}</span>
+                  </td>
+                  <td>{{ entry.reviewerName || '-' }}</td>
+                  <td>{{ entry.notes || '-' }}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center">No previous reviews.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        <p *ngIf="!(review.history || []).length">No previous reviews.</p>
+
+        <hr *ngIf="review.status === 'Pending'" />
+
+        <div class="btn-group" *ngIf="review.status === 'Pending'">
+          <button class="btn btn-success" (click)="openModal('Approved')">
+            <i class="la la-check"></i> Approve
+          </button>
+          <button class="btn btn-danger" (click)="openModal('Rejected')">
+            <i class="la la-times"></i> Reject
+          </button>
+          <button class="btn btn-warning" (click)="openModal('RequiresChanges')">
+            <i class="la la-refresh"></i> Require Changes
+          </button>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="complete()" [disabled]="completing || (modalDecision === 'Rejected' && !notes)">Confirm</button>
+    </div>
+  </div>
+
+  <div class="modal" *ngIf="modalOpen" tabindex="-1" role="dialog" style="display:block;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ modalDecision }}</h5>
+          <button type="button" class="close" (click)="closeModal()"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-control" [(ngModel)]="notes" name="notes" rows="4"></textarea>
+          </div>
+          <p *ngIf="modalDecision === 'Rejected'" class="text-muted">Reason is required for rejection.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="complete()" [disabled]="completing || (modalDecision === 'Rejected' && !notes)">Confirm</button>
+        </div>
       </div>
     </div>
   </div>

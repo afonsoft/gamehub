@@ -1,71 +1,105 @@
-<div class="m-portlet m-portlet--mobile">
-  <div class="m-portlet__head">
-    <div class="m-portlet__head-caption">
-      <div class="m-portlet__head-title">
-        <h3 class="m-portlet__head-text">Playtest Recordings</h3>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Playtest Recordings</span>
+        </h3>
+        <span class="m-section__sub">Review recorded playtest sessions.</span>
       </div>
     </div>
   </div>
-  <div class="m-portlet__body">
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <input type="text" class="form-control" [(ngModel)]="gameIdFilter" placeholder="Game ID" />
-      </div>
-      <div class="col-md-3">
-        <input type="text" class="form-control" [(ngModel)]="deviceTypeFilter" placeholder="Device type" />
-      </div>
-      <div class="col-md-2">
-        <button class="btn btn-primary" (click)="onSearch()">Search</button>
-      </div>
-    </div>
 
-    <p-table
-      [value]="recordings"
-      [paginator]="true"
-      [rows]="maxResultCount"
-      [totalRecords]="totalCount"
-      [lazy]="true"
-      (onLazyLoad)="loadRecordings($event)"
-      [loading]="loading"
-      [responsive]="true">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Date</th>
-          <th>Device</th>
-          <th>Country</th>
-          <th>Duration</th>
-          <th>Notes</th>
-          <th>Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-recording>
-        <tr>
-          <td>{{ recording.createdAt | date:'short' }}</td>
-          <td>{{ recording.deviceType }}</td>
-          <td>{{ recording.countryCode }}</td>
-          <td>{{ formatDuration(recording.durationSeconds) }}</td>
-          <td>{{ recording.notes ? 'Yes' : 'No' }}</td>
-          <td>
-            <button class="btn btn-sm btn-primary" (click)="selectRecording(recording)">View</button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <form autocomplete="off" class="horizontal-form">
+          <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-10">
+              <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                <label for="PlaytestGameIdFilter">Game ID</label>
+                <input id="PlaytestGameIdFilter" type="text" class="form-control" [(ngModel)]="gameIdFilter" name="gameIdFilter" placeholder="Game ID" />
+              </div>
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <label for="PlaytestDeviceTypeFilter">Device type</label>
+                <input id="PlaytestDeviceTypeFilter" type="text" class="form-control" [(ngModel)]="deviceTypeFilter" name="deviceTypeFilter" placeholder="Device type" />
+              </div>
+              <div class="col-xl-3 col-lg-4 col-md-12 col-sm-12 mt-3 mt-xl-0">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary btn-block" type="button" (click)="onSearch()">
+                  <i class="la la-search"></i> Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
 
-    <div *ngIf="selectedRecording" class="mt-4">
-      <h4>Recording Detail</h4>
-      <video *ngIf="selectedRecording.url" [src]="selectedRecording.url" controls width="480"></video>
-      <div class="mt-2">
-        <h5>Console output</h5>
-        <pre>{{ selectedRecording.consoleOutput || 'No output captured' }}</pre>
-      </div>
-      <div class="mt-2">
-        <h5>Notes</h5>
-        <textarea class="form-control" [(ngModel)]="notes" rows="4"></textarea>
-      </div>
-      <div class="mt-2">
-        <button class="btn btn-primary" (click)="saveNotes()">Save notes</button>
-        <button class="btn btn-secondary ml-2" (click)="closeDetail()">Close</button>
+        <div class="align-items-center">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="recordings"
+              [paginator]="true"
+              [rows]="maxResultCount"
+              [totalRecords]="totalCount"
+              [lazy]="true"
+              (onLazyLoad)="loadRecordings($event)"
+              [loading]="loading"
+              [scrollable]="true"
+              scrollHeight="300px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 150px">Date</th>
+                  <th style="width: 120px">Device</th>
+                  <th style="width: 100px">Country</th>
+                  <th style="width: 100px">Duration</th>
+                  <th style="width: 100px">Notes</th>
+                  <th style="width: 120px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-recording>
+                <tr>
+                  <td>{{ recording.createdAt | date:'short' }}</td>
+                  <td>{{ recording.deviceType }}</td>
+                  <td>{{ recording.countryCode }}</td>
+                  <td>{{ formatDuration(recording.durationSeconds) }}</td>
+                  <td>{{ recording.notes ? 'Yes' : 'No' }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary" (click)="selectRecording(recording)">
+                      <i class="la la-eye"></i> View
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">No recordings found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div *ngIf="selectedRecording" class="mt-4">
+          <h4 class="m--font-bold">Recording Detail</h4>
+          <video *ngIf="selectedRecording.url" [src]="selectedRecording.url" controls width="480"></video>
+          <div class="mt-2">
+            <h5>Console output</h5>
+            <pre>{{ selectedRecording.consoleOutput || 'No output captured' }}</pre>
+          </div>
+          <div class="mt-2">
+            <h5>Notes</h5>
+            <textarea class="form-control" [(ngModel)]="notes" name="notes" rows="4"></textarea>
+          </div>
+          <div class="mt-2">
+            <button class="btn btn-primary" (click)="saveNotes()">
+              <i class="la la-save"></i> Save notes
+            </button>
+            <button class="btn btn-secondary ml-2" (click)="closeDetail()">
+              <i class="la la-times"></i> Close
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

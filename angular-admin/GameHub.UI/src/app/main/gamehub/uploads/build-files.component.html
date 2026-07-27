@@ -1,41 +1,63 @@
-<div class="content">
-  <div class="m-portlet m-portlet--mobile">
-    <div class="m-portlet__head">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text">Build Files: {{ buildId }}</h3>
-        </div>
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Build Files</span>
+        </h3>
+        <span class="m-section__sub">Files for build {{ buildId }}.</span>
       </div>
     </div>
-    <div class="m-portlet__body">
-      <div *ngIf="loading" class="m-loader m-loader--info">Loading files...</div>
-      <p-table [value]="files" *ngIf="!loading && files.length">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Name</th>
-            <th>Size</th>
-            <th>Content Type</th>
-            <th>Last Modified</th>
-            <th>Entry Point</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-file>
-          <tr>
-            <td>{{ file.name }}</td>
-            <td>{{ file.sizeBytes | number }} bytes</td>
-            <td>{{ file.contentType }}</td>
-            <td>{{ file.lastModified | date:'short' }}</td>
-            <td>
-              <span *ngIf="file.isIndexHtml" class="m-badge m-badge--success">index.html</span>
-            </td>
-            <td>
-              <a [href]="file.url" target="_blank" rel="noopener" class="btn btn-sm btn-primary">Open</a>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-      <p *ngIf="!loading && !files.length">No files found for this build.</p>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <div *ngIf="loading" class="m-loader m-loader--info">Loading files...</div>
+        <div class="align-items-center" *ngIf="!loading && files.length">
+          <div class="primeng-datatable-container">
+            <p-table
+              [value]="files"
+              [paginator]="false"
+              [scrollable]="true"
+              scrollHeight="400px"
+              styleClass="p-datatable-striped p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 300px">Name</th>
+                  <th style="width: 120px">Size</th>
+                  <th style="width: 220px">Content Type</th>
+                  <th style="width: 150px">Last Modified</th>
+                  <th style="width: 120px">Entry Point</th>
+                  <th style="width: 100px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-file>
+                <tr>
+                  <td>{{ file.name }}</td>
+                  <td>{{ file.sizeBytes | number }} bytes</td>
+                  <td>{{ file.contentType }}</td>
+                  <td>{{ file.lastModified | date:'short' }}</td>
+                  <td>
+                    <span *ngIf="file.isIndexHtml" class="m-badge m-badge--success m-badge--wide">index.html</span>
+                  </td>
+                  <td>
+                    <a [href]="file.url" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
+                      <i class="la la-external-link"></i> Open
+                    </a>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">No files found for this build.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        <p *ngIf="!loading && !files.length">No files found for this build.</p>
+      </div>
     </div>
   </div>
 </div>

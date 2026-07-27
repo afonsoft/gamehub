@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ActivatedRoute } from '@angular/router';
 import { GameHubAdminService, BuildFile } from '../shared/services/gamehub-admin.service';
 
@@ -6,6 +7,7 @@ import { GameHubAdminService, BuildFile } from '../shared/services/gamehub-admin
   standalone: false,
   selector: 'app-build-files',
   templateUrl: './build-files.component.html',
+  animations: [appModuleAnimation()],
 })
 export class BuildFilesComponent implements OnInit {
   buildId = '';

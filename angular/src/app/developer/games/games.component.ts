@@ -1,49 +1,83 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DeveloperService, GameSummary } from '../../core/services/developer.service';
+import { ErrorMapperService, SdkError } from '../../core/services/error-mapper.service';
+import { ButtonComponent } from '../../shared/ui/button/button.component';
+
+export interface GamesPageState {
+  loading: boolean;
+  empty: boolean;
+  error: SdkError | null;
+  games: GameSummary[];
+}
 
 @Component({
   selector: 'app-developer-games',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent],
   templateUrl: './games.component.html',
   styleUrl: './games.component.css',
 })
-export class DeveloperGamesComponent implements OnInit {
-  games: GameSummary[] = [];
-  loading = false;
-  errorMessage = '';
-  statusFilter = 'All';
-  submissionMessage = '';
-  submittingGameId: string | null = null;
-
+export class DeveloperGamesComponent implements OnInit, OnDestroy {
   private readonly developerService = inject(DeveloperService);
+  private readonly errorMapper = inject(ErrorMapperService);
+  private readonly destroy$ = new Subject<void>();
+
+  readonly state = signal<GamesPageState>({
+    loading: false,
+    empty: false,
+    error: null,
+    games: [],
+  });
+
+  statusFilter = signal<string>('All');
+  submittingGameId = signal<string | null>(null);
+  submissionMessage = signal<string>('');
+
+  readonly filteredGames = computed(() => {
+    const filter = this.statusFilter();
+    const games = this.state().games;
+    return filter === 'All'
+      ? games
+      : games.filter(game => game.status === filter);
+  });
 
   ngOnInit(): void {
     this.loadGames();
   }
 
-  loadGames(): void {
-    this.loading = true;
-    this.errorMessage = '';
-    this.developerService.getMyGames(0, 100).subscribe({
-      next: result => {
-        this.games = result?.items ?? [];
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'Unable to load your games. Try again.';
-      },
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  get filteredGames(): GameSummary[] {
-    return this.statusFilter === 'All'
-      ? this.games
-      : this.games.filter(game => game.status === this.statusFilter);
+  loadGames(): void {
+    this.state.update(s => ({ ...s, loading: true, error: null }));
+    this.developerService.getMyGames(0, 100)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: result => {
+          const games = result?.items ?? [];
+          this.state.set({
+            loading: false,
+            empty: games.length === 0,
+            error: null,
+            games,
+          });
+        },
+        error: err => {
+          this.state.set({
+            loading: false,
+            empty: false,
+            error: this.errorMapper.map(err),
+            games: [],
+          });
+        },
+      });
   }
 
   canSubmitForReview(game: GameSummary): boolean {
@@ -54,18 +88,23 @@ export class DeveloperGamesComponent implements OnInit {
     if (!window.confirm(`Submit ${game.title} for review?`)) {
       return;
     }
-    this.submissionMessage = '';
-    this.submittingGameId = game.id;
-    this.developerService.submitForReview(game.id).subscribe({
-      next: () => {
-        game.status = 'InReview';
-        this.submissionMessage = `${game.title} was submitted for review.`;
-        this.submittingGameId = null;
-      },
-      error: err => {
-        this.submissionMessage = err?.error?.error?.message || 'Unable to submit for review.';
-        this.submittingGameId = null;
-      },
-    });
+
+    this.submissionMessage.set('');
+    this.submittingGameId.set(game.id);
+
+    this.developerService.submitForReview(game.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          game.status = 'InReview';
+          this.submissionMessage.set(`${game.title} was submitted for review.`);
+          this.submittingGameId.set(null);
+        },
+        error: err => {
+          const error = this.errorMapper.map(err);
+          this.submissionMessage.set(error.message);
+          this.submittingGameId.set(null);
+        },
+      });
   }
 }

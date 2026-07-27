@@ -1,12 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import { AppComponentBase } from '@shared/common/app-component-base';
 import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
 
 @Component({
   standalone: false,
   selector: 'gamehub-dashboard',
   templateUrl: './dashboard.component.html',
+  animations: [appModuleAnimation()],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent extends AppComponentBase implements OnInit {
   summary: any = {};
   playsOverTime: any[] = [];
   recentUploads: any[] = [];
@@ -14,15 +17,40 @@ export class DashboardComponent implements OnInit {
   topGames: any[] = [];
   pendingReviews: any[] = [];
 
-  constructor(private readonly adminService: GameHubAdminService) {}
+  get canViewAdmin(): boolean {
+    return this.isGranted('Pages.GameHubDashboard.View');
+  }
+
+  get canViewModerator(): boolean {
+    return this.isGranted('Pages.Moderation.View');
+  }
+
+  get canViewReports(): boolean {
+    return this.isGranted('Pages.Reports.Manage');
+  }
+
+  get canViewInspector(): boolean {
+    return this.isGranted('Pages.Builds.View');
+  }
+
+  constructor(
+    injector: Injector,
+    private readonly adminService: GameHubAdminService,
+  ) {
+    super(injector);
+  }
 
   ngOnInit(): void {
-    this.loadSummary();
-    this.loadPlaysOverTime();
-    this.loadRecentUploads();
-    this.loadRecentGames();
-    this.loadTopGames();
-    this.loadPendingReviews();
+    if (this.canViewAdmin) {
+      this.loadSummary();
+      this.loadPlaysOverTime();
+      this.loadRecentUploads();
+      this.loadRecentGames();
+      this.loadTopGames();
+    }
+    if (this.canViewModerator) {
+      this.loadPendingReviews();
+    }
   }
 
   loadSummary(): void {
@@ -56,7 +84,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadPendingReviews(): void {
-    this.adminService.getPendingReviews(5).subscribe(result => {
+    this.adminService.getPendingReviews(10).subscribe(result => {
       this.pendingReviews = result?.items || [];
     });
   }

@@ -393,6 +393,16 @@ export class DeveloperService {
       );
   }
 
+  exportEarningsCsv(filter: DeveloperEarningsFilter = {}): Observable<Blob> {
+    const params = new HttpParams({ fromObject: this.toEarningsParams(filter) });
+    return this.http.get('/api/exports/earnings', { params, responseType: 'blob' });
+  }
+
+  exportGameMetricsCsv(gameId: string, filter: GameMetricsFilter = {}): Observable<Blob> {
+    const params = new HttpParams({ fromObject: this.toParams(filter) });
+    return this.http.get(`/api/exports/metrics/${encodeURIComponent(gameId)}`, { params, responseType: 'blob' });
+  }
+
   private toEarningsParams(filter: DeveloperEarningsFilter): Record<string, string> {
     const params: Record<string, string> = { maxResultCount: (filter.maxResultCount ?? 50).toString() };
     if (filter.from) params['from'] = filter.from;
