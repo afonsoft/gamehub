@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using GameHub.Catalog;
 using GameHub.Developers;
+using GameHub.Exceptions;
 using GameHub.Gameplay;
 using GameHub.Gameplay.Dto;
 using Microsoft.EntityFrameworkCore;
@@ -185,13 +186,15 @@ namespace GameHub.Tests.GameHub.Application
                 Browser = "Chrome"
             });
 
-            await Should.ThrowAsync<InvalidOperationException>(() =>
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
                 _gameplayAppService.CaptureErrorAsync(new CaptureGameErrorInput
                 {
                     SessionId = session.SessionId,
                     GameId = otherGameId,
                     Message = "Spoofed error"
                 }));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.InvalidContext);
         }
 
         [Fact]
@@ -205,7 +208,7 @@ namespace GameHub.Tests.GameHub.Application
                 Browser = "Chrome"
             });
 
-            await Should.ThrowAsync<ArgumentException>(() =>
+            var exception = await Should.ThrowAsync<GameHubException>(() =>
                 _gameplayAppService.EventAsync(new GameplayEventInput
                 {
                     SessionId = session.SessionId,
@@ -213,6 +216,8 @@ namespace GameHub.Tests.GameHub.Application
                     EventType = GameplayEventType.GameMeasuredEvent,
                     PayloadJson = "{\"token\":\"secret\"}"
                 }));
+
+            exception.ErrorCode.ShouldBe(GameHubErrorCodes.ValidationFailed);
         }
 
         [Fact]

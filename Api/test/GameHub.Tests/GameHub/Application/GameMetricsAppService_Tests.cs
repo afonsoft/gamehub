@@ -233,7 +233,8 @@ namespace GameHub.Tests.GameHub.Application
                     To = sessionDate.AddDays(1)
                 });
 
-            export.FileName.ShouldBe("game-metrics.csv");
+            export.FileName.ShouldStartWith($"metrics-{game.Id:N}-");
+            export.FileName.ShouldEndWith(".csv");
             export.ContentType.ShouldBe("text/csv");
             export.Content.ShouldContain("date,plays,uniquePlayers");
             export.Content.ShouldContain(",1,1,0");
