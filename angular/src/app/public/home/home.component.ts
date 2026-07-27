@@ -7,11 +7,12 @@ import { TokenService } from '../../core/auth/token.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
 import { LanguageSelectorComponent } from '../../shared/ui/language-selector/language-selector.component';
+import { GameCardComponent } from '../../shared/ui/game-card/game-card.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ButtonComponent, LanguageSelectorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, ButtonComponent, LanguageSelectorComponent, GameCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

@@ -1,3 +1,20 @@
+## 2026-07-27 22:30 UTC
+
+### Tarefa
+Implementar melhorias nas páginas públicas e descoberta (Spec 19.2): unificar os cards de jogos em um componente compartilhado com chips de categoria, nota e acessibilidade.
+
+### Implementado
+- Criado `GameCardComponent` (`angular/src/app/shared/ui/game-card/`) com thumb, badges web-exclusive/desktop-only, chips de categoria (máx 3), rating, plays e `aria-label`.
+- Substituídos os cards repetidos em `home.component.html` (grids large/padrão), `games.component.html` e `game-detail.component.html` (seção related) por `<app-game-card>`.
+- Removidos estilos `.game-card` duplicados de `games.component.css` e `game-detail.component.css`.
+- Adicionadas chaves i18n `games.plays` em `en-US.json` e `pt-BR.json`.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` em `angular/`: OK (apenas aviso residual de budget em `home.component.css`).
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+- `npm test` não executado por falta de ChromeHeadless no ambiente.
+
 ## 2026-07-27 21:20 UTC
 
 ### Tarefa

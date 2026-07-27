@@ -94,20 +94,7 @@
     <section class="related" *ngIf="game.relatedGames?.length">
       <h2>{{ 'gameDetail.related' | translate }}</h2>
       <div class="related-grid">
-        <a class="game-card" *ngFor="let related of game.relatedGames; trackBy: trackGame" [routerLink]="['/play', related.slug]">
-          <div class="thumb">
-            <img [src]="related.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="related.title" loading="lazy" />
-          </div>
-          <div class="meta">
-            <h3>{{ related.title }}</h3>
-            <span class="plays">{{ related.totalPlays | number }} plays</span>
-            <div class="rating" *ngIf="related.totalVotes">
-              <span class="stars-empty">★★★★★</span>
-              <span class="stars-filled" [style.width.%]="(related.averageRating / 5) * 100">★★★★★</span>
-              <span class="rating-text">{{ related.averageRating | number:'1.1-1' }} ({{ related.totalVotes | number }})</span>
-            </div>
-          </div>
-        </a>
+        <app-game-card *ngFor="let related of game.relatedGames; trackBy: trackGame" [game]="related"></app-game-card>
       </div>
     </section>
   </div>

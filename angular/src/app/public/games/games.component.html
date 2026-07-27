@@ -67,24 +67,7 @@
   </div>
 
   <div class="game-grid" *ngIf="games?.length">
-    <a class="game-card" *ngFor="let game of games" [routerLink]="['/play', game.slug]">
-      <div class="thumb" [class.animated]="game.animatedThumbnailUrl">
-        <img class="static" [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
-        <img class="animated" *ngIf="game.animatedThumbnailUrl" [src]="game.animatedThumbnailUrl" [alt]="game.title" loading="lazy" />
-        <app-badge *ngIf="game.isWebExclusive" class="web-exclusive-badge" [label]="'gameDetail.webExclusive' | translate" variant="primary"></app-badge>
-        <app-badge *ngIf="!game.supportsMobile" class="desktop-only" label="Desktop" variant="primary"></app-badge>
-      </div>
-      <div class="meta">
-        <h3>{{ game.title }}</h3>
-        <p class="short-desc" *ngIf="game.shortDescription">{{ game.shortDescription }}</p>
-        <span class="plays">{{ game.totalPlays | number }} plays</span>
-        <div class="rating" *ngIf="game.totalVotes">
-          <span class="stars-empty">★★★★★</span>
-          <span class="stars-filled" [style.width.%]="(game.averageRating / 5) * 100">★★★★★</span>
-          <span class="rating-text">{{ game.averageRating | number:'1.1-1' }} ({{ game.totalVotes | number }} {{ 'games.votes' | translate }})</span>
-        </div>
-      </div>
-    </a>
+    <app-game-card *ngFor="let game of games" [game]="game"></app-game-card>
   </div>
 
   <div class="load-more" *ngIf="games?.length && totalCount > games.length">
