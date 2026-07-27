@@ -21,6 +21,7 @@ using GameHub.Configuration;
 using GameHub.Debugging;
 using GameHub.Web.Configuration;
 using GameHub.Web.Hubs;
+using GameHub.Web.Middleware;
 using GameHub.Web.Multiplayer;
 using GameHub.Web.WebHooks;
 using Microsoft.AspNetCore.Builder;
@@ -31,6 +32,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
@@ -129,6 +131,14 @@ namespace GameHub.Web.Startup
             services.Configure<AdBreakOptions>(_appConfiguration.GetSection("AdBreak"));
             services.Configure<StaticVastAdOptions>(_appConfiguration.GetSection("AdBreak:StaticVast"));
 
+            // Data Protection keys must be shared across instances in production
+            var dataProtectionKeysPath = _appConfiguration["DataProtection:KeysPath"]
+                ?? Path.Combine(_hostingEnvironment.ContentRootPath, "data-protection-keys");
+            Directory.CreateDirectory(dataProtectionKeysPath);
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+                .SetApplicationName("GameHub");
+
             //Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             services.AddSwaggerGen(options =>
             {
@@ -210,6 +220,9 @@ namespace GameHub.Web.Startup
             });
 
             app.UseResponseCompression();
+            app.UseMiddleware<SecurityHeadersMiddleware>();
+            app.UseMiddleware<ContentSecurityPolicyMiddleware>();
+            app.UseCookiePolicy();
             app.UseEafHealthChecks();
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
@@ -222,6 +235,7 @@ namespace GameHub.Web.Startup
             app.UseAbpRequestLocalization();
             app.UseRouting();
             app.UseCors(GameHubConsts.DefaultCorsPolicyName);
+            app.UseMiddleware<RateLimitingMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<AbpCommonHub>("/signalr");
