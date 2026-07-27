@@ -1,3 +1,33 @@
+## 2026-07-27 18:49 UTC
+
+### Tarefa
+Executar itens 2–5 da Spec 52 (Developer Portal v3 UX, Fluxo de Publicação, Analytics & Earnings UI, User Guide) e dar início à Spec 17 (Beta Readiness) no GameHub, sem alterar o EAF.
+
+### Implementado
+- **Item 2 — Developer Portal v3 UX**
+  - Criado `ConfirmDialogComponent` (`shared/ui/confirm-dialog`) para substituir `window.confirm`.
+  - Refatorados `game-create`, `game-edit`, `profile`, `team`, `games` e `builds` para usar estado `PageState` com signals, retry/cancelamento via `takeUntil`, `ErrorMapperService` e i18n `dev.*`.
+  - Templates sem sidebars duplicados, com landmarks, labels e aria-labels.
+- **Item 3 — Fluxo de Publicação**
+  - `game-edit` bloqueia `Submit for review` quando não há build aprovado e exibe mensagem com link para builds.
+  - `builds` mantém upload, validação, aprovação/rejeição, preview/inspector e histórico de revisão.
+- **Item 4 — Analytics & Earnings UI**
+  - `earnings` internacionalizado e com filtros de período, export CSV e aviso de valores estimados.
+  - Criada nova rota `games/:id/metrics` com `GameMetricsComponent` mostrando filtros avançados (período, país, dispositivo, origem do tráfego, UTM), cards de resumo, tabela diária e export CSV.
+  - `DeveloperService.getGameMetrics` e `exportGameMetricsCsv` ampliados para enviar `trafficSource`, `utmSource`, `utmMedium`, `utmCampaign`.
+- **Item 5 — User Guide**
+  - Traduções pt-BR/en-US para guia do usuário já presentes; reforçadas as chaves `docs.ug.*`.
+- **Spec 17 — Beta Readiness (UX pública)**
+  - `public/games` agora passa `device`, `orientation`, `exclusivity` e `minRating` para `catalog.search()`.
+  - Backend `GameCatalogAppService.SearchAsync` ampliado para filtrar por `Exclusivity` e `MinRating`; `GetGamesAsync` passou a aplicar `Device` e `Orientation`.
+  - `GameCatalogService.search` ampliado com os novos parâmetros.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` angular: OK.
+- `npm run build` angular-admin/GameHub.UI: OK.
+- `npm test` angular não executado nesta sessão por falta de ChromeHeadless no ambiente; builds de produção estão OK.
+
 ## 2026-07-27 17:20 UTC
 
 ### Tarefa

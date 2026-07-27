@@ -1,120 +1,125 @@
-<div class="dev-page">
-  <aside class="dev-sidebar">
-    <h2>Developer</h2>
-    <nav>
-      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
-      <a routerLink="/developer/earnings" routerLinkActive="active">Earnings</a>
-      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
-    </nav>
-  </aside>
-  <main class="dev-main">
-    <h1>Edit game</h1>
-    <div class="loading" *ngIf="loading">Loading...</div>
-    <form class="game-form" *ngIf="!loading" (ngSubmit)="save()">
-      <label for="title">Title *</label>
-      <input id="title" type="text" [(ngModel)]="input.title" name="title" required />
+<main class="dev-main" aria-labelledby="edit-game-title">
+  <div class="dev-header">
+    <h1 id="edit-game-title">{{ 'dev.editGame' | translate }}</h1>
+  </div>
 
-      <label for="shortDescription">Short description *</label>
-      <input id="shortDescription" type="text" [(ngModel)]="input.shortDescription" name="shortDescription" required />
+  <app-confirm-dialog #submitConfirm></app-confirm-dialog>
 
-      <label for="description">Description</label>
-      <textarea id="description" [(ngModel)]="input.description" name="description" rows="4"></textarea>
+  <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">
+    <span class="sr-only">{{ 'common.loading' | translate }}</span>
+    <span class="skeleton-line" aria-hidden="true"></span>
+  </div>
 
-      <label for="instructions">Instructions</label>
-      <textarea id="instructions" [(ngModel)]="input.instructions" name="instructions" rows="3"></textarea>
+  <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
+    <span>{{ error.message | translate }}</span>
+    <app-button variant="secondary" (appClick)="retry()" [disabled]="state().loading">{{ 'dev.retry' | translate }}</app-button>
+  </div>
 
-      <label for="controls">Controls</label>
-      <textarea id="controls" [(ngModel)]="input.controls" name="controls" rows="3"></textarea>
+  <form class="game-form" *ngIf="!state().loading" (ngSubmit)="save()">
+    <label for="title">{{ 'dev.title' | translate }} *</label>
+    <input id="title" type="text" [(ngModel)]="input.title" name="title" required />
 
-      <label for="suggestedDescription">Suggested description</label>
-      <textarea id="suggestedDescription" [(ngModel)]="input.suggestedDescription" name="suggestedDescription" rows="4"></textarea>
+    <label for="shortDescription">{{ 'dev.shortDescription' | translate }} *</label>
+    <input id="shortDescription" type="text" [(ngModel)]="input.shortDescription" name="shortDescription" required />
 
-      <label for="seoDescription">SEO description</label>
-      <input id="seoDescription" type="text" [(ngModel)]="input.seoDescription" name="seoDescription" maxlength="500" />
+    <label for="description">{{ 'dev.description' | translate }}</label>
+    <textarea id="description" [(ngModel)]="input.description" name="description" rows="4"></textarea>
 
-      <label for="ageRating">Age rating *</label>
-      <select id="ageRating" [(ngModel)]="input.ageRating" name="ageRating" required>
-        <option value="E">E — Everyone</option>
-        <option value="E10+">E10+</option>
-        <option value="T">T — Teen</option>
-        <option value="M">M — Mature</option>
-      </select>
+    <label for="instructions">{{ 'dev.instructions' | translate }}</label>
+    <textarea id="instructions" [(ngModel)]="input.instructions" name="instructions" rows="3"></textarea>
 
-      <label for="orientation">Orientation *</label>
-      <select id="orientation" [(ngModel)]="input.orientation" name="orientation" required>
-        <option value="Landscape">Landscape</option>
-        <option value="Portrait">Portrait</option>
-        <option value="Both">Both</option>
-      </select>
+    <label for="controls">{{ 'dev.controls' | translate }}</label>
+    <textarea id="controls" [(ngModel)]="input.controls" name="controls" rows="3"></textarea>
 
-      <label for="aspectRatio">Aspect ratio</label>
-      <select id="aspectRatio" [(ngModel)]="input.aspectRatio" name="aspectRatio">
-        <option value="Aspect16x9">16:9</option>
-        <option value="Aspect4x3">4:3</option>
-        <option value="Any">Any</option>
-      </select>
+    <label for="suggestedDescription">{{ 'dev.suggestedDescription' | translate }}</label>
+    <textarea id="suggestedDescription" [(ngModel)]="input.suggestedDescription" name="suggestedDescription" rows="4"></textarea>
 
-      <fieldset>
-        <legend>Supported platforms</legend>
-        <label><input type="checkbox" [(ngModel)]="input.supportsDesktop" name="supportsDesktop" /> Desktop</label>
-        <label><input type="checkbox" [(ngModel)]="input.supportsMobile" name="supportsMobile" /> Mobile</label>
-        <label><input type="checkbox" [(ngModel)]="input.supportsTablet" name="supportsTablet" /> Tablet</label>
-      </fieldset>
+    <label for="seoDescription">{{ 'dev.seoDescription' | translate }}</label>
+    <input id="seoDescription" type="text" [(ngModel)]="input.seoDescription" name="seoDescription" maxlength="500" />
 
-      <fieldset *ngIf="categories.length">
-        <legend>Categories</legend>
-        <label *ngFor="let category of categories">
-          <input
-            type="checkbox"
-            [checked]="hasCategory(category.id)"
-            (change)="toggleCategory(category.id)" />
-          {{ category.name }}
-        </label>
-      </fieldset>
+    <label for="ageRating">{{ 'dev.ageRating' | translate }} *</label>
+    <select id="ageRating" [(ngModel)]="input.ageRating" name="ageRating" required>
+      <option value="E">E — {{ 'dev.ageRatingEveryone' | translate }}</option>
+      <option value="E10+">E10+</option>
+      <option value="T">T — {{ 'dev.ageRatingTeen' | translate }}</option>
+      <option value="M">M — {{ 'dev.ageRatingMature' | translate }}</option>
+    </select>
 
-      <fieldset *ngIf="tags.length">
-        <legend>Tags</legend>
-        <label *ngFor="let tag of tags">
-          <input
-            type="checkbox"
-            [checked]="hasTag(tag.id)"
-            (change)="toggleTag(tag.id)" />
-          {{ tag.name }}
-        </label>
-      </fieldset>
+    <label for="orientation">{{ 'dev.orientation' | translate }} *</label>
+    <select id="orientation" [(ngModel)]="input.orientation" name="orientation" required>
+      <option value="Landscape">{{ 'games.landscape' | translate }}</option>
+      <option value="Portrait">{{ 'games.portrait' | translate }}</option>
+      <option value="Both">{{ 'games.both' | translate }}</option>
+    </select>
 
-      <section class="image-uploads">
-        <div class="image-field">
-          <label>Thumbnail</label>
-          <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" (change)="onThumbnailSelected($event)" [disabled]="uploadingThumbnail" />
-          <img *ngIf="thumbnailUrl" [src]="thumbnailUrl" alt="Thumbnail preview" class="preview" />
-          <span *ngIf="uploadingThumbnail">Uploading...</span>
-        </div>
-        <div class="image-field">
-          <label>Animated thumbnail</label>
-          <input type="file" accept=".gif,.webp,.mp4" (change)="onAnimatedThumbnailSelected($event)" [disabled]="uploadingAnimatedThumbnail" />
-          <p *ngIf="animatedThumbnailUrl">Status: <span class="status">{{ thumbnailStatus }}</span></p>
-          <img *ngIf="animatedThumbnailUrl && isImageUrl(animatedThumbnailUrl)" [src]="animatedThumbnailUrl" alt="Animated thumbnail preview" class="preview" />
-          <span *ngIf="uploadingAnimatedThumbnail">Uploading...</span>
-        </div>
-        <div class="image-field">
-          <label>Hero image</label>
-          <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" (change)="onHeroSelected($event)" [disabled]="uploadingHero" />
-          <img *ngIf="heroImageUrl" [src]="heroImageUrl" alt="Hero preview" class="preview hero" />
-          <span *ngIf="uploadingHero">Uploading...</span>
-        </div>
-      </section>
+    <label for="aspectRatio">{{ 'dev.aspectRatio' | translate }}</label>
+    <select id="aspectRatio" [(ngModel)]="input.aspectRatio" name="aspectRatio">
+      <option value="Aspect16x9">16:9</option>
+      <option value="Aspect4x3">4:3</option>
+      <option value="Any">Any</option>
+    </select>
 
-      <p class="error" *ngIf="error">{{ error }}</p>
+    <fieldset>
+      <legend>{{ 'dev.supportedPlatforms' | translate }}</legend>
+      <label><input type="checkbox" [(ngModel)]="input.supportsDesktop" name="supportsDesktop" /> {{ 'dev.desktop' | translate }}</label>
+      <label><input type="checkbox" [(ngModel)]="input.supportsMobile" name="supportsMobile" /> {{ 'dev.mobile' | translate }}</label>
+      <label><input type="checkbox" [(ngModel)]="input.supportsTablet" name="supportsTablet" /> {{ 'dev.tablet' | translate }}</label>
+    </fieldset>
 
-      <div class="actions">
-        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
-        <button type="button" class="btn-secondary" [disabled]="submitting" *ngIf="canSubmitForReview()" (click)="submitForReview()">
-          {{ submitting ? 'Submitting...' : 'Submit for review' }}
-        </button>
-        <a routerLink="/developer/games">Cancel</a>
+    <fieldset *ngIf="categories.length">
+      <legend>{{ 'dev.categories' | translate }}</legend>
+      <label *ngFor="let category of categories">
+        <input
+          type="checkbox"
+          [checked]="hasCategory(category.id)"
+          (change)="toggleCategory(category.id)" />
+        {{ category.name }}
+      </label>
+    </fieldset>
+
+    <fieldset *ngIf="tags.length">
+      <legend>{{ 'dev.tags' | translate }}</legend>
+      <label *ngFor="let tag of tags">
+        <input
+          type="checkbox"
+          [checked]="hasTag(tag.id)"
+          (change)="toggleTag(tag.id)" />
+        {{ tag.name }}
+      </label>
+    </fieldset>
+
+    <section class="image-uploads">
+      <div class="image-field">
+        <label>{{ 'dev.thumbnail' | translate }}</label>
+        <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" (change)="onThumbnailSelected($event)" />
+        <img *ngIf="thumbnailUrl" [src]="thumbnailUrl" alt="{{ 'dev.thumbnailPreview' | translate }}" class="preview" />
       </div>
-    </form>
-  </main>
-</div>
+      <div class="image-field">
+        <label>{{ 'dev.animatedThumbnail' | translate }}</label>
+        <input type="file" accept=".gif,.webp,.mp4" (change)="onAnimatedThumbnailSelected($event)" />
+        <p *ngIf="animatedThumbnailUrl">{{ 'common.status' | translate }}: <span class="status">{{ thumbnailStatus }}</span></p>
+        <img *ngIf="animatedThumbnailUrl && isImageUrl(animatedThumbnailUrl)" [src]="animatedThumbnailUrl" alt="{{ 'dev.animatedPreview' | translate }}" class="preview" />
+      </div>
+      <div class="image-field">
+        <label>{{ 'dev.heroImage' | translate }}</label>
+        <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" (change)="onHeroSelected($event)" />
+        <img *ngIf="heroImageUrl" [src]="heroImageUrl" alt="{{ 'dev.heroPreview' | translate }}" class="preview hero" />
+      </div>
+    </section>
+
+    <p class="error" *ngIf="state().error && !state().loading" role="alert">{{ (state().error?.message || '') | translate }}</p>
+
+    <p class="hint" *ngIf="!state().loading && status && !canSubmitForReview()">
+      {{ 'dev.cannotSubmitInvalid' | translate }}
+      <a [routerLink]="['/developer/games', gameId, 'builds']">{{ 'dev.uploadOrApproveBuild' | translate }}</a>.
+    </p>
+
+    <div class="actions">
+      <app-button type="submit" variant="primary" [disabled]="state().saving">{{ state().saving ? ('dev.saving' | translate) : ('dev.save' | translate) }}</app-button>
+      <app-button type="button" variant="secondary" [disabled]="state().submitting || !canSubmitForReview()" (appClick)="submitForReview()">
+        {{ state().submitting ? ('dev.submittingForReview' | translate) : ('dev.submitForReview' | translate) }}
+      </app-button>
+      <a routerLink="/developer/games">{{ 'dev.cancel' | translate }}</a>
+    </div>
+  </form>
+</main>

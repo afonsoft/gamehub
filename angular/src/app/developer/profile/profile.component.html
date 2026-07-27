@@ -1,35 +1,37 @@
-<div class="dev-page">
-  <aside class="dev-sidebar">
-    <h2>Developer</h2>
-    <nav>
-      <a routerLink="/developer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-      <a routerLink="/developer/games" routerLinkActive="active">My Games</a>
-      <a routerLink="/developer/earnings" routerLinkActive="active">Earnings</a>
-      <a routerLink="/developer/profile" routerLinkActive="active">Profile</a>
-    </nav>
-  </aside>
-  <main class="dev-main">
-    <h1>Developer Profile</h1>
-    <div class="loading" *ngIf="loading">Loading...</div>
-    <form class="game-form" *ngIf="!loading" (ngSubmit)="save()">
-      <label for="displayName">Display name *</label>
-      <input id="displayName" type="text" [(ngModel)]="profile.displayName" name="displayName" required />
+<main class="dev-main" aria-labelledby="developer-profile-title">
+  <div class="dev-header">
+    <h1 id="developer-profile-title">{{ 'dev.profileTitle' | translate }}</h1>
+  </div>
 
-      <label for="legalName">Legal name</label>
-      <input id="legalName" type="text" [(ngModel)]="profile.legalName" name="legalName" />
+  <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">
+    <span class="sr-only">{{ 'common.loading' | translate }}</span>
+    <span class="skeleton-line" aria-hidden="true"></span>
+  </div>
 
-      <label for="websiteUrl">Website</label>
-      <input id="websiteUrl" type="url" [(ngModel)]="profile.websiteUrl" name="websiteUrl" />
+  <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
+    <span>{{ error.message | translate }}</span>
+    <app-button variant="secondary" (appClick)="retry()" [disabled]="state().loading">{{ 'dev.retry' | translate }}</app-button>
+  </div>
 
-      <label for="supportEmail">Support email</label>
-      <input id="supportEmail" type="email" [(ngModel)]="profile.supportEmail" name="supportEmail" />
+  <p class="success" *ngIf="state().saved">{{ 'dev.profileSaved' | translate }}</p>
 
-      <p class="success" *ngIf="saved">Profile saved successfully.</p>
-      <p class="error" *ngIf="error">{{ error }}</p>
+  <form class="game-form" *ngIf="!state().loading" (ngSubmit)="save()">
+    <label for="displayName">{{ 'dev.displayName' | translate }} *</label>
+    <input id="displayName" type="text" [(ngModel)]="profile.displayName" name="displayName" required />
 
-      <div class="actions">
-        <button type="submit" class="btn-primary" [disabled]="saving">{{ saving ? 'Saving...' : 'Save profile' }}</button>
-      </div>
-    </form>
-  </main>
-</div>
+    <label for="legalName">{{ 'dev.legalName' | translate }}</label>
+    <input id="legalName" type="text" [(ngModel)]="profile.legalName" name="legalName" />
+
+    <label for="websiteUrl">{{ 'dev.websiteUrl' | translate }}</label>
+    <input id="websiteUrl" type="url" [(ngModel)]="profile.websiteUrl" name="websiteUrl" />
+
+    <label for="supportEmail">{{ 'dev.supportEmail' | translate }}</label>
+    <input id="supportEmail" type="email" [(ngModel)]="profile.supportEmail" name="supportEmail" />
+
+    <p class="error" *ngIf="state().error && !state().loading" role="alert">{{ (state().error?.message || '') | translate }}</p>
+
+    <div class="actions">
+      <app-button type="submit" variant="primary" [disabled]="state().saving">{{ state().saving ? ('dev.saving' | translate) : ('dev.save' | translate) }}</app-button>
+    </div>
+  </form>
+</main>

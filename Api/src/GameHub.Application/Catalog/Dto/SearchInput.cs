@@ -32,6 +32,13 @@ public class SearchInput
     /// <summary>Filter by orientation.</summary>
     public string Orientation { get; set; }
 
+    /// <summary>Filter by exclusivity (All, WebExclusive, NonExclusive).</summary>
+    public string Exclusivity { get; set; }
+
+    /// <summary>Minimum average rating (0-5).</summary>
+    [Range(0, 5)]
+    public decimal? MinRating { get; set; }
+
     /// <summary>Number of items to skip.</summary>
     [Range(0, int.MaxValue)]
     public int SkipCount { get; set; }

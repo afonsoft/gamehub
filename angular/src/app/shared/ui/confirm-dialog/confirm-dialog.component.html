@@ -1,0 +1,10 @@
+<div class="confirm-overlay" *ngIf="isOpen()" (click)="cancel()" role="dialog" aria-modal="true" [attr.aria-label]="titleKey() | translate">
+  <div class="confirm-dialog" (click)="$event.stopPropagation()">
+    <h2>{{ titleKey() | translate }}</h2>
+    <p>{{ messageKey() | translate }}</p>
+    <div class="confirm-actions">
+      <app-button variant="ghost" (appClick)="cancel()">{{ 'common.cancel' | translate }}</app-button>
+      <app-button variant="primary" (appClick)="confirm()">{{ 'common.confirm' | translate }}</app-button>
+    </div>
+  </div>
+</div>

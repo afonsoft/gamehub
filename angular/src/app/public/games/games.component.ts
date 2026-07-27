@@ -98,6 +98,10 @@ export class GamesComponent implements OnInit, OnDestroy {
           this.tag ? [this.tag] : [],
           this.skipCount,
           this.pageSize,
+          this.device || undefined,
+          this.orientation || undefined,
+          this.exclusivity,
+          this.minRating,
         )
       : this.catalog.getGames(
           this.skipCount,

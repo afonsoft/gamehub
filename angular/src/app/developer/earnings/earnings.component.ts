@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DeveloperService, DeveloperEarnings, GameEarnings, DailyEarnings } from '../../core/services/developer.service';
 import { ErrorMapperService, SdkError } from '../../core/services/error-mapper.service';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 export interface EarningsPageState {
   loading: boolean;
@@ -18,7 +19,7 @@ export interface EarningsPageState {
 @Component({
   selector: 'app-developer-earnings',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, TranslatePipe],
   templateUrl: './earnings.component.html',
   styleUrl: './earnings.component.css',
 })

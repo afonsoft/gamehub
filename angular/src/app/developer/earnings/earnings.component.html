@@ -2,58 +2,58 @@
   <main class="dev-main" aria-labelledby="developer-earnings-title">
     <div class="dev-header">
       <div>
-        <h1 id="developer-earnings-title">Earnings</h1>
-        <p class="earnings-intro">Track estimated revenue and ad performance across your games.</p>
+        <h1 id="developer-earnings-title">{{ 'dev.earningsTitle' | translate }}</h1>
+        <p class="earnings-intro">{{ 'dev.earningsDescription' | translate }}</p>
       </div>
       <app-button variant="primary" (appClick)="exportCsv()" [disabled]="state().loading || !earnings()?.games?.length">
-        Export CSV
+        {{ 'dev.exportCsv' | translate }}
       </app-button>
     </div>
 
     <form class="earnings-filters" (ngSubmit)="applyFilter()">
       <label>
-        From
-        <input type="date" name="from" [ngModel]="from()" (ngModelChange)="from.set($event)" aria-label="Start date">
+        {{ 'dev.from' | translate }}
+        <input type="date" name="from" [ngModel]="from()" (ngModelChange)="from.set($event)" [attr.aria-label]="'dev.from' | translate">
       </label>
       <label>
-        To
-        <input type="date" name="to" [ngModel]="to()" (ngModelChange)="to.set($event)" aria-label="End date">
+        {{ 'dev.to' | translate }}
+        <input type="date" name="to" [ngModel]="to()" (ngModelChange)="to.set($event)" [attr.aria-label]="'dev.to' | translate">
       </label>
-      <app-button variant="primary" type="submit" [disabled]="state().loading">Apply</app-button>
-      <app-button variant="secondary" (appClick)="from.set(''); to.set(''); loadEarnings()" [disabled]="state().loading">Reset</app-button>
+      <app-button variant="primary" type="submit" [disabled]="state().loading">{{ 'dev.apply' | translate }}</app-button>
+      <app-button variant="secondary" (appClick)="from.set(''); to.set(''); loadEarnings()" [disabled]="state().loading">{{ 'dev.reset' | translate }}</app-button>
     </form>
 
     <div class="error-message" *ngIf="!state().loading && state().error as error" role="alert">
-      <span>{{ error.message }}</span>
-      <app-button variant="secondary" (appClick)="loadEarnings()" [disabled]="state().loading">Retry</app-button>
+      <span>{{ (error.message || '') | translate }}</span>
+      <app-button variant="secondary" (appClick)="loadEarnings()" [disabled]="state().loading">{{ 'dev.retry' | translate }}</app-button>
     </div>
 
-    <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">Loading earnings...</div>
+    <div class="loading" *ngIf="state().loading" role="status" aria-live="polite">{{ 'common.loading' | translate }}</div>
 
     <ng-container *ngIf="!state().loading && !state().error && earnings() as e">
       <p class="earnings-notice">
-        Estimated values only; they do not represent confirmed payout. Period: {{ e.from | date:'mediumDate' }} – {{ e.to | date:'mediumDate' }}.
+        {{ 'dev.estimatedNotice' | translate }} {{ 'dev.period' | translate }}: {{ e.from | date:'mediumDate' }} – {{ e.to | date:'mediumDate' }}.
       </p>
 
       <section class="earnings-cards" *ngIf="e.games.length">
         <div class="earnings-card primary">
-          <span class="earnings-card-label">Gross estimated</span>
+          <span class="earnings-card-label">{{ 'dev.grossEstimated' | translate }}</span>
           <span class="earnings-card-value">{{ formatCurrency(e.totalGrossEstimatedRevenue) }}</span>
         </div>
         <div class="earnings-card">
-          <span class="earnings-card-label">Developer estimated</span>
+          <span class="earnings-card-label">{{ 'dev.developerEstimated' | translate }}</span>
           <span class="earnings-card-value">{{ formatCurrency(e.totalDeveloperEstimatedRevenue) }}</span>
         </div>
         <div class="earnings-card">
-          <span class="earnings-card-label">Platform estimated</span>
+          <span class="earnings-card-label">{{ 'dev.platformEstimated' | translate }}</span>
           <span class="earnings-card-value">{{ formatCurrency(e.totalPlatformEstimatedRevenue) }}</span>
         </div>
         <div class="earnings-card">
-          <span class="earnings-card-label">Commercial breaks</span>
+          <span class="earnings-card-label">{{ 'dev.commercialBreaks' | translate }}</span>
           <span class="earnings-card-value">{{ e.totalCommercialBreaks | number }}</span>
         </div>
         <div class="earnings-card">
-          <span class="earnings-card-label">Rewarded breaks</span>
+          <span class="earnings-card-label">{{ 'dev.rewardedBreaks' | translate }}</span>
           <span class="earnings-card-value">{{ e.totalRewardedBreaks | number }}</span>
         </div>
       </section>
@@ -61,22 +61,22 @@
       <section class="earnings-panel" *ngIf="e.games.length">
         <div class="earnings-panel-header">
           <div>
-            <h2>Performance by game</h2>
-            <p>Estimated totals for the selected reporting period.</p>
+            <h2>{{ 'dev.performanceByGame' | translate }}</h2>
+            <p>{{ 'dev.dailyBreakdown' | translate }}</p>
           </div>
         </div>
         <div class="table-scroll">
           <table class="earnings-table">
-            <caption class="sr-only">Estimated earnings by game</caption>
+            <caption class="sr-only">{{ 'dev.performanceByGame' | translate }}</caption>
             <thead>
               <tr>
-                <th scope="col">Game</th>
-                <th scope="col">Plays</th>
-                <th scope="col">Commercial</th>
-                <th scope="col">Rewarded</th>
-                <th scope="col">Gross</th>
-                <th scope="col">Dev share</th>
-                <th scope="col">Developer revenue</th>
+                <th scope="col">{{ 'dev.title' | translate }}</th>
+                <th scope="col">{{ 'dev.plays' | translate }}</th>
+                <th scope="col">{{ 'dev.commercialBreaks' | translate }}</th>
+                <th scope="col">{{ 'dev.rewardedBreaks' | translate }}</th>
+                <th scope="col">{{ 'dev.grossEstimated' | translate }}</th>
+                <th scope="col">{{ 'dev.developerShare' | translate }}</th>
+                <th scope="col">{{ 'dev.developerEstimated' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -98,22 +98,22 @@
         <div class="earnings-panel-header">
           <div>
             <h2>{{ game.gameTitle }}</h2>
-            <p>Daily revenue breakdown</p>
+            <p>{{ 'dev.dailyBreakdown' | translate }}</p>
           </div>
           <button class="btn-secondary" type="button" (click)="toggleDaily(game.gameId)" [attr.aria-expanded]="isDailyExpanded(game.gameId)" [attr.aria-controls]="'daily-' + game.gameId">
-            {{ isDailyExpanded(game.gameId) ? 'Hide details' : 'Show details' }}
+           {{ isDailyExpanded(game.gameId) ? ('dev.hideDetails' | translate) : ('dev.showDetails' | translate) }}
           </button>
         </div>
         <div class="table-scroll" *ngIf="isDailyExpanded(game.gameId) && game.daily.length" [id]="'daily-' + game.gameId">
           <table class="earnings-table">
-            <caption class="sr-only">Daily earnings for {{ game.gameTitle }}</caption>
+            <caption class="sr-only">{{ 'dev.dailyBreakdown' | translate }} {{ game.gameTitle }}</caption>
             <thead>
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Commercial</th>
-                <th scope="col">Rewarded</th>
-                <th scope="col">Gross</th>
-                <th scope="col">Developer revenue</th>
+                <th scope="col">{{ 'dev.date' | translate }}</th>
+                <th scope="col">{{ 'dev.commercialBreaks' | translate }}</th>
+                <th scope="col">{{ 'dev.rewardedBreaks' | translate }}</th>
+                <th scope="col">{{ 'dev.grossEstimated' | translate }}</th>
+                <th scope="col">{{ 'dev.developerEstimated' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -127,10 +127,10 @@
             </tbody>
           </table>
         </div>
-        <p class="empty" *ngIf="isDailyExpanded(game.gameId) && !game.daily.length">No daily data available for this period.</p>
+        <p class="empty" *ngIf="isDailyExpanded(game.gameId) && !game.daily.length">{{ 'dev.noEarnings' | translate }}</p>
       </section>
 
-      <p class="empty" *ngIf="!e.games.length">No earnings data for the selected period.</p>
+      <p class="empty" *ngIf="!e.games.length">{{ 'dev.noEarnings' | translate }}</p>
     </ng-container>
   </main>
 </div>
