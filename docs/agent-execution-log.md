@@ -1540,3 +1540,24 @@ Executar melhorias do GameHub que não dependem de alterações no EAF.
 - O SDK gera `clientEventId` para telemetria.
 - Captura de erros valida que a sessão pertence ao jogo informado.
 - Nenhuma alteração foi feita no EAF.
+
+## 2026-07-26 23:59 UTC
+
+### Tarefa
+Atualizar o consumo do EAF para a release 9.3.0 e aplicar a correção de layout
+compatível com os formulários do portal.
+
+### Arquivos alterados
+- `Api/src/GameHub.Application/GameHub.Application.csproj`
+- `Api/src/GameHub.Core/GameHub.Core.csproj`
+- `Api/src/GameHub.Web.Host/GameHub.Web.Host.csproj`
+- `angular/src/app/developer/game-create/game-create.component.css`
+- `docs/eaf/gamehub-eaf-improvements.md`
+- `docs/packages.md`
+- `docs/technologies.md`
+
+### Resultado
+- Referências NuGet EAF atualizadas de `9.2.0` para `9.3.0`.
+- O alinhamento de labels da correção do template EAF foi adaptado aos
+  checkboxes dos formulários GameHub, sem copiar componentes genéricos.
+- A análise dos templates API/Angular 9.3.0 foi registrada na documentação EAF.

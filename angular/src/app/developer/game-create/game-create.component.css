@@ -32,11 +32,18 @@
   margin-bottom: 8px;
 }
 .game-form fieldset label {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
-  margin: 6px 0;
+  gap: 12px;
+  min-height: 34px;
+  margin: 0;
+  line-height: 34px;
   font-weight: 400;
+}
+
+.game-form fieldset input[type='checkbox'] {
+  margin: 0;
 }
 .game-form .actions {
   display: flex;

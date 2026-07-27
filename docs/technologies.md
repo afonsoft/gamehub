@@ -5,7 +5,7 @@
 | Tecnologia | Versão | Uso |
 |------------|--------|-----|
 | .NET / ASP.NET Core | 10 LTS | API e host |
-| EAF / ABP | 10.4 (NuGet EAF.* 9.2.0) | Modularização, multi-tenancy, autorização |
+| EAF / ABP | 10.4 (NuGet EAF.* 9.3.0) | Modularização, multi-tenancy, autorização |
 | Entity Framework Core | 10.0.8 | Acesso a dados |
 | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.0 | Provider PostgreSQL |
 | AutoMapper | 14.0.0 | Mapeamento DTOs |
