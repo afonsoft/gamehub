@@ -1,3 +1,23 @@
+## 2026-07-27 21:20 UTC
+
+### Tarefa
+Finalizar itens remanescentes da Spec 17 (Beta Readiness) no GameHub: link público para documentação, i18n do shell público e ações de status na fila de reports do admin.
+
+### Implementado
+- **Header/Footer do hub público**
+  - `angular/src/app/app.html` traduzido com `TranslatePipe` e inclui link `/docs`.
+  - `angular/src/app/app.ts` passou a importar `TranslatePipe`.
+  - `angular/public/i18n/en-US.json` e `pt-BR.json` receberam `nav.home`, `nav.register`, `nav.logout` e `footer.tagline`.
+- **Fila de reports no admin**
+  - `gamehub-admin.service.ts` adicionou `updateReportStatus(reportId, status)` com `PUT /api/services/app/AdminReport/UpdateStatus`.
+  - `report-list.component.ts/.html` passou a usar os status do enum `UserReportStatus` (`Open`, `UnderReview`, `Resolved`, `Dismissed`) em filtros, badges e botões de ação inline.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` em `angular/`: OK (avisos pré-existentes de budget de CSS).
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+- `npm test` não executado em ambos os frontends por falta de ChromeHeadless no ambiente.
+
 ## 2026-07-27 18:49 UTC
 
 ### Tarefa

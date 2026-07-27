@@ -3,18 +3,19 @@
     <div class="header-inner">
       <a class="logo" routerLink="/">GameHub</a>
       <nav class="header-nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-        <a routerLink="/games" routerLinkActive="active">All Games</a>
-        <a *ngIf="isDeveloper" routerLink="/developer" routerLinkActive="active">Developer</a>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/games" routerLinkActive="active">{{ 'nav.games' | translate }}</a>
+        <a routerLink="/docs" routerLinkActive="active">{{ 'nav.docs' | translate }}</a>
+        <a *ngIf="isDeveloper" routerLink="/developer" routerLinkActive="active">{{ 'nav.developer' | translate }}</a>
       </nav>
       <div class="header-actions">
         <ng-container *ngIf="!isLoggedIn">
-          <a routerLink="/login">Login</a>
-          <a class="btn-small" routerLink="/register">Register</a>
+          <a routerLink="/login">{{ 'nav.login' | translate }}</a>
+          <a class="btn-small" routerLink="/register">{{ 'nav.register' | translate }}</a>
         </ng-container>
         <ng-container *ngIf="isLoggedIn">
           <span class="user-name" *ngIf="userName">{{ userName }}</span>
-          <button class="btn-small" (click)="logout()">Logout</button>
+          <button class="btn-small" (click)="logout()">{{ 'nav.logout' | translate }}</button>
         </ng-container>
       </div>
     </div>
@@ -26,11 +27,12 @@
 
   <footer class="hub-footer">
     <div class="footer-inner">
-      <p>GameHub — free browser games. No login required.</p>
+      <p>{{ 'footer.tagline' | translate }}</p>
       <nav>
-        <a routerLink="/">Home</a>
-        <a routerLink="/games">Games</a>
-        <a routerLink="/developer" *ngIf="isDeveloper">Developer</a>
+        <a routerLink="/">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/games">{{ 'nav.games' | translate }}</a>
+        <a routerLink="/docs">{{ 'nav.docs' | translate }}</a>
+        <a routerLink="/developer" *ngIf="isDeveloper">{{ 'nav.developer' | translate }}</a>
       </nav>
     </div>
   </footer>

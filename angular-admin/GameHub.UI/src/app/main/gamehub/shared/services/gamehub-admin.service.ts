@@ -280,6 +280,11 @@ export class GameHubAdminService {
     return this.http.get(`${this.baseUrl}/api/services/app/UserReport/GetAll`).pipe(map(this.unwrapResult));
   }
 
+  updateReportStatus(reportId: string, status: string): Observable<any> {
+    const params = new HttpParams().set('reportId', reportId).set('status', status);
+    return this.http.put(`${this.baseUrl}/api/services/app/AdminReport/UpdateStatus`, null, { params });
+  }
+
   getValidationReports(maxResultCount: number = 50): Observable<ValidationReport[]> {
     const params = new HttpParams().set('maxResultCount', maxResultCount.toString());
     return this.http.get<ValidationReport[]>(`${this.baseUrl}/api/services/app/BuildValidation/GetReports`, { params }).pipe(map(this.unwrapResult));

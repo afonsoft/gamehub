@@ -16,10 +16,14 @@
         <div class="row align-items-center m--margin-bottom-10">
           <div class="col-xl-12">
             <div class="btn-group" role="group" aria-label="Report filters">
-              <button class="btn" [class.btn-primary]="filter === 'All'" [class.btn-secondary]="filter !== 'All'" (click)="setFilter('All')">All</button>
-              <button class="btn" [class.btn-primary]="filter === 'Open'" [class.btn-secondary]="filter !== 'Open'" (click)="setFilter('Open')">Open</button>
-              <button class="btn" [class.btn-primary]="filter === 'InProgress'" [class.btn-secondary]="filter !== 'InProgress'" (click)="setFilter('InProgress')">In Progress</button>
-              <button class="btn" [class.btn-primary]="filter === 'Resolved'" [class.btn-secondary]="filter !== 'Resolved'" (click)="setFilter('Resolved')">Resolved</button>
+              <button
+                *ngFor="let status of statuses"
+                class="btn"
+                [class.btn-primary]="filter === status"
+                [class.btn-secondary]="filter !== status"
+                (click)="setFilter(status)">
+                {{ status }}
+              </button>
             </div>
           </div>
         </div>
@@ -28,8 +32,7 @@
           <div class="primeng-datatable-container">
             <p-table
               [value]="reports"
-              [paginator]="true"
-              [rows]="20"
+              [paginator]="false"
               [scrollable]="true"
               scrollHeight="400px"
               styleClass="p-datatable-striped p-datatable-sm">
@@ -40,6 +43,7 @@
                   <th style="width: 180px">Reporter</th>
                   <th style="width: 120px">Status</th>
                   <th style="width: 140px">Date</th>
+                  <th style="width: 220px">Actions</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-report>
@@ -50,16 +54,30 @@
                   <td>
                     <span class="m-badge m-badge--wide" [ngClass]="{
                       'm-badge--warning': report.status === 'Open',
-                      'm-badge--info': report.status === 'InProgress',
-                      'm-badge--success': report.status === 'Resolved'
+                      'm-badge--info': report.status === 'UnderReview',
+                      'm-badge--success': report.status === 'Resolved',
+                      'm-badge--metal': report.status === 'Dismissed'
                     }">{{ report.status }}</span>
                   </td>
                   <td>{{ report.createdAt | date:'short' }}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Update report status">
+                      <button
+                        *ngFor="let nextStatus of ['Open', 'UnderReview', 'Resolved', 'Dismissed']"
+                        class="btn btn-sm"
+                        [class.btn-primary]="report.status === nextStatus"
+                        [class.btn-secondary]="report.status !== nextStatus"
+                        [disabled]="report.status === nextStatus || updating[report.reportId]"
+                        (click)="updateStatus(report, nextStatus)">
+                        {{ nextStatus }}
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               </ng-template>
               <ng-template pTemplate="emptymessage">
                 <tr>
-                  <td colspan="5" class="text-center">No reports found.</td>
+                  <td colspan="6" class="text-center">No reports found.</td>
                 </tr>
               </ng-template>
             </p-table>
