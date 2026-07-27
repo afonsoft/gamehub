@@ -1,3 +1,30 @@
+## 2026-07-27 16:20 UTC
+
+### Tarefa
+Rodar testes, infra Docker completa e simular cadastro/login multi-tenant; corrigir gargalos encontrados.
+
+### Implementado
+- Corrigidas migrations `SocialInvitesAndNotifications` e `AddUserTenantMembership` para usar `gh_GameplayEvents` e remover colunas duplicadas.
+- Configurado `Clock.Provider = ClockProviders.Utc` em `Startup` e `Migrator/Program`.
+- Registrado `DbContextOptions<GameHubDbContext>`, `GameHubDbContext` e `ITokenAuthenticationService -> JwtTokenAuthenticationService` no `Startup`.
+- Reescrito `JwtTokenAuthenticationService` para gerar tokens EAF-compatíveis (`token_validity_key`, `token_validity_value`, `user_identifier`, `SecurityStamp`).
+- Ajustado `RegistrationAppService` para criar jogadores no tenant `Default`.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 358 passed, 2 skipped, 0 failed.
+- Docker Compose (Postgres/Redis/MinIO): backend `Healthy`, `angular-hub` (`:4600`) e `angular-admin` (`:4602`) respondendo.
+- Simulação end-to-end via `curl`:
+  - `POST /api/services/app/Registration/Register` -> player criado no tenant `Default`.
+  - `POST /api/hub/auth/available-tenants` -> retornou `[{ tenantId: 1, tenantName: "Default" }]`.
+  - `POST /api/hub/auth/select-tenant` -> emitiu accessToken JWT válido.
+  - `GET /api/services/app/PlayerAccount/GetPlayerProfile` com token -> retornou `{ username: "..." }`.
+- PR #75 aberto com as correções.
+
+### Observações
+- `JwtTokenAuthenticationService` precisa ainda ser testado para tokens de jogo (`gameId`) no `GameTokenProvider`; no plano futuro.
+- `angular` e `angular-admin` login via UI não foi concluído por dificuldades de automação de formulário no desktop (eventos de submit); fluxo API validado.
+- Simulação de empresa/developer (tenant adicional) não foi executada; está no escopo do próximo plano.
+
 ## 2026-07-27 15:15 UTC
 
 ### Tarefa

@@ -2,8 +2,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.MultiTenancy;
 using Abp.UI;
 using Eaf.Middleware.Authorization.Users;
+using Eaf.Middleware.MultiTenancy;
 using GameHub.Authorization.Dto;
 using GameHub.Developers;
 using Microsoft.AspNetCore.Identity;
@@ -16,18 +18,65 @@ namespace GameHub.Authorization
     public class RegistrationAppService : GameHubAppServiceBase, IRegistrationAppService
     {
         private readonly IRepository<DeveloperProfile, System.Guid> _developerProfileRepository;
+        private readonly IRepository<Tenant, int> _tenantRepository;
 
-        public RegistrationAppService(IRepository<DeveloperProfile, System.Guid> developerProfileRepository)
+        public RegistrationAppService(
+            IRepository<DeveloperProfile, System.Guid> developerProfileRepository,
+            IRepository<Tenant, int> tenantRepository)
         {
             _developerProfileRepository = developerProfileRepository;
+            _tenantRepository = tenantRepository;
         }
 
         [AbpAllowAnonymous]
         public async Task<RegisterOutput> RegisterAsync(RegisterInput input)
         {
+            var defaultTenant = await _tenantRepository.FirstOrDefaultAsync(t => t.TenancyName == AbpTenantBase.DefaultTenantName);
+            var tenantId = !input.IsDeveloper && defaultTenant != null ? (int?)defaultTenant.Id : null;
+
+            var user = tenantId.HasValue
+                ? await CreatePlayerUserInTenantAsync(input, tenantId.Value)
+                : await CreateHostUserAsync(input);
+
+            return new RegisterOutput
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+            };
+        }
+
+        private async Task<User> CreatePlayerUserInTenantAsync(RegisterInput input, int tenantId)
+        {
+            using (AbpSession.Use(tenantId, null))
+            using (UnitOfWorkManager.Current.SetTenantId(tenantId))
+            {
+                var user = new User
+                {
+                    TenantId = tenantId,
+                    UserName = input.UserName,
+                    Name = input.Name,
+                    Surname = input.Surname,
+                    EmailAddress = input.EmailAddress,
+                    IsActive = true,
+                    IsEmailConfirmed = true,
+                };
+
+                var result = await UserManager.CreateAsync(user, input.Password);
+                if (!result.Succeeded)
+                {
+                    throw new UserFriendlyException(string.Join(" ", result.Errors.Select(e => e.Description)));
+                }
+
+                await EnsureRoleAsync(user, "Player");
+                return user;
+            }
+        }
+
+        private async Task<User> CreateHostUserAsync(RegisterInput input)
+        {
             var user = new User
             {
-                TenantId = AbpSession.TenantId,
+                TenantId = null,
                 UserName = input.UserName,
                 Name = input.Name,
                 Surname = input.Surname,
@@ -50,11 +99,7 @@ namespace GameHub.Authorization
                 await CreateDeveloperProfileAsync(user);
             }
 
-            return new RegisterOutput
-            {
-                UserId = user.Id,
-                UserName = user.UserName,
-            };
+            return user;
         }
 
         private async Task EnsureRoleAsync(User user, string roleName)
@@ -90,5 +135,6 @@ namespace GameHub.Authorization
 
             await _developerProfileRepository.InsertAsync(profile);
         }
+
     }
 }
