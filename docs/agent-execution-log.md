@@ -1,3 +1,22 @@
+## 2026-07-27 14:22 UTC
+
+### Tarefa
+Ajustar ícones do menu lateral e padronizar tabelas do `angular-admin`; consolidar entregas e criar plano detalhado para multi-tenancy (empresas = tenants, usuários em múltiplos tenants, seleção de tenant no login do hub).
+
+### Implementado
+- Ajustados ícones do `app-navigation.service.ts` do `angular-admin` (`la la-gamepad`, `la la-list`, `la la-shield`, `la la-bar-chart`, `la la-clock-o`, `la la-cloud-upload`).
+- Padronizados cards de listagem (`.card-header` + `.card-body`) e tabelas `p-table` em `category-list`, `tag-list`, `game-list`, `build-list`, `user-list`, `audit-log`, `feature-flags`, `review-queue`, `inspector-session`, `report-list`, `playtest-recording-list`, `build-files`.
+- Criado plano `docs/superpowers/plans/2026-07-27-gamehub-tenant-companies-and-user-associations.md` com todas as fases: domínio, aplicação, Web API, migrações/seed, `angular-admin`, `angular` público, segurança, testes e documentação.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 348 passed, 3 skipped, 0 failed.
+- `npm run build` no `angular-admin/GameHub.UI`: production build OK.
+- `npm test` no `angular-admin/GameHub.UI`: 215 SUCCESS.
+- `npm run build` no `angular`: production build OK (budget warnings não críticos).
+
+### Observações
+- O plano de multi-tenancy **não foi implementado**; está pendente de aprovação do usuário. Aguardando go/no-go.
+
 ## 2026-07-27 02:39 UTC
 
 ### Tarefa

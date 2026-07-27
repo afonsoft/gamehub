@@ -16,6 +16,8 @@ O GameHub é uma plataforma de catálogo, execução e gestão de jogos HTML5/We
 ```
 docs/
 ├── README.md                  # Este arquivo
+├── user-guide.md              # Guia do desenvolvedor (pt-BR)
+├── user-guide.en-US.md        # Guia do desenvolvedor (en-US)
 ├── agent-execution-log.md     # Registro de execuções do agente
 ├── known-issues.md            # Problemas e soluções conhecidas
 ├── technologies.md            # Stack e versões
