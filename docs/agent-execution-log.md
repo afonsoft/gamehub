@@ -1,3 +1,25 @@
+## 2026-07-27 23:55 UTC
+
+### Tarefa
+Melhorar execução do jogo (Spec 17-B) e expandir documentações SDK/API no hub público.
+
+### Implementado
+- `game-frame.component.ts/.html/.css`:
+  - Adicionado `frameLoading` e `loading-overlay` sobre o iframe após clicar em Start Game.
+  - `bridge.gameLoadingStarted()` no `startGame()`, `bridge.gameLoadingFinished()` + `bridge.gameplayStart()` no `onFrameLoad()`.
+  - `iframe` com `[attr.title]="'gameFrame.playerTitle' | translate"`, `loading="eager"` e atributos `sandbox`, `allow`, `referrerpolicy` conforme §4.1 da Spec 15.
+  - Telas de rewarded break internacionalizadas.
+- `public/docs/sdk-guide/` e `public/docs/api-guide/`:
+  - Código movido para propriedades do componente (`examples`) para evitar erros de parse do Angular com chaves `{` `}`.
+  - Guias expandidos com introdução, autenticação, swagger, exemplos completos de catalog/gameplay/player e seções de tratamento de erros e segurança.
+  - Novas chaves i18n `docs.sdk.*`, `docs.api.*`, `gameFrame.reward.*`, `gameFrame.playerTitle`, `gameFrame.loadingGame`.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` em `angular/`: OK (aviso residual de budget em `home.component.css`).
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+- `npm test` não executado por falta de ChromeHeadless no ambiente.
+
 ## 2026-07-27 23:35 UTC
 
 ### Tarefa

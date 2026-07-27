@@ -21,6 +21,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   safeUrl: SafeResourceUrl | null = null;
   started = false;
   starting = false;
+  frameLoading = false;
   loadingError = false;
   startError: string | null = null;
   isFullscreen = false;
@@ -165,7 +166,9 @@ export class GameFrameComponent implements OnInit, OnDestroy {
     }
 
     this.starting = true;
+    this.frameLoading = false;
     this.startError = null;
+    this.bridge.gameLoadingStarted();
 
     const input: StartPlaySessionInput = {
       gameId: this.game.id,
@@ -178,17 +181,16 @@ export class GameFrameComponent implements OnInit, OnDestroy {
       next: session => {
         this.starting = false;
         this.started = true;
+        this.frameLoading = true;
         this.sessionId = session?.sessionId ?? null;
         if (this.sessionId && this.gameId) {
           this.bridge.setSession(this.sessionId, this.gameId);
-          this.bridge.gameplayStart();
           this.player.trackPlay(this.gameId, this.token.isValid()).subscribe();
         }
       },
       error: () => {
         this.starting = false;
         this.startError = 'gameFrame.sessionError';
-        this.started = true;
       },
     });
   }
@@ -233,7 +235,12 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   }
 
   onFrameLoad(): void {
+    if (!this.frameLoading) {
+      return;
+    }
+    this.frameLoading = false;
     this.bridge.gameLoadingFinished();
+    this.bridge.gameplayStart();
     this.postToGame({
       channel: 'gamehub-bridge',
       action: 'controlScheme',
