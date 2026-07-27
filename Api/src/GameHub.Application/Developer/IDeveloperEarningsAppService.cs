@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using GameHub.Developer.Dto;
+using GameHub.Gameplay.Dto;
 
 namespace GameHub.Developer
 {
@@ -12,5 +13,7 @@ namespace GameHub.Developer
         Task<DeveloperEarningsDto> GetEarningsAsync(GetDeveloperEarningsInput input);
 
         Task<AdReportDto> GetAdReportAsync(GetDeveloperEarningsInput input);
+
+        Task<GameMetricsExportDto> ExportCsvAsync(GetDeveloperEarningsInput input);
     }
 }
