@@ -76,12 +76,15 @@ namespace GameHub.Web.Configuration
                     "Authorization",
                     "Content-Type",
                     "Accept",
+                    "Accept-Language",
+                    "Cache-Control",
+                    "Expires",
+                    "Pragma",
                     "X-Requested-With",
                     "X-Correlation-ID",
                     "Abp.TenantId",
                     "Abp.Localization.CultureName",
-                    ".AspNetCore.Culture",
-                    "Accept-Language")
+                    ".AspNetCore.Culture")
                 .WithExposedHeaders("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "Retry-After")
                 .AllowCredentials()
                 .SetPreflightMaxAge(TimeSpan.FromSeconds(600));
