@@ -1,0 +1,30 @@
+<section class="leaderboards-page">
+  <div class="leaderboards-header">
+    <h1>{{ 'leaderboards.title' | translate }}</h1>
+    <p>{{ 'leaderboards.subtitle' | translate }}</p>
+  </div>
+
+  <div class="leaderboards-grid" *ngIf="!loading && games.length">
+    <div class="leaderboard-card" *ngFor="let game of games">
+      <a class="card-thumb" [routerLink]="['/games', game.slug]">
+        <img [src]="game.thumbnailUrl || '/assets/placeholder-game.svg'" [alt]="game.title" loading="lazy" />
+      </a>
+      <div class="card-body">
+        <h3><a [routerLink]="['/games', game.slug]">{{ game.title }}</a></h3>
+        <p class="plays">{{ game.totalPlays | number }} {{ 'games.plays' | translate }}</p>
+        <a class="leaderboard-link" [routerLink]="['/leaderboard', game.slug]">
+          {{ 'leaderboards.view' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="leaderboards-skeleton" *ngIf="loading">
+    <app-skeleton *ngFor="let _ of [1,2,3,4,5,6]" width="100%" height="260px" radius="1rem"></app-skeleton>
+  </div>
+
+  <div class="empty-state" *ngIf="loaded && !games.length && !loading">
+    <p>{{ 'leaderboards.empty' | translate }}</p>
+    <a routerLink="/games">{{ 'leaderboards.browse' | translate }}</a>
+  </div>
+</section>

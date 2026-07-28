@@ -2,6 +2,20 @@
   <div class="page-header">
     <h1>{{ 'player.title' | translate }}</h1>
     <p *ngIf="!isAuthenticated" class="hint">{{ 'player.signInToSync' | translate }}</p>
+    <div class="player-stats">
+      <div class="stat">
+        <span class="stat-value">{{ totalFavorites }}</span>
+        <span class="stat-label">{{ 'player.favorites' | translate }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ totalRecent }}</span>
+        <span class="stat-label">{{ 'player.recent' | translate }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ totalSessions }}</span>
+        <span class="stat-label">{{ 'player.sessions' | translate }}</span>
+      </div>
+    </div>
   </div>
 
   <nav class="tabs">
