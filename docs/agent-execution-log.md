@@ -1923,3 +1923,14 @@ Corrigir CORS do SignalR/websockets (evitar `Access-Control-Allow-Origin: *` com
 - Build da API (`dotnet build Api/GameHub.sln -c Release --no-restore`) sucesso.
 - Testes da API (`dotnet test Api/GameHub.sln -c Release --no-build`) — 370 passaram, 2 skipped, 0 falhas.
 - Build do Angular (`npx ng build --configuration=production`) sucesso.
+
+## 2026-07-28 02:40 UTC
+
+### Tarefa
+Ajustar teste `HubAuthController_Tests` para evitar senha literal e notificação do GitGuardian.
+
+### Arquivos alterados
+- `Api/test/GameHub.Tests/Controllers/HubAuthController_Tests.cs` — `TestHostPassword` gerado em tempo de execução no helper e no teste de usuário sem tenants.
+
+### Resultado
+- `dotnet test Api/GameHub.sln -c Release --no-build --filter "FullyQualifiedName~HubAuthController_Tests"` — 4 passaram, 0 falhas.
