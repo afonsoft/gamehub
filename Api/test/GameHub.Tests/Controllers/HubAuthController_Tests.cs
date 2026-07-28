@@ -18,6 +18,8 @@ namespace GameHub.Tests.Controllers
 {
     public class HubAuthController_Tests : GameHubTestBase
     {
+        private static readonly string TestHostPassword = $"TestPass{System.DateTime.UtcNow.Ticks}A1!";
+
         public HubAuthController_Tests()
         {
             LoginAsHostAdmin();
@@ -100,7 +102,7 @@ namespace GameHub.Tests.Controllers
             var result = await controller.GetAvailableTenants(new AvailableTenantsModel
             {
                 UserNameOrEmailAddress = user.UserName,
-                Password = "123qwe",
+                Password = TestHostPassword,
             });
 
             // Assert
@@ -124,7 +126,7 @@ namespace GameHub.Tests.Controllers
                 EmailAddress = $"{userName}@gamehub.local",
                 IsEmailConfirmed = true,
                 IsActive = true,
-                Password = new PasswordHasher<User>().HashPassword(null, "123qwe"),
+                Password = new PasswordHasher<User>().HashPassword(null, TestHostPassword),
             };
 
             (await userManager.CreateAsync(user)).CheckErrors();
