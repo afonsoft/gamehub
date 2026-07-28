@@ -68,6 +68,7 @@ namespace GameHub.Migrations.Seed
             {
                 tenantAdmin.Password = hostAdmin.Password;
                 tenantAdmin.SecurityStamp = hostAdmin.SecurityStamp;
+                tenantAdmin.SetNormalizedNames();
                 context.Users.Update(tenantAdmin);
             }
             else
@@ -84,6 +85,8 @@ namespace GameHub.Migrations.Seed
                     Password = hostAdmin.Password,
                     SecurityStamp = hostAdmin.SecurityStamp,
                 };
+
+                tenantAdmin.SetNormalizedNames();
 
                 context.Users.Add(tenantAdmin);
                 context.SaveChanges();
