@@ -5,7 +5,6 @@ using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.IdentityFramework;
 using Eaf.Middleware.Authorization.Users;
-using Eaf.Middleware.MultiTenancy;
 using GameHub.MultiTenancy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,7 @@ namespace GameHub.Tests.MultiTenancy
         private readonly ITenantUserManager _tenantUserManager;
         private readonly IRepository<UserTenantMembership, long> _membershipRepository;
         private readonly IRepository<User, long> _userRepository;
-        private readonly IRepository<Tenant, int> _tenantRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
         private readonly UserManager _userManager;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
@@ -28,7 +27,7 @@ namespace GameHub.Tests.MultiTenancy
             _tenantUserManager = Resolve<ITenantUserManager>();
             _membershipRepository = Resolve<IRepository<UserTenantMembership, long>>();
             _userRepository = Resolve<IRepository<User, long>>();
-            _tenantRepository = Resolve<IRepository<Tenant, int>>();
+            _tenantRepository = Resolve<IRepository<Eaf.Middleware.MultiTenancy.Tenant, int>>();
             _userManager = Resolve<UserManager>();
             _unitOfWorkManager = Resolve<IUnitOfWorkManager>();
 
@@ -182,12 +181,12 @@ namespace GameHub.Tests.MultiTenancy
             return user;
         }
 
-        private async Task<Tenant> CriarTenantAsync(string tenancyName)
+        private async Task<Eaf.Middleware.MultiTenancy.Tenant> CriarTenantAsync(string tenancyName)
         {
-            Tenant tenant;
+            Eaf.Middleware.MultiTenancy.Tenant tenant;
             using (var uow = _unitOfWorkManager.Begin())
             {
-                tenant = new Tenant(tenancyName, tenancyName);
+                tenant = new Eaf.Middleware.MultiTenancy.Tenant(tenancyName, tenancyName);
                 await _tenantRepository.InsertAsync(tenant);
                 await uow.CompleteAsync();
             }

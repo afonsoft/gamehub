@@ -106,11 +106,12 @@ export class TopBarComponent extends AppComponentBase implements OnInit {
   }
 
   setCurrentLoginInformations(): void {
-    this.shownLoginName = this.appSession.getShownLoginName();
-    this.shownFullName = this.appSession.user.name;
-    this.tenancyName = this.appSession.tenancyName;
-    this.userName = this.appSession.user.userName;
-    this.isSystemUser = this.appSession.user.authenticationSource == undefined;
+    const user = this.appSession.user;
+    this.shownLoginName = user ? this.appSession.getShownLoginName() : '';
+    this.shownFullName = user ? `${user.name} ${user.surname || ''}`.trim() : '';
+    this.tenancyName = this.appSession.tenancyName || '';
+    this.userName = user ? user.userName : '';
+    this.isSystemUser = user ? user.authenticationSource == undefined : true;
   }
 
   getProfilePicture(): void {

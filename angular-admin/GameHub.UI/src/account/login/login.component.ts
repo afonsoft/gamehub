@@ -28,6 +28,10 @@ export class LoginComponent extends AppComponentBase implements OnInit {
   tenants: TenantListDto[] = [];
   selectedTenant: TenantListDto;
 
+  get isTwoStepLogin(): boolean {
+    return AppConsts.multiTenancy?.twoStepLogin ?? false;
+  }
+
   constructor(
     injector: Injector,
     public loginService: LoginService,
@@ -98,6 +102,15 @@ export class LoginComponent extends AppComponentBase implements OnInit {
   }
 
   login(): void {
+    if (this.isTwoStepLogin) {
+      this.twoStepLogin();
+      return;
+    }
+
+    this.normalLogin();
+  }
+
+  private normalLogin(): void {
     const recaptchaCallback = (token: string) => {
       this.submitting = true;
       this.loginService.authenticate(
@@ -108,6 +121,66 @@ export class LoginComponent extends AppComponentBase implements OnInit {
         null,
         token,
       );
+    };
+
+    if (this.useCaptcha) {
+      this._reCaptchaV3Service.execute(this.recaptchaSiteKey, 'login', token => {
+        recaptchaCallback(token);
+      });
+    } else {
+      recaptchaCallback(null);
+    }
+  }
+
+  private twoStepLogin(): void {
+    const recaptchaCallback = (token: string) => {
+      this.submitting = true;
+      this.dataTableHelper.showLoadingIndicator();
+
+      const model = {
+        userNameOrEmailAddress: this.loginService.authenticateModel.userNameOrEmailAddress,
+        password: this.loginService.authenticateModel.password,
+      };
+
+      this.loginService
+        .availableTenants(model)
+        .subscribe({
+          next: tenants => {
+            this.loginService.availableTenantsResult = tenants;
+
+            if (tenants.length === 0) {
+              this.loginService.authenticate(
+                () => {
+                  this.submitting = false;
+                  this.dataTableHelper.hideLoadingIndicator();
+                },
+                undefined,
+                token,
+              );
+            } else if (tenants.length === 1 && AppConsts.autoSelectSingleTenant) {
+              this.loginService
+                .selectTenant({
+                  ...model,
+                  tenantId: tenants[0].tenantId,
+                })
+                .subscribe({
+                  next: result => this.loginService.loginTenant(result, tenants[0].tenantId),
+                  error: () => {
+                    this.submitting = false;
+                    this.dataTableHelper.hideLoadingIndicator();
+                  },
+                });
+            } else {
+              this.submitting = false;
+              this.dataTableHelper.hideLoadingIndicator();
+              this.loginService.navigateToSelectTenant();
+            }
+          },
+          error: () => {
+            this.submitting = false;
+            this.dataTableHelper.hideLoadingIndicator();
+          },
+        });
     };
 
     if (this.useCaptcha) {

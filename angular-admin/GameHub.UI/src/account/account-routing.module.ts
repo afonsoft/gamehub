@@ -6,6 +6,7 @@ import { AccountRouteGuard } from './account-route-guard';
 import { ConfirmEmailComponent } from './email-activation/confirm-email.component';
 import { EmailActivationComponent } from './email-activation/email-activation.component';
 import { LoginComponent } from './login/login.component';
+import { SelectTenantComponent } from './login/select-tenant/select-tenant.component';
 import { ForgotPasswordComponent } from './password/forgot-password.component';
 import { ResetPasswordComponent } from './password/reset-password.component';
 import { SsoComponent } from './login/sso.component';
@@ -20,6 +21,7 @@ import { SsoComponent } from './login/sso.component';
           { path: '', redirectTo: 'login', pathMatch: 'full' },
           { path: 'login', component: LoginComponent, canActivate: [AccountRouteGuard] },
           { path: 'login/sso', component: SsoComponent, canActivate: [AccountRouteGuard] },
+          { path: 'select-tenant', component: SelectTenantComponent, canActivate: [AccountRouteGuard] },
 
           { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [AccountRouteGuard] },
           { path: 'reset-password', component: ResetPasswordComponent, canActivate: [AccountRouteGuard] },

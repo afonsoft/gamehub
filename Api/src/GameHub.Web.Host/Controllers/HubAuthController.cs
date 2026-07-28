@@ -8,7 +8,6 @@ using Abp.Domain.Uow;
 using Abp.Runtime.Security;
 using Abp.UI;
 using Eaf.Middleware.Authorization.Users;
-using Eaf.Middleware.MultiTenancy;
 using Eaf.Middleware.Web.Authentication;
 using Eaf.Middleware.Web.Controllers;
 using GameHub.MultiTenancy;
@@ -30,16 +29,16 @@ namespace GameHub.Web.Controllers
 
         private readonly ITokenAuthenticationService _tokenAuthenticationService;
         private readonly UserManager _userManager;
-        private readonly IRepository<UserTenantMembership, long> _membershipRepository;
-        private readonly IRepository<Tenant, int> _tenantRepository;
+        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _membershipRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public HubAuthController(
             ITokenAuthenticationService tokenAuthenticationService,
             UserManager userManager,
-            IRepository<UserTenantMembership, long> membershipRepository,
-            IRepository<Tenant, int> tenantRepository,
+            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> membershipRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
             IRepository<User, long> userRepository,
             IUnitOfWorkManager unitOfWorkManager)
         {

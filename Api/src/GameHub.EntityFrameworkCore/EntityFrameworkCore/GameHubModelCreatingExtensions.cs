@@ -939,7 +939,7 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<UserTenantMembership>(b =>
+            modelBuilder.Entity<GameHub.MultiTenancy.UserTenantMembership>(b =>
             {
                 b.ToTable(GameHubConsts.DbTablePrefix + "UserTenantMemberships", GameHubConsts.DbSchema);
 

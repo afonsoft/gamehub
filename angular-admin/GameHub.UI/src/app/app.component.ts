@@ -1,4 +1,4 @@
-﻿import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { LoginAttemptsModalComponent } from '@app/shared/layout/login-attempts-modal.component';
 import { NotificationSettingsModalComponent } from '@app/shared/layout/notifications/notification-settings-modal.component';
@@ -6,7 +6,7 @@ import { UserNotificationHelper } from '@app/shared/layout/notifications/UserNot
 import { ChangePasswordModalComponent } from '@app/shared/layout/profile/change-password-modal.component';
 import { ChangeProfilePictureModalComponent } from '@app/shared/layout/profile/change-profile-picture-modal.component';
 import { MySettingsModalComponent } from '@app/shared/layout/profile/my-settings-modal.component';
-import { StorageService } from '@eaf/utils/storage.service';
+import { TokenService } from '@eaf/auth/token.service';
 import { AppConsts } from '@shared/AppConsts';
 import { AppAuthenticationService } from '@shared/common/auth/app-authentication-service';
 import { NameValueDto } from '@shared/service-proxies/service-proxies';
@@ -41,7 +41,7 @@ export class AppComponent extends AppComponentBase implements OnInit, AfterViewI
     private readonly _chatSignalrService: ChatSignalrService,
     private readonly _userNotificationHelper: UserNotificationHelper,
     private readonly _appAuthenticationService: AppAuthenticationService,
-    private readonly _storageService: StorageService,
+    private readonly _tokenService: TokenService,
     private readonly router: Router,
       ) {
     super(injector);
@@ -54,17 +54,14 @@ export class AppComponent extends AppComponentBase implements OnInit, AfterViewI
     this.registerModalOpenEvents();
 
     if (this.appSession.application) {
-      SignalRHelper.init(this._storageService);
-      SignalRHelper.initSignalR(() => {
-        this._chatSignalrService.init();
-      });
+      SignalRHelper.init(this._tokenService);
+      this._chatSignalrService.init();
     }
     this.setUpAnalytics();
     this.setUpTagManager();
   }
 
   ngAfterViewInit(): void {
-    eaf.signalr.autoConnect = false;
     this._appAuthenticationService.init();
   }
 

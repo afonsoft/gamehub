@@ -2909,3 +2909,76 @@ body .ui-table .ui-table-tbody>tr {
     background-color: rgba(255, 112, 32, 0.15);
 }
 
+/* ---------- Mobile / responsive improvements (GameHub backport) ---------- */
+.m-page,
+.m-grid.m-grid--root,
+.m-login,
+.m-login__wrapper {
+    min-height: 100dvh;
+}
+
+.m-login__aside {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.m-login__wrapper {
+    width: 100%;
+    max-width: 420px;
+}
+
+.m-login__form .form-control,
+.m-login__form .m-input-icon,
+.m-login__form .btn,
+.m-login__form button {
+    min-height: 44px;
+    font-size: 16px;
+}
+
+.m-login__form input[type="text"],
+.m-login__form input[type="password"],
+.m-login__form input[type="email"] {
+    font-size: 16px;
+}
+
+@media (max-width: 576px) {
+    .m-login__wrapper {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .m-login__aside {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .m-header-menu-button {
+        display: inline-flex;
+    }
+
+    .m-aside-left {
+        transform: translateX(-100%);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .m-aside-left.m-aside-left--on {
+        transform: translateX(0);
+    }
+
+    .m-body:not(.m-aside-left--none) {
+        margin-left: 0 !important;
+    }
+}
+
+/* Touch targets and accessible spacing */
+.btn,
+.m-portlet__nav-link,
+.page-link,
+.nav-link,
+.dropdown-item {
+    min-height: 36px;
+}
+

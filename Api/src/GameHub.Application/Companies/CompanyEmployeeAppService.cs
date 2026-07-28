@@ -12,7 +12,6 @@ using Abp.Timing;
 using Abp.UI;
 using Eaf.Middleware.Authorization.Roles;
 using Eaf.Middleware.Authorization.Users;
-using Eaf.Middleware.MultiTenancy;
 using GameHub.Authorization;
 using GameHub.Companies.Dto;
 using GameHub.Developer.Dto;
@@ -26,9 +25,9 @@ namespace GameHub.Companies
     public class CompanyEmployeeAppService : GameHubAppServiceBase, ICompanyEmployeeAppService
     {
         private readonly ITenantUserManager _tenantUserManager;
-        private readonly IRepository<UserTenantMembership, long> _membershipRepository;
+        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _membershipRepository;
         private readonly IRepository<User, long> _userRepository;
-        private readonly IRepository<Tenant, int> _tenantRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
         private readonly IRepository<DeveloperTeam, Guid> _teamRepository;
         private readonly IRepository<DeveloperTeamMember, Guid> _teamMemberRepository;
         private readonly UserManager _userManager;
@@ -36,9 +35,9 @@ namespace GameHub.Companies
 
         public CompanyEmployeeAppService(
             ITenantUserManager tenantUserManager,
-            IRepository<UserTenantMembership, long> membershipRepository,
+            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> membershipRepository,
             IRepository<User, long> userRepository,
-            IRepository<Tenant, int> tenantRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
             IRepository<DeveloperTeam, Guid> teamRepository,
             IRepository<DeveloperTeamMember, Guid> teamMemberRepository,
             UserManager userManager,

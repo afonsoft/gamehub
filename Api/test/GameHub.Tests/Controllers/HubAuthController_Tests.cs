@@ -4,7 +4,6 @@ using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.IdentityFramework;
 using Eaf.Middleware.Authorization.Users;
-using Eaf.Middleware.MultiTenancy;
 using Eaf.Middleware.Web.Authentication;
 using GameHub.MultiTenancy;
 using GameHub.Web.Controllers;
@@ -139,8 +138,8 @@ namespace GameHub.Tests.Controllers
         {
             var tokenAuthenticationService = Resolve<ITokenAuthenticationService>();
             var userManager = Resolve<UserManager>();
-            var membershipRepository = Resolve<IRepository<UserTenantMembership, long>>();
-            var tenantRepository = Resolve<IRepository<Tenant, int>>();
+            var membershipRepository = Resolve<IRepository<global::GameHub.MultiTenancy.UserTenantMembership, long>>();
+            var tenantRepository = Resolve<IRepository<global::Eaf.Middleware.MultiTenancy.Tenant, int>>();
             var userRepository = Resolve<IRepository<User, long>>();
             var unitOfWorkManager = Resolve<IUnitOfWorkManager>();
 

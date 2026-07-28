@@ -16,13 +16,13 @@ using Eaf.Middleware.Swagger;
 using Eaf.Middleware.Web.Authentication;
 using Eaf.Middleware.Web.Authentication.JwtBearer;
 using Eaf.Middleware.Web.Serilog;
+using Eaf.Middleware.Web.Filters;
 using Eaf.Middleware.Web.Startup;
 using Eaf.Middleware.Web.Swagger;
 using GameHub.Application.Extensions;
 using GameHub.Web.Authentication;
 using GameHub.Configuration;
 using GameHub.Debugging;
-using GameHub.Web.Configuration;
 using GameHub.Web.Hubs;
 using GameHub.EntityFrameworkCore;
 using GameHub.Web.Filters;
@@ -74,6 +74,7 @@ namespace GameHub.Web.Startup
                 options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute());
                 options.Filters.Add<SerilogMvcLoggingAttribute>();
                 options.Filters.Add<GameHubExceptionFilter>();
+                options.Filters.Add(typeof(EafExceptionFilter), 1000);
                 options.Filters.Add(new ResponseCacheAttribute() { NoStore = true, Location = ResponseCacheLocation.None });
             }).AddNewtonsoftJson();
 
@@ -151,7 +152,10 @@ namespace GameHub.Web.Startup
             // Add OpenTelemetry and configure it to use Azure Monitor.
 
             // Configure CORS for GameHub Hub and Admin frontends
-            services.AddGameHubCors(_appConfiguration);
+            services.AddEafCors(
+                _appConfiguration,
+                _hostingEnvironment.IsDevelopment(),
+                GameHubConsts.DefaultCorsPolicyName);
 
             // Ad break configuration
             services.Configure<AdBreakOptions>(_appConfiguration.GetSection("AdBreak"));
@@ -257,7 +261,7 @@ namespace GameHub.Web.Startup
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-            app.UseMiddleware<PublicErrorMiddleware>();
+            app.UseEafPublicErrorMiddleware();
             app.UseJwtTokenMiddleware();
             app.UseAbpRequestLocalization();
             app.UseRouting();
