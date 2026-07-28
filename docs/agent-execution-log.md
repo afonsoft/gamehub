@@ -1,3 +1,20 @@
+## 2026-07-28 12:19 UTC
+
+### Tarefa
+Corrigir headers CORS ausentes no admin EAF e documentar resultados dos testes end-to-end.
+
+### Implementado
+- `Api/src/GameHub.Web.Host/Configuration/CorsConfiguration.cs`: adicionados `Pragma`, `Cache-Control` e `Expires` aos headers permitidos, pois o `EafHttpInterceptor` do admin envia esses headers e o preflight falava sem eles.
+- `Api/test/GameHub.Tests/Middleware/CorsConfiguration_Tests.cs`: teste `Dado_PoliticaPadrao_Quando_AdicionarCors_Entao_DevePermitirHeadersDoEafHttpInterceptor` verifica os novos headers.
+
+### Validação
+- `dotnet build Api/GameHub.sln -c Release`: OK.
+- `dotnet test Api/GameHub.sln -c Release --no-build --filter "FullyQualifiedName~CorsConfiguration"`: 5 passed, 0 failed.
+- Testes end-to-end via agente de testes: login público com fallback para `/api/TokenAuth/Authenticate` passou; login admin só funcionou após adicionar os headers acima; `/signalr/negotiate` retornou `Access-Control-Allow-Origin` refletido sem wildcard.
+
+### Observações
+- O cliente SignalR do admin ainda não completou a negociação mesmo com CORS OK; provavelmente requer ajuste no `SignalRHelper.ts` do admin.
+
 ## 2026-07-28 03:35 UTC
 
 ### Tarefa

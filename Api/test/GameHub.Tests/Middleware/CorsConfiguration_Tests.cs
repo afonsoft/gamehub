@@ -99,5 +99,22 @@ namespace GameHub.Tests.Middleware
             policy.IsOriginAllowed("https://gamehub-admin.afonsoft.dev").ShouldBeTrue();
             policy.IsOriginAllowed("https://gamehub.afonsoft.dev").ShouldBeTrue();
         }
+
+        [Fact]
+        public void Dado_PoliticaPadrao_Quando_AdicionarCors_Entao_DevePermitirHeadersDoEafHttpInterceptor()
+        {
+            var config = new ConfigurationBuilder().Build();
+            var services = new ServiceCollection();
+            services.AddGameHubCors(config);
+
+            var provider = services.BuildServiceProvider();
+            var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
+            var policy = options.GetPolicy(GameHubConsts.DefaultCorsPolicyName);
+
+            policy.ShouldNotBeNull();
+            policy.Headers.ShouldContain("Pragma");
+            policy.Headers.ShouldContain("Cache-Control");
+            policy.Headers.ShouldContain("Expires");
+        }
     }
 }
