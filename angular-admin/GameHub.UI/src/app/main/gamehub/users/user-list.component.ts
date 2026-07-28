@@ -12,8 +12,6 @@ export class UserListComponent implements OnInit {
   users: any[] = [];
   totalCount = 0;
   loading = false;
-  skipCount = 0;
-  maxResultCount = 10;
 
   constructor(private readonly adminService: GameHubAdminService) {}
 
@@ -21,9 +19,11 @@ export class UserListComponent implements OnInit {
     this.loadUsers();
   }
 
-  loadUsers(): void {
+  loadUsers(event?: any): void {
+    const skipCount = event?.first || 0;
+    const maxResultCount = event?.rows || 10;
     this.loading = true;
-    this.adminService.getUsers(this.skipCount, this.maxResultCount).subscribe({
+    this.adminService.getUsers(skipCount, maxResultCount).subscribe({
       next: result => {
         this.users = result?.items || [];
         this.totalCount = result?.totalCount || 0;
@@ -35,19 +35,5 @@ export class UserListComponent implements OnInit {
         this.loading = false;
       },
     });
-  }
-
-  previousPage(): void {
-    if (this.skipCount >= this.maxResultCount) {
-      this.skipCount -= this.maxResultCount;
-      this.loadUsers();
-    }
-  }
-
-  nextPage(): void {
-    if (this.skipCount + this.maxResultCount < this.totalCount) {
-      this.skipCount += this.maxResultCount;
-      this.loadUsers();
-    }
   }
 }

@@ -7,6 +7,11 @@
         </h3>
         <span class="m-section__sub">Manage employees and developers linked to this tenant.</span>
       </div>
+      <div class="col-auto">
+        <a class="btn btn-secondary" [routerLink]="['/app/main/gamehub/companies']">
+          <i class="la la-arrow-left"></i> Back to Companies
+        </a>
+      </div>
     </div>
   </div>
 
@@ -44,10 +49,15 @@
         <div class="primeng-datatable-container">
           <p-table
             [value]="employees"
-            [paginator]="false"
+            [paginator]="true"
+            [rows]="10"
             [scrollable]="true"
+            [loading]="loading"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [showCurrentPageReport]="true"
             scrollHeight="300px"
-            styleClass="p-datatable-striped p-datatable-sm">
+            styleClass="p-datatable-striped p-datatable-sm"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} employees">
             <ng-template pTemplate="header">
               <tr>
                 <th style="width: 150px">Username</th>
@@ -61,7 +71,14 @@
               <tr>
                 <td>{{ employee.userName }}</td>
                 <td>{{ employee.emailAddress }}</td>
-                <td>{{ employee.role }}</td>
+                <td>
+                  <span class="m-badge m-badge--wide" [ngClass]="{
+                    'm-badge--primary': employee.role === 'Developer',
+                    'm-badge--info': employee.role === 'Support',
+                    'm-badge--warning': employee.role === 'Billing',
+                    'm-badge--metal': !employee.role
+                  }">{{ employee.role || 'Member' }}</span>
+                </td>
                 <td class="text-center">
                   <i *ngIf="employee.isDefault" class="la la-check text-success"></i>
                 </td>

@@ -16,6 +16,8 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
   recentGames: any[] = [];
   topGames: any[] = [];
   pendingReviews: any[] = [];
+  auditLogs: any[] = [];
+  developerDashboard: any = {};
 
   get canViewAdmin(): boolean {
     return this.isGranted('Pages.GameHubDashboard.View');
@@ -25,12 +27,20 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
     return this.isGranted('Pages.Moderation.View');
   }
 
+  get canViewDeveloper(): boolean {
+    return this.isGranted('Pages.Developer.Games');
+  }
+
   get canViewReports(): boolean {
     return this.isGranted('Pages.Reports.Manage');
   }
 
   get canViewInspector(): boolean {
     return this.isGranted('Pages.Builds.View');
+  }
+
+  get currentTenantName(): string {
+    return this.appSession?.tenant?.tenancyName || 'Host';
   }
 
   constructor(
@@ -47,6 +57,9 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
       this.loadRecentUploads();
       this.loadRecentGames();
       this.loadTopGames();
+      this.loadAuditLogs(5);
+    } else if (this.canViewDeveloper) {
+      this.loadDeveloperDashboard();
     }
     if (this.canViewModerator) {
       this.loadPendingReviews();
@@ -56,6 +69,13 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
   loadSummary(): void {
     this.adminService.getDashboardSummary().subscribe(result => {
       this.summary = result;
+    });
+  }
+
+  loadDeveloperDashboard(): void {
+    this.adminService.getDeveloperDashboard().subscribe(result => {
+      this.developerDashboard = result ?? {};
+      this.playsOverTime = (this.developerDashboard.playsOverTime || []).map(d => ({ date: d.date, plays: d.plays }));
     });
   }
 
@@ -86,6 +106,12 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
   loadPendingReviews(): void {
     this.adminService.getPendingReviews(10).subscribe(result => {
       this.pendingReviews = result?.items || [];
+    });
+  }
+
+  loadAuditLogs(count: number): void {
+    this.adminService.getAuditLogs(0, count).subscribe(result => {
+      this.auditLogs = result?.items || [];
     });
   }
 

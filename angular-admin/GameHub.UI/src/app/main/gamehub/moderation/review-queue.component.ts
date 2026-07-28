@@ -10,7 +10,11 @@ import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
 })
 export class ReviewQueueComponent implements OnInit {
   reviews: any[] = [];
+  allReviews: any[] = [];
   filter = 'Pending';
+  loading = false;
+
+  readonly filters = ['All', 'Pending', 'InProgress', 'Completed'];
 
   constructor(private readonly adminService: GameHubAdminService) {}
 
@@ -19,15 +23,29 @@ export class ReviewQueueComponent implements OnInit {
   }
 
   loadReviews(): void {
-    this.adminService.getPendingReviews().subscribe(result => {
-      this.reviews = (result?.items || []).filter((r: any) =>
-        this.filter === 'All' ? true : (r.status || '').toLowerCase() === this.filter.toLowerCase(),
-      );
+    this.loading = true;
+    this.adminService.getPendingReviews().subscribe({
+      next: result => {
+        this.allReviews = result?.items || [];
+        this.applyFilter();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
     });
+  }
+
+  applyFilter(): void {
+    if (this.filter === 'All') {
+      this.reviews = this.allReviews;
+      return;
+    }
+    this.reviews = this.allReviews.filter((r: any) => (r.status || '') === this.filter);
   }
 
   setFilter(status: string): void {
     this.filter = status;
-    this.loadReviews();
+    this.applyFilter();
   }
 }

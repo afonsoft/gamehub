@@ -16,11 +16,14 @@
         <div class="row align-items-center m--margin-bottom-10">
           <div class="col-xl-12">
             <div class="btn-group" role="group" aria-label="Review filters">
-              <button class="btn" [class.btn-primary]="filter === 'All'" [class.btn-secondary]="filter !== 'All'" (click)="setFilter('All')">All</button>
-              <button class="btn" [class.btn-primary]="filter === 'Pending'" [class.btn-secondary]="filter !== 'Pending'" (click)="setFilter('Pending')">Pending</button>
-              <button class="btn" [class.btn-primary]="filter === 'Approved'" [class.btn-secondary]="filter !== 'Approved'" (click)="setFilter('Approved')">Approved</button>
-              <button class="btn" [class.btn-primary]="filter === 'Rejected'" [class.btn-secondary]="filter !== 'Rejected'" (click)="setFilter('Rejected')">Rejected</button>
-              <button class="btn" [class.btn-primary]="filter === 'RequiresChanges'" [class.btn-secondary]="filter !== 'RequiresChanges'" (click)="setFilter('RequiresChanges')">Requires Changes</button>
+              <button
+                *ngFor="let f of filters"
+                class="btn"
+                [class.btn-primary]="filter === f"
+                [class.btn-secondary]="filter !== f"
+                (click)="setFilter(f)">
+                {{ f === 'InProgress' ? 'In Progress' : f }}
+              </button>
             </div>
           </div>
         </div>
@@ -29,10 +32,15 @@
           <div class="primeng-datatable-container">
             <p-table
               [value]="reviews"
-              [paginator]="false"
+              [paginator]="true"
+              [rows]="10"
               [scrollable]="true"
+              [loading]="loading"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              [showCurrentPageReport]="true"
               scrollHeight="400px"
-              styleClass="p-datatable-striped p-datatable-sm">
+              styleClass="p-datatable-striped p-datatable-sm"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} reviews">
               <ng-template pTemplate="header">
                 <tr>
                   <th style="width: 220px">Game</th>
@@ -51,10 +59,8 @@
                   <td>{{ review.version || '-' }}</td>
                   <td>
                     <span class="m-badge m-badge--wide" [ngClass]="{
-                      'm-badge--warning': review.status === 'Pending',
-                      'm-badge--success': review.status === 'Approved',
-                      'm-badge--danger': review.status === 'Rejected',
-                      'm-badge--info': review.status === 'RequiresChanges'
+                      'm-badge--warning': review.status === 'Pending' || review.status === 'InProgress',
+                      'm-badge--success': review.status === 'Completed'
                     }">{{ review.status }}</span>
                   </td>
                   <td>

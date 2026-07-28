@@ -70,7 +70,7 @@ export class CompanyEditComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving = false;
-        this.router.navigate(['/app/main/companies']);
+        this.router.navigate(['/app/main/gamehub/companies']);
       },
       error: () => {
         this.saving = false;

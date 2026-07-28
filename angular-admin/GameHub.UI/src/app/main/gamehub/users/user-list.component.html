@@ -17,11 +17,18 @@
           <div class="primeng-datatable-container">
             <p-table
               [value]="users"
-              [paginator]="false"
+              [paginator]="true"
+              [rows]="10"
+              [totalRecords]="totalCount"
               [scrollable]="true"
               [loading]="loading"
+              [lazy]="true"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              [showCurrentPageReport]="true"
               scrollHeight="400px"
-              styleClass="p-datatable-striped p-datatable-sm">
+              styleClass="p-datatable-striped p-datatable-sm"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
+              (onLazyLoad)="loadUsers($event)">
               <ng-template pTemplate="header">
                 <tr>
                   <th style="width: 150px">Username</th>
@@ -56,19 +63,6 @@
                 </tr>
               </ng-template>
             </p-table>
-          </div>
-        </div>
-
-        <div class="row mt-3" *ngIf="totalCount > maxResultCount">
-          <div class="col-6">
-            <button class="btn btn-primary" (click)="previousPage()" [disabled]="skipCount === 0">
-              <i class="la la-angle-left"></i> Previous
-            </button>
-          </div>
-          <div class="col-6 text-right">
-            <button class="btn btn-primary" (click)="nextPage()" [disabled]="skipCount + maxResultCount >= totalCount">
-              Next <i class="la la-angle-right"></i>
-            </button>
           </div>
         </div>
       </div>

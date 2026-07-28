@@ -19,9 +19,11 @@ export class CompanyListComponent implements OnInit {
     this.loadCompanies();
   }
 
-  loadCompanies(): void {
+  loadCompanies(event?: any): void {
+    const skipCount = event?.first || 0;
+    const maxResultCount = event?.rows || 25;
     this.loading = true;
-    this.companyService.getAll(0, 100, 'name').subscribe({
+    this.companyService.getAll(skipCount, maxResultCount, 'name').subscribe({
       next: result => {
         this.companies = result?.items || [];
         this.totalCount = result?.totalCount || 0;

@@ -18,13 +18,16 @@
             <div class="row align-items-center m--margin-bottom-10">
               <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
                 <label for="GameStatusFilter">Status</label>
-                <select id="GameStatusFilter" class="form-control" [(ngModel)]="status" name="status" (change)="loadGames()">
+                <select id="GameStatusFilter" class="form-control" [(ngModel)]="status" name="status" (change)="onStatusChange()">
                   <option value="">All</option>
                   <option value="Draft">Draft</option>
+                  <option value="Submitted">Submitted</option>
                   <option value="InReview">In Review</option>
+                  <option value="ApprovedForPublishing">Approved for Publishing</option>
                   <option value="Published">Published</option>
                   <option value="Rejected">Rejected</option>
                   <option value="Suspended">Suspended</option>
+                  <option value="Archived">Archived</option>
                 </select>
               </div>
             </div>
@@ -40,8 +43,12 @@
               [totalRecords]="totalRecords"
               [scrollable]="true"
               [lazy]="true"
+              [loading]="loading"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              [showCurrentPageReport]="true"
               scrollHeight="400px"
               styleClass="p-datatable-striped p-datatable-sm"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} games"
               (onLazyLoad)="loadGames($event)">
               <ng-template pTemplate="header">
                 <tr>
@@ -57,14 +64,29 @@
                   <td>{{ game.developerName }}</td>
                   <td>
                     <span class="m-badge m-badge--wide" [ngClass]="{
-                      'm-badge--info': game.status === 'Draft',
-                      'm-badge--warning': game.status === 'InReview' || game.status === 'Pending',
+                      'm-badge--info': game.status === 'Draft' || game.status === 'Submitted' || game.status === 'Archived',
+                      'm-badge--warning': game.status === 'InReview' || game.status === 'ApprovedForPublishing',
                       'm-badge--success': game.status === 'Published',
                       'm-badge--danger': game.status === 'Rejected' || game.status === 'Suspended'
                     }">{{ game.status }}</span>
                   </td>
                   <td>
-                    <button class="btn btn-sm btn-warning" (click)="suspend(game)">
+                    <a [routerLink]="['/app/main/gamehub/games', game.id]" class="btn btn-sm btn-primary mr-1">
+                      <i class="la la-eye"></i> View
+                    </a>
+                    <button class="btn btn-sm btn-info mr-1" (click)="startReview(game)" *ngIf="game.status === 'Submitted' || game.status === 'InReview'">
+                      Start Review
+                    </button>
+                    <button class="btn btn-sm btn-success mr-1" (click)="approveForPublishing(game)" *ngIf="game.status === 'Submitted' || game.status === 'InReview'">
+                      Approve
+                    </button>
+                    <button class="btn btn-sm btn-warning mr-1" (click)="requestChanges(game)" *ngIf="game.status === 'Submitted' || game.status === 'InReview'">
+                      Request Changes
+                    </button>
+                    <button class="btn btn-sm btn-success mr-1" (click)="publish(game)" *ngIf="game.status === 'ApprovedForPublishing'">
+                      <i class="la la-play"></i> Publish
+                    </button>
+                    <button class="btn btn-sm btn-danger" (click)="suspend(game)" *ngIf="game.status === 'Published'">
                       <i class="la la-ban"></i> Suspend
                     </button>
                   </td>
