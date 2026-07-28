@@ -8,7 +8,7 @@
         <span class="m-section__sub">Manage game development companies (tenants).</span>
       </div>
       <div class="col-auto">
-        <a class="btn btn-primary" routerLink="/app/main/companies/create">
+        <a class="btn btn-primary" routerLink="/app/main/gamehub/companies/create">
           <i class="la la-plus"></i> New Company
         </a>
       </div>
@@ -21,10 +21,18 @@
         <div class="primeng-datatable-container">
           <p-table
             [value]="companies"
-            [paginator]="false"
+            [paginator]="true"
+            [rows]="25"
+            [totalRecords]="totalCount"
             [scrollable]="true"
+            [loading]="loading"
+            [lazy]="true"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [showCurrentPageReport]="true"
             scrollHeight="400px"
-            styleClass="p-datatable-striped p-datatable-sm">
+            styleClass="p-datatable-striped p-datatable-sm"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} companies"
+            (onLazyLoad)="loadCompanies($event)">
             <ng-template pTemplate="header">
               <tr>
                 <th style="width: 180px">Name</th>
@@ -49,10 +57,10 @@
                 </td>
                 <td>{{ company.employeeCount }}</td>
                 <td>
-                  <a class="btn btn-sm btn-primary mr-1" [routerLink]="['/app/main/companies', company.id, 'employees']">
+                  <a class="btn btn-sm btn-primary mr-1" [routerLink]="['/app/main/gamehub/companies', company.id, 'employees']">
                     <i class="la la-users"></i> Employees
                   </a>
-                  <a class="btn btn-sm btn-info mr-1" [routerLink]="['/app/main/companies', company.id, 'edit']">
+                  <a class="btn btn-sm btn-info mr-1" [routerLink]="['/app/main/gamehub/companies', company.id, 'edit']">
                     <i class="la la-edit"></i>
                   </a>
                   <button class="btn btn-sm btn-danger" (click)="deleteCompany(company)">

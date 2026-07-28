@@ -5,7 +5,7 @@
         <h3 class="m-subheader__title m-subheader__title--separator">
           <span>GameHub Dashboard</span>
         </h3>
-        <span class="m-section__sub">Overview of platform activity based on your role.</span>
+        <span class="m-section__sub">Overview of platform activity based on your role. Tenant: <strong>{{ currentTenantName }}</strong></span>
       </div>
     </div>
   </div>
@@ -86,7 +86,64 @@
       </div>
     </div>
 
-    <div class="row" *ngIf="canViewAdmin">
+    <div class="row" *ngIf="!canViewAdmin && canViewDeveloper">
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="m-widget24">
+          <div class="m-widget24__item">
+            <h4 class="m-widget24__title">My Games</h4>
+            <span class="m-widget24__desc">Total games</span>
+            <span class="m-widget24__stats m--font-brand">{{ developerDashboard.totalGames | number }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="m-widget24">
+          <div class="m-widget24__item">
+            <h4 class="m-widget24__title">Published</h4>
+            <span class="m-widget24__desc">Live games</span>
+            <span class="m-widget24__stats m--font-success">{{ developerDashboard.publishedGames | number }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="m-widget24">
+          <div class="m-widget24__item">
+            <h4 class="m-widget24__title">In Review</h4>
+            <span class="m-widget24__desc">Awaiting moderation</span>
+            <span class="m-widget24__stats m--font-warning">{{ developerDashboard.pendingReviewGames | number }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="m-widget24">
+          <div class="m-widget24__item">
+            <h4 class="m-widget24__title">Total Plays</h4>
+            <span class="m-widget24__desc">All time plays</span>
+            <span class="m-widget24__stats m--font-info">{{ developerDashboard.totalPlays | number }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="m-widget24">
+          <div class="m-widget24__item">
+            <h4 class="m-widget24__title">Drafts</h4>
+            <span class="m-widget24__desc">Unpublished</span>
+            <span class="m-widget24__stats m--font-metal">{{ developerDashboard.draftGames | number }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="m-widget24">
+          <div class="m-widget24__item">
+            <h4 class="m-widget24__title">Rejected</h4>
+            <span class="m-widget24__desc">Needs fixes</span>
+            <span class="m-widget24__stats m--font-danger">{{ developerDashboard.rejectedGames | number }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="canViewAdmin || canViewDeveloper">
       <div class="col-xl-12">
         <div class="m-portlet m-portlet--tab">
           <div class="m-portlet__head">
@@ -104,6 +161,60 @@
             <svg *ngIf="playsOverTime?.length" viewBox="0 0 600 200" class="plays-chart" preserveAspectRatio="none">
               <polyline fill="none" stroke="#ff5e57" stroke-width="3" [attr.points]="buildChartPoints(playsOverTime)" />
             </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="!canViewAdmin && canViewDeveloper">
+      <div class="col-xl-6">
+        <div class="m-portlet m-portlet--tab">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <span class="m-portlet__head-icon m--hide">
+                  <i class="la la-bolt"></i>
+                </span>
+                <h3 class="m-portlet__head-text">Pending Actions</h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <p *ngIf="!developerDashboard.pendingActions?.length">No pending actions.</p>
+            <ul class="list-group" *ngIf="developerDashboard.pendingActions?.length">
+              <li class="list-group-item" *ngFor="let action of developerDashboard.pendingActions">
+                <a [routerLink]="['/app/main/gamehub/games', action.gameId]">{{ action.title }}</a>
+                <span class="m-badge m-badge--wide" [ngClass]="{
+                  'm-badge--info': action.status === 'Draft',
+                  'm-badge--warning': action.status === 'InReview',
+                  'm-badge--danger': action.status === 'Rejected'
+                }">{{ action.status }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-6">
+        <div class="m-portlet m-portlet--tab">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <span class="m-portlet__head-icon m--hide">
+                  <i class="la la-code-fork"></i>
+                </span>
+                <h3 class="m-portlet__head-text">Recent Versions</h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <p *ngIf="!developerDashboard.recentVersions?.length">No versions yet.</p>
+            <ul class="list-group" *ngIf="developerDashboard.recentVersions?.length">
+              <li class="list-group-item" *ngFor="let version of developerDashboard.recentVersions">
+                <a [routerLink]="['/app/main/gamehub/games', version.gameId]">{{ version.gameTitle }}</a>
+                <small>v{{ version.version }} — {{ version.status }}</small>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -224,8 +335,8 @@
                       <td>{{ game.developerName }}</td>
                       <td>
                         <span class="m-badge m-badge--wide" [ngClass]="{
-                          'm-badge--info': game.status === 'Draft',
-                          'm-badge--warning': game.status === 'InReview',
+                          'm-badge--info': game.status === 'Draft' || game.status === 'Submitted' || game.status === 'Archived',
+                          'm-badge--warning': game.status === 'InReview' || game.status === 'ApprovedForPublishing',
                           'm-badge--success': game.status === 'Published',
                           'm-badge--danger': game.status === 'Rejected' || game.status === 'Suspended'
                         }">{{ game.status }}</span>
@@ -240,9 +351,34 @@
           </div>
         </div>
       </div>
+
+      <div class="col-xl-6">
+        <div class="m-portlet m-portlet--tab">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <span class="m-portlet__head-icon m--hide">
+                  <i class="la la-history"></i>
+                </span>
+                <h3 class="m-portlet__head-text">Recent Audit Logs</h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <p *ngIf="!auditLogs?.length">No audit logs.</p>
+            <ul class="list-group" *ngIf="auditLogs?.length">
+              <li class="list-group-item" *ngFor="let log of auditLogs">
+                <small>{{ log.executionTime | date:'short' }}</small>
+                <div><strong>{{ log.serviceName }}</strong> / {{ log.methodName }}</div>
+                <small class="text-muted">{{ log.userName || 'system' }} — {{ log.executionDuration }}ms</small>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="row" *ngIf="!canViewAdmin && !canViewModerator">
+    <div class="row" *ngIf="!canViewAdmin && !canViewModerator && !canViewDeveloper">
       <div class="col-xl-12">
         <div class="m-alert m-alert--outline m-alert--square alert alert-info" role="alert">
           <strong>Welcome!</strong> You do not have permission to view the GameHub dashboard widgets. Contact an administrator if you believe this is incorrect.

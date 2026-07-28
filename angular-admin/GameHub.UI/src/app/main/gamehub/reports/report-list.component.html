@@ -32,10 +32,15 @@
           <div class="primeng-datatable-container">
             <p-table
               [value]="reports"
-              [paginator]="false"
+              [paginator]="true"
+              [rows]="10"
               [scrollable]="true"
+              [loading]="loading"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              [showCurrentPageReport]="true"
               scrollHeight="400px"
-              styleClass="p-datatable-striped p-datatable-sm">
+              styleClass="p-datatable-striped p-datatable-sm"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} reports">
               <ng-template pTemplate="header">
                 <tr>
                   <th style="width: 220px">Game</th>

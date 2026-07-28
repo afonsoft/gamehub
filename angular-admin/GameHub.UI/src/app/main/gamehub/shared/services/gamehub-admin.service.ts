@@ -132,6 +132,10 @@ export class GameHubAdminService {
     return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetSummary`).pipe(map(this.unwrapResult));
   }
 
+  getDeveloperDashboard(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/services/app/DeveloperDashboard/GetDashboard`).pipe(map(this.unwrapResult));
+  }
+
   getPlaysOverTime(days: number): Observable<any> {
     const params = new HttpParams().set('days', days.toString());
     return this.http.get(`${this.baseUrl}/api/services/app/AdminDashboard/GetPlaysOverTime`, { params }).pipe(map(this.unwrapResult));
@@ -213,6 +217,22 @@ export class GameHubAdminService {
 
   suspendGame(id: string, reason: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/Suspend`, { gameId: id, reason }).pipe(map(this.unwrapResult));
+  }
+
+  startReview(gameId: string, notes = ''): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/StartReview`, { gameId, notes }).pipe(map(this.unwrapResult));
+  }
+
+  approveForPublishing(gameId: string, gameBuildId?: string, notes = ''): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/ApproveForPublishing`, { gameId, gameBuildId, notes }).pipe(map(this.unwrapResult));
+  }
+
+  publishGame(gameId: string, gameBuildId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/Publish`, { gameId, gameBuildId }).pipe(map(this.unwrapResult));
+  }
+
+  requestChanges(gameId: string, reason: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/AdminGame/RequestChanges`, { gameId, reason }).pipe(map(this.unwrapResult));
   }
 
   approveThumbnail(gameId: string): Observable<any> {

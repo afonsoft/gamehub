@@ -10,7 +10,9 @@ import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
 })
 export class ReportListComponent implements OnInit {
   reports: any[] = [];
+  allReports: any[] = [];
   filter = 'Open';
+  loading = false;
   updating: { [reportId: string]: boolean } = {};
 
   readonly statuses = ['All', 'Open', 'UnderReview', 'Resolved', 'Dismissed'];
@@ -22,11 +24,23 @@ export class ReportListComponent implements OnInit {
   }
 
   loadReports(): void {
-    this.adminService.getReports().subscribe(result => {
-      this.reports = (result?.items || []).filter((r: any) =>
-        this.filter === 'All' ? true : (r.status || '') === this.filter,
-      );
+    this.loading = true;
+    this.adminService.getReports().subscribe({
+      next: result => {
+        this.allReports = result?.items || [];
+        this.applyFilter();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
     });
+  }
+
+  applyFilter(): void {
+    this.reports = this.filter === 'All'
+      ? this.allReports
+      : this.allReports.filter((r: any) => (r.status || '') === this.filter);
   }
 
   setFilter(status: string): void {

@@ -19,7 +19,7 @@ export class AppNavigationService {
   getMenu(): AppMenu {
     return new AppMenu('MainMenu', 'MainMenu', [
       new AppMenuItem('Dashboard', 'Pages.Dashboard', 'la la-dashboard', '/app/main/dashboard'),
-      new AppMenuItem('GameHub', 'Pages.GameHubDashboard.View', 'la la-gamepad', '/app/main/gamehub/dashboard'),
+      new AppMenuItem('GameHub', 'Pages.Developer.Games', 'la la-gamepad', '/app/main/gamehub/dashboard'),
       new AppMenuItem('Games', 'Pages.Games.View', 'la la-th-large', '/app/main/gamehub/games'),
       new AppMenuItem('Uploads', 'Pages.Builds.View', 'la la-cloud-upload', '/app/main/gamehub/uploads'),
       new AppMenuItem('Inspector', 'Pages.Builds.View', 'la la-search', '/app/main/gamehub/inspector'),
@@ -30,11 +30,12 @@ export class AppNavigationService {
       new AppMenuItem('Tags', 'Pages.Tags.Manage', 'la la-tags', '/app/main/gamehub/tags'),
       new AppMenuItem('Reports', 'Pages.Reports.Manage', 'la la-warning', '/app/main/gamehub/reports'),
       new AppMenuItem('Docs', 'Pages.GameHubDashboard.View', 'la la-book', '/app/main/gamehub/docs'),
+      new AppMenuItem('Help', 'Pages.Developer.Games', 'la la-question-circle', '/app/main/gamehub/help'),
       new AppMenuItem('API Sandbox', 'Pages.GameHubDashboard.View', 'la la-code', '/app/main/gamehub/api-sandbox'),
       new AppMenuItem('Feature Flags', 'Pages.GameHubDashboard.FeatureFlags', 'la la-cog', '/app/main/gamehub/dashboard/flags'),
       new AppMenuItem('Audit Log', 'Pages.GameHubDashboard.AuditLog', 'la la-folder-open', '/app/main/gamehub/dashboard/audit'),
       new AppMenuItem('Users', 'Pages.Users.Manage', 'la la-users', '/app/main/gamehub/users'),
-      new AppMenuItem('Companies', 'Pages.Companies', 'la la-building', '/app/main/companies'),
+      new AppMenuItem('Companies', 'Pages.Companies', 'la la-building', '/app/main/gamehub/companies'),
       new AppMenuItem('Tenants', 'Pages.Tenants', 'la la-building', '/app/admin/tenants'),
     ]);
   }

@@ -33,6 +33,7 @@ import { CompanyListComponent } from './companies/company-list.component';
 import { CompanyEditComponent } from './companies/company-edit.component';
 import { CompanyEmployeesComponent } from './companies/company-employees.component';
 import { CompanyService } from './companies/company.service';
+import { HelpComponent } from './help/help.component';
 
 @NgModule({
   imports: [
@@ -71,6 +72,7 @@ import { CompanyService } from './companies/company.service';
     CompanyListComponent,
     CompanyEditComponent,
     CompanyEmployeesComponent,
+    HelpComponent,
   ],
   providers: [CompanyService],
 })

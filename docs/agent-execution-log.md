@@ -1,3 +1,26 @@
+## 2026-07-28 02:40 UTC
+
+### Tarefa
+Melhorias no angular-admin: dashboard por perfil/tenant, controle de empresas/funcionários, padronização de tabelas, game lifecycle, auditoria e help.
+
+### Implementado
+- `app-navigation.service.ts` e `gamehub-routing.module.ts`: permissões de menu e rotas ajustadas para `Pages.Developer.Games`; `Companies` aponta para `/app/main/gamehub/companies`.
+- `company-list.component.ts/.html`, `company-edit.component.ts/.html`, `company-employees.component.ts/.html`: links/redirects corrigidos, paginação lazy, badges de role, botão "Back to Companies".
+- `gamehub-admin.service.ts`: adicionado `getDeveloperDashboard` e ações do ciclo de vida do jogo (`startReview`, `approveForPublishing`, `publishGame`, `requestChanges`, `suspendGame`).
+- `dashboard.component.ts/.html`: KPIs separados por admin/desenvolvedor, tenant atual, plays over time para dev, recent audit logs, pending actions e recent versions.
+- `game-list.component.ts/.html`: filtros com todos os status do jogo, paginação, loading, status badges e ações do ciclo de vida.
+- `user-list.component.ts/.html`: paginação lazy padrão com `p-table`.
+- `report-list.component.ts/.html`: loading, paginação, filtros e status badges.
+- `review-queue.component.ts/.html`: filtros por status de revisão, paginação e loading.
+- `build-list.component.html`: opções de status de build e badges completos.
+- `help/` (novo componente e rota `/app/main/gamehub/help`): guia rápido pt/en com links para as telas.
+- Documentação: `docs/gamehub-features.md` e `docs/gamehub-admin-features.md` bilíngues.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release --no-restore`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+- `npm run build` em `angular/`: OK.
+
 ## 2026-07-28 00:05 UTC
 
 ### Tarefa

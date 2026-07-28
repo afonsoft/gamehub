@@ -25,6 +25,7 @@ import { ApiSandboxComponent } from './api-sandbox/api-sandbox.component';
 import { CompanyListComponent } from './companies/company-list.component';
 import { CompanyEditComponent } from './companies/company-edit.component';
 import { CompanyEmployeesComponent } from './companies/company-employees.component';
+import { HelpComponent } from './help/help.component';
 import { gameDetailResolver } from './resolvers/game-detail.resolver';
 import { moderationDetailResolver } from './resolvers/moderation-detail.resolver';
 import { categoryEditResolver } from './resolvers/category-edit.resolver';
@@ -32,7 +33,7 @@ import { tagEditResolver } from './resolvers/tag-edit.resolver';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent, data: { permission: 'Pages.GameHubDashboard.View' } },
+  { path: 'dashboard', component: DashboardComponent, data: { permission: 'Pages.Developer.Games' } },
   { path: 'games', component: GameListComponent, data: { permission: 'Pages.Games.View' } },
   { path: 'games/:id', component: GameDetailComponent, resolve: { game: gameDetailResolver }, data: { permission: 'Pages.Games.View' } },
   { path: 'games/:id/edit', component: GameDetailComponent, resolve: { game: gameDetailResolver }, data: { permission: 'Pages.Games.Edit' } },
@@ -55,6 +56,7 @@ const routes: Routes = [
   { path: 'playtests/test', component: TestSessionComponent, data: { permission: 'Pages.Builds.View' } },
   { path: 'reports', component: ReportListComponent, data: { permission: 'Pages.Reports.Manage' } },
   { path: 'docs', component: DocsComponent, data: { permission: 'Pages.GameHubDashboard.View' } },
+  { path: 'help', component: HelpComponent, data: { permission: 'Pages.Developer.Games' } },
   { path: 'api-sandbox', component: ApiSandboxComponent, data: { permission: 'Pages.GameHubDashboard.View' } },
   { path: 'companies', component: CompanyListComponent, data: { permission: 'Pages.Companies' } },
   { path: 'companies/create', component: CompanyEditComponent, data: { permission: 'Pages.Companies.Manage' } },

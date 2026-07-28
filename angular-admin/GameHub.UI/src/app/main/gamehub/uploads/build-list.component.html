@@ -21,9 +21,14 @@
                 <select id="BuildStatusFilter" class="form-control" [(ngModel)]="status" name="status" (change)="onStatusChange()">
                   <option value="">All statuses</option>
                   <option value="Uploaded">Uploaded</option>
+                  <option value="Validating">Validating</option>
+                  <option value="Validated">Validated</option>
+                  <option value="ValidationFailed">Validation Failed</option>
+                  <option value="InReview">In Review</option>
                   <option value="Approved">Approved</option>
                   <option value="Published">Published</option>
                   <option value="Rejected">Rejected</option>
+                  <option value="Blocked">Blocked</option>
                 </select>
               </div>
               <div class="col-xl-6 col-lg-8 col-md-6 col-sm-12 mt-3 mt-md-0">
@@ -75,9 +80,10 @@
                   <td>{{ build.version }}</td>
                   <td>
                     <span class="m-badge m-badge--wide" [ngClass]="{
-                      'm-badge--info': build.status === 'Uploaded',
-                      'm-badge--success': build.status === 'Approved' || build.status === 'Published',
-                      'm-badge--danger': build.status === 'Rejected'
+                      'm-badge--info': build.status === 'Uploaded' || build.status === 'Validating' || build.status === 'Validated',
+                      'm-badge--warning': build.status === 'InReview' || build.status === 'Approved',
+                      'm-badge--success': build.status === 'Published',
+                      'm-badge--danger': build.status === 'ValidationFailed' || build.status === 'Rejected' || build.status === 'Blocked'
                     }">{{ build.status }}</span>
                   </td>
                   <td>{{ formatBytes(build.sizeBytes) }}</td>

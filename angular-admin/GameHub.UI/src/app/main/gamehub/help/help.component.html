@@ -1,0 +1,101 @@
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Help</span>
+        </h3>
+        <span class="m-section__sub">GameHub admin usage guide.</span>
+      </div>
+      <div class="col-auto">
+        <div class="btn-group" role="group" aria-label="Language">
+          <button class="btn" [class.btn-primary]="lang === 'pt'" [class.btn-secondary]="lang !== 'pt'" (click)="setLang('pt')">PT</button>
+          <button class="btn" [class.btn-primary]="lang === 'en'" [class.btn-secondary]="lang !== 'en'" (click)="setLang('en')">EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="row">
+      <div class="col-xl-6" *ngIf="lang === 'pt'">
+        <div class="m-portlet">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <h3 class="m-portlet__head-text">Guia do Painel GameHub</h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <p>O painel <strong>GameHub</strong> centraliza a administração de jogos, empresas, builds, moderação e relatórios.</p>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Dashboard:</strong> visão geral por perfil (admin, moderador ou desenvolvedor) e tenant atual.</li>
+              <li class="list-group-item"><strong>Games:</strong> listagem, filtros por status e ações do ciclo de vida (iniciar revisão, aprovar, solicitar alterações, publicar, suspender).</li>
+              <li class="list-group-item"><strong>Uploads:</strong> builds enviados, validação, status e arquivos.</li>
+              <li class="list-group-item"><strong>Inspector:</strong> sessões de inspeção para validação de SDK e integração.</li>
+              <li class="list-group-item"><strong>Moderation:</strong> fila de revisões com filtros por status (Pending, InProgress, Completed).</li>
+              <li class="list-group-item"><strong>Reports:</strong> denúncias de usuários com atualização de status.</li>
+              <li class="list-group-item"><strong>Companies:</strong> cadastro de empresas/tenants, convites e gerenciamento de funcionários.</li>
+              <li class="list-group-item"><strong>Test Session / API Sandbox:</strong> teste de jogos antes da publicação e exploração da API via Swagger.</li>
+              <li class="list-group-item"><strong>Docs / Help:</strong> documentação e este guia.</li>
+            </ul>
+            <p class="mt-3">A documentação completa está em <code>docs/gamehub-admin-features.md</code> e <code>docs/gamehub-features.md</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-6" *ngIf="lang === 'en'">
+        <div class="m-portlet">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <h3 class="m-portlet__head-text">GameHub Admin Guide</h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <p>The <strong>GameHub</strong> admin panel centralizes game, company, build, moderation and report management.</p>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Dashboard:</strong> role-aware overview (admin, moderator or developer) and current tenant.</li>
+              <li class="list-group-item"><strong>Games:</strong> listing, status filters and lifecycle actions (start review, approve, request changes, publish, suspend).</li>
+              <li class="list-group-item"><strong>Uploads:</strong> uploaded builds, validation, status and files.</li>
+              <li class="list-group-item"><strong>Inspector:</strong> inspection sessions for SDK and integration validation.</li>
+              <li class="list-group-item"><strong>Moderation:</strong> review queue filtered by status (Pending, InProgress, Completed).</li>
+              <li class="list-group-item"><strong>Reports:</strong> user reports with status updates.</li>
+              <li class="list-group-item"><strong>Companies:</strong> company/tenant registration, invitations and employee management.</li>
+              <li class="list-group-item"><strong>Test Session / API Sandbox:</strong> test games before publishing and explore the API via Swagger.</li>
+              <li class="list-group-item"><strong>Docs / Help:</strong> documentation and this guide.</li>
+            </ul>
+            <p class="mt-3">Full documentation is in <code>docs/gamehub-admin-features.md</code> and <code>docs/gamehub-features.md</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-6">
+        <div class="m-portlet">
+          <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+              <div class="m-portlet__head-title">
+                <h3 class="m-portlet__head-text" *ngIf="lang === 'pt'">Links Rápidos</h3>
+                <h3 class="m-portlet__head-text" *ngIf="lang === 'en'">Quick Links</h3>
+              </div>
+            </div>
+          </div>
+          <div class="m-portlet__body">
+            <div class="list-group">
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/dashboard">Dashboard</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/games">Games</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/uploads">Uploads</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/moderation">Moderation</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/reports">Reports</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/companies">Companies</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/docs">Docs</a>
+              <a class="list-group-item list-group-item-action" routerLink="/app/main/gamehub/api-sandbox">API Sandbox</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
