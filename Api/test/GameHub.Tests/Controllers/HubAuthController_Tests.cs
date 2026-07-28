@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.IdentityFramework;
 using Eaf.Middleware.Authorization.Users;
 using Eaf.Middleware.MultiTenancy;
 using Eaf.Middleware.Web.Authentication;
 using GameHub.MultiTenancy;
 using GameHub.Web.Controllers;
 using GameHub.Web.Models.HubAuth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Xunit;
@@ -85,6 +87,50 @@ namespace GameHub.Tests.Controllers
                     UserNameOrEmailAddress = "unknown",
                     Password = "wrong",
                 }));
+        }
+
+        [Fact]
+        public async Task Dado_UsuarioHostSemTenants_Quando_ConsultarTenantsDisponiveis_Entao_DeveRetornarListaVazia()
+        {
+            // Arrange
+            var user = await CriarUsuarioHostAsync("hostnotenant");
+            var controller = CreateController();
+
+            // Act
+            var result = await controller.GetAvailableTenants(new AvailableTenantsModel
+            {
+                UserNameOrEmailAddress = user.UserName,
+                Password = "123qwe",
+            });
+
+            // Assert
+            var ok = result.ShouldBeAssignableTo<OkObjectResult>();
+            var tenants = ok.Value.ShouldBeAssignableTo<List<AvailableTenantResult>>();
+            tenants.ShouldBeEmpty();
+        }
+
+        private async Task<User> CriarUsuarioHostAsync(string userName)
+        {
+            var userManager = Resolve<UserManager>();
+            var unitOfWorkManager = Resolve<IUnitOfWorkManager>();
+
+            using var uow = unitOfWorkManager.Begin();
+            var user = new User
+            {
+                TenantId = null,
+                UserName = userName,
+                Name = userName,
+                Surname = "Test",
+                EmailAddress = $"{userName}@gamehub.local",
+                IsEmailConfirmed = true,
+                IsActive = true,
+                Password = new PasswordHasher<User>().HashPassword(null, "123qwe"),
+            };
+
+            (await userManager.CreateAsync(user)).CheckErrors();
+            await uow.CompleteAsync();
+
+            return user;
         }
 
         private HubAuthController CreateController()

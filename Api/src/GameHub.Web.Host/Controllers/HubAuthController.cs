@@ -83,7 +83,10 @@ namespace GameHub.Web.Controllers
                 {
                     var memberships = await _membershipRepository.GetAllListAsync(m => m.UserId == user.Id);
                     if (memberships.Count == 0)
-                        throw new UserFriendlyException(L("UserHasNoAssociatedTenants"));
+                    {
+                        await uow.CompleteAsync();
+                        return Ok(new List<AvailableTenantResult>());
+                    }
 
                     var tenantIds = memberships.Select(m => m.TenantId).Distinct().ToList();
                     var tenants = await _tenantRepository.GetAllListAsync(t => tenantIds.Contains(t.Id));

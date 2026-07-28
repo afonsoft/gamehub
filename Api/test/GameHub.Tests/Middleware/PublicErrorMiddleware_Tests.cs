@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Abp.UI;
 using GameHub.Dto;
 using GameHub.Exceptions;
 using GameHub.Web.Middleware;
@@ -54,6 +55,22 @@ namespace GameHub.Tests.Middleware
             var body = await ReadBodyAsync(context.Response.Body);
             body.ShouldContain("Please try again later");
             body.ShouldContain("\"Retryable\":true");
+        }
+
+        [Fact]
+        public async Task Dado_UserFriendlyException_Quando_Invocar_Entao_DeveRetornar400ComMensagem()
+        {
+            var context = new DefaultHttpContext();
+            context.Response.Body = new MemoryStream();
+            var middleware = new PublicErrorMiddleware(_ => throw new UserFriendlyException("User has no associated tenants"), NullLogger<PublicErrorMiddleware>.Instance);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBe(400);
+            context.Response.ContentType.ShouldContain("application/json");
+            var body = await ReadBodyAsync(context.Response.Body);
+            body.ShouldContain("User has no associated tenants");
+            body.ShouldContain("\"Retryable\":false");
         }
 
         [Fact]

@@ -1906,3 +1906,20 @@ compatível com os formulários do portal.
 - O alinhamento de labels da correção do template EAF foi adaptado aos
   checkboxes dos formulários GameHub, sem copiar componentes genéricos.
 - A análise dos templates API/Angular 9.3.0 foi registrada na documentação EAF.
+
+## 2026-07-28 02:25 UTC
+
+### Tarefa
+Corrigir CORS do SignalR/websockets (evitar `Access-Control-Allow-Origin: *` com credenciais) e ajustar o endpoint `/api/hub/auth/available-tenants` para não retornar 500 quando o usuário host não possui tenants associados.
+
+### Arquivos alterados
+- `Api/src/GameHub.Web.Host/Configuration/CorsConfiguration.cs` — `ConfigurePolicy` reflete a origem chamadora em vez de emitir wildcard, mesmo quando `AllowAnyOrigin` está habilitado.
+- `Api/src/GameHub.Web.Host/Controllers/HubAuthController.cs` — `GetAvailableTenants` retorna lista vazia em vez de lançar `UserHasNoAssociatedTenants`.
+- `Api/src/GameHub.Web.Host/Middleware/PublicErrorMiddleware.cs` — `UserFriendlyException` mapeada para `400 validation_failed`.
+- `angular/src/app/public/login/login.component.ts` — fallback para login host via `/api/TokenAuth/Authenticate` quando não há tenants disponíveis.
+- `Api/test/GameHub.Tests/Middleware/CorsConfiguration_Tests.cs`, `PublicErrorMiddleware_Tests.cs` e `Controllers/HubAuthController_Tests.cs`.
+
+### Resultado
+- Build da API (`dotnet build Api/GameHub.sln -c Release --no-restore`) sucesso.
+- Testes da API (`dotnet test Api/GameHub.sln -c Release --no-build`) — 370 passaram, 2 skipped, 0 falhas.
+- Build do Angular (`npx ng build --configuration=production`) sucesso.
