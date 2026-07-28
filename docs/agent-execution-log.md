@@ -1,3 +1,19 @@
+## 2026-07-28 03:20 UTC
+
+### Tarefa
+Adicionar páginas do jogador e leaderboards adicionais no GameHub.
+
+### Implementado
+- `angular/src/app/app.html` e `app.routes.ts`: links `/player` (logado) e `/leaderboards` no header/footer e nova rota.
+- `angular/src/app/public/leaderboards/`: novo componente com grid dos jogos mais jogados, link para leaderboard individual.
+- `angular/src/app/public/player/player.component.ts/.html/.css`: estatísticas rápidas (favoritos, recentes, partidas) e melhorias visuais.
+- `angular/public/i18n/en-US.json` e `pt-BR.json`: chaves `nav.leaderboards` e `leaderboards.*`.
+
+### Validação
+- `npm run build` em `angular/`: OK (warning residual de CSS budget em `home.component.css`).
+- `dotnet test Api/GameHub.sln -c Release --no-build`: 365 passed, 2 skipped.
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+
 ## 2026-07-28 02:40 UTC
 
 ### Tarefa

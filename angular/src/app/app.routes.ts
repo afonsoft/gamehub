@@ -16,6 +16,10 @@ export const routes: Routes = [
     loadComponent: () => import('./player/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent),
   },
   {
+    path: 'leaderboards',
+    loadComponent: () => import('./public/leaderboards/leaderboards.component').then(m => m.LeaderboardsComponent),
+  },
+  {
     path: 'developer',
     loadChildren: () => import('./developer/developer.routes').then(m => m.developerRoutes),
   },

@@ -35,6 +35,18 @@ export class PlayerComponent implements OnInit {
     this.activeTab = tab;
   }
 
+  get totalFavorites(): number {
+    return this.favorites.length;
+  }
+
+  get totalRecent(): number {
+    return this.recent.length;
+  }
+
+  get totalSessions(): number {
+    return this.recent.reduce((sum, item) => sum + (item.totalSessions || 0), 0);
+  }
+
   load(): void {
     this.loading = true;
     forkJoin({
