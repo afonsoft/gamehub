@@ -60,17 +60,18 @@ namespace GameHub.Web.Configuration
 
         private static void ConfigurePolicy(Microsoft.AspNetCore.Cors.Infrastructure.CorsPolicyBuilder policy, string[] origins, bool allowAnyOrigin)
         {
+            // Always reflect the calling origin instead of emitting Access-Control-Allow-Origin: *,
+            // because the SignalR/Angular clients send credentials and browsers reject wildcard + credentials.
             if (allowAnyOrigin || origins.Length == 0)
             {
-                policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .SetPreflightMaxAge(TimeSpan.FromSeconds(600));
-                return;
+                policy.SetIsOriginAllowed(_ => true);
+            }
+            else
+            {
+                policy.SetIsOriginAllowed(origin => IsOriginAllowed(origin, origins));
             }
 
-            policy.SetIsOriginAllowed(origin => IsOriginAllowed(origin, origins))
-                .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            policy.WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .WithHeaders(
                     "Authorization",
                     "Content-Type",

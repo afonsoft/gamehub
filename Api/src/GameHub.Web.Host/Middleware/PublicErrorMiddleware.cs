@@ -1,3 +1,4 @@
+using Abp.UI;
 using GameHub;
 using GameHub.Dto;
 using GameHub.Exceptions;
@@ -73,6 +74,13 @@ namespace GameHub.Web.Middleware
         {
             return ex switch
             {
+                UserFriendlyException userFriendly => new SdkError
+                {
+                    Code = GameHubErrorCodes.ValidationFailed,
+                    Message = userFriendly.Message,
+                    Retryable = false,
+                    CorrelationId = correlationId
+                },
                 ArgumentException or ArgumentNullException or FormatException => new SdkError
                 {
                     Code = GameHubErrorCodes.ValidationFailed,

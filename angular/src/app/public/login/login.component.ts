@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService, AuthenticateModel } from '../../core/auth/auth.service';
 import { HubAuthService, AvailableTenantResult } from '../../core/auth/hub-auth.service';
+import { TokenService } from '../../core/auth/token.service';
 
 interface LoginState {
   userNameOrEmailAddress: string;
@@ -27,6 +28,7 @@ export class LoginComponent {
   private readonly hubAuth = inject(HubAuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly tokenService = inject(TokenService);
 
   login(): void {
     this.error = '';
@@ -35,18 +37,18 @@ export class LoginComponent {
       return;
     }
     this.loading = true;
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     this.hubAuth.getAvailableTenants(this.model).subscribe({
       next: tenants => {
         this.loading = false;
         if (tenants.length === 0) {
-          this.error = 'No available tenants for this account.';
+          this.loginAsHost(returnUrl);
           return;
         }
         if (tenants.length === 1) {
-          this.selectTenantAndLogin(tenants[0].tenantId);
+          this.selectTenantAndLogin(tenants[0].tenantId, returnUrl);
           return;
         }
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
         const state: LoginState = {
           userNameOrEmailAddress: this.model.userNameOrEmailAddress,
           password: this.model.password,
@@ -61,7 +63,7 @@ export class LoginComponent {
     });
   }
 
-  private selectTenantAndLogin(tenantId: number): void {
+  private selectTenantAndLogin(tenantId: number, returnUrl: string): void {
     this.loading = true;
     this.hubAuth
       .selectTenant({
@@ -73,7 +75,7 @@ export class LoginComponent {
         next: result => {
           this.loading = false;
           if (result?.accessToken) {
-            this.auth.finalizeLogin(result.accessToken);
+            this.auth.finalizeLogin(result.accessToken, returnUrl);
           } else {
             this.error = 'Unable to complete login.';
           }
@@ -83,5 +85,24 @@ export class LoginComponent {
           this.error = 'Unable to complete login. Please try again.';
         },
       });
+  }
+
+  private loginAsHost(returnUrl: string): void {
+    this.loading = true;
+    this.auth.login(this.model).subscribe({
+      next: success => {
+        this.loading = false;
+        const token = this.tokenService.getToken();
+        if (success && token) {
+          this.auth.finalizeLogin(token, returnUrl);
+        } else {
+          this.error = 'Invalid username or password.';
+        }
+      },
+      error: () => {
+        this.loading = false;
+        this.error = 'Unable to complete login. Please try again.';
+      },
+    });
   }
 }
