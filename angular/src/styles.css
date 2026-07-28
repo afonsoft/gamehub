@@ -48,8 +48,20 @@ a {
   text-decoration: none;
 }
 
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
 button, input, select, textarea {
   font-family: inherit;
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+  }
 }
 
 /* Developer portal layout */

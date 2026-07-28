@@ -87,8 +87,13 @@ app-card {
   flex-wrap: wrap;
 }
 
+.top-list {
+  overflow-x: auto;
+}
+
 .top-list table {
   width: 100%;
+  min-width: 420px;
   border-collapse: collapse;
 }
 
@@ -141,6 +146,23 @@ app-card {
 }
 
 @media (max-width: 640px) {
+  .leaderboard-page {
+    padding: 16px;
+  }
+
+  .leaderboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .top-list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .size-controls {
+    justify-content: flex-end;
+  }
+
   .score-row {
     flex-direction: column;
   }
@@ -153,5 +175,9 @@ app-card {
 
   .skeleton-row {
     grid-template-columns: 2.5rem 1.5fr 1fr 1fr;
+  }
+
+  .empty-state {
+    padding: 32px 16px;
   }
 }

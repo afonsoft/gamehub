@@ -1,3 +1,30 @@
+## 2026-07-28 03:35 UTC
+
+### Tarefa
+Tornar o layout do hub público responsivo e os jogos em tela cheia.
+
+### Implementado
+- `angular/src/app/app.ts` e `app.html`: menu hambúrguer no mobile, fechamento automático ao navegar e classe `play-mode` para rotas `/play` e `/preview`.
+- `angular/src/app/app.css`: estilos do menu mobile e ocultação do header/footer em `play-mode`.
+- `angular/src/app/player/game-frame/`:
+  - `toggleFullscreen` com fallback para `document.documentElement.requestFullscreen` e modo CSS fullscreen quando a API não é suportada.
+  - `iframe` com atributo `allowfullscreen`.
+  - `:host` e `.frame-shell` usando `100dvh` para preencher a viewport dinâmica em dispositivos móveis.
+  - botões de tela cheia e skip maiores para toque.
+- `angular/src/app/public/home/`:
+  - Removido header duplicado da landing page.
+  - Ajustes responsivos em hero, grids e espaçamentos.
+- `angular/src/app/public/games/games.component.css`: filtros em grid de 2 colunas e busca em coluna no mobile.
+- `angular/src/app/public/game-detail/game-detail.component.css`: ajustes mobile no cabeçalho, thumb e ações.
+- `angular/src/app/public/login/login.component.css`, `select-tenant/select-tenant.component.css`, `company/company.component.css`: padding e tipografia responsivos.
+- `angular/src/app/public/player/player.component.css`: estatísticas e abas responsivas.
+- `angular/src/app/player/leaderboard/leaderboard.component.css` e `public/leaderboards/leaderboards.component.css`: scroll horizontal na tabela e grids responsivos.
+- `angular/src/app/public/docs/docs.component.css`: sidebar e conteúdo responsivos.
+- `angular/src/styles.css`: `img`/`video` com `max-width:100%` e ajuste de fonte em telas pequenas.
+
+### Validação
+- `npm run build` em `angular/`: OK (sem warnings).
+
 ## 2026-07-28 03:20 UTC
 
 ### Tarefa

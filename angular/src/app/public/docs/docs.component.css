@@ -71,16 +71,31 @@
 @media (max-width: 768px) {
   .docs-page {
     flex-direction: column;
+    min-height: calc(100vh - 56px);
   }
 
   .docs-sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--gh-border, #e5e7eb);
+    padding: 1rem;
   }
 
   .docs-sidebar nav {
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .docs-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .doc-article h1 {
+    font-size: 1.5rem;
+  }
+
+  .doc-article pre {
+    overflow-x: auto;
   }
 }

@@ -109,3 +109,23 @@
   color: var(--primary-color, #ff5e57);
   text-decoration: underline;
 }
+
+@media (max-width: 640px) {
+  .leaderboards-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .leaderboards-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .leaderboards-grid,
+  .leaderboards-skeleton {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .leaderboard-card {
+    border-radius: 0.75rem;
+  }
+}
