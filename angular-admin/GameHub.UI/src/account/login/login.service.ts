@@ -1,8 +1,10 @@
 ﻿import { Injectable, Injector } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Auth0Client } from '@auth0/auth0-spa-js';
 import * as msal from '@azure/msal-browser';
 import { TokenService } from '@eaf/auth/token.service';
+import { Observable } from 'rxjs';
 import { LocalizationService } from '@eaf/localization/localization.service';
 import { LogService } from '@eaf/log/log.service';
 import { StorageService } from '@eaf/utils/storage.service';
@@ -20,6 +22,22 @@ import { ScriptLoaderService } from '@shared/utils/script-loader.service';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 
 import { finalize } from 'rxjs/operators';
+
+export interface AvailableTenantResult {
+  tenantId: number;
+  tenantName: string;
+  tenancyName: string;
+  isDefault: boolean;
+}
+
+export interface AvailableTenantsModel {
+  userNameOrEmailAddress: string;
+  password: string;
+}
+
+export interface SelectTenantModel extends AvailableTenantsModel {
+  tenantId: number;
+}
 
 declare const gapi: any;
 
@@ -51,6 +69,7 @@ export class LoginService {
   authenticateModel: AuthenticateModel;
   authenticateResult: AuthenticateResultModel;
   rememberMe: boolean;
+  availableTenantsResult: AvailableTenantResult[] = [];
 
   static readonly twoFactorRememberClientTokenName = 'TwoFactorRememberClientToken';
   private isSsoLoging = false;
@@ -62,6 +81,7 @@ export class LoginService {
   constructor(
     injector: Injector,
     private readonly _tokenAuthService: TokenAuthServiceProxy,
+    private readonly _httpClient: HttpClient,
     private readonly _router: Router,
     private readonly _storageService: StorageService,
     private readonly _tokenService: TokenService,
@@ -185,6 +205,26 @@ export class LoginService {
     this.authenticateModel.rememberClient = false;
     this.authenticateResult = null;
     this.rememberMe = false;
+    this.availableTenantsResult = [];
+  }
+
+  availableTenants(model: AvailableTenantsModel): Observable<AvailableTenantResult[]> {
+    const url = `${AppConsts.remoteServiceBaseUrl}/api/hub/auth/available-tenants`;
+    return this._httpClient.post<AvailableTenantResult[]>(url, model);
+  }
+
+  selectTenant(model: SelectTenantModel): Observable<AuthenticateResultModel> {
+    const url = `${AppConsts.remoteServiceBaseUrl}/api/hub/auth/select-tenant`;
+    return this._httpClient.post<AuthenticateResultModel>(url, model);
+  }
+
+  loginTenant(result: AuthenticateResultModel, tenantId: number, redirectUrl?: string): void {
+    eaf.multiTenancy.setTenantIdCookie(tenantId);
+    this.login(result.accessToken, result.encryptedAccessToken, result.expireInSeconds, this.rememberMe, redirectUrl);
+  }
+
+  navigateToSelectTenant(): void {
+    this._router.navigate(['account/select-tenant']);
   }
 
   private initExternalLoginProviders(callback?: () => void) {

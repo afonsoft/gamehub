@@ -1,0 +1,37 @@
+<div [@routerTransition]
+     [busyIf]="dataTableHelper.isLoading"
+     class="m-login__signin">
+    <div class="m-login__head">
+        <h3 class="m-login__title">{{"SelectTenant" | localize}}</h3>
+    </div>
+    <div class="m-login__desc">
+        {{"SelectTenantDescription" | localize}}
+    </div>
+    <div class="m-login__form m-form">
+        <div class="list-group">
+            <a *ngFor="let tenant of tenants"
+               (click)="select(tenant)"
+               class="list-group-item list-group-item-action"
+               href="javascript:;">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{tenant.tenantName || tenant.tenancyName}}</h5>
+                    <small *ngIf="tenant.isDefault" class="text-muted">{{"Default" | localize}}</small>
+                </div>
+                <small *ngIf="tenant.tenantName && tenant.tenancyName" class="text-muted">{{tenant.tenancyName}}</small>
+            </a>
+        </div>
+        <div *ngIf="tenants.length === 0" class="m-alert m-alert--outline alert alert-info" role="alert">
+            {{"NoTenantsAvailable" | localize}}
+        </div>
+        <a *ngIf="tenants.length === 0" (click)="loginAsHost()" href="javascript:;" class="list-group-item list-group-item-action text-center mt-2">
+            <span class="text-info">{{"LoginAsHost" | localize}}</span>
+        </a>
+        <div class="row m-login__form-action text-right mt-3">
+            <div class="col m--align-right">
+                <a routerLink="/account/login" class="btn btn-secondary m-btn m-btn--pill m-btn--custom m-btn--air">
+                    {{"Back" | localize}}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

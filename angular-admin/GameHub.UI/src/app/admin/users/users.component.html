@@ -58,6 +58,7 @@
               [resizableColumns]="dataTableHelper.resizableColumns"
               [scrollable]="true"
               [value]="dataTableHelper.records"
+              [loading]="dataTableHelper.isLoading"
               #dataTable
               rows="{{ dataTableHelper.defaultRecordsCountPerPage }}"
               ScrollWidth="100%"
@@ -249,30 +250,26 @@
                     {{ record.emailAddress }}
                   </td>
                   <td style="width: 200px">
-                    <span *ngIf="record.isEmailConfirmed" class="m-badge m-badge--success m-badge--wide">
-                      {{ 'Yes' | localize }}
-                    </span>
-                    <span *ngIf="!record.isEmailConfirmed" class="m-badge m-badge--metal m-badge--wide">
-                      {{ 'No' | localize }}
-                    </span>
+                    <app-status-badge
+                      [value]="record.isEmailConfirmed"
+                      [trueLabel]="'Yes' | localize"
+                      [falseLabel]="'No' | localize"
+                    ></app-status-badge>
                   </td>
                   <td style="width: 160px">
                     {{ record.lastModificationDate | momentFormat: 'L LT' }}
                   </td>
                   <td style="width: 70px">
-                    <span *ngIf="record.isActive" class="m-badge m-badge--success m-badge--wide">
-                      {{ 'Yes' | localize }}
-                    </span>
-                    <span *ngIf="!record.isActive" class="m-badge m-badge--metal m-badge--wide">
-                      {{ 'No' | localize }}
-                    </span>
+                    <app-status-badge
+                      [value]="record.isActive"
+                      [trueLabel]="'Yes' | localize"
+                      [falseLabel]="'No' | localize"
+                    ></app-status-badge>
                   </td>
                 </tr>
               </ng-template>
             </p-table>
-            <div *ngIf="dataTableHelper.totalRecordsCount == 0" class="primeng-no-data">
-              {{ 'NoData' | localize }}
-            </div>
+            <app-empty-state *ngIf="dataTableHelper.totalRecordsCount == 0 && !dataTableHelper.isLoading" [message]="'NoData' | localize"></app-empty-state>
             <div class="primeng-paging-container">
               <p-paginator
                 (onPageChange)="getUsers($event)"

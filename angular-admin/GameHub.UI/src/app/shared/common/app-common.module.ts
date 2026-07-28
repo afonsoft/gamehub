@@ -19,6 +19,8 @@ import { DatePickerInitialValueSetterDirective } from './timing/date-picker-init
 import { DateTimeService } from './timing/date-time.service';
 import { TimeZoneComboComponent } from './timing/timezone-combo.component';
 import { KeyValueListManagerComponent } from './key-value-list-manager/key-value-list-manager.component';
+import { EmptyStateComponent } from '../components/empty-state/empty-state.component';
+import { StatusBadgeComponent } from '../components/status-badge/status-badge.component';
 
 @NgModule({
   imports: [
@@ -40,6 +42,8 @@ import { KeyValueListManagerComponent } from './key-value-list-manager/key-value
     DateRangePickerInitialValueSetterDirective,
     DatePickerInitialValueSetterDirective,
     KeyValueListManagerComponent,
+    EmptyStateComponent,
+    StatusBadgeComponent,
   ],
   exports: [
     TimeZoneComboComponent,
@@ -49,6 +53,8 @@ import { KeyValueListManagerComponent } from './key-value-list-manager/key-value
     DateRangePickerInitialValueSetterDirective,
     DatePickerInitialValueSetterDirective,
     KeyValueListManagerComponent,
+    EmptyStateComponent,
+    StatusBadgeComponent,
   ],
   providers: [DateTimeService, AppLocalizationService, AppNavigationService],
 })

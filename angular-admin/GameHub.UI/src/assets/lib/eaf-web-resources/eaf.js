@@ -31,7 +31,7 @@
           HOST: 2
         };
 
-        eaf.multiTenancy.tenantIdCookieName = 'Abp.TenantId';
+        eaf.multiTenancy.tenantIdCookieName = 'Abp-TenantId';
 
         eaf.multiTenancy.setTenantIdCookie = function (tenantId) {
           if (tenantId) {

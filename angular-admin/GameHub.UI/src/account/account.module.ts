@@ -14,6 +14,7 @@ import { ConfirmEmailComponent } from './email-activation/confirm-email.componen
 import { EmailActivationComponent } from './email-activation/email-activation.component';
 import { LoginComponent } from './login/login.component';
 import { LoginService } from './login/login.service';
+import { SelectTenantComponent } from './login/select-tenant/select-tenant.component';
 import { ForgotPasswordComponent } from './password/forgot-password.component';
 import { ResetPasswordComponent } from './password/reset-password.component';
 import { OAuthModule } from 'angular-oauth2-oidc';
@@ -40,6 +41,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
   declarations: [
     AccountComponent,
     LoginComponent,
+    SelectTenantComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
     EmailActivationComponent,

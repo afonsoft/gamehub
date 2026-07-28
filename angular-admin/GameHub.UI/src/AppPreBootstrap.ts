@@ -50,12 +50,11 @@ export class AppPreBootstrap {
 
     const type = 'GET';
     const url = appRootUrl + 'assets/' + environment.appConfig;
-    const customHeaders = [
-      {
-        name: 'Abp.TenantId',
-        value: eaf.multiTenancy.getTenantIdCookie() + '',
-      },
-    ];
+    const customHeaders: { name: string; value: string }[] = [];
+    const tenantId = eaf.multiTenancy.getTenantIdCookie();
+    if (tenantId) {
+      customHeaders.push({ name: 'Abp-TenantId', value: tenantId + '' });
+    }
 
     XmlHttpRequestHelper.ajax(type, url, customHeaders, null, result => {
       const currentOrigin = window.location.origin;
@@ -96,12 +95,15 @@ export class AppPreBootstrap {
     eaf.multiTenancy.setTenantIdCookie(tenantId);
     const cookieLangValue = this.storageService.getCookieValue('Abp.Localization.CultureName');
 
-    const requestHeaders = {
+    const requestHeaders: { [key: string]: string } = {
       '.AspNetCore.Culture': 'c=' + cookieLangValue + '|uic=' + cookieLangValue,
-      'Abp.TenantId': eaf.multiTenancy.getTenantIdCookie(),
       'Abp.Localization.CultureName': cookieLangValue,
       'Accept-Language': cookieLangValue,
     };
+    const currentTenantId = eaf.multiTenancy.getTenantIdCookie();
+    if (currentTenantId) {
+      requestHeaders[eaf.multiTenancy.tenantIdCookieName] = currentTenantId.toString();
+    }
 
     XmlHttpRequestHelper.ajax(
       'POST',
@@ -133,12 +135,15 @@ export class AppPreBootstrap {
 
     const token = this.storageService.getCookieValue(eaf.auth.tokenCookieName);
 
-    const requestHeaders = {
+    const requestHeaders: { [key: string]: string } = {
       '.AspNetCore.Culture': 'c=' + cookieLangValue + '|uic=' + cookieLangValue,
-      'Abp.TenantId': eaf.multiTenancy.getTenantIdCookie(),
       'Abp.Localization.CultureName': cookieLangValue,
       'Accept-Language': cookieLangValue,
     };
+    const tenantId = eaf.multiTenancy.getTenantIdCookie();
+    if (tenantId) {
+      requestHeaders[eaf.multiTenancy.tenantIdCookieName] = tenantId.toString();
+    }
 
     if (token) {
       requestHeaders['Authorization'] = 'Bearer ' + token;

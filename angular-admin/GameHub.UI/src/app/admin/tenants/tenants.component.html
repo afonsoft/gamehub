@@ -1,4 +1,4 @@
-﻿<div [@routerTransition]>
+<div [@routerTransition]>
   <div class="m-subheader">
     <div class="row align-items-center">
       <div class="mr-auto col-auto">
@@ -54,6 +54,7 @@
               rows="{{ dataTableHelper.defaultRecordsCountPerPage }}"
               [paginator]="false"
               [lazy]="true"
+              [loading]="dataTableHelper.isLoading"
             >
               <ng-template pTemplate="header">
                 <tr>
@@ -131,15 +132,16 @@
                                         {{ record.lastModificationDate | momentFormat: 'L LT' }}
                   </td>
                   <td>
-                                        <span *ngIf="record.isActive" class="m-badge m-badge--success m-badge--wide">{{ 'Yes' | localize }}</span>
-                    <span *ngIf="!record.isActive" class="m-badge m-badge--metal m-badge--wide">{{ 'No' | localize }}</span>
+                    <app-status-badge
+                      [value]="record.isActive"
+                      [trueLabel]="'Yes' | localize"
+                      [falseLabel]="'No' | localize"
+                    ></app-status-badge>
                   </td>
                 </tr>
               </ng-template>
             </p-table>
-            <div class="primeng-no-data" *ngIf="dataTableHelper.totalRecordsCount == 0">
-              {{ 'NoData' | localize }}
-            </div>
+            <app-empty-state *ngIf="dataTableHelper.totalRecordsCount == 0 && !dataTableHelper.isLoading" [message]="'NoData' | localize"></app-empty-state>
             <div class="primeng-paging-container">
               <p-paginator
                 [rows]="dataTableHelper.defaultRecordsCountPerPage"

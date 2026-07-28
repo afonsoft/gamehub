@@ -17,6 +17,12 @@
     defaultAdminUserName: 'admin',
   };
 
+  static readonly multiTenancy = {
+    twoStepLogin: false,
+  };
+
+  static autoSelectSingleTenant = true;
+
   static readonly localization = {
     defaultLocalizationSourceName: 'GameHub',
     defaultLocalizationSourceNameEaf: 'EafCore',

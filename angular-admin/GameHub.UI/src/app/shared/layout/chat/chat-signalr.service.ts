@@ -1,6 +1,7 @@
 import { Injectable, Injector, NgZone } from '@angular/core';
 import { AppComponentBase } from '@shared/common/app-component-base';
 import { HubConnection } from '@microsoft/signalr';
+import { SignalRHelper } from 'shared/helpers/SignalRHelper';
 
 @Injectable()
 export class ChatSignalrService extends AppComponentBase {
@@ -14,51 +15,7 @@ export class ChatSignalrService extends AppComponentBase {
   chatHub: HubConnection;
   isChatConnected = false;
 
-  configureConnection(connection): void {
-    // Set the common hub
-    this.chatHub = connection;
-
-    // Reconnect loop
-    let reconnectTime = 5000;
-    let tries = 1;
-    const maxTries = 8;
-    const start = async () => {
-      while (tries <= maxTries) {
-        try {
-          await connection.start();
-          reconnectTime = 5000;
-          tries = 1;
-          return;
-        } catch {
-          await new Promise(resolve => setTimeout(resolve, reconnectTime));
-          reconnectTime *= 2;
-          tries += 1;
-        }
-      }
-
-      throw new Error('Maximum reconnect attempts exceeded');
-    };
-
-    // Reconnect if hub disconnects
-    connection.onclose(e => {
-      this.isChatConnected = false;
-
-      if (e) {
-        eaf.log.debug('Chat connection closed with error: ' + e);
-      } else {
-        eaf.log.debug('Chat disconnected');
-      }
-
-      start().then(() => {
-        this.isChatConnected = true;
-      });
-    });
-
-    // Register to get notifications
-    this.registerChatEvents(connection);
-  }
-
-  registerChatEvents(connection): void {
+  registerChatEvents(connection: HubConnection): void {
     connection.on('getChatMessage', message => {
       eaf.event.trigger('app.chat.messageReceived', message);
     });
@@ -129,16 +86,40 @@ export class ChatSignalrService extends AppComponentBase {
   }
 
   init(): void {
-    this._zone.runOutsideAngular(() => {
-      eaf.signalr.connect();
-      eaf.signalr
-        .startConnection(eaf.appPath + 'signalr-chat', connection => {
-          this.configureConnection(connection);
-        })
-        .then(() => {
-          eaf.event.trigger('app.chat.connected');
-          this.isChatConnected = true;
-        });
+    this._zone.runOutsideAngular(async () => {
+      this.chatHub = SignalRHelper.buildConnection('/signalr-chat');
+
+      this.chatHub.onreconnecting(error => {
+        this.isChatConnected = false;
+        if (error) {
+          eaf.log.debug('Chat reconnecting: ' + error);
+        }
+      });
+
+      this.chatHub.onreconnected(connectionId => {
+        this.isChatConnected = true;
+        eaf.event.trigger('app.chat.connected');
+        eaf.log.debug('Chat reconnected. ConnectionId: ' + connectionId);
+      });
+
+      this.chatHub.onclose(error => {
+        this.isChatConnected = false;
+        if (error) {
+          eaf.log.debug('Chat connection closed with error: ' + error);
+        } else {
+          eaf.log.debug('Chat disconnected');
+        }
+      });
+
+      this.registerChatEvents(this.chatHub);
+
+      try {
+        await this.chatHub.start();
+        this.isChatConnected = true;
+        eaf.event.trigger('app.chat.connected');
+      } catch (error) {
+        eaf.log.error('Chat connection failed: ' + error);
+      }
     });
   }
 }
