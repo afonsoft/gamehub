@@ -26,6 +26,9 @@ import { ReportListComponent } from './reports/report-list.component';
 import { InspectorComponent } from './inspector/inspector.component';
 import { InspectorSessionComponent } from './inspector/inspector-session.component';
 import { PlaytestRecordingListComponent } from './playtest/playtest-recording-list.component';
+import { TestSessionComponent } from './playtest/test-session.component';
+import { DocsComponent } from './docs/docs.component';
+import { ApiSandboxComponent } from './api-sandbox/api-sandbox.component';
 import { CompanyListComponent } from './companies/company-list.component';
 import { CompanyEditComponent } from './companies/company-edit.component';
 import { CompanyEmployeesComponent } from './companies/company-employees.component';
@@ -62,6 +65,9 @@ import { CompanyService } from './companies/company.service';
     InspectorComponent,
     InspectorSessionComponent,
     PlaytestRecordingListComponent,
+    TestSessionComponent,
+    DocsComponent,
+    ApiSandboxComponent,
     CompanyListComponent,
     CompanyEditComponent,
     CompanyEmployeesComponent,
