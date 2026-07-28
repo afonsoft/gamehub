@@ -48,3 +48,17 @@
   color: #28a745;
   font-size: 0.875rem;
 }
+
+@media (max-width: 480px) {
+  .select-tenant-page {
+    padding: 0.75rem;
+  }
+
+  .select-tenant-card {
+    padding: 1.25rem;
+  }
+
+  .select-tenant-card h1 {
+    font-size: 1.35rem;
+  }
+}

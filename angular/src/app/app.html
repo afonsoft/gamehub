@@ -1,24 +1,31 @@
-<div class="hub-layout">
+<div class="hub-layout" [class.play-mode]="playMode">
   <header class="hub-header">
     <div class="header-inner">
-      <a class="logo" routerLink="/">GameHub</a>
-      <nav class="header-nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ 'nav.home' | translate }}</a>
-        <a routerLink="/games" routerLinkActive="active">{{ 'nav.games' | translate }}</a>
-        <a routerLink="/leaderboards" routerLinkActive="active">{{ 'nav.leaderboards' | translate }}</a>
-        <a routerLink="/docs" routerLinkActive="active">{{ 'nav.docs' | translate }}</a>
-        <a *ngIf="isDeveloper" routerLink="/developer" routerLinkActive="active">{{ 'nav.developer' | translate }}</a>
+      <a class="logo" routerLink="/" (click)="closeMobileMenu()">GameHub</a>
+      <button
+        type="button"
+        class="menu-toggle"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="mobileMenuOpen"
+        aria-controls="main-navigation"
+        [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'">
+        <span class="hamburger" aria-hidden="true"></span>
+      </button>
+      <nav id="main-navigation" class="header-nav" [class.open]="mobileMenuOpen" aria-label="Main">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/games" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.games' | translate }}</a>
+        <a routerLink="/leaderboards" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.leaderboards' | translate }}</a>
+        <a routerLink="/docs" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.docs' | translate }}</a>
+        <a *ngIf="isDeveloper" routerLink="/developer" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.developer' | translate }}</a>
+        <div class="header-actions" *ngIf="!isLoggedIn">
+          <a routerLink="/login" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+          <a class="btn-small" routerLink="/register" (click)="closeMobileMenu()">{{ 'nav.register' | translate }}</a>
+        </div>
+        <div class="header-actions" *ngIf="isLoggedIn">
+          <a class="user-name" *ngIf="userName" routerLink="/player" (click)="closeMobileMenu()">{{ userName }}</a>
+          <button class="btn-small" (click)="logout(); closeMobileMenu()">{{ 'nav.logout' | translate }}</button>
+        </div>
       </nav>
-      <div class="header-actions">
-        <ng-container *ngIf="!isLoggedIn">
-          <a routerLink="/login">{{ 'nav.login' | translate }}</a>
-          <a class="btn-small" routerLink="/register">{{ 'nav.register' | translate }}</a>
-        </ng-container>
-        <ng-container *ngIf="isLoggedIn">
-          <a class="user-name" *ngIf="userName" routerLink="/player">{{ userName }}</a>
-          <button class="btn-small" (click)="logout()">{{ 'nav.logout' | translate }}</button>
-        </ng-container>
-      </div>
     </div>
   </header>
 

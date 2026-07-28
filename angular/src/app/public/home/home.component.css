@@ -2,50 +2,6 @@
   width: 100%;
 }
 
-.public-header {
-  background: #1a1b2e;
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-}
-
-.public-header nav {
-  max-width: 1440px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.public-header .logo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #ff5e57;
-  text-decoration: none;
-}
-
-.public-header .nav-links {
-  display: flex;
-  gap: 1.25rem;
-}
-
-.public-header .nav-links a {
-  color: #c7c9d3;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.public-header .nav-links a:hover {
-  color: #fff;
-}
-
-@media (max-width: 640px) {
-  .public-header .nav-links {
-    gap: 0.75rem;
-    font-size: 0.9rem;
-  }
-}
-
 .hero {
   background: linear-gradient(135deg, #2b2d42 0%, #1a1b2e 100%);
   color: #fff;
@@ -302,6 +258,10 @@
 }
 
 @media (max-width: 640px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+
   .hero h1 {
     font-size: 1.75rem;
   }
@@ -314,6 +274,10 @@
     flex-direction: column;
   }
 
+  .page-content {
+    padding: 1.5rem 1rem;
+  }
+
   .game-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 0.85rem;
@@ -321,5 +285,9 @@
 
   .game-grid.large {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .section-title {
+    font-size: 1.35rem;
   }
 }

@@ -102,9 +102,36 @@
 }
 
 @media (max-width: 640px) {
+  .player-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .player-stats {
+    gap: 1rem;
+    justify-content: space-around;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .tabs button {
+    flex: 1;
+    padding: 0.75rem;
+  }
+
   .game-grid,
   .skeleton-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 0.85rem;
+  }
+
+  .remove {
+    width: 2rem;
+    height: 2rem;
   }
 }

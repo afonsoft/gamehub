@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,6 +15,9 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
   imports: [CommonModule, TranslatePipe],
   templateUrl: './game-frame.component.html',
   styleUrl: './game-frame.component.css',
+  host: {
+    '[class.fullscreen]': 'isFullscreenActive',
+  },
 })
 export class GameFrameComponent implements OnInit, OnDestroy {
   @ViewChild('frame') frame!: ElementRef<HTMLIFrameElement>;
@@ -25,6 +28,7 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   loadingError = false;
   startError: string | null = null;
   isFullscreen = false;
+  fallbackFullscreen = false;
   isFocused = false;
   controlsHint = '';
   showSkip = false;
@@ -58,6 +62,10 @@ export class GameFrameComponent implements OnInit, OnDestroy {
   private readonly bridge = inject(GameplayBridgeService);
   private readonly player = inject(PlayerService);
   private readonly token = inject(TokenService);
+
+  get isFullscreenActive(): boolean {
+    return this.isFullscreen || this.fallbackFullscreen;
+  }
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
@@ -209,6 +217,10 @@ export class GameFrameComponent implements OnInit, OnDestroy {
       this.bridge.stopSession(this.sessionId).subscribe();
     }
     this.bridge.setReplyHandler(undefined);
+    if (this.fallbackFullscreen) {
+      this.fallbackFullscreen = false;
+      this.toggleParentScroll(true);
+    }
   }
 
   back(): void {
@@ -217,13 +229,45 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
   toggleFullscreen(): void {
     const frame = this.frame?.nativeElement;
-    if (!frame) return;
-
-    if (!document.fullscreenElement) {
-      frame.requestFullscreen?.().catch(() => {});
-    } else {
-      document.exitFullscreen?.().catch(() => {});
+    if (!frame) {
+      return;
     }
+
+    if (this.fallbackFullscreen) {
+      this.fallbackFullscreen = false;
+      this.toggleParentScroll(true);
+      return;
+    }
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {});
+      return;
+    }
+
+    if (frame.requestFullscreen) {
+      frame.requestFullscreen().catch(() => {
+        this.tryDocumentFullscreen();
+      });
+      return;
+    }
+
+    this.tryDocumentFullscreen();
+  }
+
+  private tryDocumentFullscreen(): void {
+    const html = document.documentElement;
+    if (html.requestFullscreen && document.fullscreenEnabled) {
+      html.requestFullscreen().catch(() => {
+        this.enableCssFullscreen();
+      });
+      return;
+    }
+    this.enableCssFullscreen();
+  }
+
+  private enableCssFullscreen(): void {
+    this.fallbackFullscreen = true;
+    this.toggleParentScroll(false);
   }
 
   skipCutscene(): void {
@@ -299,6 +343,9 @@ export class GameFrameComponent implements OnInit, OnDestroy {
 
   private onFullscreenChange(): void {
     this.isFullscreen = !!document.fullscreenElement;
+    if (this.isFullscreen) {
+      this.fallbackFullscreen = false;
+    }
   }
 
   private onFocusChange(event: FocusEvent, focused: boolean): void {

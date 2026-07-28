@@ -51,6 +51,7 @@
     loading="eager"
     sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-forms"
     allow="fullscreen; gamepad"
+    allowfullscreen
     referrerpolicy="no-referrer"
     (load)="onFrameLoad()">
   </iframe>
@@ -61,7 +62,7 @@
     (click)="toggleFullscreen()"
     [attr.aria-label]="'gameFrame.fullscreen' | translate"
     type="button">
-    {{ isFullscreen ? ('gameFrame.exitFullscreen' | translate) : ('gameFrame.fullscreen' | translate) }}
+    {{ isFullscreenActive ? ('gameFrame.exitFullscreen' | translate) : ('gameFrame.fullscreen' | translate) }}
   </button>
 
   <button

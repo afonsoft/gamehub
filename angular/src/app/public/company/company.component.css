@@ -1,6 +1,6 @@
 .company-page {
   max-width: 720px;
-  margin: 2rem auto;
+  margin: 1.5rem auto;
   padding: 0 1rem;
 }
 
@@ -10,6 +10,16 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .company-page {
+    margin: 1rem auto;
+  }
+
+  .company-card {
+    padding: 1rem;
+  }
 }
 
 .company-card h1 {
