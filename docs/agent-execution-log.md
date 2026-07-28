@@ -1,3 +1,22 @@
+## 2026-07-28 23:43 UTC
+
+### Tarefa
+Subir backend localmente para regenerar service proxies e corrigir conflito de schema Swagger após migração EAF 9.4.0.
+
+### Implementado
+- `Api/src/GameHub.Web.Host/Models/HubAuth/*.cs`: renomeados `AvailableTenantsModel`, `SelectTenantModel` e `AvailableTenantResult` para prefixo `Hub` (evita conflito com DTOs homônimos do `TokenAuthController` do EAF 9.4.0).
+- `Api/src/GameHub.Web.Host/Controllers/HubAuthController.cs`: atualizadas referências e adicionados `[ProducesResponseType]` para gerar contratos Swagger tipados.
+- `Api/test/GameHub.Tests/Controllers/HubAuthController_Tests.cs`: ajustados tipos renomeados.
+- `angular-admin/GameHub.UI/src/shared/service-proxies/service-proxies.ts`: regenerado via `npm run service-update` contra o backend local.
+- `angular-admin/GameHub.UI/src/shared/service-proxies/service-proxy.module.ts`: atualizada lista de providers para refletir os proxies gerados.
+
+### Validação
+- Backend subiu com PostgreSQL em Docker (`gamehub-postgres`).
+- Swagger respondeu em `http://localhost:8001/swagger/v1/swagger.json` após o ajuste dos DTOs.
+- `dotnet build Api/GameHub.sln -c Release`: OK.
+- `dotnet test Api/GameHub.sln -c Release --no-build`: 371 passed, 2 skipped.
+- `npm run build` no `angular-admin/GameHub.UI`: OK.
+
 ## 2026-07-28 12:19 UTC
 
 ### Tarefa

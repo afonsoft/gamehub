@@ -1,6 +1,6 @@
 namespace GameHub.Web.Models.HubAuth
 {
-    public class AvailableTenantResult
+    public class HubAvailableTenantResult
     {
         public int TenantId { get; set; }
         public string TenantName { get; set; }

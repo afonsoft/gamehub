@@ -54,7 +54,8 @@ namespace GameHub.Web.Controllers
         /// Authenticates the host user and returns the list of tenants it can access.
         /// </summary>
         [HttpPost("available-tenants")]
-        public virtual async Task<IActionResult> GetAvailableTenants([FromBody] AvailableTenantsModel model)
+        [ProducesResponseType(typeof(List<HubAvailableTenantResult>), 200)]
+        public virtual async Task<IActionResult> GetAvailableTenants([FromBody] HubAvailableTenantsModel model)
         {
             using (var uow = _unitOfWorkManager.Begin())
             using (_unitOfWorkManager.Current.DisableFilter(AbpDataFilters.MayHaveTenant))
@@ -63,11 +64,11 @@ namespace GameHub.Web.Controllers
                 if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                     throw new UserFriendlyException(L("InvalidUserNameOrPassword"));
 
-                List<AvailableTenantResult> result;
+                List<HubAvailableTenantResult> result;
                 if (user.TenantId.HasValue)
                 {
                     var tenant = await _tenantRepository.GetAsync(user.TenantId.Value);
-                    result = new List<AvailableTenantResult>
+                    result = new List<HubAvailableTenantResult>
                     {
                         new()
                         {
@@ -84,7 +85,7 @@ namespace GameHub.Web.Controllers
                     if (memberships.Count == 0)
                     {
                         await uow.CompleteAsync();
-                        return Ok(new List<AvailableTenantResult>());
+                        return Ok(new List<HubAvailableTenantResult>());
                     }
 
                     var tenantIds = memberships.Select(m => m.TenantId).Distinct().ToList();
@@ -94,7 +95,7 @@ namespace GameHub.Web.Controllers
                         .Select(m =>
                         {
                             var tenant = tenants.FirstOrDefault(t => t.Id == m.TenantId);
-                            return new AvailableTenantResult
+                            return new HubAvailableTenantResult
                             {
                                 TenantId = m.TenantId,
                                 TenantName = tenant?.Name,
@@ -114,7 +115,8 @@ namespace GameHub.Web.Controllers
         /// Selects a tenant for the authenticated host user and issues an access token for the tenant-level user.
         /// </summary>
         [HttpPost("select-tenant")]
-        public virtual async Task<IActionResult> SelectTenant([FromBody] SelectTenantModel model)
+        [ProducesResponseType(typeof(SelectTenantResult), 200)]
+        public virtual async Task<IActionResult> SelectTenant([FromBody] HubSelectTenantModel model)
         {
             using (var uow = _unitOfWorkManager.Begin())
             using (_unitOfWorkManager.Current.DisableFilter(AbpDataFilters.MayHaveTenant))
