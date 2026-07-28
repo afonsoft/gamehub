@@ -15,7 +15,7 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Abp.Castle.Log4Net" Version="10.4.0" /> 
+		<PackageReference Include="Abp.Castle.Log4Net" Version="10.5.0" /> 
 		<ProjectReference Include="..\GameHub.EntityFrameworkCore\GameHub.EntityFrameworkCore.csproj" />
 	</ItemGroup>
 </Project>

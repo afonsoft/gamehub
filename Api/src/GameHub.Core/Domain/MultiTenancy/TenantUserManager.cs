@@ -7,7 +7,6 @@ using Abp.Domain.Uow;
 using Abp.IdentityFramework;
 using Abp.UI;
 using Eaf.Middleware.Authorization.Users;
-using Eaf.Middleware.MultiTenancy;
 using Microsoft.AspNetCore.Identity;
 using UserManager = Eaf.Middleware.Authorization.Users.UserManager;
 
@@ -17,7 +16,7 @@ namespace GameHub.MultiTenancy
     {
         private readonly IRepository<UserTenantMembership, long> _membershipRepository;
         private readonly IRepository<User, long> _userRepository;
-        private readonly IRepository<Tenant, int> _tenantRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
         private readonly UserManager _userManager;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
@@ -25,7 +24,7 @@ namespace GameHub.MultiTenancy
         public TenantUserManager(
             IRepository<UserTenantMembership, long> membershipRepository,
             IRepository<User, long> userRepository,
-            IRepository<Tenant, int> tenantRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
             UserManager userManager,
             IPasswordHasher<User> passwordHasher,
             IUnitOfWorkManager unitOfWorkManager)

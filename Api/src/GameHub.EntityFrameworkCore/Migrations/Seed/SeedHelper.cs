@@ -101,7 +101,7 @@ namespace GameHub.Migrations.Seed
                 }
             }
 
-            context.UserTenantMemberships.Add(new UserTenantMembership
+            context.UserTenantMemberships.Add(new GameHub.MultiTenancy.UserTenantMembership
             {
                 UserId = hostAdmin.Id,
                 TenantId = defaultTenant.Id,

@@ -126,7 +126,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<ArbitraryUserDataRecord> ArbitraryUserDataRecords { get; set; }
         public virtual DbSet<GameInvite> GameInvites { get; set; }
         public virtual DbSet<GameNotification> GameNotifications { get; set; }
-        public virtual DbSet<UserTenantMembership> UserTenantMemberships { get; set; }
+        public virtual DbSet<GameHub.MultiTenancy.UserTenantMembership> UserTenantMemberships { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

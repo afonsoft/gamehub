@@ -11,7 +11,6 @@ using Abp.Runtime.Caching;
 using Abp.Timing;
 using Eaf.Middleware.Chat;
 using Eaf.Middleware.Authorization.Users;
-using Eaf.Middleware.MultiTenancy;
 using GameHub.Catalog;
 using GameHub.Multiplayer;
 using GameHub.MultiTenancy;
@@ -30,8 +29,8 @@ namespace GameHub.Chat
         private const int MaxMessagesPerMinute = 30;
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<MatchState, Guid> _matchRepository;
-        private readonly IRepository<Tenant, int> _tenantRepository;
-        private readonly IRepository<UserTenantMembership, long> _membershipRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
+        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _membershipRepository;
         private readonly IChatMessageManager _chatMessageManager;
         private readonly ITypedCache<string, string> _deduplicationCache;
         private readonly ITypedCache<string, string> _rateLimitCache;
@@ -39,8 +38,8 @@ namespace GameHub.Chat
         public GameChatAppService(
             IRepository<Game, Guid> gameRepository,
             IRepository<MatchState, Guid> matchRepository,
-            IRepository<Tenant, int> tenantRepository,
-            IRepository<UserTenantMembership, long> membershipRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
+            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> membershipRepository,
             IChatMessageManager chatMessageManager,
             ICacheManager cacheManager)
         {
