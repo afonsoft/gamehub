@@ -1,0 +1,38 @@
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>API Sandbox</span>
+        </h3>
+        <span class="m-section__sub">Swagger-style endpoint explorer.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet">
+      <div class="m-portlet__body">
+        <div *ngIf="checking" class="alert alert-info">Checking Swagger availability...</div>
+
+        <div *ngIf="!checking && swaggerAvailable" class="swagger-wrapper">
+          <iframe [src]="swaggerUrl" width="100%" height="800" title="Swagger UI"></iframe>
+        </div>
+
+        <div *ngIf="!checking && !swaggerAvailable">
+          <div class="alert alert-warning">{{ errorMessage }}</div>
+          <p>Use the examples below to test the API manually.</p>
+
+          <h5>Authentication</h5>
+          <pre class="bg-light p-2 rounded"><code>{{ examples.auth }}</code></pre>
+
+          <h5>Catalog</h5>
+          <pre class="bg-light p-2 rounded"><code>{{ examples.games }}</code></pre>
+
+          <h5>Gameplay</h5>
+          <pre class="bg-light p-2 rounded"><code>{{ examples.gameplay }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

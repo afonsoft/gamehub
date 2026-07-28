@@ -1,0 +1,80 @@
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>GameHub Docs</span>
+        </h3>
+        <span class="m-section__sub">Admin, SDK and API guides.</span>
+      </div>
+      <div class="col-auto">
+        <div class="btn-group" role="group" aria-label="Language">
+          <button type="button" class="btn btn-sm" [class.btn-primary]="lang === 'pt'" [class.btn-default]="lang !== 'pt'" (click)="setLang('pt')">PT</button>
+          <button type="button" class="btn btn-sm" [class.btn-primary]="lang === 'en'" [class.btn-default]="lang !== 'en'" (click)="setLang('en')">EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet">
+      <div class="m-portlet__body">
+        <section *ngIf="lang === 'pt'">
+          <h4>Guia do Admin</h4>
+          <p>O painel GameHub centraliza moderação, builds, empresas/tenants, reports e métricas.</p>
+          <ul>
+            <li><strong>Dashboard:</strong> plays diários, jogos em alta e uploads recentes.</li>
+            <li><strong>Games:</strong> lista de jogos publicados e pendentes com ações de suspensão.</li>
+            <li><strong>Uploads / Inspector:</strong> valide builds, visualize arquivos e execute checklists de qualidade.</li>
+            <li><strong>Moderation:</strong> aprove, rejeite ou peça alterações em jogos enviados para revisão.</li>
+            <li><strong>Companies:</strong> gerencie tenants/empresas e associe funcionários.</li>
+            <li><strong>Reports:</strong> revise denúncias de jogadores e atualize status.</li>
+            <li><strong>API Sandbox:</strong> teste endpoints com Swagger quando disponível.</li>
+          </ul>
+
+          <h4>Guia do SDK</h4>
+          <p>Carregue o script no <code>index.html</code> do jogo e chame os eventos de ciclo de vida.</p>
+          <pre class="bg-light p-2 rounded"><code>{{ sdkExamples.init }}</code></pre>
+          <p>Anúncios e recompensas são opcionais; trate erros para não travar o jogo.</p>
+          <pre class="bg-light p-2 rounded"><code>{{ sdkExamples.ads }}</code></pre>
+
+          <h4>Guia da API</h4>
+          <p>Autentique-se e use os endpoints REST. A URL base depende do ambiente.</p>
+          <pre class="bg-light p-2 rounded"><code>{{ apiExamples.auth }}</code></pre>
+          <p>Catálogo público e gameplay:</p>
+          <pre class="bg-light p-2 rounded"><code>{{ apiExamples.catalog }}
+
+{{ apiExamples.gameplay }}</code></pre>
+        </section>
+
+        <section *ngIf="lang === 'en'">
+          <h4>Admin Guide</h4>
+          <p>The GameHub panel centralizes moderation, builds, companies/tenants, reports and metrics.</p>
+          <ul>
+            <li><strong>Dashboard:</strong> daily plays, trending games and recent uploads.</li>
+            <li><strong>Games:</strong> list of published and pending games with suspend actions.</li>
+            <li><strong>Uploads / Inspector:</strong> validate builds, browse files and run quality checklists.</li>
+            <li><strong>Moderation:</strong> approve, reject or request changes for submitted games.</li>
+            <li><strong>Companies:</strong> manage tenants/companies and associate employees.</li>
+            <li><strong>Reports:</strong> review player reports and update statuses.</li>
+            <li><strong>API Sandbox:</strong> test endpoints with Swagger when enabled.</li>
+          </ul>
+
+          <h4>SDK Guide</h4>
+          <p>Load the script in your game's <code>index.html</code> and call lifecycle events.</p>
+          <pre class="bg-light p-2 rounded"><code>{{ sdkExamples.init }}</code></pre>
+          <p>Ads and rewarded breaks are optional; handle errors so the game keeps running.</p>
+          <pre class="bg-light p-2 rounded"><code>{{ sdkExamples.ads }}</code></pre>
+
+          <h4>API Guide</h4>
+          <p>Authenticate and use the REST endpoints. The base URL depends on the environment.</p>
+          <pre class="bg-light p-2 rounded"><code>{{ apiExamples.auth }}</code></pre>
+          <p>Public catalog and gameplay:</p>
+          <pre class="bg-light p-2 rounded"><code>{{ apiExamples.catalog }}
+
+{{ apiExamples.gameplay }}</code></pre>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

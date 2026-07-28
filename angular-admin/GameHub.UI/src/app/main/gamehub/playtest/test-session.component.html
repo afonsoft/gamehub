@@ -1,0 +1,51 @@
+<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>Test Session</span>
+        </h3>
+        <span class="m-section__sub">Preview and test games before publication.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-content">
+    <div class="m-portlet">
+      <div class="m-portlet__body">
+        <div class="row">
+          <div class="col-md-4 form-group">
+            <label for="testGameId">Game ID</label>
+            <input id="testGameId" type="text" class="form-control" [(ngModel)]="gameId" placeholder="Game GUID" />
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="testVersion">Build Version</label>
+            <input id="testVersion" type="text" class="form-control" [(ngModel)]="version" placeholder="e.g. 1.0.0" />
+          </div>
+          <div class="col-md-5 form-group">
+            <label for="testNotes">Notes</label>
+            <input id="testNotes" type="text" class="form-control" [(ngModel)]="notes" placeholder="Optional playtest notes" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <button type="button" class="btn btn-primary m--margin-right-10" (click)="startTest()" [disabled]="loading">
+              Start Preview
+            </button>
+            <button type="button" class="btn btn-info" (click)="requestPlaytest()" [disabled]="loading">
+              Request Playtest
+            </button>
+            <span *ngIf="loading" class="m--margin-left-10">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger m--margin-top-20">{{ error }}</div>
+
+        <div *ngIf="previewUrl" class="m--margin-top-20">
+          <iframe [src]="previewUrl" width="100%" height="600" style="border: 1px solid #e5e7eb; border-radius: 4px;" title="Game Preview"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

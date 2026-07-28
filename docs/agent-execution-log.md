@@ -1,3 +1,26 @@
+## 2026-07-28 00:05 UTC
+
+### Tarefa
+Adicionar test session, documentações detalhadas e sandbox de API no painel admin do GameHub.
+
+### Implementado
+- `angular-admin/GameHub.UI/src/app/main/gamehub/docs/`:
+  - `DocsComponent` com guias de Admin, SDK e API, com alternância de idioma pt/en.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/api-sandbox/`:
+  - `ApiSandboxComponent` verifica se `/swagger/v1/swagger.json` está acessível; quando sim, exibe Swagger UI em iframe; quando não, mostra exemplos de curl.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/playtest/test-session.component.ts/.html`:
+  - Formulário para inserir `GameId`, `Version` e `Notes`.
+  - Botões "Start Preview" (cria preview token via `GamePreview/CreatePreviewToken`) e "Request Playtest" (`Playtest/RequestPlaytest`).
+  - Preview do jogo em iframe com URL pública derivada a partir de `remoteServiceBaseUrl`.
+- `GameHubAdminService`: adicionados `createPreviewToken` e `requestPlaytest`.
+- `app-navigation.service.ts`: itens de menu `Test Session`, `Docs` e `API Sandbox`.
+- `gamehub-routing.module.ts` e `gamehub.module.ts`: rotas e declarações dos novos componentes.
+
+### Validação
+- `dotnet test Api/GameHub.sln -c Release --no-restore`: 365 passed, 2 skipped, 0 failed.
+- `npm run build` em `angular-admin/GameHub.UI/`: OK.
+- `npm run build` em `angular/`: OK (aviso residual de budget em `home.component.css`).
+
 ## 2026-07-27 23:55 UTC
 
 ### Tarefa

@@ -338,6 +338,19 @@ export class GameHubAdminService {
     return this.http.post<PlaytestRecording>(`${this.baseUrl}/api/services/app/Playtest/AddNotes`, { recordingId: id, notes }).pipe(map(this.unwrapResult));
   }
 
+  createPreviewToken(gameId: string, version: string): Observable<{ token: string; previewUrl: string; version: string; gameSlug: string }> {
+    return this.http
+      .post<{ token: string; previewUrl: string; version: string; gameSlug: string } | { result?: { token: string; previewUrl: string; version: string; gameSlug: string } }>(
+        `${this.baseUrl}/api/services/app/GamePreview/CreatePreviewToken`,
+        { gameId, version },
+      )
+      .pipe(map(this.unwrapResult));
+  }
+
+  requestPlaytest(gameId: string, notes = ''): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/services/app/Playtest/RequestPlaytest`, { gameId, notes }).pipe(map(this.unwrapResult));
+  }
+
   private unwrapResult = (response: any): any => {
     return response && typeof response === 'object' && 'result' in response ? response.result : response;
   };
