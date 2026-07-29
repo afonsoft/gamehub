@@ -31,7 +31,7 @@ namespace GameHub.Tests.Controllers
             var controller = CreateController();
 
             // Act
-            var result = await controller.GetAvailableTenants(new AvailableTenantsModel
+            var result = await controller.GetAvailableTenants(new HubAvailableTenantsModel
             {
                 UserNameOrEmailAddress = Abp.Authorization.Users.AbpUserBase.AdminUserName,
                 Password = "123qwe",
@@ -39,7 +39,7 @@ namespace GameHub.Tests.Controllers
 
             // Assert
             var ok = result.ShouldBeAssignableTo<OkObjectResult>();
-            var tenants = ok.Value.ShouldBeAssignableTo<List<AvailableTenantResult>>();
+            var tenants = ok.Value.ShouldBeAssignableTo<List<HubAvailableTenantResult>>();
             tenants.ShouldContain(t => t.TenancyName == Abp.MultiTenancy.AbpTenantBase.DefaultTenantName);
         }
 
@@ -50,18 +50,18 @@ namespace GameHub.Tests.Controllers
             var controller = CreateController();
 
             // Act
-            var availableResult = await controller.GetAvailableTenants(new AvailableTenantsModel
+            var availableResult = await controller.GetAvailableTenants(new HubAvailableTenantsModel
             {
                 UserNameOrEmailAddress = Abp.Authorization.Users.AbpUserBase.AdminUserName,
                 Password = "123qwe",
             });
 
             var ok = availableResult.ShouldBeAssignableTo<OkObjectResult>();
-            var tenants = ok.Value.ShouldBeAssignableTo<List<AvailableTenantResult>>();
+            var tenants = ok.Value.ShouldBeAssignableTo<List<HubAvailableTenantResult>>();
             var defaultTenant = tenants.Find(t => t.TenancyName == Abp.MultiTenancy.AbpTenantBase.DefaultTenantName);
             defaultTenant.ShouldNotBeNull();
 
-            var selectResult = await controller.SelectTenant(new SelectTenantModel
+            var selectResult = await controller.SelectTenant(new HubSelectTenantModel
             {
                 UserNameOrEmailAddress = Abp.Authorization.Users.AbpUserBase.AdminUserName,
                 Password = "123qwe",
@@ -83,7 +83,7 @@ namespace GameHub.Tests.Controllers
 
             // Act & Assert
             await Should.ThrowAsync<Abp.UI.UserFriendlyException>(async () =>
-                await controller.GetAvailableTenants(new AvailableTenantsModel
+                await controller.GetAvailableTenants(new HubAvailableTenantsModel
                 {
                     UserNameOrEmailAddress = "unknown",
                     Password = "wrong",
@@ -98,7 +98,7 @@ namespace GameHub.Tests.Controllers
             var controller = CreateController();
 
             // Act
-            var result = await controller.GetAvailableTenants(new AvailableTenantsModel
+            var result = await controller.GetAvailableTenants(new HubAvailableTenantsModel
             {
                 UserNameOrEmailAddress = user.UserName,
                 Password = TestHostPassword,
@@ -106,7 +106,7 @@ namespace GameHub.Tests.Controllers
 
             // Assert
             var ok = result.ShouldBeAssignableTo<OkObjectResult>();
-            var tenants = ok.Value.ShouldBeAssignableTo<List<AvailableTenantResult>>();
+            var tenants = ok.Value.ShouldBeAssignableTo<List<HubAvailableTenantResult>>();
             tenants.ShouldBeEmpty();
         }
 
