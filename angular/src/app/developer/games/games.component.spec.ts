@@ -4,8 +4,17 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DeveloperGamesComponent } from './games.component';
 import { DeveloperService } from '../../core/services/developer.service';
 import { ErrorMapperService } from '../../core/services/error-mapper.service';
+import { I18nService } from '../../core/i18n/i18n.service';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
 import { provideRouter } from '@angular/router';
+
+const mockI18nService: I18nService = {
+  currentLang$: of('pt-BR'),
+  translate: (key: string) => key,
+  setLanguage: () => Promise.resolve(),
+  init: () => Promise.resolve(),
+  getCurrentLang: () => 'pt-BR',
+} as unknown as I18nService;
 
 describe('DeveloperGamesComponent', () => {
   let fixture: ComponentFixture<DeveloperGamesComponent>;
@@ -35,6 +44,7 @@ describe('DeveloperGamesComponent', () => {
       providers: [
         { provide: DeveloperService, useValue: developerService },
         ErrorMapperService,
+        { provide: I18nService, useValue: mockI18nService },
         provideRouter([]),
       ],
     }).compileComponents();
