@@ -5,14 +5,14 @@
   <div class="{{ ui.getSideBarMenuClass() }}" id="kt_quick_sidebar">
     <header class="bs-canvas-header p-3 bg-primary overflow-auto">
       <button (click)="reversePinned()" aria-label="Pinned" class="bs-canvas-close float-left close pinned" type="button">
-        <i [ngClass]="{ 'fa-rotate-90': !pinned }" aria-label="Pinned" class="fa fa-map-pin"> </i>
+        <i [ngClass]="{ 'fa-rotate-90': !pinned }" aria-label="Pinned" class="fa fa-map-pin text-light"> </i>
       </button>
       <button (click)="closeChat()" aria-label="Close" class="bs-canvas-close float-left close" type="button">
         <span aria-hidden="true" class="text-light">&times;</span>
       </button>
       <h4 class="d-inline-block text-light mb-0 float-right">Chat</h4>
     </header>
-    <div class="bs-canvas-content" style="width: 96%">
+    <div class="bs-canvas-content chat-shell">
       <div class="flex-row-auto">
         <div [hidden]="selectedUser.friendUserId || selectedUser.groupId" class="card card-custom offcanvas-body bs-canvas-content">
           <div class="card-body">
@@ -64,7 +64,7 @@
           class="flex-row-fluid offcanvas-body bs-canvas-content"
           id="kt_chat_content"
         >
-          <div class="card card-custom">
+          <div class="card card-custom chat-conversation">
             <!--begin::Header-->
             <div class="card-header align-items-center row">
               <div class="text-left flex-grow-1">
@@ -149,7 +149,7 @@
             <div class="card-body row">
               <ng-scrollbar
                 #chatScrollBar
-                style="height: 78vh"
+                class="chat-messages-scroll"
               >
                 <!--begin::Scroll-->
                 <div class="scroll scroll-pull">
@@ -171,10 +171,9 @@
                         </div>
                         <div>
                           <span
-                            class="text-dark-75 text-hover-primary font-weight-bold font-size-h6"
+                            class="text-dark-75 text-hover-primary font-weight-bold font-size-h6 text-primary"
                             data-placement="top"
                             data-toggle="tooltip"
-                            style="color: #ff7020"
                             title="{{ getTitle(currentUser) }}"
                           >
                             {{ currentUser.name }}
@@ -204,10 +203,9 @@
                           </time>
                           <div [innerHTML]="getReadStateHtml(message)" class="d-inline"></div>
                           <span
-                            class="text-dark-75 text-hover-primary font-weight-bold font-size-h6"
+                            class="text-dark-75 text-hover-primary font-weight-bold font-size-h6 text-primary"
                             data-placement="top"
                             data-toggle="tooltip"
-                            style="color: #ff7020"
                             title="{{ getTitle(selectedUser, message) }}"
                           >
                             {{ getFriendName(selectedUser, message) }}
@@ -256,7 +254,7 @@
                     ></div>
                   </div>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-12 chat-composer">
                   <textarea
                     (keydown.Enter)="sendMessage($event)"
                     [(ngModel)]="chatMessage"
@@ -274,7 +272,7 @@
                   </textarea>
                 </div>
                 <div class="d-flex align-items-end justify-content-between mt-1 row" style="padding-top: 5px">
-                  <div class="col-8 align-items-start ustify-content-between" style="text-align: start; padding-left: 30px">
+                  <div class="col-8 align-items-start ustify-content-between chat-attachment-actions" style="text-align: start; padding-left: 30px">
                     <!--begin::anexo-->
                     <fieldset aria-label="Basic example" class="btn-group btn-group-sm">
                       <button
@@ -310,7 +308,7 @@
                     </fieldset>
                     <!--end::anexo-->
                   </div>
-                  <div class="col-4 align-items-end justify-content-between" style="text-align: end">
+                  <div class="col-4 align-items-end justify-content-between chat-send-actions" style="text-align: end">
                     <button
                       (click)="sendMessage($event)"
                       class="btn btn-primary btn-md text-uppercase font-weight-bold chat-send py-2 px-6"
