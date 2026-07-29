@@ -1,3 +1,16 @@
+## 2026-07-29 12:50 UTC
+
+### Tarefa
+Ajustar cores e layout do `chat-bar` do admin GameHub para o tema Metronic/EAF e sincronizar o template EAF.
+
+### Implementado
+- `angular-admin/GameHub.UI/src/app/shared/layout/chat/chat-bar.component.{html,css}`: tema, layout flex, status dots, previews de arquivo/link, botões de anexo e fallback do header.
+- `Templates/Angular/Eaf.ProjectName.UI/src/app/shared/layout/chat/chat-bar.component.{html,css}` (EAF): mesmas correções de cor e escopo do `.card`.
+- `.specs/2026-07-29-chat-bar-template-eaf-sync.md`: especificação das mudanças para o template EAF.
+
+### Validação
+- `ng serve` compilou com sucesso após as alterações.
+
 ## 2026-07-28 23:43 UTC
 
 ### Tarefa
