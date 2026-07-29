@@ -1160,7 +1160,26 @@ body .ui-table .ui-table-tbody>tr {
     margin: 0 0 0 12px;
     vertical-align: top;
     line-height: 34px;
-    width: calc(100% - 75px);
+    width: auto;
+}
+
+.m-switch input:empty ~ span.m-switch-label {
+    position: static;
+    float: none;
+    display: inline-block;
+    width: auto;
+    height: auto;
+    line-height: 34px;
+    text-indent: 0;
+    cursor: default;
+    margin: 0 0 0 12px;
+    vertical-align: top;
+}
+
+.m-switch input:empty ~ span.m-switch-label:before,
+.m-switch input:empty ~ span.m-switch-label:after {
+    content: none !important;
+    display: none !important;
 }
 
 .m-link:hover {

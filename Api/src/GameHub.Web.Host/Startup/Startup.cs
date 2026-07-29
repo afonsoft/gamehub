@@ -152,7 +152,7 @@ namespace GameHub.Web.Startup
             // Add OpenTelemetry and configure it to use Azure Monitor.
 
             // Configure CORS for GameHub Hub and Admin frontends
-            services.AddEafCors(
+            services.AddGameHubCors(
                 _appConfiguration,
                 _hostingEnvironment.IsDevelopment(),
                 GameHubConsts.DefaultCorsPolicyName);
