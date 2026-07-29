@@ -1,5 +1,6 @@
 using Eaf.Middleware.Web.Startup;
 using GameHub;
+using GameHub.Web.Startup;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ namespace GameHub.Tests.Middleware
     public class CorsConfiguration_Tests
     {
         [Fact]
-        public void Dado_ConfiguracaoPadrao_Quando_AdicionarEafCors_Entao_DeveRegistrarPoliticaPadrao()
+        public void Dado_ConfiguracaoPadrao_Quando_AdicionarGameHubCors_Entao_DeveRegistrarPoliticaPadrao()
         {
             var services = new ServiceCollection();
             var config = new ConfigurationBuilder()
@@ -23,7 +24,7 @@ namespace GameHub.Tests.Middleware
                 })
                 .Build();
 
-            services.AddEafCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
+            services.AddGameHubCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
 
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
@@ -42,7 +43,7 @@ namespace GameHub.Tests.Middleware
                 .Build();
 
             var services = new ServiceCollection();
-            services.AddEafCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
+            services.AddGameHubCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
 
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
@@ -65,7 +66,7 @@ namespace GameHub.Tests.Middleware
                 .Build();
 
             var services = new ServiceCollection();
-            services.AddEafCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
+            services.AddGameHubCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
 
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
@@ -87,7 +88,7 @@ namespace GameHub.Tests.Middleware
                 .Build();
 
             var services = new ServiceCollection();
-            services.AddEafCors(config, isDevelopment: true, GameHubConsts.DefaultCorsPolicyName);
+            services.AddGameHubCors(config, isDevelopment: true, GameHubConsts.DefaultCorsPolicyName);
 
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
@@ -100,7 +101,7 @@ namespace GameHub.Tests.Middleware
         }
 
         [Fact]
-        public void Dado_PoliticaPadrao_Quando_AdicionarEafCors_Entao_DevePermitirHeadersDoEafHttpInterceptor()
+        public void Dado_PoliticaPadrao_Quando_AdicionarGameHubCors_Entao_DevePermitirHeadersDoEafHttpInterceptor()
         {
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
@@ -110,7 +111,7 @@ namespace GameHub.Tests.Middleware
                 .Build();
 
             var services = new ServiceCollection();
-            services.AddEafCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
+            services.AddGameHubCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
 
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
@@ -121,6 +122,27 @@ namespace GameHub.Tests.Middleware
             policy.Headers.ShouldContain("Cache-Control");
             policy.Headers.ShouldContain("Expires");
             policy.Headers.ShouldContain("Abp-TenantId");
+        }
+
+        [Fact]
+        public void Dado_RequisicaoSignalR_Quando_PoliticaPadrao_Entao_DevePermitirXSignalRUserAgent()
+        {
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { "App:CorsOrigins", "https://gamehub-admin.afonsoft.dev" }
+                })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddGameHubCors(config, isDevelopment: false, GameHubConsts.DefaultCorsPolicyName);
+
+            var provider = services.BuildServiceProvider();
+            var options = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CorsOptions>>().Value;
+            var policy = options.GetPolicy(GameHubConsts.DefaultCorsPolicyName);
+
+            policy.ShouldNotBeNull();
+            policy.Headers.ShouldContain("X-SignalR-User-Agent");
         }
     }
 }

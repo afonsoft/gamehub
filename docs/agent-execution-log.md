@@ -2013,3 +2013,24 @@ Ajustar teste `HubAuthController_Tests` para evitar senha literal e notificaçã
 
 ### Resultado
 - `dotnet test Api/GameHub.sln -c Release --no-build --filter "FullyQualifiedName~HubAuthController_Tests"` — 4 passaram, 0 falhas.
+
+## 2026-07-29 11:38 UTC
+
+### Tarefa
+Analisar e simular erros de produção (SignalR/CORS 504, WOFF2 OTS parse, m-switch duplicado, aria-hidden) e aplicar correções.
+
+### Arquivos alterados
+- `Api/src/GameHub.Web.Host/Startup/CorsConfigurationExtensions.cs` — extensão `AddGameHubCors` que envolve `AddEafCors` e adiciona `X-SignalR-User-Agent` na política CORS.
+- `Api/src/GameHub.Web.Host/Startup/Startup.cs` — usa `AddGameHubCors` no lugar de `AddEafCors`.
+- `Api/test/GameHub.Tests/Middleware/CorsConfiguration_Tests.cs` — testes passam a validar `AddGameHubCors` e novo caso `Dado_RequisicaoSignalR_Quando_PoliticaPadrao_Entao_DevePermitirXSignalRUserAgent`.
+- `angular-admin/GameHub.UI/src/web.config` — regra de rewrite IIS não reescreve mais extensões de assets estáticos (woff2, js, css, etc.).
+- `angular-admin/GameHub.UI/src/assets/common/styles/styles.css` — override `.m-switch input:empty ~ span.m-switch-label` remove pseudo-elementos do label.
+- `angular-admin/GameHub.UI/src/app/**/*-modal.component.html` — removido `aria-hidden="true"` do `div` raiz dos modais.
+- `.specs/2026-07-29-correcao-erros-gamehub.md` — plano de correção.
+- `.specs/2026-07-29-eaf-template-sync.md` — especificação de sincronização no template EAF.
+
+### Simulação / Validação
+- Build da API (`dotnet build Api/GameHub.sln -c Release --no-restore`) sucesso.
+- Testes CORS (`dotnet test Api/test/GameHub.Tests/GameHub.Tests.csproj -c Release --filter "FullyQualifiedName~CorsConfiguration_Tests"`) — 6 passaram, 0 falhas.
+- Build do admin (`npx ng build --configuration=production`) sucesso; fonte `Inter-roman.var.*.woff2` presente no `dist`.
+- Página `mswitch-test.html` carregando `style.bundle.css` + `styles.css` reproduziu o m-switch duplicado antes da correção e ficou correto após o override CSS.
