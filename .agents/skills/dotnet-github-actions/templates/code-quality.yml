@@ -1,0 +1,202 @@
+name: Code Quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - releases/*
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  SOLUTION_FILE: 'TODO.sln'  # Replace with the repo solution file
+  SONAR_PROJECT_KEY: 'owner_repo'  # Replace with the SonarCloud project key
+
+jobs:
+  qodana:
+    name: Qodana Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2026.1.3
+        continue-on-error: true
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          args: '--baseline,qodana.sarif.json,--fail-threshold,0'
+          cache-default-branch-only: true
+          upload-result: false
+
+      - name: Upload Qodana Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: qodana-report
+          path: ${{ github.workspace }}/qodana
+
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Clear NuGet cache
+        run: dotnet nuget locals all --clear
+
+      - name: Install SonarScanner
+        run: |
+          dotnet tool install --global --ignore-failed-sources dotnet-sonarscanner
+
+      - name: Begin SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "SONAR_TOKEN not configured; skipping SonarQube"
+            exit 0
+          fi
+
+          dotnet sonarscanner begin \
+            /o:"afonsoft" \
+            /k:"${{ env.SONAR_PROJECT_KEY }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.scm.provider=git \
+            /d:sonar.coverage.exclusions="**Test*.cs"
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release
+
+      - name: End SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            exit 0
+          fi
+
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+  snyk:
+    name: Snyk Security
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --ignore-failed-sources
+
+      - name: Install Snyk
+        run: |
+          curl -s https://static.snyk.io/cli/latest/snyk-linux -o snyk
+          chmod +x ./snyk
+          sudo mv ./snyk /usr/local/bin/
+
+      - name: Run Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "SNYK_TOKEN not configured; skipping Snyk"
+            exit 0
+          fi
+
+          snyk test --severity-threshold=high --all-projects || true
+
+  quality-metrics:
+    name: Quality Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --ignore-failed-sources
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore --verbosity minimal
+
+      - name: Calculate Metrics
+        run: |
+          echo "Lines of Code: $(find src -name '*.cs' -exec wc -l {} + | tail -1 | awk '{print $1}')"
+          echo "Test Files: $(find tests -name '*Tests.cs' 2>/dev/null | wc -l)"
+          echo "Projects: $(find src -name '*.csproj' | wc -l)"
+          echo "TODO Comments: $(grep -r 'TODO' src --include='*.cs' 2>/dev/null | wc -l)"
+
+  quality-summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [qodana, sonarqube, snyk, quality-metrics]
+    if: always()
+
+    steps:
+      - name: Summary
+        run: |
+          echo "## Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Tool | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Qodana | ${{ needs.qodana.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SonarQube | ${{ needs.sonarqube.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Snyk | ${{ needs.snyk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Metrics | ${{ needs.quality-metrics.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.qodana.result }}" == "failure" || "${{ needs.sonarqube.result }}" == "failure" || "${{ needs.snyk.result }}" == "failure" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Quality issues detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All quality checks passed." >> $GITHUB_STEP_SUMMARY
+          fi

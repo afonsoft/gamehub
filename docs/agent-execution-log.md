@@ -1,3 +1,12 @@
+## 2026-07-29 13:15 UTC
+
+### Tarefa
+Copiar do `afonsoft/agents-skills` as skills relevantes para o projeto GameHub, deixando-as disponíveis em `.agents/skills/`.
+
+### Implementado
+- Copiadas 32 skills para `.agents/skills/` cobrindo: ABP/EAF (`abp-core`, `abp-ddd`, `abp-angular`, `abp-testing`, etc.), .NET/ASP.NET Core (`aspnet-core-api`, `modern-csharp-coding-standards`, `ef-core`), PostgreSQL (`postgresql-optimization`, `postgresql-code-review`, `sql-optimization`), segurança (`security-jwt`), DevOps (`dotnet-github-actions`), frontend (`frontend-design`, `web-design-reviewer`), workflow de agentes (`verification-before-completion`, `systematic-debugging`, `dispatching-parallel-agents`, `testing-xunit`, `receiving-code-review`, `requesting-code-review`), e documentação Microsoft (`microsoft-docs`, `microsoft-code-reference`).
+- Mantida a skill existente `.agents/skills/testing-gamehub/SKILL.md`.
+
 ## 2026-07-29 12:50 UTC
 
 ### Tarefa
