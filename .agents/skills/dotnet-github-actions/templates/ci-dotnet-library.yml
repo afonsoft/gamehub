@@ -1,0 +1,134 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches:
+      - feature/*
+      - bug/*
+      - hotfix/*
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  SOLUTION_FILE: 'TODO.sln'  # Replace with the repo solution file
+  TEST_PROJECTS: ''          # Optional: override with a test csproj path
+
+jobs:
+  build:
+    name: Build & Test (.NET)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --no-cache --force
+
+      - name: Build
+        run: |
+          dotnet build ${{ env.SOLUTION_FILE }} \
+            --no-restore \
+            --configuration Release \
+            --verbosity minimal
+
+      - name: Test
+        run: |
+          if [ -n "${{ env.TEST_PROJECTS }}" ]; then
+            TEST_TARGET="${{ env.TEST_PROJECTS }}"
+          else
+            TEST_TARGET="${{ env.SOLUTION_FILE }}"
+          fi
+
+          dotnet test "$TEST_TARGET" \
+            --no-build \
+            --configuration Release \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory TestResults \
+            --collect:"XPlat Code Coverage" \
+            --verbosity normal
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results
+          path: |
+            TestResults/**/*.trx
+            TestResults/**/*.coverage
+          retention-days: 7
+
+      - name: Upload Coverage Reports
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage
+          path: TestResults/**/coverage.*
+          retention-days: 7
+
+  # Enable this job if the project targets .NET Framework 4.8 or needs Windows validation.
+  build-windows:
+    name: Build & Test (Windows)
+    runs-on: windows-latest
+    if: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --no-cache --force
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release --verbosity minimal
+
+      - name: Test (net48)
+        run: |
+          dotnet test tests/*.Tests/*.csproj `
+            --configuration Release `
+            --logger "trx;LogFileName=test-results-net48.trx" `
+            --results-directory TestResults `
+            --framework net48 `
+            --verbosity normal
+
+      - name: Upload Windows Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-windows
+          path: |
+            TestResults/**/*.trx
+          retention-days: 7

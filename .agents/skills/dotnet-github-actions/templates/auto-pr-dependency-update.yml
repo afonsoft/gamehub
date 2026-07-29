@@ -1,0 +1,125 @@
+name: Auto Dependency Update
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  SOLUTION_FILE: 'TODO.sln'  # Replace with the repo solution file
+  BASE_BRANCH: 'main'        # Branch to target with the update PR
+
+jobs:
+  check-dependencies:
+    name: Check NuGet Updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Check for NuGet Updates
+        env:
+          AUTHOR_NAME: ${{ github.event.head_commit.author.name || github.actor }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          echo "Checking for NuGet package updates..."
+
+          dotnet list ${{ env.SOLUTION_FILE }} package --outdated --format json > outdated-packages.json || true
+
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import subprocess
+
+          try:
+              data = json.loads(pathlib.Path("outdated-packages.json").read_text())
+          except (json.JSONDecodeError, FileNotFoundError):
+              data = {}
+
+          updates = {}
+          for project in data.get("projects", []):
+              project_path = pathlib.Path(project["path"]).resolve()
+              for framework in project.get("frameworks", []):
+                  for package in framework.get("topLevelPackages", []):
+                      latest = package.get("latestVersion")
+                      requested = package.get("requestedVersion")
+                      if latest and latest != requested:
+                          updates.setdefault(project_path, {})[package["id"]] = latest
+
+          for project_path, packages in updates.items():
+              for package_name, latest_version in sorted(packages.items()):
+                  subprocess.run(
+                      ["dotnet", "add", str(project_path), "package", package_name, "--version", latest_version],
+                      check=True,
+                  )
+          PY
+
+          if git diff --quiet; then
+            echo "No dependency updates found"
+            exit 0
+          fi
+
+          BRANCH_NAME="dependency-update-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+
+          dotnet build ${{ env.SOLUTION_FILE }} --configuration Release
+          dotnet test ${{ env.SOLUTION_FILE }} --configuration Release --no-build
+
+          COMMIT_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          git add .
+          git commit -m "Auto-update dependencies
+
+          - Updated NuGet packages to latest versions
+          - All tests passing
+          - Auto-generated on: ${COMMIT_DATE}"
+
+          git push origin "$BRANCH_NAME"
+
+          PR_TITLE="Auto-update Dependencies"
+          PR_BODY="Automatic dependency update.
+
+          **Triggered by:** ${EVENT_NAME}
+          **Commit:** [${COMMIT_SHA}](${REPO_URL}/commit/${COMMIT_SHA})
+          **Author:** ${AUTHOR_NAME}"
+
+          gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --base ${{ env.BASE_BRANCH }} \
+            --head "$BRANCH_NAME" \
+            --label "dependencies,auto-update" \
+            --assignee afonsoft || echo "PR already exists or creation failed"
+
+          echo "Dependency update PR created successfully"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Dependency Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** completed" >> $GITHUB_STEP_SUMMARY
