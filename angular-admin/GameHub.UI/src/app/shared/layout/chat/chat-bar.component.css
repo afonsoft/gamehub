@@ -34,7 +34,7 @@ span.flaticon2-website.icon-lg{
     margin-top: 15px;
     text-align: left;
     padding: 5px;
-    background-color: #625dbb;
+    background-color: var(--primary, #FF7020);
     display: block;
     color: #fff;
 }
@@ -63,8 +63,8 @@ span.flaticon2-website.icon-lg{
     margin-top: 15px;
     text-align: left;
     padding: 5px;
-    background-color: #6bc0f9;
-    color: #000;
+    background-color: rgba(255, 112, 32, 0.08);
+    color: var(--primary, #FF7020);
 }
 
 #chatSideRight .card {
