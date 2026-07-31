@@ -1,3 +1,18 @@
+## 2026-07-31 01:16 UTC
+
+### Tarefa
+Ajustar layout das telas do admin GameHub (dashboard, API Sandbox e cabeçalho do chat).
+
+### Implementado
+- `angular-admin/GameHub.UI/src/app/main/gamehub/dashboard/dashboard.component.{html,ts,css}`: reestruturou os cards de métricas com layout flex, corrigindo alinhamento e sobreposição dos valores.
+- `angular-admin/GameHub.UI/src/app/main/gamehub/api-sandbox/api-sandbox.component.{html,ts}`: substituiu o iframe `/swagger` por um explorer de endpoints baseado no Swagger JSON. Lê o arquivo em dev e usa `assets/api-sandbox/swagger.json` como fallback em produção.
+- `angular-admin/GameHub.UI/src/app/shared/layout/chat/chat-bar.component.{html,css,ts}`: cabeçalho do chat agora usa a mesma skin do cabeçalho da página (`header-dark`, `header-light`, `header-color`) em vez do primário laranja.
+- `angular-admin/GameHub.UI/src/assets/api-sandbox/swagger.json`: especificação Swagger mínima para fallback offline.
+
+### Validação
+- `npx tsc -p src/tsconfig.app.json --noEmit`: OK.
+- `npx ng build --configuration=development` no `angular-admin/GameHub.UI`: OK.
+
 ## 2026-07-29 13:15 UTC
 
 ### Tarefa

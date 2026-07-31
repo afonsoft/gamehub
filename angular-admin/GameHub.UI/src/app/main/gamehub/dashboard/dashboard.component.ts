@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnInit, ViewEncapsulation } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
 import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
@@ -7,6 +7,8 @@ import { GameHubAdminService } from '../shared/services/gamehub-admin.service';
   standalone: false,
   selector: 'gamehub-dashboard',
   templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css'],
+  encapsulation: ViewEncapsulation.None,
   animations: [appModuleAnimation()],
 })
 export class DashboardComponent extends AppComponentBase implements OnInit {

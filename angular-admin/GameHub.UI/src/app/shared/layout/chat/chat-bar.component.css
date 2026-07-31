@@ -231,18 +231,22 @@ body .p-fileupload .p-fileupload-buttonbar.p-widget-header {
     text-align: right;
 }
 
-/* Header always uses the theme primary color and white text/icons.
-   This keeps the chat visually aligned even when the Metronic theme
-   CSS (style.bundle.css) is not loaded in dev mode. */
+/* Header follows the same skin as the page header so the chat sidebar
+   feels part of the overall layout. */
 #chatSideRight .bs-canvas-header {
-    background-color: var(--primary, #FF7020) !important;
-    color: #fff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-#chatSideRight .bs-canvas-header .close,
-#chatSideRight .bs-canvas-header .pinned,
-#chatSideRight .bs-canvas-header h4 {
-    color: #fff !important;
+#chatSideRight .bs-canvas-header.header-dark {
+    background-color: #37322D !important;
+}
+
+#chatSideRight .bs-canvas-header.header-light {
+    background-color: #efefef !important;
+}
+
+#chatSideRight .bs-canvas-header.header-color {
+    background-color: #FF7020 !important;
 }
 
 /* Message bubbles use the theme primary/success colors */

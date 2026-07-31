@@ -3,14 +3,14 @@
   id="chatSideRight"
 >
   <div class="{{ ui.getSideBarMenuClass() }}" id="kt_quick_sidebar">
-    <header class="bs-canvas-header p-3 bg-primary overflow-auto">
+    <header class="bs-canvas-header p-3 overflow-auto header-{{ headerSkin }}">
       <button (click)="reversePinned()" aria-label="Pinned" class="bs-canvas-close float-left close pinned" type="button">
-        <i [ngClass]="{ 'fa-rotate-90': !pinned }" aria-label="Pinned" class="fa fa-map-pin text-light"> </i>
+        <i [ngClass]="{ 'fa-rotate-90': !pinned }" aria-label="Pinned" class="fa fa-map-pin text-{{ headerTextColor }}"> </i>
       </button>
       <button (click)="closeChat()" aria-label="Close" class="bs-canvas-close float-left close" type="button">
-        <span aria-hidden="true" class="text-light">&times;</span>
+        <span aria-hidden="true" class="text-{{ headerTextColor }}">&times;</span>
       </button>
-      <h4 class="d-inline-block text-light mb-0 float-right">Chat</h4>
+      <h4 class="d-inline-block text-{{ headerTextColor }} mb-0 float-right">Chat</h4>
     </header>
     <div class="bs-canvas-content chat-shell">
       <div class="flex-row-auto">
@@ -40,7 +40,7 @@
               <div *ngFor="let friend of getFilteredFriends(friendDtoState.Accepted, userNameFilter)" id="friendListFriends">
                 <chat-friend-list-item (selectChatFriend)="selectFriend(friend)" [friend]="friend"> </chat-friend-list-item>
               </div>
-              <p *ngIf="getFilteredFriendsCount(friendDtoState.Accepted) == 0" id="EmptyFriendListInfo">
+              <p *ngIf="getFilteredFriendsCount(friendDtoState.Accepted) === 0" id="EmptyFriendListInfo">
                 {{ 'YouDontHaveAnyFriend' | localize }}
               </p>
             </div>
@@ -51,7 +51,7 @@
                 <div *ngFor="let friend of getFilteredFriends(friendDtoState.Blocked, userNameFilter)">
                   <chat-friend-list-item (selectChatFriend)="selectFriend(friend)" [friend]="friend"> </chat-friend-list-item>
                 </div>
-                <p *ngIf="getFilteredFriendsCount(friendDtoState.Blocked) == 0" id="EmptyBlockedFriendListInfo">
+                <p *ngIf="getFilteredFriendsCount(friendDtoState.Blocked) === 0" id="EmptyBlockedFriendListInfo">
                   {{ 'YouDontHaveAnyBlockedFriend' | localize }}
                 </p>
               </div>
@@ -258,7 +258,7 @@
                   <textarea
                     (keydown.Enter)="sendMessage($event)"
                     [(ngModel)]="chatMessage"
-                    [disabled]="selectedUser.state == friendDtoState.Blocked"
+                    [disabled]="selectedUser.state === friendDtoState.Blocked"
                     #ChatMessage
                     class="form-control border-0 p-0"
                     id="ChatMessage"
