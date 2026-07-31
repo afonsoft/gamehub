@@ -1,0 +1,62 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "GameHub API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/TokenAuth/Authenticate": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Authenticate and retrieve a JWT token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userNameOrEmailAddress": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
+    "/api/services/app/GameCatalog/GetGames": {
+      "get": {
+        "tags": ["Catalog"],
+        "summary": "List published games",
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
+    "/api/services/app/Gameplay/StartSession": {
+      "post": {
+        "tags": ["Gameplay"],
+        "summary": "Start a gameplay session",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "gameId": { "type": "string" },
+                  "deviceType": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    }
+  }
+}

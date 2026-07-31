@@ -64,6 +64,14 @@ export class ChatBarComponent extends AppComponentBase implements OnInit, AfterV
 
   @HostBinding('style.overflow') styleOverflow: any = 'hidden';
 
+  get headerSkin(): string {
+    return this.currentTheme?.baseSettings?.header?.headerSkin || 'dark';
+  }
+
+  get headerTextColor(): string {
+    return this.headerSkin === 'light' ? 'dark' : 'light';
+  }
+
   @ViewChild('ChatMessage', { static: true }) chatMessageInput: ElementRef;
   @ViewChild('chatScrollBar', { static: true }) chatScrollBar;
 
