@@ -1,0 +1,115 @@
+﻿<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ 'Editions' | localize }}</span>
+        </h3>
+        <span class="m-section__sub">
+          {{ 'EditionsHeaderInfo' | localize }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__body">
+        <form autocomplete="off" class="horizontal-form">
+          <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-10">
+              <div class="col-xl-12">
+                <label for="EditionsFilterText">{{ 'Filter' | localize }}</label>
+                <div class="input-group">
+                  <input
+                    [(ngModel)]="filters.filterText"
+                    [placeholder]="l('SearchWithThreeDot')"
+                    class="form-control m-input"
+                    id="EditionsFilterText"
+                    name="filterText"
+                    type="text"
+                  />
+                  <span class="input-group-btn">
+                    <button (click)="getEditions()" class="btn btn-primary" type="submit">
+                      <i [attr.aria-label]="l('Search')" class="flaticon-search-1"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="align-items-center">
+          <div [busyIf]="dataTableHelper.isLoading" class="primeng-datatable-container">
+            <p-table
+              (onLazyLoad)="getEditions($event)"
+              [lazy]="true"
+              [paginator]="false"
+              [resizableColumns]="dataTableHelper.resizableColumns"
+              [scrollable]="true"
+              [value]="dataTableHelper.records"
+              [loading]="dataTableHelper.isLoading"
+              #dataTable
+              rows="{{ dataTableHelper.defaultRecordsCountPerPage }}"
+              ScrollWidth="100%"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" pSortableColumn="displayName" style="width: 200px">
+                    {{ 'Name' | localize }}
+                    <p-sortIcon field="displayName"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="monthlyPrice" style="width: 140px">
+                    {{ 'MonthlyPrice' | localize }}
+                    <p-sortIcon field="monthlyPrice"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="annualPrice" style="width: 140px">
+                    {{ 'AnnualPrice' | localize }}
+                    <p-sortIcon field="annualPrice"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="trialDayCount" style="width: 140px">
+                    {{ 'TrialDayCount' | localize }}
+                    <p-sortIcon field="trialDayCount"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="isFree" style="width: 120px">
+                    {{ 'Free' | localize }}
+                    <p-sortIcon field="isFree"></p-sortIcon>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template let-record="$implicit" pTemplate="body">
+                <tr>
+                  <td style="width: 200px">{{ record.displayName }}</td>
+                  <td style="width: 140px">{{ record.monthlyPrice | number: '1.2-2' }}</td>
+                  <td style="width: 140px">{{ record.annualPrice | number: '1.2-2' }}</td>
+                  <td style="width: 140px">{{ record.trialDayCount }}</td>
+                  <td style="width: 120px">
+                    <app-status-badge
+                      [value]="record.isFree"
+                      [trueLabel]="'Yes' | localize"
+                      [falseLabel]="'No' | localize"
+                    ></app-status-badge>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <app-empty-state *ngIf="dataTableHelper.totalRecordsCount === 0 && !dataTableHelper.isLoading" [message]="'NoData' | localize"></app-empty-state>
+            <div class="primeng-paging-container">
+              <p-paginator
+                (onPageChange)="getEditions($event)"
+                [rows]="dataTableHelper.defaultRecordsCountPerPage"
+                [rowsPerPageOptions]="dataTableHelper.predefinedRecordsCountPerPage"
+                [totalRecords]="dataTableHelper.totalRecordsCount"
+                #paginator
+              >
+              </p-paginator>
+              <span class="total-records-count">
+                {{ 'TotalRecordsCount' | localize: dataTableHelper.totalRecordsCount }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { DashboardComponent } from './dashboard.component';
-import { DashboardServiceProxy } from '@shared/service-proxies/dashboard.service-proxy';
+import { OrganizationUnitsComponent } from './organization-units.component';
+import { OrganizationUnitServiceProxy } from '@shared/service-proxies/organization-unit.service-proxy';
+import { UserServiceProxy, RoleServiceProxy } from '@shared/service-proxies/service-proxies';
 import { LocalizationService } from '@eaf/localization/localization.service';
 import { PermissionCheckerService } from '@eaf/auth/permission-checker.service';
 import { FeatureCheckerService } from '@eaf/features/feature-checker.service';
@@ -13,7 +14,9 @@ import { AppSessionService } from '@shared/common/session/app-session.service';
 import { AppUiCustomizationService } from '@shared/common/ui/app-ui-customization.service';
 import { AppUrlService } from '@shared/common/nav/app-url.service';
 import {
-  MockDashboardServiceProxy,
+  MockOrganizationUnitServiceProxy,
+  MockUserServiceProxy,
+  MockRoleServiceProxy,
   MockLocalizationService,
   MockPermissionCheckerService,
   MockFeatureCheckerService,
@@ -28,16 +31,18 @@ import {
   setupEafGlobals,
 } from '../../../test-helpers/mock-services';
 
-describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
+describe('OrganizationUnitsComponent', () => {
+  let component: OrganizationUnitsComponent;
+  let fixture: ComponentFixture<OrganizationUnitsComponent>;
 
   beforeEach(() => {
     setupEafGlobals();
     TestBed.configureTestingModule({
-      declarations: [DashboardComponent, MockLocalizePipe],
+      declarations: [OrganizationUnitsComponent, MockLocalizePipe],
       providers: [
-        { provide: DashboardServiceProxy, useClass: MockDashboardServiceProxy },
+        { provide: OrganizationUnitServiceProxy, useClass: MockOrganizationUnitServiceProxy },
+        { provide: UserServiceProxy, useClass: MockUserServiceProxy },
+        { provide: RoleServiceProxy, useClass: MockRoleServiceProxy },
         { provide: LocalizationService, useClass: MockLocalizationService },
         { provide: PermissionCheckerService, useClass: MockPermissionCheckerService },
         { provide: FeatureCheckerService, useClass: MockFeatureCheckerService },
@@ -52,7 +57,7 @@ describe('DashboardComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DashboardComponent);
+    fixture = TestBed.createComponent(OrganizationUnitsComponent);
     component = fixture.componentInstance;
   });
 
@@ -60,12 +65,13 @@ describe('DashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should return empty tiles array by default', () => {
-    expect(component.tiles).toEqual([]);
+  it('should indent based on level', () => {
+    expect(component.indent(2)['padding-left']).toBe('48px');
   });
 
-  it('should expose tiles from dashboard', () => {
-    component.dashboard = { tiles: [{ title: 'Test', value: 10, description: 'tile' } as any] } as any;
-    expect(component.tiles).toHaveSize(1);
+  it('should reset active OU on create modal', () => {
+    component.showCreateModal();
+    expect(component.activeOu.displayName).toBe('');
+    expect(component.isEdit).toBe(false);
   });
 });

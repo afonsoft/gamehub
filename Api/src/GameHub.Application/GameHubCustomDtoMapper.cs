@@ -21,12 +21,18 @@ using GameHub.Playtesting.Dto;
 using GameHub.Privacy;
 using GameHub.Privacy.Dto;
 using GameHub.Admin.Dto;
+using GameHub.Administration.Editions.Dto;
+using GameHub.Administration.OrganizationUnits.Dto;
 using GameHub.Storage;
 using GameHub.Multiplayer;
 using GameHub.Multiplayer.Dto;
 using GameHub.MultiTenancy;
 using GameHub.MultiTenancy.Dto;
 using Abp.Auditing;
+using Abp.Application.Editions;
+using Abp.Organizations;
+using Eaf.Middleware.Authorization.Roles;
+using Eaf.Middleware.Authorization.Users;
 
 namespace GameHub
 {
@@ -220,6 +226,16 @@ namespace GameHub
 
             // Multi-tenancy
             configuration.CreateMap<UserTenantMembership, UserTenantMembershipDto>();
+
+            // Editions
+            configuration.CreateMap<Edition, EditionDto>();
+            configuration.CreateMap<CreateEditionInput, Edition>();
+            configuration.CreateMap<UpdateEditionInput, Edition>();
+
+            // OrganizationUnits
+            configuration.CreateMap<OrganizationUnit, OrganizationUnitDto>();
+            configuration.CreateMap<User, OrganizationUnitUserListDto>();
+            configuration.CreateMap<Role, OrganizationUnitRoleListDto>();
 
             configuration.CreateMap<Abp.Auditing.AuditLog, AuditLogDto>()
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => $"{src.ServiceName}.{src.MethodName}"))

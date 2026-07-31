@@ -3,6 +3,9 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { EafHttpInterceptor } from '../../assets/lib/eaf-ng2-module/src/eafHttpInterceptor';
 import * as ApiServiceProxies from './service-proxies';
+import { DashboardServiceProxy } from './dashboard.service-proxy';
+import { EditionServiceProxy } from './edition.service-proxy';
+import { OrganizationUnitServiceProxy } from './organization-unit.service-proxy';
 
 @NgModule({
   providers: [
@@ -27,9 +30,12 @@ import * as ApiServiceProxies from './service-proxies';
     ApiServiceProxies.CommonLookupServiceProxy,
     ApiServiceProxies.CompanyEmployeeServiceProxy,
     ApiServiceProxies.CompanyServiceProxy,
+    DashboardServiceProxy,
     ApiServiceProxies.DeveloperBillingProfileServiceProxy,
     ApiServiceProxies.DeveloperDashboardServiceProxy,
+    EditionServiceProxy,
     ApiServiceProxies.DeveloperEarningsServiceProxy,
+    OrganizationUnitServiceProxy,
     ApiServiceProxies.DeveloperGameServiceProxy,
     ApiServiceProxies.DeveloperProfileServiceProxy,
     ApiServiceProxies.DeveloperTeamServiceProxy,

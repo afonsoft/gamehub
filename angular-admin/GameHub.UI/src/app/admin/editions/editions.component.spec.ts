@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { DashboardComponent } from './dashboard.component';
-import { DashboardServiceProxy } from '@shared/service-proxies/dashboard.service-proxy';
+import { EditionsComponent } from './editions.component';
+import { EditionServiceProxy } from '@shared/service-proxies/edition.service-proxy';
 import { LocalizationService } from '@eaf/localization/localization.service';
 import { PermissionCheckerService } from '@eaf/auth/permission-checker.service';
 import { FeatureCheckerService } from '@eaf/features/feature-checker.service';
@@ -13,7 +13,6 @@ import { AppSessionService } from '@shared/common/session/app-session.service';
 import { AppUiCustomizationService } from '@shared/common/ui/app-ui-customization.service';
 import { AppUrlService } from '@shared/common/nav/app-url.service';
 import {
-  MockDashboardServiceProxy,
   MockLocalizationService,
   MockPermissionCheckerService,
   MockFeatureCheckerService,
@@ -24,20 +23,21 @@ import {
   MockAppSessionService,
   MockAppUiCustomizationService,
   MockAppUrlService,
+  MockEditionServiceProxy,
   MockLocalizePipe,
   setupEafGlobals,
 } from '../../../test-helpers/mock-services';
 
-describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
+describe('EditionsComponent', () => {
+  let component: EditionsComponent;
+  let fixture: ComponentFixture<EditionsComponent>;
 
   beforeEach(() => {
     setupEafGlobals();
     TestBed.configureTestingModule({
-      declarations: [DashboardComponent, MockLocalizePipe],
+      declarations: [EditionsComponent, MockLocalizePipe],
       providers: [
-        { provide: DashboardServiceProxy, useClass: MockDashboardServiceProxy },
+        { provide: EditionServiceProxy, useClass: MockEditionServiceProxy },
         { provide: LocalizationService, useClass: MockLocalizationService },
         { provide: PermissionCheckerService, useClass: MockPermissionCheckerService },
         { provide: FeatureCheckerService, useClass: MockFeatureCheckerService },
@@ -52,7 +52,7 @@ describe('DashboardComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DashboardComponent);
+    fixture = TestBed.createComponent(EditionsComponent);
     component = fixture.componentInstance;
   });
 
@@ -60,12 +60,7 @@ describe('DashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should return empty tiles array by default', () => {
-    expect(component.tiles).toEqual([]);
-  });
-
-  it('should expose tiles from dashboard', () => {
-    component.dashboard = { tiles: [{ title: 'Test', value: 10, description: 'tile' } as any] } as any;
-    expect(component.tiles).toHaveSize(1);
+  it('should initialize filter text empty', () => {
+    expect(component.filters.filterText).toBe('');
   });
 });
