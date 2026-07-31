@@ -2,9 +2,11 @@
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
+import { EditionsComponent } from './editions/editions.component';
 import { LanguageTextsComponent } from './languages/language-texts.component';
 import { LanguagesComponent } from './languages/languages.component';
 import { MaintenanceComponent } from './maintenance/maintenance.component';
+import { OrganizationUnitsComponent } from './organization-units/organization-units.component';
 import { RolesComponent } from './roles/roles.component';
 import { SettingsComponent } from './settings/settings.component';
 import { TenantsComponent } from './tenants/tenants.component';
@@ -20,7 +22,9 @@ import { UsersComponent } from './users/users.component';
           { path: 'users', component: UsersComponent, data: { permission: 'Pages.Administration.Users' } },
           { path: 'roles', component: RolesComponent, data: { permission: 'Pages.Administration.Roles' } },
           { path: 'auditLogs', component: AuditLogsComponent, data: { permission: 'Pages.Administration.AuditLogs' } },
+          { path: 'editions', component: EditionsComponent, data: { permission: 'Pages.Administration.Editions' } },
           { path: 'languages', component: LanguagesComponent, data: { permission: 'Pages.Administration.Languages' } },
+          { path: 'organization-units', component: OrganizationUnitsComponent, data: { permission: 'Pages.Administration.OrganizationUnits' } },
           {
             path: 'languages/:name/texts',
             component: LanguageTextsComponent,

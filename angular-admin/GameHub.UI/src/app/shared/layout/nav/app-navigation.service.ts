@@ -44,7 +44,9 @@ export class AppNavigationService {
     return new AppMenu('AdminMenu', 'AdminMenu', [
       new AppMenuItem('Roles', 'Pages.Administration.Roles', 'la la-briefcase', '/app/admin/roles'),
       new AppMenuItem('Users', 'Pages.Administration.Users', 'la la-users', '/app/admin/users'),
+      new AppMenuItem('Editions', 'Pages.Administration.Editions', 'la la-list', '/app/admin/editions'),
       new AppMenuItem('Languages', 'Pages.Administration.Languages', 'la la-globe', '/app/admin/languages'),
+      new AppMenuItem('OrganizationUnits', 'Pages.Administration.OrganizationUnits', 'la la-sitemap', '/app/admin/organization-units'),
       new AppMenuItem('AuditLogs', 'Pages.Administration.AuditLogs', 'la la-folder-open', '/app/admin/auditLogs'),
       new AppMenuItem('VisualSettings', 'Pages.Administration.UiCustomization', 'la la-desktop', '/app/admin/ui-customization'),
       new AppMenuItem('Maintenance', 'Pages.Administration.Maintenance', 'la la-cogs', '/app/admin/maintenance'),

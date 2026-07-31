@@ -1,3 +1,29 @@
+## 2026-07-31 16:44 UTC
+
+### Tarefa
+Portar as funcionalidades EAF administrativas (Editions, OrganizationUnits e Dashboard) já disponíveis nos módulos EAF para o GameHub, enquanto a nova versão do EAF não é publicada.
+
+### Implementado
+- `Api/src/GameHub.Application/Administration/{Editions,OrganizationUnits,Dashboard}/`: AppServices, interfaces e DTOs portados do `Eaf.Middleware.Application`, com namespaces ajustados para `GameHub.Administration.*` e base `GameHubAppServiceBase`.
+- `Api/src/GameHub.Application/GameHubCustomDtoMapper.cs`: adicionados mapeamentos `Edition<->EditionDto`, `Create/UpdateEditionInput->Edition`, `OrganizationUnit->OrganizationUnitDto`, `User->OrganizationUnitUserListDto`, `Role->OrganizationUnitRoleListDto`.
+- `angular-admin/GameHub.UI/src/app/admin/{editions,organization-units}/`: componentes, templates e specs portados do template EAF Angular.
+- `angular-admin/GameHub.UI/src/app/main/dashboard/`: substituído o stub anterior pelo componente de dashboard do template EAF (`DashboardServiceProxy` com `getHostDashboard`/`getTenantDashboard`).
+- `angular-admin/GameHub.UI/src/shared/service-proxies/{edition,organization-unit,dashboard}.service-proxy.ts`: proxies manuais copiados do template EAF e corrigidas as rotas de `*AppService/` para `/api/services/app/*/`.
+- `angular-admin/GameHub.UI/src/shared/service-proxies/service-proxy.module.ts`: registrados os novos proxies.
+- `angular-admin/GameHub.UI/src/app/shared/layout/nav/app-navigation.service.ts`: adicionados itens de menu Editions e OrganizationUnits.
+- `angular-admin/GameHub.UI/src/test-helpers/mock-services.ts`: adicionados `MockEditionServiceProxy`, `MockOrganizationUnitServiceProxy` e `MockDashboardServiceProxy` para os specs.
+
+### Validação
+- `dotnet build Api/GameHub.sln -c Release`: OK.
+- `dotnet test Api/GameHub.sln -c Release --no-build`: 372 passed, 2 skipped.
+- `npx tsc -p src/tsconfig.app.json --noEmit`: OK.
+- `npx tsc -p src/tsconfig.spec.json --noEmit`: OK.
+- `npx ng build --configuration=production` no `angular-admin/GameHub.UI`: OK.
+- Swagger expõe `/api/services/app/{Edition,OrganizationUnit,Dashboard}/...`.
+
+### Pendências
+- `MassNotifications`, `UserDelegations` e `Payments` do EAF dependem de entidades (`MassNotification`, `UserDelegation`, `SubscriptionPayment`) ainda não presentes na versão atual do pacote `Eaf.Middleware` e portanto não foram portadas; documentadas em `.specs/2026-07-31-eaf-admin-modules-pending.md`.
+
 ## 2026-07-31 01:16 UTC
 
 ### Tarefa

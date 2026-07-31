@@ -248,6 +248,69 @@ export class MockRoleServiceProxy {
   }
 }
 
+export class MockEditionServiceProxy {
+  getEditions(filter?: string, sorting?: string, maxResultCount?: number, skipCount?: number): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  getEditionForEdit(id: number): Observable<any> {
+    return of({});
+  }
+  createEdition(input: any): Observable<void> {
+    return of(undefined);
+  }
+  updateEdition(input: any): Observable<void> {
+    return of(undefined);
+  }
+  deleteEdition(id: number): Observable<void> {
+    return of(undefined);
+  }
+}
+
+export class MockOrganizationUnitServiceProxy {
+  getOrganizationUnits(): Observable<any> {
+    return of([]);
+  }
+  create(input: any): Observable<any> {
+    return of({});
+  }
+  update(input: any): Observable<any> {
+    return of({});
+  }
+  move(input: any): Observable<void> {
+    return of(undefined);
+  }
+  delete(id: number): Observable<void> {
+    return of(undefined);
+  }
+  getOrganizationUnitUsers(input: any): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  getOrganizationUnitRoles(input: any): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  addUserToOrganizationUnit(input: any): Observable<void> {
+    return of(undefined);
+  }
+  removeUserFromOrganizationUnit(input: any): Observable<void> {
+    return of(undefined);
+  }
+  addRoleToOrganizationUnit(input: any): Observable<void> {
+    return of(undefined);
+  }
+  removeRoleFromOrganizationUnit(input: any): Observable<void> {
+    return of(undefined);
+  }
+}
+
+export class MockDashboardServiceProxy {
+  getHostDashboard(): Observable<any> {
+    return of({ tiles: [], isHostDashboard: true });
+  }
+  getTenantDashboard(): Observable<any> {
+    return of({ tiles: [], isHostDashboard: false });
+  }
+}
+
 export class MockTenantServiceProxy {
   getTenants(filter?: string, sorting?: string, maxResultCount?: number, skipCount?: number): Observable<any> {
     return of({ totalCount: 0, items: [] });

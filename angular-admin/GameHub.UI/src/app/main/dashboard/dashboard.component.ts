@@ -1,10 +1,8 @@
-﻿import { Component, Injector, ViewEncapsulation } from '@angular/core';
+import { Component, Injector, OnInit, ViewEncapsulation } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
-
-
-
-declare let d3, Datamap: any;
+import { DashboardServiceProxy, IDashboardOutput, IDashboardTileDto } from '@shared/service-proxies/dashboard.service-proxy';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   standalone: false,
@@ -12,8 +10,33 @@ declare let d3, Datamap: any;
   encapsulation: ViewEncapsulation.None,
   animations: [appModuleAnimation()],
 })
-export class DashboardComponent extends AppComponentBase {
-  constructor(injector: Injector) {
+export class DashboardComponent extends AppComponentBase implements OnInit {
+  loading = false;
+  dashboard: IDashboardOutput;
+
+  constructor(
+    injector: Injector,
+    private readonly _dashboardService: DashboardServiceProxy,
+  ) {
     super(injector);
+  }
+
+  ngOnInit(): void {
+    this.loadDashboard();
+  }
+
+  loadDashboard(): void {
+    this.loading = true;
+    const request = this.appSession.tenantId
+      ? this._dashboardService.getTenantDashboard()
+      : this._dashboardService.getHostDashboard();
+
+    request.pipe(finalize(() => (this.loading = false))).subscribe(result => {
+      this.dashboard = result;
+    });
+  }
+
+  get tiles(): IDashboardTileDto[] {
+    return this.dashboard?.tiles ?? [];
   }
 }

@@ -26,12 +26,14 @@ import { TreeModule } from 'primeng/tree';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AuditLogDetailModalComponent } from './audit-logs/audit-log-detail-modal.component';
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
+import { EditionsComponent } from './editions/editions.component';
 import { CreateOrEditLanguageModalComponent } from './languages/create-or-edit-language-modal.component';
 import { EditTextModalComponent } from './languages/edit-text-modal.component';
 import { LanguageTextsComponent } from './languages/language-texts.component';
 import { LanguagesComponent } from './languages/languages.component';
 import { MaintenanceComponent } from './maintenance/maintenance.component';
 import { CreateOrEditRoleModalComponent } from './roles/create-or-edit-role-modal.component';
+import { OrganizationUnitsComponent } from './organization-units/organization-units.component';
 import { RolesComponent } from './roles/roles.component';
 import { SettingsComponent } from './settings/settings.component';
 import { FeatureTreeComponent } from './shared/feature-tree.component';
@@ -93,7 +95,9 @@ import { UsersComponent } from './users/users.component';
     CreateOrEditRoleModalComponent,
     AuditLogsComponent,
     AuditLogDetailModalComponent,
+    EditionsComponent,
     SettingsComponent,
+    OrganizationUnitsComponent,
     LanguagesComponent,
     LanguageTextsComponent,
     CreateOrEditLanguageModalComponent,
