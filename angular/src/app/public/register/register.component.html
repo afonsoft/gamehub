@@ -27,6 +27,41 @@
       I want to publish games (developer account)
     </label>
 
+    <div class="tenant-section">
+      <h3>Company / Tenant</h3>
+
+      <label class="radio">
+        <input type="radio" name="tenantMode" value="PlayerDefault" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" />
+        I just want to play (public player)
+      </label>
+
+      <label class="radio">
+        <input type="radio" name="tenantMode" value="CreateNew" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" />
+        I want to create my own company (tenant admin)
+      </label>
+
+      <label class="radio">
+        <input type="radio" name="tenantMode" value="JoinExisting" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" />
+        I want to join an existing company (requires approval)
+      </label>
+
+      <div *ngIf="tenantMode === 'CreateNew'" class="tenant-field">
+        <label for="newTenantName">Company name</label>
+        <input id="newTenantName" type="text" [(ngModel)]="model.newTenantName" name="newTenantName" />
+      </div>
+
+      <div *ngIf="tenantMode === 'JoinExisting'" class="tenant-field">
+        <label for="existingTenant">Select company</label>
+        <select id="existingTenant" name="existingTenant" [(ngModel)]="model.existingTenantId" required>
+          <option [ngValue]="null">-- Select a company --</option>
+          <option *ngFor="let tenant of availableTenants" [ngValue]="tenant.id">{{ tenant.name }}</option>
+        </select>
+
+        <label for="joinMessage">Message to admins (optional)</label>
+        <textarea id="joinMessage" [(ngModel)]="model.joinRequestMessage" name="joinRequestMessage" rows="3"></textarea>
+      </div>
+    </div>
+
     <button type="submit" class="btn-primary" [disabled]="loading">
       {{ loading ? 'Registering...' : 'Register' }}
     </button>

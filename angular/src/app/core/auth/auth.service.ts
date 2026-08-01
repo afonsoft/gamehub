@@ -18,6 +18,8 @@ export interface AuthenticateResultModel {
   userId?: number;
 }
 
+export type TenantSelectionMode = 'PlayerDefault' | 'CreateNew' | 'JoinExisting';
+
 export interface RegisterModel {
   name: string;
   surname: string;
@@ -25,11 +27,17 @@ export interface RegisterModel {
   emailAddress: string;
   password: string;
   isDeveloper?: boolean;
+  tenantSelectionMode?: TenantSelectionMode;
+  newTenantName?: string;
+  existingTenantId?: number | null;
+  joinRequestMessage?: string;
 }
 
 export interface RegisterResultModel {
   userId: number;
   userName: string;
+  tenantId?: number | null;
+  canLogin: boolean;
 }
 
 export interface RegisterErrorModel {
@@ -65,7 +73,7 @@ export class AuthService {
     );
   }
 
-  register(model: RegisterModel): Observable<{ success: boolean; error?: string }> {
+  register(model: RegisterModel): Observable<{ success: boolean; canLogin?: boolean; userName?: string; tenantId?: number | null; error?: string }> {
     return this.http.post<any>(this.registerUrl, model).pipe(
       map(response => {
         if (response?.success === false) {
@@ -75,17 +83,20 @@ export class AuthService {
         if (!result) {
           return { success: false, error: 'Registration failed. Please try again.' } as const;
         }
-        return result;
+        return { success: true, canLogin: result.canLogin, userName: result.userName, tenantId: result.tenantId } as const;
       }),
       switchMap(response => {
         if ('success' in response && response.success === false) {
           return of(response);
         }
+        if (!response.canLogin) {
+          return of({ success: true, canLogin: false, userName: response.userName, tenantId: response.tenantId });
+        }
         return this.login({
           userNameOrEmailAddress: model.userName,
           password: model.password,
           rememberClient: true,
-        }).pipe(map(success => ({ success })));
+        }).pipe(map(success => ({ success, canLogin: true, userName: response.userName, tenantId: response.tenantId })));
       }),
       catchError(err => {
         const message = this.extractErrorMessage(err);

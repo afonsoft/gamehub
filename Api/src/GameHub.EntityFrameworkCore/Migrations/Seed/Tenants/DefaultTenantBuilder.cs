@@ -1,6 +1,7 @@
 using Abp.MultiTenancy;
 using Eaf.Middleware.MultiTenancy;
 using GameHub.EntityFrameworkCore;
+using GameHub.Migrations.Seed.Editions;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
@@ -22,7 +23,11 @@ namespace GameHub.Migrations.Seed.Tenants
             var defaultTenant = _context.Tenants.IgnoreQueryFilters().FirstOrDefault(t => t.TenancyName == AbpTenantBase.DefaultTenantName);
             if (defaultTenant == null)
             {
-                defaultTenant = new Tenant(AbpTenantBase.DefaultTenantName, AbpTenantBase.DefaultTenantName);
+                var edition = new DefaultEditionBuilder(_context).Create();
+                defaultTenant = new Tenant(AbpTenantBase.DefaultTenantName, AbpTenantBase.DefaultTenantName)
+                {
+                    EditionId = edition.Id,
+                };
                 _context.Tenants.Add(defaultTenant);
                 _context.SaveChanges();
             }

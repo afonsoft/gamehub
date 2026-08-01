@@ -222,6 +222,8 @@ namespace GameHub
 
             // Multi-tenancy
             configuration.CreateMap<UserTenantMembership, UserTenantMembershipDto>();
+            configuration.CreateMap<TenantJoinRequest, TenantJoinRequestDto>();
+            configuration.CreateMap<Eaf.Middleware.MultiTenancy.Tenant, AvailableTenantDto>();
 
             configuration.CreateMap<Abp.Auditing.AuditLog, AuditLogDto>()
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => $"{src.ServiceName}.{src.MethodName}"))

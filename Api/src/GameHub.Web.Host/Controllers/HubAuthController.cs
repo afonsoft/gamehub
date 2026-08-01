@@ -14,6 +14,7 @@ using GameHub.MultiTenancy;
 using GameHub.Web.Models.HubAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Web.Controllers
 {
@@ -144,8 +145,8 @@ namespace GameHub.Web.Controllers
                     using (_unitOfWorkManager.Current.SetTenantId(model.TenantId))
                     {
                         shadowUser = await _userRepository.GetAsync(membership.TenantUserId);
-                        if (!await _userManager.CheckPasswordAsync(shadowUser, model.Password))
-                            throw new UserFriendlyException(L("InvalidUserNameOrPassword"));
+                        if (!shadowUser.IsActive)
+                            throw new UserFriendlyException(L("UserIsNotActiveAndCanNotLogin"));
                     }
                 }
 
@@ -164,8 +165,10 @@ namespace GameHub.Web.Controllers
 
         private async Task<User> FindUserAsync(string userNameOrEmailAddress)
         {
-            return await _userRepository.FirstOrDefaultAsync(u =>
-                u.UserName == userNameOrEmailAddress || u.EmailAddress == userNameOrEmailAddress);
+            return await _userRepository.GetAll()
+                .Where(u => u.UserName == userNameOrEmailAddress || u.EmailAddress == userNameOrEmailAddress)
+                .OrderBy(u => u.TenantId == null ? 0 : 1)
+                .FirstOrDefaultAsync();
         }
 
         private async Task<string> CreateAccessTokenForUserAsync(User user, int tenantId)

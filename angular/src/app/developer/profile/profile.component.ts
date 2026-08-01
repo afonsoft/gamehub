@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { DeveloperService, DeveloperProfile, CreateOrUpdateProfileInput } from '../../core/services/developer.service';
+import { DeveloperService, CreateOrUpdateProfileInput } from '../../core/services/developer.service';
 import { ErrorMapperService, SdkError } from '../../core/services/error-mapper.service';
+import { TenantService, AvailableTenant, TenantJoinRequest } from '../../core/services/tenant.service';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
@@ -14,6 +15,9 @@ interface ProfilePageState {
   saving: boolean;
   error: SdkError | null;
   saved: boolean;
+  tenantLoading: boolean;
+  tenantError: SdkError | null;
+  tenantRequestLoading: boolean;
 }
 
 @Component({
@@ -36,14 +40,24 @@ export class DeveloperProfileComponent implements OnInit, OnDestroy {
     saving: false,
     error: null,
     saved: false,
+    tenantLoading: true,
+    tenantError: null,
+    tenantRequestLoading: false,
   });
 
+  availableTenants: AvailableTenant[] = [];
+  myRequests: TenantJoinRequest[] = [];
+  selectedTenantId: number | null = null;
+  requestMessage = '';
+
   private readonly developerService = inject(DeveloperService);
+  private readonly tenantService = inject(TenantService);
   private readonly errorMapper = inject(ErrorMapperService);
   private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadTenantData();
   }
 
   ngOnDestroy(): void {
@@ -94,5 +108,45 @@ export class DeveloperProfileComponent implements OnInit, OnDestroy {
 
   retry(): void {
     this.loadProfile();
+  }
+
+  loadTenantData(): void {
+    this.state.update(s => ({ ...s, tenantLoading: true, tenantError: null }));
+    this.tenantService.getAvailableTenants()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: tenants => {
+          this.tenantService.getMyRequests()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: requests => {
+                this.availableTenants = tenants;
+                this.myRequests = requests;
+                this.state.update(s => ({ ...s, tenantLoading: false }));
+              },
+              error: err => this.state.update(s => ({ ...s, tenantLoading: false, tenantError: this.errorMapper.map(err) })),
+            });
+        },
+        error: err => this.state.update(s => ({ ...s, tenantLoading: false, tenantError: this.errorMapper.map(err) })),
+      });
+  }
+
+  requestToJoin(tenant: AvailableTenant): void {
+    this.state.update(s => ({ ...s, tenantRequestLoading: true, tenantError: null }));
+    this.tenantService.createRequest({ tenantId: tenant.id, message: this.requestMessage })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.requestMessage = '';
+          this.selectedTenantId = null;
+          this.loadTenantData();
+          this.state.update(s => ({ ...s, tenantRequestLoading: false }));
+        },
+        error: err => this.state.update(s => ({ ...s, tenantRequestLoading: false, tenantError: this.errorMapper.map(err) })),
+      });
+  }
+
+  isPending(tenantId: number): boolean {
+    return this.myRequests.some(r => r.tenantId === tenantId && r.status === 'Pending');
   }
 }
