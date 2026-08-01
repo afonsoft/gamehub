@@ -11,7 +11,6 @@ using GameHub.Player;
 using GameHub.Playtesting;
 using GameHub.Privacy;
 using GameHub.Multiplayer;
-using GameHub.MultiTenancy;
 using GameHub.ArbitraryUserData;
 using Microsoft.EntityFrameworkCore;
 
@@ -939,7 +938,7 @@ namespace GameHub.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<GameHub.MultiTenancy.UserTenantMembership>(b =>
+            modelBuilder.Entity<Eaf.Middleware.MultiTenancy.UserTenantMembership>(b =>
             {
                 b.ToTable(GameHubConsts.DbTablePrefix + "UserTenantMemberships", GameHubConsts.DbSchema);
 

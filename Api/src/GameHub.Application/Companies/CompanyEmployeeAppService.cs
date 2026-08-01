@@ -16,7 +16,6 @@ using GameHub.Authorization;
 using GameHub.Companies.Dto;
 using GameHub.Developer.Dto;
 using GameHub.Developers;
-using GameHub.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameHub.Companies
@@ -24,8 +23,8 @@ namespace GameHub.Companies
     [AbpAuthorize(GameHubPermissions.Pages_Company_Employees)]
     public class CompanyEmployeeAppService : GameHubAppServiceBase, ICompanyEmployeeAppService
     {
-        private readonly ITenantUserManager _tenantUserManager;
-        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _membershipRepository;
+        private readonly Eaf.Middleware.MultiTenancy.ITenantUserManager _tenantUserManager;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> _membershipRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
         private readonly IRepository<DeveloperTeam, Guid> _teamRepository;
@@ -34,8 +33,8 @@ namespace GameHub.Companies
         private readonly RoleManager _roleManager;
 
         public CompanyEmployeeAppService(
-            ITenantUserManager tenantUserManager,
-            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> membershipRepository,
+            Eaf.Middleware.MultiTenancy.ITenantUserManager tenantUserManager,
+            IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> membershipRepository,
             IRepository<User, long> userRepository,
             IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
             IRepository<DeveloperTeam, Guid> teamRepository,

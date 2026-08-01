@@ -30,7 +30,7 @@ namespace GameHub.Web.Controllers
 
         private readonly ITokenAuthenticationService _tokenAuthenticationService;
         private readonly UserManager _userManager;
-        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _membershipRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> _membershipRepository;
         private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
@@ -38,7 +38,7 @@ namespace GameHub.Web.Controllers
         public HubAuthController(
             ITokenAuthenticationService tokenAuthenticationService,
             UserManager userManager,
-            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> membershipRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> membershipRepository,
             IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
             IRepository<User, long> userRepository,
             IUnitOfWorkManager unitOfWorkManager)

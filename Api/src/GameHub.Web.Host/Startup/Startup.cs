@@ -198,7 +198,7 @@ namespace GameHub.Web.Startup
                 options.SchemaFilter<SwaggerEnumSchemaFilter>();
                 options.OperationFilter<SwaggerOperationIdFilter>();
                 options.OperationFilter<SwaggerOperationFilter>();
-                options.CustomDefaultSchemaIdSelector();
+                options.CustomSchemaIds(type => type.FullName);
                 options.SupportNonNullableReferenceTypes();
             }).AddSwaggerGenNewtonsoftSupport();
 

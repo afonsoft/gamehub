@@ -10,7 +10,6 @@ using Eaf.Middleware.MultiTenancy;
 using GameHub.EntityFrameworkCore;
 using GameHub.Migrations.Seed.Host;
 using GameHub.Migrations.Seed.Tenants;
-using GameHub.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -101,7 +100,7 @@ namespace GameHub.Migrations.Seed
                 }
             }
 
-            context.UserTenantMemberships.Add(new GameHub.MultiTenancy.UserTenantMembership
+            context.UserTenantMemberships.Add(new Eaf.Middleware.MultiTenancy.UserTenantMembership
             {
                 UserId = hostAdmin.Id,
                 TenantId = defaultTenant.Id,

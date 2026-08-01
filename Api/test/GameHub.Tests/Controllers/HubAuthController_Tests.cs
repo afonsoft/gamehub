@@ -138,7 +138,7 @@ namespace GameHub.Tests.Controllers
         {
             var tokenAuthenticationService = Resolve<ITokenAuthenticationService>();
             var userManager = Resolve<UserManager>();
-            var membershipRepository = Resolve<IRepository<global::GameHub.MultiTenancy.UserTenantMembership, long>>();
+            var membershipRepository = Resolve<IRepository<global::Eaf.Middleware.MultiTenancy.UserTenantMembership, long>>();
             var tenantRepository = Resolve<IRepository<global::Eaf.Middleware.MultiTenancy.Tenant, int>>();
             var userRepository = Resolve<IRepository<User, long>>();
             var unitOfWorkManager = Resolve<IUnitOfWorkManager>();

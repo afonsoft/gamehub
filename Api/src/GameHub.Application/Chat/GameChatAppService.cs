@@ -30,7 +30,7 @@ namespace GameHub.Chat
         private readonly IRepository<Game, Guid> _gameRepository;
         private readonly IRepository<MatchState, Guid> _matchRepository;
         private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
-        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _membershipRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> _membershipRepository;
         private readonly IChatMessageManager _chatMessageManager;
         private readonly ITypedCache<string, string> _deduplicationCache;
         private readonly ITypedCache<string, string> _rateLimitCache;
@@ -39,7 +39,7 @@ namespace GameHub.Chat
             IRepository<Game, Guid> gameRepository,
             IRepository<MatchState, Guid> matchRepository,
             IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository,
-            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> membershipRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> membershipRepository,
             IChatMessageManager chatMessageManager,
             ICacheManager cacheManager)
         {
