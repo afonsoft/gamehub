@@ -3,7 +3,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { MassNotificationsComponent } from './mass-notifications.component';
-import { MassNotificationServiceProxy } from '@shared/service-proxies/mass-notification.service-proxy';
+import { MassNotificationServiceProxy } from '@shared/service-proxies/service-proxies';
 import { LocalizationService } from '@eaf/localization/localization.service';
 import { PermissionCheckerService } from '@eaf/auth/permission-checker.service';
 import { FeatureCheckerService } from '@eaf/features/feature-checker.service';
@@ -71,7 +71,16 @@ describe('MassNotificationsComponent', () => {
   });
 
   it('should not save without subject and message', () => {
-    component.newMassNotification = { subject: '', message: '', severity: 0, sendToAllUsers: false };
+    component.newMassNotification = {
+      subject: '',
+      message: '',
+      severity: 0,
+      targetUserIds: undefined,
+      targetRoleIds: undefined,
+      targetOrganizationUnitIds: undefined,
+      sendToAllUsers: false,
+      scheduledTime: undefined,
+    };
     component.save();
     expect(component.saving).toBe(false);
   });

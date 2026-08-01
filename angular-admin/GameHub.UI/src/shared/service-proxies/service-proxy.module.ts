@@ -3,13 +3,6 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { EafHttpInterceptor } from '../../assets/lib/eaf-ng2-module/src/eafHttpInterceptor';
 import * as ApiServiceProxies from './service-proxies';
-import { DashboardServiceProxy } from './dashboard.service-proxy';
-import { EditionServiceProxy } from './edition.service-proxy';
-import { MassNotificationServiceProxy } from './mass-notification.service-proxy';
-import { OrganizationUnitServiceProxy } from './organization-unit.service-proxy';
-import { PaymentServiceProxy } from './payment.service-proxy';
-import { TenantSubscriptionServiceProxy } from './tenant-subscription.service-proxy';
-import { UserDelegationServiceProxy } from './user-delegation.service-proxy';
 
 @NgModule({
   providers: [
@@ -34,19 +27,14 @@ import { UserDelegationServiceProxy } from './user-delegation.service-proxy';
     ApiServiceProxies.CommonLookupServiceProxy,
     ApiServiceProxies.CompanyEmployeeServiceProxy,
     ApiServiceProxies.CompanyServiceProxy,
-    DashboardServiceProxy,
+    ApiServiceProxies.DashboardServiceProxy,
     ApiServiceProxies.DeveloperBillingProfileServiceProxy,
     ApiServiceProxies.DeveloperDashboardServiceProxy,
-    EditionServiceProxy,
     ApiServiceProxies.DeveloperEarningsServiceProxy,
-    MassNotificationServiceProxy,
-    OrganizationUnitServiceProxy,
-    PaymentServiceProxy,
-    TenantSubscriptionServiceProxy,
-    UserDelegationServiceProxy,
     ApiServiceProxies.DeveloperGameServiceProxy,
     ApiServiceProxies.DeveloperProfileServiceProxy,
     ApiServiceProxies.DeveloperTeamServiceProxy,
+    ApiServiceProxies.EditionServiceProxy,
     ApiServiceProxies.ExportsServiceProxy,
     ApiServiceProxies.ExternalResourceServiceProxy,
     ApiServiceProxies.FeatureFlagServiceProxy,
@@ -68,9 +56,12 @@ import { UserDelegationServiceProxy } from './user-delegation.service-proxy';
     ApiServiceProxies.InspectorServiceProxy,
     ApiServiceProxies.LanguageServiceProxy,
     ApiServiceProxies.LeaderboardServiceProxy,
+    ApiServiceProxies.MassNotificationServiceProxy,
     ApiServiceProxies.ModerationServiceProxy,
     ApiServiceProxies.MultiplayerServiceProxy,
     ApiServiceProxies.NotificationServiceProxy,
+    ApiServiceProxies.OrganizationUnitServiceProxy,
+    ApiServiceProxies.PaymentServiceProxy,
     ApiServiceProxies.PermissionServiceProxy,
     ApiServiceProxies.PlayerAccountServiceProxy,
     ApiServiceProxies.PlayerFeedbackAnalyticsServiceProxy,
@@ -89,6 +80,7 @@ import { UserDelegationServiceProxy } from './user-delegation.service-proxy';
     ApiServiceProxies.TokenAuthServiceProxy,
     ApiServiceProxies.UiCustomizationSettingsServiceProxy,
     ApiServiceProxies.UserContentServiceProxy,
+    ApiServiceProxies.UserDelegationServiceProxy,
     ApiServiceProxies.UserLoginServiceProxy,
     ApiServiceProxies.UserReportServiceProxy,
     ApiServiceProxies.UserServiceProxy,
