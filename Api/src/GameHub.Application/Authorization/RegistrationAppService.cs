@@ -26,7 +26,7 @@ namespace GameHub.Authorization
     {
         private readonly IRepository<DeveloperProfile, System.Guid> _developerProfileRepository;
         private readonly IRepository<Tenant, int> _tenantRepository;
-        private readonly IRepository<TenantJoinRequest, long> _tenantJoinRequestRepository;
+        private readonly IRepository<GameHub.MultiTenancy.TenantJoinRequest, long> _tenantJoinRequestRepository;
         private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _userTenantMembershipRepository;
         private readonly IRepository<Edition> _editionRepository;
         private readonly RoleManager _roleManager;
@@ -36,7 +36,7 @@ namespace GameHub.Authorization
         public RegistrationAppService(
             IRepository<DeveloperProfile, System.Guid> developerProfileRepository,
             IRepository<Tenant, int> tenantRepository,
-            IRepository<TenantJoinRequest, long> tenantJoinRequestRepository,
+            IRepository<GameHub.MultiTenancy.TenantJoinRequest, long> tenantJoinRequestRepository,
             IRepository<GameHub.MultiTenancy.UserTenantMembership, long> userTenantMembershipRepository,
             IRepository<Edition> editionRepository,
             RoleManager roleManager,
@@ -398,17 +398,17 @@ namespace GameHub.Authorization
         private async Task CreateJoinRequestAsync(long userId, int tenantId, string message)
         {
             var existing = await _tenantJoinRequestRepository.FirstOrDefaultAsync(r =>
-                r.UserId == userId && r.TenantId == tenantId && r.Status == TenantJoinRequestStatus.Pending);
+                r.UserId == userId && r.TenantId == tenantId && r.Status == GameHub.MultiTenancy.TenantJoinRequestStatus.Pending);
             if (existing != null)
             {
                 throw new UserFriendlyException(L("TenantJoinRequestAlreadyPending"));
             }
 
-            await _tenantJoinRequestRepository.InsertAsync(new TenantJoinRequest
+            await _tenantJoinRequestRepository.InsertAsync(new GameHub.MultiTenancy.TenantJoinRequest
             {
                 UserId = userId,
                 TenantId = tenantId,
-                Status = TenantJoinRequestStatus.Pending,
+                Status = GameHub.MultiTenancy.TenantJoinRequestStatus.Pending,
                 Message = message,
             });
         }
