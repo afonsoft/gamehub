@@ -1,3 +1,17 @@
+## 2026-08-01 02:15 UTC
+
+### Tarefa
+Ajustar menus de navegação: manter administração no header e dashboard/funcionalidades/métricas no menu lateral esquerdo.
+
+### Implementado
+- `angular-admin/GameHub.UI/src/app/shared/layout/nav/app-navigation.service.ts`:
+  - Removido `Tenants` de `getMenu()` (menu lateral principal), deixando apenas itens de dashboard/funcionalidades/métricas.
+  - Adicionado `Tenants` a `getAdminMenu()` (menu de administração do header), junto com Roles, Users, Editions, Languages, OrganizationUnits, MassNotifications, UserDelegations, Payments, AuditLogs, VisualSettings, Maintenance e Settings.
+
+### Validação
+- `npx tsc -p src/tsconfig.app.json --noEmit` no `angular-admin/GameHub.UI`: OK.
+- `npx ng build --configuration=production` no `angular-admin/GameHub.UI`: OK.
+
 ## 2026-08-01 01:22 UTC
 
 ### Tarefa
