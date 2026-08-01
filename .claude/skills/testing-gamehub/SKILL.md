@@ -29,21 +29,10 @@ None beyond the standard checkout. Local stack uses seeded credentials:
    cd Api/src/GameHub.Web.Host
    ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://+:8001 dotnet run -c Release --no-build
    ```
-4. Proxy the public frontend to the backend. Create `angular/proxy.conf.json`:
-   ```json
-   {
-     "/api": {
-       "target": "http://localhost:8001",
-       "secure": false,
-       "changeOrigin": true,
-       "logLevel": "silent"
-     }
-   }
-   ```
-   Then start the public UI:
+4. Start the public UI. `angular.json` already wires `proxy.conf.json` so `/api` is proxied to the backend:
    ```bash
    cd angular
-   npx ng serve --port 8002 --proxy-config proxy.conf.json --host 0.0.0.0
+   npm start -- --host 0.0.0.0 --port 4200
    ```
 5. Run the admin UI with Node 22:
    ```bash
@@ -67,13 +56,17 @@ None beyond the standard checkout. Local stack uses seeded credentials:
 
 ## EAF 9.4.3 tenant-registration testing notes
 
-- **Swagger definition may fail to generate** when `RegisterInput` exists in both `GameHub.Authorization.Dto` and `Eaf.Middleware.Authorization.Accounts.Dto`. API calls still work; Swagger UI may show `Fetch error`.
+- **Swagger now loads correctly** after `CustomSchemaIds(type => type.FullName)` was added; `TenantJoinRequest` and `Registration` controllers are reachable.
 
-- **`/api/services/app/TenantJoinRequest/GetAvailableTenants` may return HTTP 500** with an `AmbiguousMatchException` because both EAF and GameHub expose a `TenantJoinRequestAppService`. This blocks the public UI join-request dropdown and the developer profile Companies/Tenants list.
+- **`/api/services/app/TenantJoinRequest/*` endpoints are no longer ambiguous** because GameHub's obsolete `TenantJoinRequestAppService` was removed and the app now uses `Eaf.Middleware.MultiTenancy.TenantJoinRequest`.
 
-- **Public UI player-default registration may fail after the API call succeeds.** `AuthService.register` falls back to legacy `/api/TokenAuth/Authenticate`, which cannot authenticate tenant-only users (players). Use the API directly or the `/api/hub/auth/*` flow to test login separately.
+- **Public UI player-default registration works** after `AuthService.register` was updated to call `HubAuthService.selectTenant` / `getAvailableTenants` instead of legacy `TokenAuth/Authenticate`.
 
-- **Admin UI bootstrap may fail with a DI exception** for `Eaf.Middleware.Authorization.Accounts.AccountAppService` because it depends on EAF's `TenantJoinRequest` and `UserTenantMembership` repositories, which are not registered in `GameHubDbContext`.
+- **Admin UI bootstrap now works** after `GameHubDbContext` was migrated to the EAF `TenantJoinRequest` and `UserTenantMembership` entities.
+
+- **Public UI `JoinExisting` company `<select>` works** as long as the Angular dev-server is started with the provided `proxy.conf.json` so `GetAvailableTenants` reaches the backend.
+
+- **Admin UI has no TenantJoinRequest management page yet.** Pending requests can be listed/approved through the generated `TenantJoinRequestServiceProxy` or the Swagger UI (`POST /api/services/app/TenantJoinRequest/Approve`).
 
 ## What to verify with DevTools
 
