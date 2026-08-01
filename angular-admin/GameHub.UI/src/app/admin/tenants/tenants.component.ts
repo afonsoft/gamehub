@@ -19,6 +19,7 @@ import { Table } from 'primeng/table';
 import { CreateTenantModalComponent } from './create-tenant-modal.component';
 import { EditTenantModalComponent } from './edit-tenant-modal.component';
 import { TenantFeaturesModalComponent } from './tenant-features-modal.component';
+import { TenantSubscriptionModalComponent } from './tenant-subscription-modal.component';
 import { EntityTypeHistoryModalComponent } from '@app/shared/common/entityHistory/entity-type-history-modal.component';
 import * as _ from 'lodash';
 import { finalize } from 'rxjs/operators';
@@ -34,6 +35,7 @@ export class TenantsComponent extends AppComponentBase implements OnInit {
   @ViewChild('createTenantModal', { static: true }) createTenantModal: CreateTenantModalComponent;
   @ViewChild('editTenantModal', { static: true }) editTenantModal: EditTenantModalComponent;
   @ViewChild('tenantFeaturesModal', { static: true }) tenantFeaturesModal: TenantFeaturesModalComponent;
+  @ViewChild('tenantSubscriptionModal', { static: true }) tenantSubscriptionModal: TenantSubscriptionModalComponent;
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
   @ViewChild('entityTypeHistoryModal', { static: true }) entityTypeHistoryModal: EntityTypeHistoryModalComponent;

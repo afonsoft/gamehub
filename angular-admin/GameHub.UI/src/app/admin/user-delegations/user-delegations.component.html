@@ -1,0 +1,111 @@
+﻿<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ 'UserDelegation' | localize }}</span>
+        </h3>
+        <span class="m-section__sub">
+          {{ 'UserDelegationsHeaderInfo' | localize }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__head">
+        <div class="m-portlet__head-tools">
+          <button *ngIf="isGranted('Pages.Administration.Users.Delegation')" (click)="showCreateModal()" class="btn btn-primary">
+            <i class="flaticon-add"></i>
+            {{ 'Create' | localize }}
+          </button>
+        </div>
+      </div>
+      <div class="m-portlet__body">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'myDelegations'" (click)="activeTab = 'myDelegations'" href="javascript:;" role="tab">{{ 'MyDelegations' | localize }}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'delegatedUsers'" (click)="activeTab = 'delegatedUsers'" href="javascript:;" role="tab">{{ 'DelegatedUsers' | localize }}</a>
+          </li>
+        </ul>
+
+        <div class="tab-content pt-3" [busyIf]="loading">
+          <div class="tab-pane active" role="tabpanel">
+            <p-table [value]="activeTab === 'myDelegations' ? myDelegations : delegatedUsers" [scrollable]="true" ScrollWidth="100%" *ngIf="(activeTab === 'myDelegations' ? myDelegations : delegatedUsers).length > 0">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" style="width: 20%">{{ 'SourceUser' | localize }}</th>
+                  <th scope="col" style="width: 20%">{{ 'TargetUser' | localize }}</th>
+                  <th scope="col" style="width: 15%">{{ 'StartTime' | localize }}</th>
+                  <th scope="col" style="width: 15%">{{ 'EndTime' | localize }}</th>
+                  <th scope="col" style="width: 15%">{{ 'Active' | localize }}</th>
+                  <th scope="col" style="width: 15%">{{ 'Actions' | localize }}</th>
+                </tr>
+              </ng-template>
+              <ng-template let-record="$implicit" pTemplate="body">
+                <tr>
+                  <td style="width: 20%">{{ record.sourceUserName }}</td>
+                  <td style="width: 20%">{{ record.targetUserName }}</td>
+                  <td style="width: 15%">{{ record.startTime | momentFormat: 'L LT' }}</td>
+                  <td style="width: 15%">{{ record.endTime | momentFormat: 'L LT' }}</td>
+                  <td style="width: 15%">
+                    <app-status-badge [value]="record.isActive" [trueLabel]="'Yes' | localize" [falseLabel]="'No' | localize"></app-status-badge>
+                  </td>
+                  <td style="width: 15%">
+                    <button *ngIf="isGranted('Pages.Administration.Users.Delegation')" (click)="cancel(record)" class="btn btn-sm btn-clean btn-icon btn-icon-md" [attr.aria-label]="l('Cancel')">
+                      <i class="flaticon-cancel"></i>
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <app-empty-state *ngIf="(activeTab === 'myDelegations' ? myDelegations : delegatedUsers).length === 0 && !loading" [message]="'NoData' | localize"></app-empty-state>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #createModal="bs-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'CreatingNewUserDelegation' | localize }}</h5>
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="DelegationTargetUserId">{{ 'TargetUser' | localize }}</label>
+          <select id="DelegationTargetUserId" class="form-control" [(ngModel)]="newDelegation.targetUserId" name="targetUserId">
+            <option [ngValue]="undefined">{{ 'Select' | localize }}</option>
+            <option *ngFor="let user of allUsers" [ngValue]="user.id">{{ user.name }} {{ user.surname }} ({{ user.userName }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="DelegationStartTime">{{ 'StartTime' | localize }}</label>
+          <input id="DelegationStartTime" class="form-control" [(ngModel)]="newDelegation.startTime" name="startTime" type="datetime-local" />
+        </div>
+        <div class="form-group">
+          <label for="DelegationEndTime">{{ 'EndTime' | localize }}</label>
+          <input id="DelegationEndTime" class="form-control" [(ngModel)]="newDelegation.endTime" name="endTime" type="datetime-local" />
+        </div>
+        <div class="form-group">
+          <label for="DelegationDescription">{{ 'Description' | localize }}</label>
+          <textarea id="DelegationDescription" class="form-control" [(ngModel)]="newDelegation.description" name="description" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">{{ 'Cancel' | localize }}</button>
+        <button type="button" class="btn btn-primary" [disabled]="saving" (click)="save()">
+          <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
+          {{ 'Save' | localize }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

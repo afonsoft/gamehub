@@ -1,0 +1,92 @@
+<div bsModal #createOrEditModal="bs-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span *ngIf="edition.id">{{ 'EditEdition' | localize }}</span>
+          <span *ngIf="!edition.id">{{ 'CreateNewEdition' | localize }}</span>
+        </h5>
+        <button type="button" class="close" (click)="close()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="EditionDisplayName">{{ 'Name' | localize }} *</label>
+          <input id="EditionDisplayName" class="form-control" [(ngModel)]="edition.displayName" name="displayName" type="text" />
+        </div>
+
+        <div class="form-group">
+          <div class="form-check">
+            <input id="EditionIsFree" class="form-check-input" [(ngModel)]="edition.isFree" name="isFree" type="checkbox" />
+            <label class="form-check-label" for="EditionIsFree">{{ 'Free' | localize }}</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="EditionMonthlyPrice">{{ 'MonthlyPrice' | localize }}</label>
+            <input id="EditionMonthlyPrice" class="form-control" [(ngModel)]="edition.monthlyPrice" name="monthlyPrice" type="number" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="EditionAnnualPrice">{{ 'AnnualPrice' | localize }}</label>
+            <input id="EditionAnnualPrice" class="form-control" [(ngModel)]="edition.annualPrice" name="annualPrice" type="number" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="EditionQuarterlyPrice">{{ 'QuarterlyPrice' | localize }}</label>
+            <input id="EditionQuarterlyPrice" class="form-control" [(ngModel)]="edition.quarterlyPrice" name="quarterlyPrice" type="number" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="EditionBiannualPrice">{{ 'BiannualPrice' | localize }}</label>
+            <input id="EditionBiannualPrice" class="form-control" [(ngModel)]="edition.biannualPrice" name="biannualPrice" type="number" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="EditionPermanentPrice">{{ 'PermanentPrice' | localize }}</label>
+            <input id="EditionPermanentPrice" class="form-control" [(ngModel)]="edition.permanentPrice" name="permanentPrice" type="number" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="EditionDefaultPaymentPeriodType">{{ 'DefaultPaymentPeriodType' | localize }}</label>
+            <select id="EditionDefaultPaymentPeriodType" class="form-control" [(ngModel)]="edition.defaultPaymentPeriodType" name="defaultPaymentPeriodType">
+              <option [ngValue]="1">{{ 'Daily' | localize }}</option>
+              <option [ngValue]="7">{{ 'Weekly' | localize }}</option>
+              <option [ngValue]="30">{{ 'Monthly' | localize }}</option>
+              <option [ngValue]="90">{{ 'Quarterly' | localize }}</option>
+              <option [ngValue]="180">{{ 'Biannual' | localize }}</option>
+              <option [ngValue]="365">{{ 'Annual' | localize }}</option>
+              <option [ngValue]="99999">{{ 'Permanent' | localize }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="EditionTrialDayCount">{{ 'TrialDayCount' | localize }}</label>
+            <input id="EditionTrialDayCount" class="form-control" [(ngModel)]="edition.trialDayCount" name="trialDayCount" type="number" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="EditionWaitingDayAfterExpire">{{ 'WaitingDayAfterExpire' | localize }}</label>
+            <input id="EditionWaitingDayAfterExpire" class="form-control" [(ngModel)]="edition.waitingDayAfterExpire" name="waitingDayAfterExpire" type="number" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="EditionExpiringEditionId">{{ 'ExpiringEdition' | localize }}</label>
+          <input id="EditionExpiringEditionId" class="form-control" [(ngModel)]="edition.expiringEditionId" name="expiringEditionId" type="number" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">{{ 'Cancel' | localize }}</button>
+        <button type="button" class="btn btn-primary" [disabled]="saving" (click)="save()">
+          <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
+          {{ 'Save' | localize }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

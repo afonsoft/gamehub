@@ -5,7 +5,11 @@ import { EafHttpInterceptor } from '../../assets/lib/eaf-ng2-module/src/eafHttpI
 import * as ApiServiceProxies from './service-proxies';
 import { DashboardServiceProxy } from './dashboard.service-proxy';
 import { EditionServiceProxy } from './edition.service-proxy';
+import { MassNotificationServiceProxy } from './mass-notification.service-proxy';
 import { OrganizationUnitServiceProxy } from './organization-unit.service-proxy';
+import { PaymentServiceProxy } from './payment.service-proxy';
+import { TenantSubscriptionServiceProxy } from './tenant-subscription.service-proxy';
+import { UserDelegationServiceProxy } from './user-delegation.service-proxy';
 
 @NgModule({
   providers: [
@@ -35,7 +39,11 @@ import { OrganizationUnitServiceProxy } from './organization-unit.service-proxy'
     ApiServiceProxies.DeveloperDashboardServiceProxy,
     EditionServiceProxy,
     ApiServiceProxies.DeveloperEarningsServiceProxy,
+    MassNotificationServiceProxy,
     OrganizationUnitServiceProxy,
+    PaymentServiceProxy,
+    TenantSubscriptionServiceProxy,
+    UserDelegationServiceProxy,
     ApiServiceProxies.DeveloperGameServiceProxy,
     ApiServiceProxies.DeveloperProfileServiceProxy,
     ApiServiceProxies.DeveloperTeamServiceProxy,

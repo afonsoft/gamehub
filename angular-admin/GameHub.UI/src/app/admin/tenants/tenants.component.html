@@ -106,6 +106,14 @@
                         <li>
                           <a
                             href="javascript:;"
+                            *ngIf="permission.isGranted('Pages.Tenants.Subscription')"
+                            (click)="tenantSubscriptionModal.show(record.id, record.name)"
+                            >{{ 'Subscription' | localize }}</a
+                          >
+                        </li>
+                        <li>
+                          <a
+                            href="javascript:;"
                             *ngIf="permission.isGranted('Pages.Tenants.Edit')"
                             (click)="editTenantModal.show(record.id)"
                             >{{ 'Edit' | localize }}</a
@@ -164,6 +172,7 @@
   <createTenantModal #createTenantModal (modalSave)="reloadPage()"></createTenantModal>
   <editTenantModal #editTenantModal (modalSave)="reloadPage()"></editTenantModal>
   <tenantFeaturesModal #tenantFeaturesModal></tenantFeaturesModal>
+  <tenantSubscriptionModal #tenantSubscriptionModal (modalSave)="reloadPage()"></tenantSubscriptionModal>
   <commonLookupModal #impersonateUserLookupModal (itemSelected)="impersonateUser($event)"></commonLookupModal>
   <entityTypeHistoryModal #entityTypeHistoryModal></entityTypeHistoryModal>
 </div>

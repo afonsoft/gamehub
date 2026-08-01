@@ -3,9 +3,13 @@ using Eaf.Middleware.Authorization.Roles;
 using Eaf.Middleware.Authorization.Users;
 using Eaf.Middleware.Chat;
 using Eaf.Middleware.Core.Cache;
+using Eaf.Middleware.Core.Editions;
 using Eaf.Middleware.Friendships;
+using Eaf.Middleware.MassNotifications;
 using Eaf.Middleware.MultiTenancy;
+using Eaf.Middleware.Payments;
 using Eaf.Middleware.Storage;
+using Eaf.Middleware.UserDelegations;
 using GameHub;
 using GameHub.Builds;
 using GameHub.Catalog;
@@ -127,6 +131,10 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<GameInvite> GameInvites { get; set; }
         public virtual DbSet<GameNotification> GameNotifications { get; set; }
         public virtual DbSet<GameHub.MultiTenancy.UserTenantMembership> UserTenantMemberships { get; set; }
+        public virtual DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
+        public virtual DbSet<MassNotification> MassNotifications { get; set; }
+        public virtual DbSet<UserDelegation> UserDelegations { get; set; }
+        public virtual DbSet<SubscribableEdition> SubscribableEditions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -176,6 +184,32 @@ namespace GameHub.EntityFrameworkCore
                 b.HasIndex(e => new { e.TenantId, e.FriendUserId });
                 b.HasIndex(e => new { e.FriendTenantId, e.UserId });
                 b.HasIndex(e => new { e.FriendTenantId, e.FriendUserId });
+            });
+
+            modelBuilder.Entity<GameHub.MultiTenancy.UserTenantMembership>(b =>
+            {
+                b.HasIndex(e => new { e.UserId, e.TenantId }).IsUnique();
+                b.HasIndex(e => e.TenantUserId);
+            });
+
+            modelBuilder.Entity<MassNotification>(b =>
+            {
+                b.HasIndex(e => new { e.TenantId, e.Status });
+                b.HasIndex(e => e.CreationTime);
+            });
+
+            modelBuilder.Entity<UserDelegation>(b =>
+            {
+                b.HasIndex(e => new { e.TenantId, e.SourceUserId });
+                b.HasIndex(e => new { e.TenantId, e.TargetUserId });
+                b.HasIndex(e => e.StartTime);
+                b.HasIndex(e => e.EndTime);
+            });
+
+            modelBuilder.Entity<SubscriptionPayment>(b =>
+            {
+                b.HasIndex(e => new { e.TenantId, e.Status });
+                b.HasIndex(e => e.CreationTime);
             });
 
             if (Database.IsSqlServer())

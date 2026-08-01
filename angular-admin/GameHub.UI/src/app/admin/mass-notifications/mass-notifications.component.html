@@ -1,0 +1,166 @@
+﻿<div [@routerTransition]>
+  <div class="m-subheader">
+    <div class="row align-items-center">
+      <div class="mr-auto col-auto">
+        <h3 class="m-subheader__title m-subheader__title--separator">
+          <span>{{ 'MassNotifications' | localize }}</span>
+        </h3>
+        <span class="m-section__sub">
+          {{ 'MassNotificationsHeaderInfo' | localize }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="m-content">
+    <div class="m-portlet m-portlet--mobile">
+      <div class="m-portlet__head">
+        <div class="m-portlet__head-tools">
+          <button *ngIf="isGranted('Pages.Administration.MassNotifications.Create')" (click)="showCreateModal()" class="btn btn-primary">
+            <i class="flaticon-add"></i>
+            {{ 'Create' | localize }}
+          </button>
+        </div>
+      </div>
+      <div class="m-portlet__body">
+        <form autocomplete="off" class="horizontal-form">
+          <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-10">
+              <div class="col-xl-6">
+                <label for="MassNotificationsFilterText">{{ 'Filter' | localize }}</label>
+                <div class="input-group">
+                  <input [(ngModel)]="filters.filterText" [placeholder]="l('SearchWithThreeDot')" class="form-control m-input" id="MassNotificationsFilterText" name="filterText" type="text" />
+                  <span class="input-group-btn">
+                    <button (click)="getMassNotifications()" class="btn btn-primary" type="submit">
+                      <i [attr.aria-label]="l('Search')" class="flaticon-search-1"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <label for="MassNotificationsStatusFilter">{{ 'Status' | localize }}</label>
+                <select id="MassNotificationsStatusFilter" class="form-control m-input" [(ngModel)]="filters.status" name="statusFilter" (change)="getMassNotifications()">
+                  <option value="">{{ 'All' | localize }}</option>
+                  <option value="Pending">{{ 'Pending' | localize }}</option>
+                  <option value="Processing">{{ 'Processing' | localize }}</option>
+                  <option value="Completed">{{ 'Completed' | localize }}</option>
+                  <option value="Canceled">{{ 'Canceled' | localize }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="align-items-center">
+          <div [busyIf]="dataTableHelper.isLoading" class="primeng-datatable-container">
+            <p-table (onLazyLoad)="getMassNotifications($event)" [lazy]="true" [paginator]="false" [resizableColumns]="dataTableHelper.resizableColumns" [scrollable]="true" [value]="dataTableHelper.records" [loading]="dataTableHelper.isLoading" #dataTable rows="{{ dataTableHelper.defaultRecordsCountPerPage }}" ScrollWidth="100%">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th scope="col" pSortableColumn="subject" style="width: 30%">
+                    {{ 'Subject' | localize }}
+                    <p-sortIcon field="subject"></p-sortIcon>
+                  </th>
+                  <th scope="col" style="width: 25%">{{ 'Message' | localize }}</th>
+                  <th scope="col" pSortableColumn="severity" style="width: 10%">
+                    {{ 'Severity' | localize }}
+                    <p-sortIcon field="severity"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="status" style="width: 10%">
+                    {{ 'Status' | localize }}
+                    <p-sortIcon field="status"></p-sortIcon>
+                  </th>
+                  <th scope="col" pSortableColumn="scheduledTime" style="width: 15%">
+                    {{ 'ScheduledTime' | localize }}
+                    <p-sortIcon field="scheduledTime"></p-sortIcon>
+                  </th>
+                  <th scope="col" style="width: 10%">{{ 'Actions' | localize }}</th>
+                </tr>
+              </ng-template>
+              <ng-template let-record="$implicit" pTemplate="body">
+                <tr>
+                  <td style="width: 30%">{{ record.subject }}</td>
+                  <td style="width: 25%">{{ record.message }}</td>
+                  <td style="width: 10%">{{ record.severity }}</td>
+                  <td style="width: 10%">{{ record.status }}</td>
+                  <td style="width: 15%">{{ record.scheduledTime | momentFormat: 'L LT' }}</td>
+                  <td style="width: 10%">
+                    <button *ngIf="isGranted('Pages.Administration.MassNotifications.Delete') && record.status !== 'Canceled'" (click)="cancel(record)" class="btn btn-sm btn-clean btn-icon btn-icon-md" [attr.aria-label]="l('Cancel')">
+                      <i class="flaticon-cancel"></i>
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <app-empty-state *ngIf="dataTableHelper.totalRecordsCount === 0 && !dataTableHelper.isLoading" [message]="'NoData' | localize"></app-empty-state>
+            <div class="primeng-paging-container">
+              <p-paginator (onPageChange)="getMassNotifications($event)" [rows]="dataTableHelper.defaultRecordsCountPerPage" [rowsPerPageOptions]="dataTableHelper.predefinedRecordsCountPerPage" [totalRecords]="dataTableHelper.totalRecordsCount" #paginator>
+              </p-paginator>
+              <span class="total-records-count">
+                {{ 'TotalRecordsCount' | localize: dataTableHelper.totalRecordsCount }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #createModal="bs-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'CreatingNewMassNotification' | localize }}</h5>
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="MassNotificationSubject">{{ 'Subject' | localize }}</label>
+          <input id="MassNotificationSubject" class="form-control" [(ngModel)]="newMassNotification.subject" name="subject" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="MassNotificationMessage">{{ 'Message' | localize }}</label>
+          <textarea id="MassNotificationMessage" class="form-control" [(ngModel)]="newMassNotification.message" name="message" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="MassNotificationSeverity">{{ 'Severity' | localize }}</label>
+          <select id="MassNotificationSeverity" class="form-control" [(ngModel)]="newMassNotification.severity" name="severity">
+            <option [ngValue]="0">Info</option>
+            <option [ngValue]="1">Success</option>
+            <option [ngValue]="2">Warn</option>
+            <option [ngValue]="3">Error</option>
+            <option [ngValue]="4">Fatal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="MassNotificationScheduledTime">{{ 'ScheduledTime' | localize }}</label>
+          <input id="MassNotificationScheduledTime" class="form-control" [(ngModel)]="newMassNotification.scheduledTime" name="scheduledTime" type="datetime-local" />
+        </div>
+        <div class="form-check">
+          <input id="MassNotificationSendToAllUsers" class="form-check-input" [(ngModel)]="newMassNotification.sendToAllUsers" name="sendToAllUsers" type="checkbox" />
+          <label class="form-check-label" for="MassNotificationSendToAllUsers">{{ 'SendToAllUsers' | localize }}</label>
+        </div>
+        <div class="form-group" *ngIf="!newMassNotification.sendToAllUsers">
+          <label for="MassNotificationTargetUserIds">{{ 'TargetUserIds' | localize }}</label>
+          <input id="MassNotificationTargetUserIds" class="form-control" [(ngModel)]="newMassNotification.targetUserIds" name="targetUserIds" type="text" />
+        </div>
+        <div class="form-group" *ngIf="!newMassNotification.sendToAllUsers">
+          <label for="MassNotificationTargetRoleIds">{{ 'TargetRoleIds' | localize }}</label>
+          <input id="MassNotificationTargetRoleIds" class="form-control" [(ngModel)]="newMassNotification.targetRoleIds" name="targetRoleIds" type="text" />
+        </div>
+        <div class="form-group" *ngIf="!newMassNotification.sendToAllUsers">
+          <label for="MassNotificationTargetOuIds">{{ 'TargetOrganizationUnitIds' | localize }}</label>
+          <input id="MassNotificationTargetOuIds" class="form-control" [(ngModel)]="newMassNotification.targetOrganizationUnitIds" name="targetOrganizationUnitIds" type="text" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">{{ 'Cancel' | localize }}</button>
+        <button type="button" class="btn btn-primary" [disabled]="saving" (click)="save()">
+          <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
+          {{ 'Save' | localize }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

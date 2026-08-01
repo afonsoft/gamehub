@@ -1,0 +1,84 @@
+<div bsModal #paymentGatewaySettingsModal="bs-modal" class="modal fade" tabindex="-1" aria-hidden="true" [config]="{ backdrop: 'static' }">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'PaymentGatewaySettings' | localize }}</h5>
+        <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" *ngIf="settings">
+        <div class="form-group">
+          <label for="DefaultGateway">{{ 'DefaultGateway' | localize }}</label>
+          <select id="DefaultGateway" class="form-control" [(ngModel)]="settings.defaultGateway" name="defaultGateway">
+            <option value="">{{ 'NotSelected' | localize }}</option>
+            <option *ngFor="let gateway of gateways" [value]="gateway">{{ gateway }}</option>
+          </select>
+        </div>
+
+        <h6>Stripe</h6>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="StripeSecretKey">{{ 'SecretKey' | localize }}</label>
+            <input id="StripeSecretKey" class="form-control" [(ngModel)]="settings.stripe.secretKey" name="stripeSecretKey" type="text" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="StripePublishableKey">{{ 'PublishableKey' | localize }}</label>
+            <input id="StripePublishableKey" class="form-control" [(ngModel)]="settings.stripe.publishableKey" name="stripePublishableKey" type="text" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="StripeWebhookSecret">{{ 'WebhookSecret' | localize }}</label>
+          <input id="StripeWebhookSecret" class="form-control" [(ngModel)]="settings.stripe.webhookSecret" name="stripeWebhookSecret" type="text" />
+        </div>
+
+        <h6>PayPal</h6>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="PayPalClientId">{{ 'ClientId' | localize }}</label>
+            <input id="PayPalClientId" class="form-control" [(ngModel)]="settings.payPal.clientId" name="payPalClientId" type="text" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="PayPalClientSecret">{{ 'ClientSecret' | localize }}</label>
+            <input id="PayPalClientSecret" class="form-control" [(ngModel)]="settings.payPal.clientSecret" name="payPalClientSecret" type="text" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="PayPalWebhookId">{{ 'WebhookId' | localize }}</label>
+          <input id="PayPalWebhookId" class="form-control" [(ngModel)]="settings.payPal.webhookId" name="payPalWebhookId" type="text" />
+        </div>
+
+        <h6>Mercado Pago</h6>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="MercadoPagoAccessToken">{{ 'AccessToken' | localize }}</label>
+            <input id="MercadoPagoAccessToken" class="form-control" [(ngModel)]="settings.mercadoPago.accessToken" name="mercadoPagoAccessToken" type="text" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="MercadoPagoPublicKey">{{ 'PublicKey' | localize }}</label>
+            <input id="MercadoPagoPublicKey" class="form-control" [(ngModel)]="settings.mercadoPago.publicKey" name="mercadoPagoPublicKey" type="text" />
+          </div>
+        </div>
+
+        <h6>PagSeguro</h6>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="PagSeguroToken">{{ 'Token' | localize }}</label>
+            <input id="PagSeguroToken" class="form-control" [(ngModel)]="settings.pagSeguro.token" name="pagSeguroToken" type="text" />
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="PagSeguroEmail">{{ 'Email' | localize }}</label>
+            <input id="PagSeguroEmail" class="form-control" [(ngModel)]="settings.pagSeguro.email" name="pagSeguroEmail" type="email" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">{{ 'Cancel' | localize }}</button>
+        <button type="button" class="btn btn-primary" [disabled]="saving" (click)="save()">
+          <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
+          {{ 'Save' | localize }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
