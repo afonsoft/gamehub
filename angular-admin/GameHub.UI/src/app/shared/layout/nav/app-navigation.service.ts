@@ -36,7 +36,6 @@ export class AppNavigationService {
       new AppMenuItem('Audit Log', 'Pages.GameHubDashboard.AuditLog', 'la la-folder-open', '/app/main/gamehub/dashboard/audit'),
       new AppMenuItem('Users', 'Pages.Users.Manage', 'la la-users', '/app/main/gamehub/users'),
       new AppMenuItem('Companies', 'Pages.Companies', 'la la-building', '/app/main/gamehub/companies'),
-      new AppMenuItem('Tenants', 'Pages.Tenants', 'la la-building', '/app/admin/tenants'),
     ]);
   }
 
@@ -50,6 +49,7 @@ export class AppNavigationService {
       new AppMenuItem('MassNotifications', 'Pages.Administration.MassNotifications', 'la la-bullhorn', '/app/admin/mass-notifications'),
       new AppMenuItem('UserDelegations', 'Pages.Administration.Users.Delegation', 'la la-user-secret', '/app/admin/user-delegations'),
       new AppMenuItem('Payments', 'Pages.Administration.Payments', 'la la-credit-card', '/app/admin/payments'),
+      new AppMenuItem('Tenants', 'Pages.Tenants', 'la la-building', '/app/admin/tenants'),
       new AppMenuItem('AuditLogs', 'Pages.Administration.AuditLogs', 'la la-folder-open', '/app/admin/auditLogs'),
       new AppMenuItem('VisualSettings', 'Pages.Administration.UiCustomization', 'la la-desktop', '/app/admin/ui-customization'),
       new AppMenuItem('Maintenance', 'Pages.Administration.Maintenance', 'la la-cogs', '/app/admin/maintenance'),
