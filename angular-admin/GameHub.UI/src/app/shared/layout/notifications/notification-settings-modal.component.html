@@ -8,7 +8,7 @@
   [config]="{ backdrop: 'static' }"
 >
   <div class="modal-dialog modal-lg" style="max-width: 920px">
-    <div class="modal-content">
+    <div class="modal-content" cdkTrapFocus cdkTrapFocusAutoCapture>
       <form autocomplete="off" #editForm="ngForm" novalidate (ngSubmit)="save()">
         <div class="modal-header">
           <h5 class="modal-title">
