@@ -7,8 +7,8 @@ Durable records belong in .claude/memory/{YYYYMMDD}-memory.md.
 - Test baseline: N/A — não verificado nesta sessão (migração de harness)
 - Active branch: feature/devin-20260801-migrate-claude-harness
 - Active work item: Migração do harness legado para a estrutura nativa .claude/ (playbook Create Agent Harness)
-- In progress: nothing — migração concluída e validada; aguardando commit
-- Uncommitted files: mudanças em .claude/, .devin/config.json, AGENTS.md movido, Api/.windsurf removido
+- In progress: nothing — migração commitada; aguardando push e PR
+- Uncommitted files: none
 - Blockers / out-of-scope findings: cobertura de testes < 90% permanece como dívida técnica documentada
-- Next action: commitar em feature/devin-20260801-migrate-claude-harness e abrir PR
+- Next action: fazer push da branch e criar PR para main
 - Last updated: 20260801
