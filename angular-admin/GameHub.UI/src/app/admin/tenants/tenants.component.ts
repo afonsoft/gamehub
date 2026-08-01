@@ -125,6 +125,10 @@ export class TenantsComponent extends AppComponentBase implements OnInit {
     this.createTenantModal.show();
   }
 
+  showSubscription(tenant: TenantListDto): void {
+    this.tenantSubscriptionModal.show(tenant.id, tenant.name);
+  }
+
   deleteTenant(tenant: TenantListDto): void {
     this.message.confirm(this.l('TenantDeleteWarningMessage', tenant.tenancyName), this.l('AreYouSure'), isConfirmed => {
       if (isConfirmed) {

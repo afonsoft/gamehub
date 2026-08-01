@@ -266,6 +266,54 @@ export class MockEditionServiceProxy {
   }
 }
 
+export class MockMassNotificationServiceProxy {
+  getAll(...args: any[]): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  create(input: any): Observable<any> {
+    return of({});
+  }
+  cancel(input: any): Observable<any> {
+    return of({});
+  }
+}
+
+export class MockUserDelegationServiceProxy {
+  getMyDelegations(input: any): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  getDelegatedUsers(input: any): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  create(input: any): Observable<any> {
+    return of({});
+  }
+  cancel(id: number): Observable<any> {
+    return of({});
+  }
+}
+
+export class MockPaymentServiceProxy {
+  getAll(...args: any[]): Observable<any> {
+    return of({ totalCount: 0, items: [] });
+  }
+  createPayment(input: any): Observable<any> {
+    return of({});
+  }
+  processPayment(id: number, input: any): Observable<any> {
+    return of({});
+  }
+  getGatewayList(): Observable<any> {
+    return of([]);
+  }
+  getGatewaySettings(): Observable<any> {
+    return of({});
+  }
+  updateGatewaySettings(input: any): Observable<void> {
+    return of(undefined);
+  }
+}
+
 export class MockOrganizationUnitServiceProxy {
   getOrganizationUnits(): Observable<any> {
     return of([]);

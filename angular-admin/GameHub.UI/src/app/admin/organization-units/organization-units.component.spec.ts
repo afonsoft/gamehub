@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { OrganizationUnitsComponent } from './organization-units.component';
 import { OrganizationUnitServiceProxy } from '@shared/service-proxies/organization-unit.service-proxy';
 import { UserServiceProxy, RoleServiceProxy } from '@shared/service-proxies/service-proxies';
@@ -38,6 +40,7 @@ describe('OrganizationUnitsComponent', () => {
   beforeEach(() => {
     setupEafGlobals();
     TestBed.configureTestingModule({
+      imports: [FormsModule, ModalModule.forRoot()],
       declarations: [OrganizationUnitsComponent, MockLocalizePipe],
       providers: [
         { provide: OrganizationUnitServiceProxy, useClass: MockOrganizationUnitServiceProxy },

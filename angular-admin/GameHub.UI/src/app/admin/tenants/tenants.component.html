@@ -107,7 +107,7 @@
                           <a
                             href="javascript:;"
                             *ngIf="permission.isGranted('Pages.Tenants.Subscription')"
-                            (click)="tenantSubscriptionModal.show(record.id, record.name)"
+                            (click)="showSubscription(record)"
                             >{{ 'Subscription' | localize }}</a
                           >
                         </li>
