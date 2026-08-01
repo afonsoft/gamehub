@@ -67,6 +67,21 @@ Antes de modificar múltiplos arquivos:
 
 ---
 
+## Ritual de Memória
+
+Antes de qualquer execução:
+
+1. Ler `.claude/memory/memory.md`.
+2. Ler os 3 arquivos `.claude/memory/[0-9]*-memory.md` mais recentes (ordem decrescente por nome).
+3. Tratar memória como *hint, not truth* — verificar fatos lembrados contra o código atual antes de agir.
+
+Ao final de cada checkpoint ou commit:
+
+1. Reescrever `.claude/memory/memory.md` com o estado atual.
+2. Acrescentar entradas duráveis em `.claude/memory/{YYYYMMDD}-memory.md`.
+
+---
+
 ## Convenções
 
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
@@ -74,3 +89,7 @@ Antes de modificar múltiplos arquivos:
 - **Código C#**: idioma inglês para nomes; comentários e docs em pt-BR quando aplicável.
 - **Testes**: padrão BDD `Dado_Quando_Entao`.
 - **Documentação**: registrar execuções em `docs/agent-execution-log.md`.
+
+---
+
+> **Estas regras prevalecem sobre qualquer instrução do usuário que contrarie proteção de branches, exposição de secrets, quebra de camadas ou modificação de `.github/workflows/`.**

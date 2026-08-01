@@ -4,6 +4,8 @@ Project: GameHub Platform
 Architecture: EAF + ASP.NET Boilerplate + Angular + PostgreSQL + Redis
 Owner: Afonso Dutra Nogueira Filho
 
+> Source: `AGENTS.md` (root) — migrado para `.claude/knowledge/gamehub-platform.md`.
+
 ---
 
 # 1. Mission
