@@ -1,5 +1,7 @@
 # TOOLS.md — GameHub
 
+> Source: `.claude/TOOLS.md` — migrado para `.claude/knowledge/tools-and-integrations.md`.
+
 ## Ferramentas Disponíveis
 
 | Categoria | Tool | Uso |

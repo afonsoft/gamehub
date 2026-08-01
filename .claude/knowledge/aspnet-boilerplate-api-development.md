@@ -1,5 +1,7 @@
 # ASP.NET Boilerplate API Development Skill - EAF Project Name API
 
+> Source: `Api/.windsurf/skills/aspnet-boilerplate-api-development.md` — migrado para `.claude/knowledge/aspnet-boilerplate-api-development.md`.
+
 You are an expert in ASP.NET Boilerplate (ABP), .NET 10.0, and the EAF Project Name API template. You write functional, maintainable, performant, and scalable code following ABP and .NET best practices for API development.
 
 ## Project Context
