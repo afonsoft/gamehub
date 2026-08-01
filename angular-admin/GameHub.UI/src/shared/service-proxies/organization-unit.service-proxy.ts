@@ -80,7 +80,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     getOrganizationUnits(): Observable<IOrganizationUnitDto[]> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/GetOrganizationUnits';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/GetOrganizationUnits';
         const options: unknown = { observe: 'response', responseType: 'json' };
         return this.http.request('get', url_, options).pipe(_observableMergeMap((response: any) => this.processOrganizationUnits(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -98,7 +98,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     create(input: ICreateOrganizationUnitInput): Observable<IOrganizationUnitDto> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/Create';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/Create';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processOrganizationUnit(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -107,7 +107,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     update(input: IUpdateOrganizationUnitInput): Observable<IOrganizationUnitDto> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/Update';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/Update';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('put', url_, options).pipe(_observableMergeMap((response: any) => this.processOrganizationUnit(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -116,7 +116,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     move(input: IMoveOrganizationUnitInput): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/Move';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/Move';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -125,7 +125,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     delete(id: number): Observable<void> {
-        let url_ = this.baseUrl + '/api/services/app/OrganizationUnit/Delete?Id=' + encodeURIComponent('' + id) + '&';
+        let url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/Delete?Id=' + encodeURIComponent('' + id) + '&';
         url_ = url_.replace(/[?&]$/, '');
         const options: unknown = { observe: 'response', responseType: 'json' };
         return this.http.request('delete', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
@@ -135,7 +135,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     getOrganizationUnitUsers(input: IGetOrganizationUnitUsersInput): Observable<IPagedResultDtoOfOrganizationUnitUserListDto> {
-        let url_ = this.baseUrl + '/api/services/app/OrganizationUnit/GetOrganizationUnitUsers?OrganizationUnitId=' + encodeURIComponent('' + input.organizationUnitId) + '&';
+        let url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/GetOrganizationUnitUsers?OrganizationUnitId=' + encodeURIComponent('' + input.organizationUnitId) + '&';
         if (input.filter !== undefined && input.filter !== null) url_ += 'Filter=' + encodeURIComponent('' + input.filter) + '&';
         if (input.sorting !== undefined && input.sorting !== null) url_ += 'Sorting=' + encodeURIComponent('' + input.sorting) + '&';
         if (input.skipCount !== undefined && input.skipCount !== null) url_ += 'SkipCount=' + encodeURIComponent('' + input.skipCount) + '&';
@@ -158,7 +158,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     getOrganizationUnitRoles(input: IGetOrganizationUnitUsersInput): Observable<IPagedResultDtoOfOrganizationUnitRoleListDto> {
-        let url_ = this.baseUrl + '/api/services/app/OrganizationUnit/GetOrganizationUnitRoles?OrganizationUnitId=' + encodeURIComponent('' + input.organizationUnitId) + '&';
+        let url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/GetOrganizationUnitRoles?OrganizationUnitId=' + encodeURIComponent('' + input.organizationUnitId) + '&';
         if (input.filter !== undefined && input.filter !== null) url_ += 'Filter=' + encodeURIComponent('' + input.filter) + '&';
         if (input.sorting !== undefined && input.sorting !== null) url_ += 'Sorting=' + encodeURIComponent('' + input.sorting) + '&';
         if (input.skipCount !== undefined && input.skipCount !== null) url_ += 'SkipCount=' + encodeURIComponent('' + input.skipCount) + '&';
@@ -181,7 +181,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     addUserToOrganizationUnit(input: IUserToOrganizationUnitInput): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/AddUserToOrganizationUnit';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/AddUserToOrganizationUnit';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -190,7 +190,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     removeUserFromOrganizationUnit(input: IUserToOrganizationUnitInput): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/RemoveUserFromOrganizationUnit';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/RemoveUserFromOrganizationUnit';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -199,7 +199,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     addRoleToOrganizationUnit(input: IRoleToOrganizationUnitInput): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/AddRoleToOrganizationUnit';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/AddRoleToOrganizationUnit';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -208,7 +208,7 @@ export class OrganizationUnitServiceProxy {
     }
 
     removeRoleFromOrganizationUnit(input: IRoleToOrganizationUnitInput): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/OrganizationUnit/RemoveRoleFromOrganizationUnit';
+        const url_ = this.baseUrl + '/api/services/app/OrganizationUnitAppService/RemoveRoleFromOrganizationUnit';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;

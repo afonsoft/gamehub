@@ -6,6 +6,8 @@ import { LazyLoadEvent } from 'primeng/api';
 import { Paginator } from 'primeng/paginator';
 import { Table } from 'primeng/table';
 import { finalize } from 'rxjs/operators';
+import { CreateOrEditEditionModalComponent } from './create-or-edit-edition-modal.component';
+import { EditionFeaturesModalComponent } from './edition-features-modal.component';
 
 @Component({
   standalone: false,
@@ -16,6 +18,8 @@ import { finalize } from 'rxjs/operators';
 export class EditionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
+  @ViewChild('createOrEditEditionModal', { static: true }) createOrEditEditionModal: CreateOrEditEditionModalComponent;
+  @ViewChild('editionFeaturesModal', { static: true }) editionFeaturesModal: EditionFeaturesModalComponent;
 
   filters: { filterText: string } = { filterText: '' };
 
@@ -54,5 +58,28 @@ export class EditionsComponent extends AppComponentBase implements OnInit {
 
   reloadPage(): void {
     this.paginator.changePage(this.paginator.getPage());
+  }
+
+  createEdition(): void {
+    this.createOrEditEditionModal.show();
+  }
+
+  editEdition(record: any): void {
+    this.createOrEditEditionModal.show(record.id);
+  }
+
+  deleteEdition(record: any): void {
+    this.message.confirm(this.l('EditionDeleteWarningMessage', record.displayName), this.l('AreYouSure'), isConfirmed => {
+      if (isConfirmed) {
+        this._editionService.deleteEdition(record.id).subscribe(() => {
+          this.notify.success(this.l('SuccessfullyDeleted'));
+          this.reloadPage();
+        });
+      }
+    });
+  }
+
+  showFeatures(record: any): void {
+    this.editionFeaturesModal.show(record.id, record.displayName);
   }
 }

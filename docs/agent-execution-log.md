@@ -1,3 +1,29 @@
+## 2026-08-01 01:22 UTC
+
+### Tarefa
+Atualizar módulos EAF do GameHub para 9.4.2 e migrar os ajustes dos templates EAF (Angular/API), completando os módulos administrativos pendentes.
+
+### Implementado
+- `Api/common.props` e `.csproj`: pacotes `Eaf.*` atualizados de `9.4.1` para `9.4.2`; `Version`/`TemplateVersion` definidos como `9.4.2`/`9.4.2.0`.
+- `Api/src/GameHub.EntityFrameworkCore/EntityFrameworkCore/GameHubDbContext.cs`: adicionados `DbSet<MassNotification>`, `DbSet<UserDelegation>`, `DbSet<SubscriptionPayment>`, `DbSet<SubscribableEdition>`; configurados índices para `UserTenantMembership`, `MassNotification`, `UserDelegation` e `SubscriptionPayment`.
+- `Api/src/GameHub.EntityFrameworkCore/Migrations/20260801012807_AddEafAdminEntities`: migration EF gerada com as novas tabelas EAF e colunas estendidas em `AbpEditions`/`AbpTenants`.
+- `angular-admin/GameHub.UI/src/app/admin/`: adicionados componentes `MassNotifications`, `UserDelegations`, `Payments` (incluindo `PaymentGatewaySettingsModal`), modais `CreateOrEditEdition`/`EditionFeatures` e `TenantSubscriptionModal`.
+- `angular-admin/GameHub.UI/src/shared/service-proxies/`: adicionados `MassNotificationServiceProxy`, `UserDelegationServiceProxy`, `PaymentServiceProxy`, `TenantSubscriptionServiceProxy`; atualizados `EditionServiceProxy` e `OrganizationUnitServiceProxy`.
+- `angular-admin/GameHub.UI/src/app/admin/admin-routing.module.ts`, `admin.module.ts` e `angular-admin/GameHub.UI/src/shared/service-proxies/service-proxy.module.ts`: rotas, declarações e providers registrados.
+- `angular-admin/GameHub.UI/src/app/shared/layout/nav/app-navigation.service.ts`: itens de menu Editions, MassNotifications, UserDelegations e Payments adicionados ao menu administrativo.
+- `angular-admin/GameHub.UI/src/app/admin/tenants/tenants.component.{html,ts}`: integrado `TenantSubscriptionModal`.
+
+### Validação
+- `dotnet restore Api/GameHub.sln`: OK.
+- `dotnet build Api/GameHub.sln -c Release --no-restore`: OK.
+- `dotnet test Api/GameHub.sln -c Release --no-build`: 372 passed, 2 skipped.
+- `npx tsc -p src/tsconfig.app.json --noEmit` no `angular-admin/GameHub.UI`: OK.
+- `npx ng build --configuration=production` no `angular-admin/GameHub.UI`: OK (admin chunk 376 KB).
+
+### Pendências
+- Migration `AddEafAdminEntities` precisa ser aplicada (`dotnet ef database update`) em ambiente com PostgreSQL acessível.
+- Verificação end-to-end dos novos módulos admin (login, navegação, CRUD) aguardando aprovação para teste.
+
 ## 2026-07-31 16:44 UTC
 
 ### Tarefa

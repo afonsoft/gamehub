@@ -4,11 +4,20 @@ import { Observable, of as _observableOf, throwError as _observableThrow } from 
 import { catchError as _observableCatch, mergeMap as _observableMergeMap } from 'rxjs/operators';
 import { API_BASE_URL } from '@shared/service-proxies/service-proxies';
 
+export interface INameValueDto {
+    name: string;
+    value: string;
+}
+
 export interface ICreateEditionInput {
     displayName: string;
     isFree: boolean;
     monthlyPrice?: number;
     annualPrice?: number;
+    quarterlyPrice?: number;
+    biannualPrice?: number;
+    permanentPrice?: number;
+    defaultPaymentPeriodType?: number;
     trialDayCount?: number;
     waitingDayAfterExpire?: number;
     expiringEditionId?: number;
@@ -23,6 +32,10 @@ export interface IEditionDto {
     isFree: boolean;
     monthlyPrice?: number;
     annualPrice?: number;
+    quarterlyPrice?: number;
+    biannualPrice?: number;
+    permanentPrice?: number;
+    defaultPaymentPeriodType?: number;
     trialDayCount?: number;
     waitingDayAfterExpire?: number;
     expiringEditionId?: number;
@@ -32,6 +45,25 @@ export interface IEditionDto {
 export interface IPagedResultDtoOfEditionDto {
     totalCount: number;
     items: IEditionDto[];
+}
+
+export interface IFlatFeatureDto {
+    name: string;
+    displayName: string;
+    description?: string;
+    defaultValue: string;
+    inputType: { name: string; attributes: any; validator: any };
+    parentName?: string;
+}
+
+export interface IGetEditionFeaturesEditOutput {
+    features: IFlatFeatureDto[];
+    featureValues: INameValueDto[];
+}
+
+export interface IUpdateEditionFeaturesInput {
+    id: number;
+    featureValues: INameValueDto[];
 }
 
 @Injectable()
@@ -120,6 +152,39 @@ export class EditionServiceProxy {
 
         const options: unknown = { observe: 'response', responseType: 'blob' };
         return this.http.request('delete', url_, options).pipe(_observableMergeMap((response: any) => this.processAction(response))).pipe(_observableCatch((response: any) => {
+            if (response instanceof Error) throw response;
+            return _observableThrow(response);
+        }));
+    }
+
+    getEditionFeaturesForEdit(id: number): Observable<IGetEditionFeaturesEditOutput> {
+        let url_ = this.baseUrl + '/api/services/app/Edition/GetEditionFeaturesForEdit?';
+        url_ += 'Id=' + encodeURIComponent('' + id) + '&';
+        url_ = url_.replace(/[?&]$/, '');
+
+        const options: unknown = { observe: 'response', responseType: 'json' };
+        return this.http.request('get', url_, options).pipe(_observableMergeMap((response: any) => this.processFeatures(response))).pipe(_observableCatch((response: any) => {
+            if (response instanceof Error) throw response;
+            return _observableThrow(response);
+        }));
+    }
+
+    private processFeatures(response: HttpResponse<any>): Observable<IGetEditionFeaturesEditOutput> {
+        const status = response.status;
+        const responseBlob = response.body ?? new Blob();
+        if (status === 200) {
+            return _observableOf(responseBlob as IGetEditionFeaturesEditOutput);
+        }
+        return _observableThrow(new Error('Unexpected response: ' + status));
+    }
+
+    updateEditionFeatures(input: IUpdateEditionFeaturesInput): Observable<void> {
+        let url_ = this.baseUrl + '/api/services/app/Edition/UpdateEditionFeatures';
+        url_ = url_.replace(/[?&]$/, '');
+
+        const content_ = JSON.stringify(input);
+        const options: unknown = { body: content_, headers: { 'Content-Type': 'application/json' }, observe: 'response', responseType: 'blob' };
+        return this.http.request('put', url_, options).pipe(_observableMergeMap((response: any) => this.processAction(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
             return _observableThrow(response);
         }));
