@@ -39,7 +39,7 @@ export class TenantSubscriptionServiceProxy {
         const options: unknown = { observe: 'response', responseType: 'json' };
         return this.http.request('get', url_, options).pipe(_observableMergeMap((response: any) => {
             const status = response.status;
-            const body = response.body ?? {};
+            const body = this.unwrapResult(response.body) ?? {};
             if (status === 200) {
                 return _observableOf(body as ITenantSubscriptionDto);
             }
@@ -74,5 +74,8 @@ export class TenantSubscriptionServiceProxy {
             return _observableOf(undefined as any);
         }
         return _observableThrow(new Error('Unexpected response: ' + status));
+    }
+    private unwrapResult(value: any): any {
+        return value?.result ?? value;
     }
 }

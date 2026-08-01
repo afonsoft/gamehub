@@ -53,7 +53,7 @@ export class MassNotificationServiceProxy {
     }
 
     getAll(input: IGetMassNotificationsInput): Observable<IPagedResultDtoOfMassNotificationDto> {
-        let url_ = this.baseUrl + '/api/services/app/MassNotificationAppService/GetAll?';
+        let url_ = this.baseUrl + '/api/services/app/MassNotification/GetAll?';
         if (input.filter !== undefined && input.filter !== null) url_ += 'Filter=' + encodeURIComponent('' + input.filter) + '&';
         if (input.status !== undefined && input.status !== null) url_ += 'Status=' + encodeURIComponent('' + input.status) + '&';
         if (input.sorting !== undefined && input.sorting !== null) url_ += 'Sorting=' + encodeURIComponent('' + input.sorting) + '&';
@@ -68,7 +68,7 @@ export class MassNotificationServiceProxy {
     }
 
     create(input: ICreateMassNotificationInput): Observable<IMassNotificationDto> {
-        const url_ = this.baseUrl + '/api/services/app/MassNotificationAppService/Create';
+        const url_ = this.baseUrl + '/api/services/app/MassNotification/Create';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processMassNotification(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -77,7 +77,7 @@ export class MassNotificationServiceProxy {
     }
 
     cancel(id: number): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/MassNotificationAppService/Cancel';
+        const url_ = this.baseUrl + '/api/services/app/MassNotification/Cancel';
         const options: unknown = { observe: 'response', responseType: 'json', body: { id } };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -87,7 +87,7 @@ export class MassNotificationServiceProxy {
 
     private processPaged(response: HttpResponse<any>): Observable<IPagedResultDtoOfMassNotificationDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IPagedResultDtoOfMassNotificationDto);
         }
@@ -96,7 +96,7 @@ export class MassNotificationServiceProxy {
 
     private processMassNotification(response: HttpResponse<any>): Observable<IMassNotificationDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IMassNotificationDto);
         }
@@ -109,5 +109,8 @@ export class MassNotificationServiceProxy {
             return _observableOf(undefined as any);
         }
         return _observableThrow(new Error('Unexpected response: ' + status));
+    }
+    private unwrapResult(value: any): any {
+        return value?.result ?? value;
     }
 }

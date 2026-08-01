@@ -1,10 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <localizationDictionary culture="en">
   <texts>
-    <text name="Number">Number</text>
+    <text name="API Sandbox">API Sandbox</text>
+    <text name="AnnualPrice">Annual price</text>
+    <text name="Audit Log">Audit Log</text>
+    <text name="Categories">Categories</text>
+    <text name="Companies">Companies</text>
+    <text name="CreateNewEdition">Create new edition</text>
+    <text name="Docs">Docs</text>
+    <text name="EditEdition">Edit edition</text>
+    <text name="Editions">Editions</text>
+    <text name="EditionsHeaderInfo">Manage the available editions and their features.</text>
+    <text name="Email">Email</text>
+    <text name="ExpiringEdition">Expiring edition</text>
+    <text name="Feature Flags">Feature Flags</text>
+    <text name="Filter">Filter</text>
+    <text name="Free">Free</text>
+    <text name="GameHub">GameHub</text>
+    <text name="Games">Games</text>
+    <text name="Help">Help</text>
+    <text name="Inspector">Inspector</text>
     <text name="Model">Model</text>
-    <text name="StartJob">Start Job</text>
-    <text name="UseCaptchaOnLogin">Use Captcha On Login</text>
+    <text name="Moderation">Moderation</text>
+    <text name="MonthlyPrice">Monthly price</text>
+    <text name="Number">Number</text>
+    <text name="Playtests">Playtests</text>
     <text name="ReCaptcha">ReCaptcha</text>
+    <text name="Reports">Reports</text>
+    <text name="StartJob">Start Job</text>
+    <text name="Tags">Tags</text>
+    <text name="Test Session">Test Session</text>
+    <text name="Token">Token</text>
+    <text name="TrialDayCount">Trial day count</text>
+    <text name="Uploads">Uploads</text>
+    <text name="UseCaptchaOnLogin">Use Captcha On Login</text>
+    <text name="UserDelegations">User delegations</text>
+    <text name="WaitingDayAfterExpire">Waiting days after expire</text>
   </texts>
 </localizationDictionary>

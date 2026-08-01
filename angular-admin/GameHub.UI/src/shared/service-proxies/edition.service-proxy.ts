@@ -93,7 +93,7 @@ export class EditionServiceProxy {
 
     private processGetEditions(response: HttpResponse<any>): Observable<IPagedResultDtoOfEditionDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IPagedResultDtoOfEditionDto);
         }
@@ -114,7 +114,7 @@ export class EditionServiceProxy {
 
     private processEdition(response: HttpResponse<any>): Observable<IEditionDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IEditionDto);
         }
@@ -171,7 +171,7 @@ export class EditionServiceProxy {
 
     private processFeatures(response: HttpResponse<any>): Observable<IGetEditionFeaturesEditOutput> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IGetEditionFeaturesEditOutput);
         }
@@ -196,5 +196,8 @@ export class EditionServiceProxy {
             return _observableOf(undefined as any);
         }
         return _observableThrow(new Error('Unexpected response: ' + status));
+    }
+    private unwrapResult(value: any): any {
+        return value?.result ?? value;
     }
 }

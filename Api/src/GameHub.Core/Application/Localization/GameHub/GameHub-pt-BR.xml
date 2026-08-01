@@ -1,10 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <localizationDictionary culture="pt-BR">
   <texts>
-    <text name="Number">Número</text>
+    <text name="API Sandbox">API Sandbox</text>
+    <text name="AnnualPrice">Preço anual</text>
+    <text name="Audit Log">Log de Auditoria</text>
+    <text name="Categories">Categorias</text>
+    <text name="Companies">Empresas</text>
+    <text name="CreateNewEdition">Criar nova edição</text>
+    <text name="Docs">Docs</text>
+    <text name="EditEdition">Editar edição</text>
+    <text name="Editions">Edições</text>
+    <text name="EditionsHeaderInfo">Gerencie as edições disponíveis e seus recursos.</text>
+    <text name="Email">E-mail</text>
+    <text name="ExpiringEdition">Edição expirando</text>
+    <text name="Feature Flags">Feature Flags</text>
+    <text name="Filter">Filtrar</text>
+    <text name="Free">Gratuito</text>
+    <text name="GameHub">GameHub</text>
+    <text name="Games">Jogos</text>
+    <text name="Help">Ajuda</text>
+    <text name="Inspector">Inspector</text>
     <text name="Model">Modelo</text>
-    <text name="StartJob">Iniciar Job</text>
-    <text name="UseCaptchaOnLogin">Usar ReCaptcha no Login</text>
+    <text name="Moderation">Moderação</text>
+    <text name="MonthlyPrice">Preço mensal</text>
+    <text name="Number">Número</text>
+    <text name="Playtests">Playtests</text>
     <text name="ReCaptcha">ReCaptcha</text>
+    <text name="Reports">Relatórios</text>
+    <text name="StartJob">Iniciar Job</text>
+    <text name="Tags">Tags</text>
+    <text name="Test Session">Sessão de Teste</text>
+    <text name="Token">Token</text>
+    <text name="TrialDayCount">Dias de trial</text>
+    <text name="Uploads">Uploads</text>
+    <text name="UseCaptchaOnLogin">Usar ReCaptcha no Login</text>
+    <text name="UserDelegations">Delegações de usuário</text>
+    <text name="WaitingDayAfterExpire">Dias de espera após expiração</text>
   </texts>
 </localizationDictionary>
