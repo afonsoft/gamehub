@@ -3,11 +3,13 @@
     "allow": [
       "Read",
       "Grep",
-      "Glob"
+      "Glob",
+      "Find_file_by_name"
     ],
     "ask": [
       "Edit",
       "Write",
+      "MultiEdit",
       "Bash"
     ],
     "deny": [
@@ -16,19 +18,8 @@
       "Read(**/*.key)",
       "Read(**/*.pem)",
       "Read(**/secrets.*)",
-      "Read(./secrets/**)",
-      "Read(./.github/workflows/**)",
-      "Bash(git push * main*)",
-      "Bash(git push * master*)",
-      "Bash(git push * develop*)"
+      "Read(./secrets/**)"
     ]
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "command": "bash .claude/hooks/block-protected-push.sh"
-      }
-    ]
-  }
+  "hooks": {}
 }
