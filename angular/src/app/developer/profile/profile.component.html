@@ -34,4 +34,52 @@
       <app-button type="submit" variant="primary" [disabled]="state().saving">{{ state().saving ? ('dev.saving' | translate) : ('dev.save' | translate) }}</app-button>
     </div>
   </form>
+
+  <section class="tenant-section" aria-labelledby="tenant-membership-title">
+    <h2 id="tenant-membership-title">Companies / Tenants</h2>
+
+    <div class="loading" *ngIf="state().tenantLoading">
+      <span class="skeleton-line"></span>
+    </div>
+
+    <div class="error-message" *ngIf="state().tenantError as tenantError" role="alert">
+      <span>{{ tenantError.message | translate }}</span>
+      <app-button variant="secondary" (appClick)="loadTenantData()" [disabled]="state().tenantLoading">{{ 'dev.retry' | translate }}</app-button>
+    </div>
+
+    <div *ngIf="!state().tenantLoading && !state().tenantError">
+      <h3>Available companies</h3>
+      <ul class="tenant-list" *ngIf="availableTenants.length; else noTenants">
+        <li *ngFor="let tenant of availableTenants" class="tenant-item">
+          <span>{{ tenant.name }}</span>
+          <button
+            type="button"
+            class="btn-secondary"
+            [disabled]="isPending(tenant.id) || state().tenantRequestLoading"
+            (click)="selectedTenantId = tenant.id"
+          >
+            {{ isPending(tenant.id) ? 'Request pending' : 'Request to join' }}
+          </button>
+          <div *ngIf="selectedTenantId === tenant.id" class="request-form">
+            <label for="requestMessage">Message to admins</label>
+            <textarea id="requestMessage" [(ngModel)]="requestMessage" name="requestMessage" rows="3"></textarea>
+            <app-button variant="primary" [disabled]="state().tenantRequestLoading" (appClick)="requestToJoin(tenant)">
+              {{ state().tenantRequestLoading ? 'Sending...' : 'Send request' }}
+            </app-button>
+          </div>
+        </li>
+      </ul>
+      <ng-template #noTenants>
+        <p>No companies available.</p>
+      </ng-template>
+
+      <h3 *ngIf="myRequests.length">My requests</h3>
+      <ul class="tenant-list" *ngIf="myRequests.length">
+        <li *ngFor="let request of myRequests" class="tenant-item">
+          <span>{{ request.tenantName }}</span>
+          <span class="status">{{ request.status }}</span>
+        </li>
+      </ul>
+    </div>
+  </section>
 </main>

@@ -1,7 +1,7 @@
 import { Component, Injector, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
-import { ICreateMassNotificationInput, IMassNotificationDto, MassNotificationServiceProxy } from '@shared/service-proxies/mass-notification.service-proxy';
+import { CreateMassNotificationInput, EntityDtoOfInt64, ICreateMassNotificationInput, IMassNotificationDto, MassNotificationServiceProxy } from '@shared/service-proxies/service-proxies';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { LazyLoadEvent } from 'primeng/api';
 import { Paginator } from 'primeng/paginator';
@@ -27,7 +27,11 @@ export class MassNotificationsComponent extends AppComponentBase implements OnIn
         subject: '',
         message: '',
         severity: 0,
+        targetUserIds: undefined,
+        targetRoleIds: undefined,
+        targetOrganizationUnitIds: undefined,
         sendToAllUsers: false,
+        scheduledTime: undefined,
     };
 
     constructor(
@@ -53,13 +57,13 @@ export class MassNotificationsComponent extends AppComponentBase implements OnIn
 
         this.dataTableHelper.showLoadingIndicator();
         this._massNotificationService
-            .getAll({
-                filter: this.filters.filterText,
-                status: this.filters.status,
-                sorting: this.dataTableHelper.getSorting(this.dataTable),
-                skipCount: this.dataTableHelper.getSkipCount(this.paginator, event),
-                maxResultCount: this.dataTableHelper.getMaxResultCount(this.paginator, event),
-            })
+            .getAll(
+                this.filters.filterText,
+                this.filters.status,
+                this.dataTableHelper.getSorting(this.dataTable),
+                this.dataTableHelper.getSkipCount(this.paginator, event),
+                this.dataTableHelper.getMaxResultCount(this.paginator, event),
+            )
             .pipe(finalize(() => this.dataTableHelper.hideLoadingIndicator()))
             .subscribe(result => {
                 this.dataTableHelper.totalRecordsCount = result.totalCount;
@@ -68,7 +72,16 @@ export class MassNotificationsComponent extends AppComponentBase implements OnIn
     }
 
     showCreateModal(): void {
-        this.newMassNotification = { subject: '', message: '', severity: 0, sendToAllUsers: false };
+        this.newMassNotification = {
+            subject: '',
+            message: '',
+            severity: 0,
+            targetUserIds: undefined,
+            targetRoleIds: undefined,
+            targetOrganizationUnitIds: undefined,
+            sendToAllUsers: false,
+            scheduledTime: undefined,
+        };
         this.modal.show();
     }
 
@@ -84,7 +97,7 @@ export class MassNotificationsComponent extends AppComponentBase implements OnIn
 
         this.saving = true;
         this._massNotificationService
-            .create(this.newMassNotification)
+            .create(new CreateMassNotificationInput(this.newMassNotification as any))
             .pipe(finalize(() => (this.saving = false)))
             .subscribe(() => {
                 this.notify.success(this.l('SavedSuccessfully'));
@@ -96,7 +109,7 @@ export class MassNotificationsComponent extends AppComponentBase implements OnIn
     cancel(massNotification: IMassNotificationDto): void {
         this.message.confirm(this.l('AreYouSure'), this.l('CancelingMassNotification'), isConfirmed => {
             if (isConfirmed) {
-                this._massNotificationService.cancel(massNotification.id).subscribe(() => {
+                this._massNotificationService.cancel(new EntityDtoOfInt64({ id: massNotification.id } as any)).subscribe(() => {
                     this.notify.success(this.l('SuccessfullyDeleted'));
                     this.getMassNotifications();
                 });

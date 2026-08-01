@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Injector, Output, ViewChild } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
-import { EditionServiceProxy, INameValueDto, IUpdateEditionFeaturesInput } from '@shared/service-proxies/edition.service-proxy';
+import { EditionServiceProxy, INameValueDto, IUpdateEditionFeaturesInput, NameValueDto, UpdateEditionFeaturesInput } from '@shared/service-proxies/service-proxies';
 import { FeatureTreeEditModel } from '@app/admin/shared/feature-tree-edit.model';
 import { FeatureTreeComponent } from '@app/admin/shared/feature-tree.component';
 import { ModalDirective } from 'ngx-bootstrap/modal';
@@ -50,11 +50,11 @@ export class EditionFeaturesModalComponent extends AppComponentBase {
             return;
         }
 
-        const featureValues = this.featureTree.getGrantedFeatures().map(f => ({ name: f.name, value: f.value } as INameValueDto));
-        const input: IUpdateEditionFeaturesInput = {
+        const featureValues = this.featureTree.getGrantedFeatures().map(f => new NameValueDto({ name: f.name, value: f.value } as any));
+        const input = new UpdateEditionFeaturesInput({
             id: this.editionId,
             featureValues,
-        };
+        } as any);
 
         this.saving = true;
         this._editionService

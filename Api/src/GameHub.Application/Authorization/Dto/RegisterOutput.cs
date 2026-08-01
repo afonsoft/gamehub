@@ -10,5 +10,14 @@ namespace GameHub.Authorization.Dto
 
         /// <summary>Registered username.</summary>
         public string UserName { get; set; } = string.Empty;
+
+        /// <summary>Tenancy name of the tenant created or joined, when applicable.</summary>
+        public string TenancyName { get; set; } = string.Empty;
+
+        /// <summary>Identifier of the tenant created or joined, when applicable.</summary>
+        public int? TenantId { get; set; }
+
+        /// <summary>Indicates whether the user can log in immediately or must wait for approval.</summary>
+        public bool CanLogin { get; set; }
     }
 }

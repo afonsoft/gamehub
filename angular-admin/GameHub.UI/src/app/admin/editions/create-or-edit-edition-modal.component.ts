@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Injector, Output, ViewChild } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
-import { EditionServiceProxy, IUpdateEditionInput } from '@shared/service-proxies/edition.service-proxy';
+import { CreateEditionInput, EditionServiceProxy, IUpdateEditionInput, UpdateEditionInput } from '@shared/service-proxies/service-proxies';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { finalize } from 'rxjs/operators';
 
@@ -78,8 +78,8 @@ export class CreateOrEditEditionModalComponent extends AppComponentBase {
 
         this.saving = true;
         const request = this.edition.id
-            ? this._editionService.updateEdition(this.edition)
-            : this._editionService.createEdition(this.edition);
+            ? this._editionService.updateEdition(new UpdateEditionInput(this.edition as any))
+            : this._editionService.createEdition(new CreateEditionInput(this.edition as any));
 
         request.pipe(finalize(() => (this.saving = false))).subscribe(() => {
             this.notify.success(this.l('SavedSuccessfully'));

@@ -131,6 +131,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<GameInvite> GameInvites { get; set; }
         public virtual DbSet<GameNotification> GameNotifications { get; set; }
         public virtual DbSet<GameHub.MultiTenancy.UserTenantMembership> UserTenantMemberships { get; set; }
+        public virtual DbSet<TenantJoinRequest> TenantJoinRequests { get; set; }
         public virtual DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
         public virtual DbSet<MassNotification> MassNotifications { get; set; }
         public virtual DbSet<UserDelegation> UserDelegations { get; set; }
@@ -190,6 +191,12 @@ namespace GameHub.EntityFrameworkCore
             {
                 b.HasIndex(e => new { e.UserId, e.TenantId }).IsUnique();
                 b.HasIndex(e => e.TenantUserId);
+            });
+
+            modelBuilder.Entity<TenantJoinRequest>(b =>
+            {
+                b.HasIndex(e => new { e.TenantId, e.Status });
+                b.HasIndex(e => new { e.UserId, e.TenantId });
             });
 
             modelBuilder.Entity<MassNotification>(b =>

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { EditionsComponent } from './editions.component';
-import { EditionServiceProxy } from '@shared/service-proxies/edition.service-proxy';
+import { EditionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { LocalizationService } from '@eaf/localization/localization.service';
 import { PermissionCheckerService } from '@eaf/auth/permission-checker.service';
 import { FeatureCheckerService } from '@eaf/features/feature-checker.service';
