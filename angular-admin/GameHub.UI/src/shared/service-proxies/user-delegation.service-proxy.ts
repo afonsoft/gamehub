@@ -47,7 +47,7 @@ export class UserDelegationServiceProxy {
     }
 
     getMyDelegations(input: IGetUserDelegationsInput): Observable<IListResultDtoOfUserDelegationDto> {
-        let url_ = this.baseUrl + '/api/services/app/UserDelegationAppService/GetMyDelegations?';
+        let url_ = this.baseUrl + '/api/services/app/UserDelegation/GetMyDelegations?';
         if (input.sourceUserId !== undefined && input.sourceUserId !== null) url_ += 'SourceUserId=' + encodeURIComponent('' + input.sourceUserId) + '&';
         if (input.targetUserId !== undefined && input.targetUserId !== null) url_ += 'TargetUserId=' + encodeURIComponent('' + input.targetUserId) + '&';
         if (input.sorting !== undefined && input.sorting !== null) url_ += 'Sorting=' + encodeURIComponent('' + input.sorting) + '&';
@@ -62,7 +62,7 @@ export class UserDelegationServiceProxy {
     }
 
     getDelegatedUsers(input: IGetUserDelegationsInput): Observable<IListResultDtoOfUserDelegationDto> {
-        let url_ = this.baseUrl + '/api/services/app/UserDelegationAppService/GetDelegatedUsers?';
+        let url_ = this.baseUrl + '/api/services/app/UserDelegation/GetDelegatedUsers?';
         if (input.sourceUserId !== undefined && input.sourceUserId !== null) url_ += 'SourceUserId=' + encodeURIComponent('' + input.sourceUserId) + '&';
         if (input.targetUserId !== undefined && input.targetUserId !== null) url_ += 'TargetUserId=' + encodeURIComponent('' + input.targetUserId) + '&';
         if (input.sorting !== undefined && input.sorting !== null) url_ += 'Sorting=' + encodeURIComponent('' + input.sorting) + '&';
@@ -77,7 +77,7 @@ export class UserDelegationServiceProxy {
     }
 
     create(input: ICreateUserDelegationInput): Observable<IUserDelegationDto> {
-        const url_ = this.baseUrl + '/api/services/app/UserDelegationAppService/Create';
+        const url_ = this.baseUrl + '/api/services/app/UserDelegation/Create';
         const options: unknown = { observe: 'response', responseType: 'json', body: input };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processUserDelegation(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -86,7 +86,7 @@ export class UserDelegationServiceProxy {
     }
 
     cancel(id: number): Observable<void> {
-        const url_ = this.baseUrl + '/api/services/app/UserDelegationAppService/Cancel';
+        const url_ = this.baseUrl + '/api/services/app/UserDelegation/Cancel';
         const options: unknown = { observe: 'response', responseType: 'json', body: { id } };
         return this.http.request('post', url_, options).pipe(_observableMergeMap((response: any) => this.processVoid(response))).pipe(_observableCatch((response: any) => {
             if (response instanceof Error) throw response;
@@ -96,7 +96,7 @@ export class UserDelegationServiceProxy {
 
     private processList(response: HttpResponse<any>): Observable<IListResultDtoOfUserDelegationDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IListResultDtoOfUserDelegationDto);
         }
@@ -105,7 +105,7 @@ export class UserDelegationServiceProxy {
 
     private processUserDelegation(response: HttpResponse<any>): Observable<IUserDelegationDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IUserDelegationDto);
         }
@@ -118,5 +118,8 @@ export class UserDelegationServiceProxy {
             return _observableOf(undefined as any);
         }
         return _observableThrow(new Error('Unexpected response: ' + status));
+    }
+    private unwrapResult(value: any): any {
+        return value?.result ?? value;
     }
 }

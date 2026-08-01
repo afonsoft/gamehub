@@ -139,7 +139,7 @@ export class PaymentServiceProxy {
         const options: unknown = { observe: 'response', responseType: 'json' };
         return this.http.request('get', url_, options).pipe(_observableMergeMap((response: any) => {
             const status = response.status;
-            const body = response.body ?? [];
+            const body = this.unwrapResult(response.body) ?? [];
             if (status === 200) {
                 return _observableOf(body as IPaymentGatewayDto[]);
             }
@@ -155,7 +155,7 @@ export class PaymentServiceProxy {
         const options: unknown = { observe: 'response', responseType: 'json' };
         return this.http.request('get', url_, options).pipe(_observableMergeMap((response: any) => {
             const status = response.status;
-            const body = response.body ?? {};
+            const body = this.unwrapResult(response.body) ?? {};
             if (status === 200) {
                 return _observableOf(body as IPaymentGatewaySettingsDto);
             }
@@ -177,7 +177,7 @@ export class PaymentServiceProxy {
 
     private processPaged(response: HttpResponse<any>): Observable<IPagedResultDtoOfSubscriptionPaymentDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IPagedResultDtoOfSubscriptionPaymentDto);
         }
@@ -186,7 +186,7 @@ export class PaymentServiceProxy {
 
     private processPaymentRequest(response: HttpResponse<any>): Observable<IPaymentRequestDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as IPaymentRequestDto);
         }
@@ -195,7 +195,7 @@ export class PaymentServiceProxy {
 
     private processSubscriptionPayment(response: HttpResponse<any>): Observable<ISubscriptionPaymentDto> {
         const status = response.status;
-        const responseBlob = response.body ?? new Blob();
+        const responseBlob = this.unwrapResult(response.body);
         if (status === 200) {
             return _observableOf(responseBlob as ISubscriptionPaymentDto);
         }
@@ -208,5 +208,8 @@ export class PaymentServiceProxy {
             return _observableOf(undefined as any);
         }
         return _observableThrow(new Error('Unexpected response: ' + status));
+    }
+    private unwrapResult(value: any): any {
+        return value?.result ?? value;
     }
 }
