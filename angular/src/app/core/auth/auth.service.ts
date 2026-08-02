@@ -62,8 +62,12 @@ export class AuthService {
    * Authenticates using the legacy token endpoint.
    * Prefer the HubAuth flow for multi-tenant selection.
    */
-  login(model: AuthenticateModel): Observable<boolean> {
-    return this.http.post<AuthenticateResultModel | { result?: AuthenticateResultModel }>(this.authUrl, model).pipe(
+  login(model: AuthenticateModel, tenantId?: number | null): Observable<boolean> {
+    const headers: { [key: string]: string } = { 'Content-Type': 'application/json' };
+    if (tenantId != null) {
+      headers['Abp-TenantId'] = tenantId.toString();
+    }
+    return this.http.post<AuthenticateResultModel | { result?: AuthenticateResultModel }>(this.authUrl, model, { headers }).pipe(
       map(response => this.unwrap(response)),
       tap(result => {
         if (result?.accessToken) {
@@ -106,25 +110,34 @@ export class AuthService {
   }
 
   private loginAfterRegister(userName: string, password: string, tenantId?: number | null): Observable<boolean> {
+    const model = { userNameOrEmailAddress: userName, password };
+
     if (tenantId) {
-      return this.hubAuth.selectTenant({ userNameOrEmailAddress: userName, password, tenantId }).pipe(
-        tap(result => {
-          if (typeof result === 'object' && result?.accessToken) {
-            this.tokenService.setToken(result.accessToken);
-          }
-        }),
-        map(result => typeof result === 'object' && !!result?.accessToken),
+      // PlayerDefault: user lives inside the tenant; authenticate directly with the tenant header.
+      return this.login(model, tenantId).pipe(
+        switchMap(success => success
+          ? of(true)
+          : this.hubAuth.selectTenant({ ...model, tenantId }).pipe(
+              tap(result => {
+                if (typeof result === 'object' && result?.accessToken) {
+                  this.tokenService.setToken(result.accessToken);
+                }
+              }),
+              map(result => typeof result === 'object' && !!result?.accessToken)
+            )),
         catchError(() => of(false))
       );
     }
 
-    return this.hubAuth.getAvailableTenants({ userNameOrEmailAddress: userName, password }).pipe(
+    // CreateNew host user or plain host user: list memberships and select the default tenant.
+    return this.hubAuth.getAvailableTenants(model).pipe(
       switchMap(tenants => {
-        if (!tenants?.length) {
-          return of(false);
+        if (tenants?.length) {
+          const target = tenants.find(t => t.isDefault) ?? tenants[0];
+          return this.hubAuth.selectTenant({ ...model, tenantId: target.tenantId });
         }
-        const target = tenants.find(t => t.isDefault) ?? tenants[0];
-        return this.hubAuth.selectTenant({ userNameOrEmailAddress: userName, password, tenantId: target.tenantId });
+        // No memberships (e.g. host-only developer): authenticate as host.
+        return this.login(model);
       }),
       tap(result => {
         if (typeof result === 'object' && result?.accessToken) {

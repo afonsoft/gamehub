@@ -13,6 +13,7 @@ import { RolesComponent } from './roles/roles.component';
 import { UserDelegationsComponent } from './user-delegations/user-delegations.component';
 import { SettingsComponent } from './settings/settings.component';
 import { TenantsComponent } from './tenants/tenants.component';
+import { TenantJoinRequestsComponent } from './tenant-join-requests/tenant-join-requests.component';
 import { UiCustomizationComponent } from './ui-customization/ui-customization.component';
 import { UsersComponent } from './users/users.component';
 
@@ -37,6 +38,7 @@ import { UsersComponent } from './users/users.component';
             data: { permission: 'Pages.Administration.Languages.ChangeTexts' },
           },
           { path: 'tenants', component: TenantsComponent, data: { permission: 'Pages.Tenants' } },
+          { path: 'tenant-join-requests', component: TenantJoinRequestsComponent, data: { permission: 'Pages.Administration.Users' } },
           { path: 'settings', component: SettingsComponent, data: { permission: 'Pages.Administration.Settings' } },
           { path: 'maintenance', component: MaintenanceComponent, data: { permission: 'Pages.Administration.Maintenance' } },
           { path: 'ui-customization', component: UiCustomizationComponent, data: { permission: 'Pages.Administration.UiCustomization' } },

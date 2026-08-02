@@ -26,8 +26,8 @@ export interface SelectTenantResult {
 @Injectable({ providedIn: 'root' })
 export class HubAuthService {
   private readonly http = inject(HttpClient);
-  private readonly availableTenantsUrl = '/api/hub/auth/available-tenants';
-  private readonly selectTenantUrl = '/api/hub/auth/select-tenant';
+  private readonly availableTenantsUrl = '/api/TokenAuth/GetAvailableTenants';
+  private readonly selectTenantUrl = '/api/TokenAuth/SelectTenant';
 
   getAvailableTenants(model: { userNameOrEmailAddress: string; password: string }): Observable<AvailableTenantResult[]> {
     return this.http.post<AvailableTenantResult[] | { result?: AvailableTenantResult[] }>(this.availableTenantsUrl, model)

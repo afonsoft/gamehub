@@ -50,6 +50,7 @@ export class AppNavigationService {
       new AppMenuItem('UserDelegations', 'Pages.Administration.Users.Delegation', 'la la-user-secret', '/app/admin/user-delegations'),
       new AppMenuItem('Payments', 'Pages.Administration.Payments', 'la la-credit-card', '/app/admin/payments'),
       new AppMenuItem('Tenants', 'Pages.Tenants', 'la la-building', '/app/admin/tenants'),
+      new AppMenuItem('TenantJoinRequests', 'Pages.Administration.Users', 'la la-user-plus', '/app/admin/tenant-join-requests'),
       new AppMenuItem('AuditLogs', 'Pages.Administration.AuditLogs', 'la la-folder-open', '/app/admin/auditLogs'),
       new AppMenuItem('VisualSettings', 'Pages.Administration.UiCustomization', 'la la-desktop', '/app/admin/ui-customization'),
       new AppMenuItem('Maintenance', 'Pages.Administration.Maintenance', 'la la-cogs', '/app/admin/maintenance'),

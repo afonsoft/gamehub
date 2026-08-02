@@ -50,6 +50,7 @@ import { EditTenantModalComponent } from './tenants/edit-tenant-modal.component'
 import { TenantFeaturesModalComponent } from './tenants/tenant-features-modal.component';
 import { TenantSubscriptionModalComponent } from './tenants/tenant-subscription-modal.component';
 import { TenantsComponent } from './tenants/tenants.component';
+import { TenantJoinRequestsComponent } from './tenant-join-requests/tenant-join-requests.component';
 import { DefaultThemeUiSettingsComponent } from './ui-customization/default-theme-ui-settings.component';
 import { Theme2ThemeUiSettingsComponent } from './ui-customization/theme2-theme-ui-settings.component';
 import { Theme3ThemeUiSettingsComponent } from './ui-customization/theme3-theme-ui-settings.component';
@@ -119,6 +120,7 @@ import { UsersComponent } from './users/users.component';
     EditTenantModalComponent,
     TenantFeaturesModalComponent,
     TenantSubscriptionModalComponent,
+    TenantJoinRequestsComponent,
     CreateOrEditLanguageModalComponent,
     EditTextModalComponent,
     UiCustomizationComponent,
