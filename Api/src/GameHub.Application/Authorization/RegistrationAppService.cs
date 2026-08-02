@@ -26,8 +26,8 @@ namespace GameHub.Authorization
     {
         private readonly IRepository<DeveloperProfile, System.Guid> _developerProfileRepository;
         private readonly IRepository<Tenant, int> _tenantRepository;
-        private readonly IRepository<TenantJoinRequest, long> _tenantJoinRequestRepository;
-        private readonly IRepository<GameHub.MultiTenancy.UserTenantMembership, long> _userTenantMembershipRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.TenantJoinRequest, long> _tenantJoinRequestRepository;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> _userTenantMembershipRepository;
         private readonly IRepository<Edition> _editionRepository;
         private readonly RoleManager _roleManager;
         private readonly IPasswordHasher<User> _passwordHasher;
@@ -36,8 +36,8 @@ namespace GameHub.Authorization
         public RegistrationAppService(
             IRepository<DeveloperProfile, System.Guid> developerProfileRepository,
             IRepository<Tenant, int> tenantRepository,
-            IRepository<TenantJoinRequest, long> tenantJoinRequestRepository,
-            IRepository<GameHub.MultiTenancy.UserTenantMembership, long> userTenantMembershipRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.TenantJoinRequest, long> tenantJoinRequestRepository,
+            IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> userTenantMembershipRepository,
             IRepository<Edition> editionRepository,
             RoleManager roleManager,
             IPasswordHasher<User> passwordHasher,
@@ -288,7 +288,7 @@ namespace GameHub.Authorization
                     (await UserManager.AddToRoleAsync(adminUser, userRole.Name)).CheckErrors();
                     (await UserManager.AddToRoleAsync(adminUser, developRole.Name)).CheckErrors();
 
-                    var membership = new GameHub.MultiTenancy.UserTenantMembership
+                    var membership = new Eaf.Middleware.MultiTenancy.UserTenantMembership
                     {
                         UserId = hostUser.Id,
                         TenantId = tenantId,
@@ -330,12 +330,13 @@ namespace GameHub.Authorization
         {
             var hostUser = await CreateHostUserAsync(input);
             var tenantId = input.ExistingTenantId.Value;
+            User shadowUser;
 
             using (_unitOfWorkManager.Current.SetTenantId(tenantId))
             {
                 await UserManager.InitializeOptionsAsync(tenantId);
 
-                var shadowUser = new User
+                shadowUser = new User
                 {
                     TenantId = tenantId,
                     UserName = hostUser.UserName,
@@ -358,18 +359,10 @@ namespace GameHub.Authorization
                     (await UserManager.AddToRoleAsync(shadowUser, userRole.Name)).CheckErrors();
                 }
 
-                await _userTenantMembershipRepository.InsertAsync(new GameHub.MultiTenancy.UserTenantMembership
-                {
-                    UserId = hostUser.Id,
-                    TenantId = tenantId,
-                    TenantUserId = shadowUser.Id,
-                    IsDefault = false,
-                });
-
                 await _unitOfWorkManager.Current.SaveChangesAsync();
             }
 
-            await CreateJoinRequestAsync(hostUser.Id, tenantId, input.JoinRequestMessage);
+            await CreateJoinRequestAsync(hostUser.Id, tenantId, shadowUser.Id, input.JoinRequestMessage);
             return (hostUser, tenantId);
         }
 
@@ -395,20 +388,21 @@ namespace GameHub.Authorization
             return user;
         }
 
-        private async Task CreateJoinRequestAsync(long userId, int tenantId, string message)
+        private async Task CreateJoinRequestAsync(long userId, int tenantId, long tenantUserId, string message)
         {
             var existing = await _tenantJoinRequestRepository.FirstOrDefaultAsync(r =>
-                r.UserId == userId && r.TenantId == tenantId && r.Status == TenantJoinRequestStatus.Pending);
+                r.UserId == userId && r.TenantId == tenantId && r.Status == Eaf.Middleware.MultiTenancy.TenantJoinRequestStatus.Pending);
             if (existing != null)
             {
                 throw new UserFriendlyException(L("TenantJoinRequestAlreadyPending"));
             }
 
-            await _tenantJoinRequestRepository.InsertAsync(new TenantJoinRequest
+            await _tenantJoinRequestRepository.InsertAsync(new Eaf.Middleware.MultiTenancy.TenantJoinRequest
             {
                 UserId = userId,
                 TenantId = tenantId,
-                Status = TenantJoinRequestStatus.Pending,
+                TenantUserId = tenantUserId,
+                Status = Eaf.Middleware.MultiTenancy.TenantJoinRequestStatus.Pending,
                 Message = message,
             });
         }

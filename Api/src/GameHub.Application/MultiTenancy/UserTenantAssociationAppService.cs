@@ -14,13 +14,13 @@ namespace GameHub.MultiTenancy
     [AbpAuthorize(GameHubPermissions.Pages_Users)]
     public class UserTenantAssociationAppService : GameHubAppServiceBase, IUserTenantAssociationAppService
     {
-        private readonly ITenantUserManager _tenantUserManager;
-        private readonly IRepository<UserTenantMembership, long> _membershipRepository;
+        private readonly Eaf.Middleware.MultiTenancy.ITenantUserManager _tenantUserManager;
+        private readonly IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> _membershipRepository;
         private readonly IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> _tenantRepository;
 
         public UserTenantAssociationAppService(
-            ITenantUserManager tenantUserManager,
-            IRepository<UserTenantMembership, long> membershipRepository,
+            Eaf.Middleware.MultiTenancy.ITenantUserManager tenantUserManager,
+            IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> membershipRepository,
             IRepository<Eaf.Middleware.MultiTenancy.Tenant, int> tenantRepository)
         {
             _tenantUserManager = tenantUserManager;
@@ -76,7 +76,7 @@ namespace GameHub.MultiTenancy
             return result;
         }
 
-        private async Task<UserTenantMembershipDto> MapToDtoAsync(UserTenantMembership membership)
+        private async Task<UserTenantMembershipDto> MapToDtoAsync(Eaf.Middleware.MultiTenancy.UserTenantMembership membership)
         {
             var dto = ObjectMapper.Map<UserTenantMembershipDto>(membership);
             var tenant = await _tenantRepository.FirstOrDefaultAsync(t => t.Id == membership.TenantId);

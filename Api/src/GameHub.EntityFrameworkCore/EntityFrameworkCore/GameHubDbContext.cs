@@ -23,7 +23,6 @@ using GameHub.Player;
 using GameHub.Playtesting;
 using GameHub.Privacy;
 using GameHub.Multiplayer;
-using GameHub.MultiTenancy;
 using GameHub.ArbitraryUserData;
 using GameHub.Social;
 using Abp.Logging;
@@ -130,8 +129,8 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<ArbitraryUserDataRecord> ArbitraryUserDataRecords { get; set; }
         public virtual DbSet<GameInvite> GameInvites { get; set; }
         public virtual DbSet<GameNotification> GameNotifications { get; set; }
-        public virtual DbSet<GameHub.MultiTenancy.UserTenantMembership> UserTenantMemberships { get; set; }
-        public virtual DbSet<TenantJoinRequest> TenantJoinRequests { get; set; }
+        public virtual DbSet<Eaf.Middleware.MultiTenancy.UserTenantMembership> UserTenantMemberships { get; set; }
+        public virtual DbSet<Eaf.Middleware.MultiTenancy.TenantJoinRequest> TenantJoinRequests { get; set; }
         public virtual DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
         public virtual DbSet<MassNotification> MassNotifications { get; set; }
         public virtual DbSet<UserDelegation> UserDelegations { get; set; }
@@ -187,16 +186,17 @@ namespace GameHub.EntityFrameworkCore
                 b.HasIndex(e => new { e.FriendTenantId, e.FriendUserId });
             });
 
-            modelBuilder.Entity<GameHub.MultiTenancy.UserTenantMembership>(b =>
+            modelBuilder.Entity<Eaf.Middleware.MultiTenancy.UserTenantMembership>(b =>
             {
                 b.HasIndex(e => new { e.UserId, e.TenantId }).IsUnique();
                 b.HasIndex(e => e.TenantUserId);
             });
 
-            modelBuilder.Entity<TenantJoinRequest>(b =>
+            modelBuilder.Entity<Eaf.Middleware.MultiTenancy.TenantJoinRequest>(b =>
             {
                 b.HasIndex(e => new { e.TenantId, e.Status });
                 b.HasIndex(e => new { e.UserId, e.TenantId });
+                b.Property(e => e.Status).HasConversion<int>();
             });
 
             modelBuilder.Entity<MassNotification>(b =>

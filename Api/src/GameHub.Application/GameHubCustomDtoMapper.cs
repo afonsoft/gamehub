@@ -221,8 +221,8 @@ namespace GameHub
             configuration.CreateMap<FeatureFlag, FeatureFlagDto>();
 
             // Multi-tenancy
-            configuration.CreateMap<UserTenantMembership, UserTenantMembershipDto>();
-            configuration.CreateMap<TenantJoinRequest, TenantJoinRequestDto>();
+            configuration.CreateMap<Eaf.Middleware.MultiTenancy.UserTenantMembership, UserTenantMembershipDto>();
+            configuration.CreateMap<Eaf.Middleware.MultiTenancy.TenantJoinRequest, Eaf.Middleware.Authorization.Accounts.Dto.TenantJoinRequestDto>();
             configuration.CreateMap<Eaf.Middleware.MultiTenancy.Tenant, AvailableTenantDto>();
 
             configuration.CreateMap<Abp.Auditing.AuditLog, AuditLogDto>()

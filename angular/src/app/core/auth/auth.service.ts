@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { TokenService } from './token.service';
+import { HubAuthService } from './hub-auth.service';
 
 export interface AuthenticateModel {
   userNameOrEmailAddress: string;
@@ -51,6 +52,7 @@ export interface RegisterErrorModel {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
+  private readonly hubAuth = inject(HubAuthService);
   private readonly router = inject(Router);
 
   private readonly authUrl = '/api/TokenAuth/Authenticate';
@@ -92,16 +94,45 @@ export class AuthService {
         if (!response.canLogin) {
           return of({ success: true, canLogin: false, userName: response.userName, tenantId: response.tenantId });
         }
-        return this.login({
-          userNameOrEmailAddress: model.userName,
-          password: model.password,
-          rememberClient: true,
-        }).pipe(map(success => ({ success, canLogin: true, userName: response.userName, tenantId: response.tenantId })));
+        return this.loginAfterRegister(model.userName, model.password, response.tenantId).pipe(
+          map(success => ({ success, canLogin: true, userName: response.userName, tenantId: response.tenantId }))
+        );
       }),
       catchError(err => {
         const message = this.extractErrorMessage(err);
         return of({ success: false, error: message });
       })
+    );
+  }
+
+  private loginAfterRegister(userName: string, password: string, tenantId?: number | null): Observable<boolean> {
+    if (tenantId) {
+      return this.hubAuth.selectTenant({ userNameOrEmailAddress: userName, password, tenantId }).pipe(
+        tap(result => {
+          if (typeof result === 'object' && result?.accessToken) {
+            this.tokenService.setToken(result.accessToken);
+          }
+        }),
+        map(result => typeof result === 'object' && !!result?.accessToken),
+        catchError(() => of(false))
+      );
+    }
+
+    return this.hubAuth.getAvailableTenants({ userNameOrEmailAddress: userName, password }).pipe(
+      switchMap(tenants => {
+        if (!tenants?.length) {
+          return of(false);
+        }
+        const target = tenants.find(t => t.isDefault) ?? tenants[0];
+        return this.hubAuth.selectTenant({ userNameOrEmailAddress: userName, password, tenantId: target.tenantId });
+      }),
+      tap(result => {
+        if (typeof result === 'object' && result?.accessToken) {
+          this.tokenService.setToken(result.accessToken);
+        }
+      }),
+      map(result => typeof result === 'object' && !!result?.accessToken),
+      catchError(() => of(false))
     );
   }
 

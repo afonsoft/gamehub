@@ -33,6 +33,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: 🔨 Build EAF NuGet Packages
+        run: |
+          echo "Building EAF packages locally"
+          bash scripts/setup-eaf-packages.sh
+
       - name: 💾 Cache NuGet Packages
         uses: actions/cache@v6
         with:
