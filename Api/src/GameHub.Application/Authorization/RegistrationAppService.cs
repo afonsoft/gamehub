@@ -26,30 +26,30 @@ namespace GameHub.Authorization
     {
         private readonly IRepository<DeveloperProfile, System.Guid> _developerProfileRepository;
         private readonly IRepository<Tenant, int> _tenantRepository;
-        private readonly IRepository<Eaf.Middleware.MultiTenancy.TenantJoinRequest, long> _tenantJoinRequestRepository;
         private readonly IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> _userTenantMembershipRepository;
         private readonly IRepository<Edition> _editionRepository;
         private readonly RoleManager _roleManager;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly ITenantUserManager _tenantUserManager;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public RegistrationAppService(
             IRepository<DeveloperProfile, System.Guid> developerProfileRepository,
             IRepository<Tenant, int> tenantRepository,
-            IRepository<Eaf.Middleware.MultiTenancy.TenantJoinRequest, long> tenantJoinRequestRepository,
             IRepository<Eaf.Middleware.MultiTenancy.UserTenantMembership, long> userTenantMembershipRepository,
             IRepository<Edition> editionRepository,
             RoleManager roleManager,
             IPasswordHasher<User> passwordHasher,
+            ITenantUserManager tenantUserManager,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _developerProfileRepository = developerProfileRepository;
             _tenantRepository = tenantRepository;
-            _tenantJoinRequestRepository = tenantJoinRequestRepository;
             _userTenantMembershipRepository = userTenantMembershipRepository;
             _editionRepository = editionRepository;
             _roleManager = roleManager;
             _passwordHasher = passwordHasher;
+            _tenantUserManager = tenantUserManager;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
@@ -94,6 +94,8 @@ namespace GameHub.Authorization
                 UserId = user.Id,
                 UserName = user.UserName,
                 CanLogin = true,
+                TenantId = fallbackTenantId,
+                TenancyName = playerTenant?.TenancyName,
             };
         }
 
@@ -329,41 +331,11 @@ namespace GameHub.Authorization
         private async Task<(User HostUser, int TenantId)> CreateJoinTenantUserAsync(RegisterInput input)
         {
             var hostUser = await CreateHostUserAsync(input);
-            var tenantId = input.ExistingTenantId.Value;
-            User shadowUser;
-
-            using (_unitOfWorkManager.Current.SetTenantId(tenantId))
-            {
-                await UserManager.InitializeOptionsAsync(tenantId);
-
-                shadowUser = new User
-                {
-                    TenantId = tenantId,
-                    UserName = hostUser.UserName,
-                    Name = hostUser.Name,
-                    Surname = hostUser.Surname,
-                    EmailAddress = hostUser.EmailAddress,
-                    IsActive = false,
-                    IsEmailConfirmed = true,
-                    IsLockoutEnabled = false,
-                };
-                shadowUser.SetNormalizedNames();
-
-                shadowUser.Password = _passwordHasher.HashPassword(shadowUser, Guid.NewGuid().ToString("N"));
-                (await UserManager.CreateAsync(shadowUser)).CheckErrors();
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-
-                var userRole = await _roleManager.FindByNameAsync(Tenants.User);
-                if (userRole != null)
-                {
-                    (await UserManager.AddToRoleAsync(shadowUser, userRole.Name)).CheckErrors();
-                }
-
-                await _unitOfWorkManager.Current.SaveChangesAsync();
-            }
-
-            await CreateJoinRequestAsync(hostUser.Id, tenantId, shadowUser.Id, input.JoinRequestMessage);
-            return (hostUser, tenantId);
+            var request = await _tenantUserManager.CreatePendingMembershipAsync(
+                hostUser.Id,
+                input.ExistingTenantId.Value,
+                input.JoinRequestMessage);
+            return (hostUser, request.TenantId);
         }
 
         private async Task<User> CreateHostUserAsync(RegisterInput input)
@@ -386,25 +358,6 @@ namespace GameHub.Authorization
             }
 
             return user;
-        }
-
-        private async Task CreateJoinRequestAsync(long userId, int tenantId, long tenantUserId, string message)
-        {
-            var existing = await _tenantJoinRequestRepository.FirstOrDefaultAsync(r =>
-                r.UserId == userId && r.TenantId == tenantId && r.Status == Eaf.Middleware.MultiTenancy.TenantJoinRequestStatus.Pending);
-            if (existing != null)
-            {
-                throw new UserFriendlyException(L("TenantJoinRequestAlreadyPending"));
-            }
-
-            await _tenantJoinRequestRepository.InsertAsync(new Eaf.Middleware.MultiTenancy.TenantJoinRequest
-            {
-                UserId = userId,
-                TenantId = tenantId,
-                TenantUserId = tenantUserId,
-                Status = Eaf.Middleware.MultiTenancy.TenantJoinRequestStatus.Pending,
-                Message = message,
-            });
         }
 
         public static class GameHubRoleNames
