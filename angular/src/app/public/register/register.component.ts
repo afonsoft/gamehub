@@ -59,6 +59,13 @@ export class RegisterComponent implements OnInit {
     }
   }
 
+  onDeveloperChange(): void {
+    if (this.model.isDeveloper && this.tenantMode === 'PlayerDefault') {
+      this.tenantMode = 'CreateNew';
+      this.onTenantModeChange();
+    }
+  }
+
   register(): void {
     this.error = '';
     if (!this.model.name || !this.model.surname || !this.model.userName || !this.model.emailAddress || !this.model.password) {

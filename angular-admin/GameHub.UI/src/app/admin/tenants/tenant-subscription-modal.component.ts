@@ -1,99 +1,108 @@
 import { Component, EventEmitter, Injector, Output, ViewChild } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/common/app-component-base';
-import { AssignEditionToTenantInput, EditionServiceProxy, ExtendTenantSubscriptionInput, IAssignEditionToTenantInput, IEditionDto, IExtendTenantSubscriptionInput, ITenantSubscriptionDto, TenantServiceProxy } from '@shared/service-proxies/service-proxies';
+import {
+  AssignEditionToTenantInput,
+  EditionServiceProxy,
+  ExtendTenantSubscriptionInput,
+  IAssignEditionToTenantInput,
+  IEditionDto,
+  IExtendTenantSubscriptionInput,
+  ITenantSubscriptionDto,
+  TenantServiceProxy,
+} from '@shared/service-proxies/service-proxies';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    standalone: false,
-    selector: 'tenantSubscriptionModal',
-    templateUrl: './tenant-subscription-modal.component.html',
-    animations: [appModuleAnimation()],
+  standalone: false,
+  selector: 'tenantSubscriptionModal',
+  templateUrl: './tenant-subscription-modal.component.html',
+  animations: [appModuleAnimation()],
 })
 export class TenantSubscriptionModalComponent extends AppComponentBase {
-    @ViewChild('tenantSubscriptionModal', { static: true }) modal: ModalDirective;
-    @Output() modalSave: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild('tenantSubscriptionModal', { static: true }) modal: ModalDirective;
+  @Output() modalSave: EventEmitter<any> = new EventEmitter<any>();
 
-    active = false;
-    saving = false;
-    tenantId: number;
-    tenantName: string;
-    subscription: ITenantSubscriptionDto;
-    editions: IEditionDto[] = [];
+  active = false;
+  saving = false;
+  tenantId: number;
+  tenantName: string;
+  subscription: ITenantSubscriptionDto;
+  editions: IEditionDto[] = [];
 
-    assignInput: IAssignEditionToTenantInput = { tenantId: 0, editionId: 0, paymentPeriodType: 30 };
-    extendInput: IExtendTenantSubscriptionInput = { tenantId: 0, paymentPeriodType: 30 };
+  assignInput: IAssignEditionToTenantInput = { tenantId: 0, editionId: 0, paymentPeriodType: 30 };
+  extendInput: IExtendTenantSubscriptionInput = { tenantId: 0, paymentPeriodType: 30 };
 
-    constructor(
-        injector: Injector,
-        private readonly _tenantService: TenantServiceProxy,
-        private readonly _editionService: EditionServiceProxy,
-    ) {
-        super(injector);
+  constructor(
+    injector: Injector,
+    private readonly _tenantService: TenantServiceProxy,
+    private readonly _editionService: EditionServiceProxy,
+  ) {
+    super(injector);
+  }
+
+  show(tenantId: number, tenantName: string): void {
+    this.active = true;
+    this.tenantId = tenantId;
+    this.tenantName = tenantName;
+    this.assignInput = { tenantId, editionId: 0, paymentPeriodType: 30 };
+    this.extendInput = { tenantId, paymentPeriodType: 30 };
+    this.modal.show();
+    this.loadEditions();
+    this.loadSubscription();
+  }
+
+  loadEditions(): void {
+    this._editionService.getEditions('', 'displayName', 0, 1000).subscribe(result => {
+      this.editions = result.items ?? [];
+    });
+  }
+
+  loadSubscription(): void {
+    this._tenantService.getTenantSubscription(this.tenantId).subscribe(result => {
+      this.subscription = result;
+      if (result.editionId && this.editions.length > 0) {
+        this.assignInput.editionId = result.editionId;
+      }
+    });
+  }
+
+  assignEdition(): void {
+    if (this.assignInput.editionId === 0) {
+      this.notify.warn(this.l('ThisFieldIsRequired'));
+      return;
     }
 
-    show(tenantId: number, tenantName: string): void {
-        this.active = true;
-        this.tenantId = tenantId;
-        this.tenantName = tenantName;
-        this.assignInput = { tenantId, editionId: 0, paymentPeriodType: 30 };
-        this.extendInput = { tenantId, paymentPeriodType: 30 };
-        this.modal.show();
-        this.loadEditions();
+    this.saving = true;
+    this._tenantService
+      .assignEditionToTenant(new AssignEditionToTenantInput(this.assignInput as any))
+      .pipe(finalize(() => (this.saving = false)))
+      .subscribe(() => {
+        this.notify.success(this.l('SavedSuccessfully'));
         this.loadSubscription();
-    }
+        this.modalSave.emit(null);
+      });
+  }
 
-    loadEditions(): void {
-        this._editionService.getEditions('', 'displayName', 1000, 0).subscribe(result => {
-            this.editions = result.items ?? [];
-        });
-    }
+  extendSubscription(): void {
+    this.saving = true;
+    this._tenantService
+      .extendTenantSubscription(new ExtendTenantSubscriptionInput(this.extendInput as any))
+      .pipe(finalize(() => (this.saving = false)))
+      .subscribe(() => {
+        this.notify.success(this.l('SavedSuccessfully'));
+        this.loadSubscription();
+        this.modalSave.emit(null);
+      });
+  }
 
-    loadSubscription(): void {
-        this._tenantService.getTenantSubscription(this.tenantId).subscribe(result => {
-            this.subscription = result;
-            if (result.editionId && this.editions.length > 0) {
-                this.assignInput.editionId = result.editionId;
-            }
-        });
-    }
+  close(): void {
+    this.active = false;
+    this.modal.hide();
+  }
 
-    assignEdition(): void {
-        if (this.assignInput.editionId === 0) {
-            this.notify.warn(this.l('ThisFieldIsRequired'));
-            return;
-        }
-
-        this.saving = true;
-        this._tenantService
-            .assignEditionToTenant(new AssignEditionToTenantInput(this.assignInput as any))
-            .pipe(finalize(() => (this.saving = false)))
-            .subscribe(() => {
-                this.notify.success(this.l('SavedSuccessfully'));
-                this.loadSubscription();
-                this.modalSave.emit(null);
-            });
-    }
-
-    extendSubscription(): void {
-        this.saving = true;
-        this._tenantService
-            .extendTenantSubscription(new ExtendTenantSubscriptionInput(this.extendInput as any))
-            .pipe(finalize(() => (this.saving = false)))
-            .subscribe(() => {
-                this.notify.success(this.l('SavedSuccessfully'));
-                this.loadSubscription();
-                this.modalSave.emit(null);
-            });
-    }
-
-    close(): void {
-        this.active = false;
-        this.modal.hide();
-    }
-
-    getEditionName(editionId?: number): string {
-        return this.editions.find(e => e.id === editionId)?.displayName ?? String(editionId ?? '');
-    }
+  getEditionName(editionId?: number): string {
+    return this.editions.find(e => e.id === editionId)?.displayName ?? String(editionId ?? '');
+  }
 }

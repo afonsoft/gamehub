@@ -46,8 +46,8 @@ export class EditionsComponent extends AppComponentBase implements OnInit {
       .getEditions(
         this.filters.filterText,
         this.dataTableHelper.getSorting(this.dataTable),
-        this.dataTableHelper.getMaxResultCount(this.paginator, event),
         this.dataTableHelper.getSkipCount(this.paginator, event),
+        this.dataTableHelper.getMaxResultCount(this.paginator, event),
       )
       .pipe(finalize(() => this.dataTableHelper.hideLoadingIndicator()))
       .subscribe(result => {
