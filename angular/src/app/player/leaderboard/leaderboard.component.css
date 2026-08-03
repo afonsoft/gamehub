@@ -1,183 +1,150 @@
 .leaderboard-page {
-  max-width: 720px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 1.5rem 1rem;
 }
 
 .leaderboard-header {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .leaderboard-header .back {
-  color: #ff5e57;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: var(--gh-primary, #ff5e57);
   text-decoration: none;
-  font-size: 0.875rem;
   font-weight: 600;
 }
 
 .leaderboard-header h1 {
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 1.75rem;
 }
 
-app-card {
-  display: block;
-  margin-bottom: 24px;
+.submit-score h2,
+.my-rank h2,
+.top-list-header h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
 }
 
-.submit-score h2,
-.top-list h2 {
+.score-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.score-row input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.login-cta {
+  text-align: center;
+  padding: 1rem;
+}
+
+.login-cta p {
+  margin: 0 0 0.75rem;
+  color: #6b7280;
+}
+
+.my-rank p {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .top-list-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 1rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
 .size-controls {
   display: flex;
-  gap: 6px;
+  gap: 0.25rem;
 }
 
 .size-button {
-  padding: 6px 12px;
-  border: 1px solid #dadce0;
-  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
   background: #fff;
-  color: #5f6368;
-  font-weight: 600;
+  color: #6b7280;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
 }
 
 .size-button.active {
-  background: #ff5e57;
+  background: var(--gh-primary, #ff5e57);
+  border-color: var(--gh-primary, #ff5e57);
   color: #fff;
-  border-color: #ff5e57;
 }
 
 .size-button:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.score-row {
-  display: flex;
-  gap: 12px;
-}
-
-.score-row input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #dadce0;
-  border-radius: 8px;
-}
-
-.login-cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.top-list {
-  overflow-x: auto;
-}
-
-.top-list table {
-  width: 100%;
-  min-width: 420px;
-  border-collapse: collapse;
-}
-
-.top-list th,
-.top-list td {
-  text-align: left;
-  padding: 10px;
-  border-bottom: 1px solid #eef0f2;
-}
-
-.top-list th {
-  color: #5f6368;
-  font-size: 0.875rem;
+  cursor: wait;
 }
 
 .empty {
-  color: #5f6368;
-  padding: 24px 0;
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6b7280;
 }
 
 .skeleton-table {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .skeleton-row {
   display: grid;
   grid-template-columns: 3rem 2fr 1fr 1fr;
-  gap: 12px;
+  gap: 1rem;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eef0f2;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .load-more {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 1.5rem;
 }
 
 .empty-state {
   text-align: center;
-  padding: 48px 24px;
-  color: #5f6368;
+  padding: 4rem 1rem;
 }
 
-.empty-state a {
-  color: #ff5e57;
+.empty-state p {
+  margin-bottom: 1rem;
+  color: #6b7280;
 }
 
 @media (max-width: 640px) {
-  .leaderboard-page {
-    padding: 16px;
-  }
-
   .leaderboard-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
 
   .top-list-header {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .size-controls {
-    justify-content: flex-end;
-  }
-
-  .score-row {
-    flex-direction: column;
-  }
-
-  .top-list th,
-  .top-list td {
-    padding: 8px 4px;
-    font-size: 0.9rem;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
   .skeleton-row {
-    grid-template-columns: 2.5rem 1.5fr 1fr 1fr;
+    grid-template-columns: 2.5rem 1fr 1fr;
   }
 
-  .empty-state {
-    padding: 32px 16px;
+  .skeleton-row app-skeleton:last-child {
+    display: none;
   }
 }

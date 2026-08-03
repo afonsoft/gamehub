@@ -1,73 +1,159 @@
 <div class="auth-page">
   <form class="auth-card" (ngSubmit)="register()">
-    <h1>Create your GameHub account</h1>
-    <p class="subtitle">Join to save favorites, compete and publish games.</p>
+    <h1>{{ 'register.title' | translate }}</h1>
+    <p class="subtitle">{{ 'register.subtitle' | translate }}</p>
 
-    <label for="name">First name</label>
-    <input id="name" type="text" [(ngModel)]="model.name" name="name" required />
-
-    <label for="surname">Last name</label>
-    <input id="surname" type="text" [(ngModel)]="model.surname" name="surname" required />
-
-    <label for="userName">Username</label>
-    <input id="userName" type="text" [(ngModel)]="model.userName" name="userName" required />
-
-    <label for="email">Email</label>
-    <input id="email" type="email" [(ngModel)]="model.emailAddress" name="email" required />
-
-    <label for="password">Password</label>
-    <input id="password" type="password" [(ngModel)]="model.password" name="password" required />
-    <p class="hint">{{ 'register.passwordHint' | translate }}</p>
-
-    <label for="confirmPassword">Confirm password</label>
-    <input id="confirmPassword" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required />
-
-    <label class="checkbox">
-      <input type="checkbox" [(ngModel)]="model.isDeveloper" name="isDeveloper" (change)="onDeveloperChange()" />
-      I want to publish games (developer account)
-    </label>
-
-    <div class="tenant-section">
-      <h3>Company / Tenant</h3>
-
-      <label class="radio">
-        <input type="radio" name="tenantMode" value="PlayerDefault" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" [disabled]="model.isDeveloper ?? false" />
-        I just want to play (public player)
-      </label>
-
-      <label class="radio">
-        <input type="radio" name="tenantMode" value="CreateNew" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" />
-        I want to create my own company (tenant admin)
-      </label>
-
-      <label class="radio">
-        <input type="radio" name="tenantMode" value="JoinExisting" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" />
-        I want to join an existing company (requires approval)
-      </label>
-
-      <div *ngIf="tenantMode === 'CreateNew'" class="tenant-field">
-        <label for="newTenantName">Company name</label>
-        <input id="newTenantName" type="text" [(ngModel)]="model.newTenantName" name="newTenantName" />
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="name" class="form-label">{{ 'register.firstName' | translate }}</label>
+        <input
+          id="name"
+          type="text"
+          class="form-control"
+          [(ngModel)]="model.name"
+          name="name"
+          required />
       </div>
-
-      <div *ngIf="tenantMode === 'JoinExisting'" class="tenant-field">
-        <label for="existingTenant">Select company</label>
-        <select id="existingTenant" name="existingTenant" [(ngModel)]="model.existingTenantId" required>
-          <option [ngValue]="null">-- Select a company --</option>
-          <option *ngFor="let tenant of availableTenants" [ngValue]="tenant.id">{{ tenant.name }}</option>
-        </select>
-
-        <label for="joinMessage">Message to admins (optional)</label>
-        <textarea id="joinMessage" [(ngModel)]="model.joinRequestMessage" name="joinRequestMessage" rows="3"></textarea>
+      <div class="col-md-6">
+        <label for="surname" class="form-label">{{ 'register.lastName' | translate }}</label>
+        <input
+          id="surname"
+          type="text"
+          class="form-control"
+          [(ngModel)]="model.surname"
+          name="surname"
+          required />
+      </div>
+      <div class="col-md-6">
+        <label for="userName" class="form-label">{{ 'register.userName' | translate }}</label>
+        <input
+          id="userName"
+          type="text"
+          class="form-control"
+          [(ngModel)]="model.userName"
+          name="userName"
+          required />
+      </div>
+      <div class="col-md-6">
+        <label for="email" class="form-label">{{ 'register.email' | translate }}</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          [(ngModel)]="model.emailAddress"
+          name="email"
+          required />
+      </div>
+      <div class="col-md-6">
+        <label for="password" class="form-label">{{ 'register.password' | translate }}</label>
+        <input
+          id="password"
+          type="password"
+          class="form-control"
+          [(ngModel)]="model.password"
+          name="password"
+          required />
+        <p class="form-text">{{ 'register.passwordHint' | translate }}</p>
+      </div>
+      <div class="col-md-6">
+        <label for="confirmPassword" class="form-label">{{ 'register.confirmPassword' | translate }}</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          class="form-control"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          required />
       </div>
     </div>
 
-    <button type="submit" class="btn-primary" [disabled]="loading">
-      {{ loading ? 'Registering...' : 'Register' }}
+    <div class="form-check mt-3">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [(ngModel)]="model.isDeveloper"
+        name="isDeveloper"
+        id="isDeveloper"
+        (change)="onDeveloperChange()" />
+      <label class="form-check-label" for="isDeveloper">{{ 'register.isDeveloper' | translate }}</label>
+    </div>
+
+    <div class="tenant-section mt-3">
+      <h3>{{ 'register.tenantTitle' | translate }}</h3>
+
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="tenantMode"
+          id="tenantPlayer"
+          value="PlayerDefault"
+          [(ngModel)]="tenantMode"
+          (change)="onTenantModeChange()"
+          [disabled]="model.isDeveloper ?? false" />
+        <label class="form-check-label" for="tenantPlayer">{{ 'register.tenantPlayer' | translate }}</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="tenantMode"
+          id="tenantCreate"
+          value="CreateNew"
+          [(ngModel)]="tenantMode"
+          (change)="onTenantModeChange()" />
+        <label class="form-check-label" for="tenantCreate">{{ 'register.tenantCreate' | translate }}</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="tenantMode"
+          id="tenantJoin"
+          value="JoinExisting"
+          [(ngModel)]="tenantMode"
+          (change)="onTenantModeChange()" />
+        <label class="form-check-label" for="tenantJoin">{{ 'register.tenantJoin' | translate }}</label>
+      </div>
+
+      <div *ngIf="tenantMode === 'CreateNew'" class="mt-3">
+        <label for="newTenantName" class="form-label">{{ 'register.companyName' | translate }}</label>
+        <input
+          id="newTenantName"
+          type="text"
+          class="form-control"
+          [(ngModel)]="model.newTenantName"
+          name="newTenantName" />
+      </div>
+
+      <div *ngIf="tenantMode === 'JoinExisting'" class="mt-3">
+        <label for="existingTenant" class="form-label">{{ 'register.selectCompany' | translate }}</label>
+        <select
+          id="existingTenant"
+          name="existingTenant"
+          class="form-select"
+          [(ngModel)]="model.existingTenantId"
+          required>
+          <option [ngValue]="null">-- {{ 'register.selectCompany' | translate }} --</option>
+          <option *ngFor="let tenant of availableTenants" [ngValue]="tenant.id">{{ tenant.name }}</option>
+        </select>
+
+        <label for="joinMessage" class="form-label mt-3">{{ 'register.joinMessage' | translate }}</label>
+        <textarea
+          id="joinMessage"
+          class="form-control"
+          [(ngModel)]="model.joinRequestMessage"
+          name="joinRequestMessage"
+          rows="3"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 mt-4" [disabled]="loading">
+      {{ loading ? ('register.registering' | translate) : ('register.submit' | translate) }}
     </button>
 
     <p class="error" *ngIf="error">{{ error }}</p>
 
-    <p class="switch">Already have an account? <a routerLink="/login">Login</a></p>
+    <p class="switch">{{ 'register.haveAccount' | translate }} <a routerLink="/login">{{ 'register.login' | translate }}</a></p>
   </form>
 </div>

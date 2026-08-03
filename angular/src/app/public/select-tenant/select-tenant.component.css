@@ -2,17 +2,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: calc(100vh - 120px);
   padding: 1rem;
-  background-color: #f5f6f7;
+  background: var(--gh-background, #f6f7fb);
 }
 
 .select-tenant-card {
   width: 100%;
   max-width: 420px;
   padding: 2rem;
-  background-color: #ffffff;
-  border-radius: 8px;
+  background: var(--gh-surface, #fff);
+  border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
@@ -24,38 +24,31 @@
 
 .select-tenant-card .description {
   margin-bottom: 1.5rem;
-  color: #6c757d;
+  color: var(--gh-text-secondary, #666);
   text-align: center;
 }
 
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-}
-
-.btn-block {
-  width: 100%;
+.select-tenant-card .btn-primary {
+  --bs-btn-bg: var(--gh-primary, #ff5e57);
+  --bs-btn-border-color: var(--gh-primary, #ff5e57);
+  --bs-btn-hover-bg: var(--gh-primary-dark, #e84c45);
+  --bs-btn-hover-border-color: var(--gh-primary-dark, #e84c45);
 }
 
 .default-badge {
   margin-left: 0.25rem;
-  color: #28a745;
+  color: var(--gh-success, #2ecc71);
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 @media (max-width: 480px) {
   .select-tenant-page {
-    padding: 0.75rem;
+    min-height: calc(100vh - 100px);
   }
 
   .select-tenant-card {
-    padding: 1.25rem;
+    padding: 1.5rem;
   }
 
   .select-tenant-card h1 {

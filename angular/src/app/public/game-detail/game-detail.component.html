@@ -102,26 +102,42 @@
 
 <div class="empty-state" *ngIf="loaded && !game">
   <p>{{ 'gameDetail.notFound' | translate }}</p>
-  <a routerLink="/games">{{ 'gameDetail.back' | translate }}</a>
+  <a routerLink="/games" class="btn btn-primary">{{ 'gameDetail.back' | translate }}</a>
 </div>
 
 <div class="modal-overlay" *ngIf="reportOpen" (click)="closeReport()">
-  <div class="modal" (click)="$event.stopPropagation()">
+  <div class="report-modal" (click)="$event.stopPropagation()">
     <h2>{{ 'gameDetail.report' | translate }}</h2>
-    <label for="reason">{{ 'gameDetail.reportReason' | translate }}</label>
-    <select id="reason" [(ngModel)]="reportReason">
-      <option value="">{{ 'gameDetail.reportReasonSelect' | translate }}</option>
-      <option value="Inappropriate">{{ 'gameDetail.reportInappropriate' | translate }}</option>
-      <option value="Broken">{{ 'gameDetail.reportBroken' | translate }}</option>
-      <option value="Copyright">{{ 'gameDetail.reportCopyright' | translate }}</option>
-      <option value="Other">{{ 'gameDetail.reportOther' | translate }}</option>
-    </select>
-    <label for="description">{{ 'gameDetail.reportDescription' | translate }}</label>
-    <textarea id="description" [(ngModel)]="reportDescription" rows="4" [placeholder]="'gameDetail.reportDescriptionPlaceholder' | translate"></textarea>
-    <p *ngIf="reportSent" class="success">{{ 'gameDetail.reportSent' | translate }}</p>
-    <div class="modal-actions">
-      <app-button variant="ghost" (appClick)="closeReport()">{{ 'common.cancel' | translate }}</app-button>
-      <app-button variant="primary" (appClick)="submitReport()" [disabled]="!reportReason || reportSending">{{ reportSending ? ('common.loading' | translate) : ('common.send' | translate) }}</app-button>
+
+    <div class="mb-3">
+      <label for="reason" class="form-label">{{ 'gameDetail.reportReason' | translate }}</label>
+      <select id="reason" name="reason" class="form-select" [(ngModel)]="reportReason">
+        <option value="">{{ 'gameDetail.reportReasonSelect' | translate }}</option>
+        <option value="Inappropriate">{{ 'gameDetail.reportInappropriate' | translate }}</option>
+        <option value="Broken">{{ 'gameDetail.reportBroken' | translate }}</option>
+        <option value="Copyright">{{ 'gameDetail.reportCopyright' | translate }}</option>
+        <option value="Other">{{ 'gameDetail.reportOther' | translate }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">{{ 'gameDetail.reportDescription' | translate }}</label>
+      <textarea
+        id="description"
+        name="description"
+        class="form-control"
+        [(ngModel)]="reportDescription"
+        rows="4"
+        [placeholder]="'gameDetail.reportDescriptionPlaceholder' | translate"></textarea>
+    </div>
+
+    <p *ngIf="reportSent" class="alert alert-success">{{ 'gameDetail.reportSent' | translate }}</p>
+
+    <div class="report-modal-actions">
+      <button type="button" class="btn btn-outline-secondary" (click)="closeReport()">{{ 'common.cancel' | translate }}</button>
+      <button type="button" class="btn btn-primary" (click)="submitReport()" [disabled]="!reportReason || reportSending">
+        {{ reportSending ? ('common.loading' | translate) : ('common.send' | translate) }}
+      </button>
     </div>
   </div>
 </div>

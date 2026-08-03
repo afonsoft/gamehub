@@ -4,10 +4,15 @@
     <p class="description">{{ 'SelectTenantDescription' | translate }}</p>
 
     <form (ngSubmit)="selectTenant()">
-      <div class="form-group">
-        <label for="tenant">{{ 'Tenant' | translate }}</label>
-        <select id="tenant" name="tenant" class="form-control" [(ngModel)]="selectedTenantId" required>
-          <option *ngFor="let tenant of tenants" [value]="tenant.tenantId">
+      <div class="mb-3">
+        <label for="tenant" class="form-label">{{ 'Tenant' | translate }}</label>
+        <select
+          id="tenant"
+          name="tenant"
+          class="form-select"
+          [(ngModel)]="selectedTenantId"
+          required>
+          <option *ngFor="let tenant of tenants" [ngValue]="tenant.tenantId">
             {{ tenant.tenantName || tenant.tenancyName }}
             <span *ngIf="tenant.isDefault" class="default-badge">({{ 'Default' | translate }})</span>
           </option>
@@ -16,8 +21,8 @@
 
       <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
-      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading || !selectedTenantId">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+      <button type="submit" class="btn btn-primary w-100" [disabled]="loading || !selectedTenantId">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
         {{ 'Continue' | translate }}
       </button>
     </form>

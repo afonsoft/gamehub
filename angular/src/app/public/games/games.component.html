@@ -1,61 +1,67 @@
 <div class="games-page">
   <div class="page-header">
     <h1>{{ title }}</h1>
+
     <div class="search-row">
       <input
         type="text"
+        class="form-control"
         [ngModel]="query"
         (ngModelChange)="onQueryChange($event)"
         (keyup.enter)="reload()"
         [placeholder]="'games.searchPlaceholder' | translate"
         [attr.aria-label]="'games.searchPlaceholder' | translate" />
-      <app-button variant="primary" (appClick)="reload()">{{ 'games.search' | translate }}</app-button>
-      <app-button variant="ghost" (appClick)="clear()" *ngIf="query || category || device || orientation || exclusivity !== 'All' || minRating">{{ 'games.clear' | translate }}</app-button>
+      <button type="button" class="btn btn-primary" (click)="reload()">{{ 'games.search' | translate }}</button>
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="clear()"
+        *ngIf="query || category || device || orientation || exclusivity !== 'All' || minRating">
+        {{ 'games.clear' | translate }}
+      </button>
     </div>
-    <div class="filters">
-      <label *ngIf="categories?.length">
-        {{ 'games.category' | translate }}
-        <select [(ngModel)]="category" (change)="reload()">
+
+    <div class="filters row g-2 align-items-end">
+      <div class="col-6 col-md" *ngIf="categories?.length">
+        <label class="form-label">{{ 'games.category' | translate }}</label>
+        <select class="form-select" [(ngModel)]="category" (change)="reload()">
           <option value="">{{ 'games.allCategories' | translate }}</option>
           <option *ngFor="let c of categories" [value]="c.slug">{{ c.name }}</option>
         </select>
-      </label>
-      <label>
-        {{ 'games.device' | translate }}
-        <select [(ngModel)]="device" (change)="reload()">
+      </div>
+      <div class="col-6 col-md">
+        <label class="form-label">{{ 'games.device' | translate }}</label>
+        <select class="form-select" [(ngModel)]="device" (change)="reload()">
           <option value="">{{ 'games.allDevices' | translate }}</option>
           <option value="Desktop">{{ 'games.desktop' | translate }}</option>
           <option value="Mobile">{{ 'games.mobile' | translate }}</option>
           <option value="Tablet">{{ 'games.tablet' | translate }}</option>
         </select>
-      </label>
-      <label>
-        {{ 'games.orientation' | translate }}
-        <select [(ngModel)]="orientation" (change)="reload()">
+      </div>
+      <div class="col-6 col-md">
+        <label class="form-label">{{ 'games.orientation' | translate }}</label>
+        <select class="form-select" [(ngModel)]="orientation" (change)="reload()">
           <option value="">{{ 'games.allOrientations' | translate }}</option>
           <option value="Landscape">{{ 'games.landscape' | translate }}</option>
           <option value="Portrait">{{ 'games.portrait' | translate }}</option>
           <option value="Both">{{ 'games.both' | translate }}</option>
         </select>
-      </label>
-      <label>
-        {{ 'games.exclusivity' | translate }}
-        <select [(ngModel)]="exclusivity" (change)="reload()">
+      </div>
+      <div class="col-6 col-md">
+        <label class="form-label">{{ 'games.exclusivity' | translate }}</label>
+        <select class="form-select" [(ngModel)]="exclusivity" (change)="reload()">
           <option value="All">{{ 'games.allExclusivities' | translate }}</option>
           <option value="WebExclusive">{{ 'games.webExclusive' | translate }}</option>
           <option value="NonExclusive">{{ 'games.nonExclusive' | translate }}</option>
         </select>
-      </label>
-      <label>
-        {{ 'games.minRating' | translate }}
-        <select [(ngModel)]="minRating" (change)="reload()">
-          <option [value]="0">-</option>
-          <option [value]="1">1+</option>
-          <option [value]="2">2+</option>
-          <option [value]="3">3+</option>
-          <option [value]="4">4+</option>
+      </div>
+      <div class="col-6 col-md">
+        <label class="form-label">{{ 'games.minRating' | translate }}</label>
+        <select class="form-select" [(ngModel)]="minRating" (change)="reload()">
+          <option [ngValue]="0">-</option>
+          <option *ngFor="let r of [1, 2, 3, 4, 5]" [ngValue]="r">{{ r }}+</option>
         </select>
-      </label>
+      </div>
     </div>
   </div>
 
@@ -79,5 +85,11 @@
     <ng-template #noGames>
       <p>{{ 'emptyState.home' | translate }}</p>
     </ng-template>
+    <button
+      class="btn btn-outline-primary"
+      (click)="clear()"
+      *ngIf="query || category || device || orientation || exclusivity !== 'All' || minRating">
+      {{ 'games.clearFilters' | translate }}
+    </button>
   </div>
 </div>
