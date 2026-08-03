@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService, AuthenticateModel } from '../../core/auth/auth.service';
 import { HubAuthService, AvailableTenantResult } from '../../core/auth/hub-auth.service';
 import { TokenService } from '../../core/auth/token.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 interface LoginState {
   userNameOrEmailAddress: string;
@@ -15,7 +16,7 @@ interface LoginState {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })

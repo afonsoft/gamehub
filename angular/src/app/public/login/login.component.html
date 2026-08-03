@@ -1,20 +1,36 @@
 <div class="auth-page">
   <form class="auth-card" (ngSubmit)="login()">
-    <h1>Login to GameHub</h1>
-    <p class="subtitle">Access your favorites, leaderboards and developer tools.</p>
+    <h1>{{ 'login.title' | translate }}</h1>
+    <p class="subtitle">{{ 'login.subtitle' | translate }}</p>
 
-    <label for="userName">Username or email</label>
-    <input id="userName" type="text" [(ngModel)]="model.userNameOrEmailAddress" name="userName" required />
+    <div class="mb-3">
+      <label for="userName" class="form-label">{{ 'login.userNameOrEmail' | translate }}</label>
+      <input
+        id="userName"
+        type="text"
+        class="form-control"
+        [(ngModel)]="model.userNameOrEmailAddress"
+        name="userName"
+        required />
+    </div>
 
-    <label for="password">Password</label>
-    <input id="password" type="password" [(ngModel)]="model.password" name="password" required />
+    <div class="mb-3">
+      <label for="password" class="form-label">{{ 'login.password' | translate }}</label>
+      <input
+        id="password"
+        type="password"
+        class="form-control"
+        [(ngModel)]="model.password"
+        name="password"
+        required />
+    </div>
 
-    <button type="submit" class="btn-primary" [disabled]="loading">
-      {{ loading ? 'Logging in...' : 'Login' }}
+    <button type="submit" class="btn btn-primary w-100 mt-4" [disabled]="loading">
+      {{ loading ? ('login.loggingIn' | translate) : ('login.submit' | translate) }}
     </button>
 
     <p class="error" *ngIf="error">{{ error }}</p>
 
-    <p class="switch">Don't have an account? <a routerLink="/register">Register</a></p>
+    <p class="switch">{{ 'login.noAccount' | translate }} <a routerLink="/register">{{ 'login.register' | translate }}</a></p>
   </form>
 </div>
