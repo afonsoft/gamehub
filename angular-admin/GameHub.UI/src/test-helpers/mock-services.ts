@@ -249,7 +249,7 @@ export class MockRoleServiceProxy {
 }
 
 export class MockEditionServiceProxy {
-  getEditions(filter?: string, sorting?: string, maxResultCount?: number, skipCount?: number): Observable<any> {
+  getEditions(filter?: string, sorting?: string, skipCount?: number, maxResultCount?: number): Observable<any> {
     return of({ totalCount: 0, items: [] });
   }
   getEditionForEdit(id: number): Observable<any> {
@@ -586,75 +586,75 @@ export class MockLocalizePipe implements PipeTransform {
 
 export function setupEafGlobals(): void {
   (window as any).eaf = {
-      session: {
-        tenantId: null,
-        userId: 1,
+    session: {
+      tenantId: null,
+      userId: 1,
+    },
+    auth: {
+      tokenCookieName: 'eaf.auth.token',
+    },
+    appPath: '/',
+    setting: {
+      get: (key: string) => null,
+    },
+    localization: {
+      languages: [{ name: 'en', displayName: 'English', isDisabled: false }],
+      currentLanguage: { name: 'en', displayName: 'English' },
+    },
+    event: {
+      on: (eventName: string, callback: (...args: any[]) => void) => {},
+      trigger: (eventName: string, ...args: any[]) => {},
+    },
+    notify: {
+      info: (message: string) => {},
+      success: (message: string) => {},
+      warn: (message: string) => {},
+      error: (message: string) => {},
+    },
+    message: {
+      info: (message: string) => Promise.resolve(),
+      success: (message: string) => {},
+      warn: (message: string) => {},
+      error: (message: string, title?: string) => {},
+      confirm: (message: string, title?: string, callback?: (result: boolean) => void) => {
+        if (callback) callback(true);
       },
-      auth: {
-        tokenCookieName: 'eaf.auth.token',
+    },
+    ui: {
+      setBusy: (element?: any) => {},
+      clearBusy: (element?: any) => {},
+    },
+    utils: {
+      formatString: (...args: any[]) => args[0] || '',
+      truncateStringWithPostfix: (text: string, length: number) => (text ? text.substring(0, length) : ''),
+    },
+    log: {
+      error: (message: string) => {},
+      warn: (message: string) => {},
+      info: (message: string) => {},
+      debug: (message: string) => {},
+    },
+    clock: {
+      provider: {
+        supportsMultipleTimezone: false,
       },
-      appPath: '/',
-      setting: {
-        get: (key: string) => null,
+    },
+    notifications: {
+      severity: {
+        INFO: 0,
+        SUCCESS: 1,
+        WARN: 2,
+        ERROR: 3,
+        FATAL: 4,
       },
-      localization: {
-        languages: [{ name: 'en', displayName: 'English', isDisabled: false }],
-        currentLanguage: { name: 'en', displayName: 'English' },
+    },
+    custom: {
+      EntityHistory: {
+        isEnabled: false,
+        enabledEntities: [],
       },
-      event: {
-        on: (eventName: string, callback: (...args: any[]) => void) => {},
-        trigger: (eventName: string, ...args: any[]) => {},
-      },
-      notify: {
-        info: (message: string) => {},
-        success: (message: string) => {},
-        warn: (message: string) => {},
-        error: (message: string) => {},
-      },
-      message: {
-        info: (message: string) => Promise.resolve(),
-        success: (message: string) => {},
-        warn: (message: string) => {},
-        error: (message: string, title?: string) => {},
-        confirm: (message: string, title?: string, callback?: (result: boolean) => void) => {
-          if (callback) callback(true);
-        },
-      },
-      ui: {
-        setBusy: (element?: any) => {},
-        clearBusy: (element?: any) => {},
-      },
-      utils: {
-        formatString: (...args: any[]) => args[0] || '',
-        truncateStringWithPostfix: (text: string, length: number) => text ? text.substring(0, length) : '',
-      },
-      log: {
-        error: (message: string) => {},
-        warn: (message: string) => {},
-        info: (message: string) => {},
-        debug: (message: string) => {},
-      },
-      clock: {
-        provider: {
-          supportsMultipleTimezone: false,
-        },
-      },
-      notifications: {
-        severity: {
-          INFO: 0,
-          SUCCESS: 1,
-          WARN: 2,
-          ERROR: 3,
-          FATAL: 4,
-        },
-      },
-      custom: {
-        EntityHistory: {
-          isEnabled: false,
-          enabledEntities: [],
-        },
-      },
-    };
+    },
+  };
 }
 
 // Initialize eaf globals when this module is imported
