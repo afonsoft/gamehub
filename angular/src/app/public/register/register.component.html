@@ -31,7 +31,7 @@
       <h3>Company / Tenant</h3>
 
       <label class="radio">
-        <input type="radio" name="tenantMode" value="PlayerDefault" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" [disabled]="model.isDeveloper" />
+        <input type="radio" name="tenantMode" value="PlayerDefault" [(ngModel)]="tenantMode" (change)="onTenantModeChange()" [disabled]="model.isDeveloper ?? false" />
         I just want to play (public player)
       </label>
 
