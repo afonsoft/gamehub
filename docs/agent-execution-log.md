@@ -1,3 +1,31 @@
+## 2026-08-08 21:14 UTC
+
+### Tarefa
+Analisar todos os PRs abertos do gamehub, comparar com os ajustes do EAF 9.4.4, aplicar correções necessárias, validar merges e reprovar os demais com comentários detalhados; ajustar o README com mais badges.
+
+### Implementado
+- Verificado que o `main` já contém a maior parte do alinhamento EAF 9.4.4 via PR #126 (`common.props`, pacotes `Eaf.*`, `Startup.cs` Local CORS, `GameHubDbContext` precisão decimal, `ngsw-config.json`, `topbar.component`).
+- Identificado que o PR #126 deixou o `angular-admin/GameHub.UI/package-lock.json` desatualizado (`@angular/compiler` 20.3.26 no lock vs 20.3.27 no `package.json`), causando falha de `npm ci` em builds do Angular Admin.
+- Atualizado `README.md` e `README.pt-BR.md` com badges de stack (.NET 10, Angular 20, EAF 9.4.4, Node.js 20+, PostgreSQL 16+) na branch `devin/readme-badges`.
+- Triage dos PRs abertos:
+  - #128 aprovado para merge inicial (corrige lock do angular-admin + bump `dompurify`).
+  - #113 aprovado, mas parcialmente supérfluo em relação ao #128.
+  - #127 reprovado no estado atual por falha induzida pelo lock desatualizado; requer rebase.
+  - #125/#124/#123/#122/#121 aprovados condicionalmente; requerem rebase/re-run após correção do lock.
+  - #14 rejeitado/fechado (Angular major version incompatibility).
+  - #3 rejeitado/fechado (caminho inexistente e conflitos).
+
+### Validação
+- `git pr checks` consultado para todos os PRs abertos.
+- `gh run watch 31278487055` acompanhado até conclusão do build da API para PR #113: sucesso.
+- Branch `devin/readme-badges` pushada com commits `eb5bfbb` e `2b9d920`.
+
+### Pendências
+- Mesclar PR #128 (ou #113) para corrigir o `package-lock.json` do angular-admin.
+- Rebase e re-run dos checks dos PRs restantes (#127, #125-#121) para validar merge.
+- Criar/merger PR da branch `devin/readme-badges` para aplicar os badges no `main`.
+- `gh pr merge` para `main` está bloqueado neste ambiente; usuário deve clicar em merge.
+
 ## 2026-08-01 02:15 UTC
 
 ### Tarefa
