@@ -152,9 +152,10 @@ namespace GameHub.Web.Startup
             // Add OpenTelemetry and configure it to use Azure Monitor.
 
             // Configure CORS for GameHub Hub and Admin frontends
+            var isDevelopmentCors = _hostingEnvironment.IsDevelopment() || _hostingEnvironment.IsEnvironment("Local");
             services.AddGameHubCors(
                 _appConfiguration,
-                _hostingEnvironment.IsDevelopment(),
+                isDevelopmentCors,
                 GameHubConsts.DefaultCorsPolicyName);
 
             // Ad break configuration
@@ -254,7 +255,8 @@ namespace GameHub.Web.Startup
             app.UseMiddleware<ContentSecurityPolicyMiddleware>();
             app.UseCookiePolicy();
             app.UseEafHealthChecks();
-            if (env.IsDevelopment())
+            var isDevelopment = env.IsDevelopment() || env.IsEnvironment("Local");
+            if (isDevelopment)
                 app.UseDeveloperExceptionPage();
             else
             {
