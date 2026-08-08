@@ -213,10 +213,22 @@ namespace GameHub.EntityFrameworkCore
                 b.HasIndex(e => e.EndTime);
             });
 
+            modelBuilder.Entity<SubscribableEdition>(b =>
+            {
+                b.Property(e => e.DailyPrice).HasPrecision(18, 2);
+                b.Property(e => e.WeeklyPrice).HasPrecision(18, 2);
+                b.Property(e => e.MonthlyPrice).HasPrecision(18, 2);
+                b.Property(e => e.AnnualPrice).HasPrecision(18, 2);
+                b.Property(e => e.QuarterlyPrice).HasPrecision(18, 2);
+                b.Property(e => e.BiannualPrice).HasPrecision(18, 2);
+                b.Property(e => e.PermanentPrice).HasPrecision(18, 2);
+            });
+
             modelBuilder.Entity<SubscriptionPayment>(b =>
             {
                 b.HasIndex(e => new { e.TenantId, e.Status });
                 b.HasIndex(e => e.CreationTime);
+                b.Property(e => e.Amount).HasPrecision(18, 2);
             });
 
             if (Database.IsSqlServer())
