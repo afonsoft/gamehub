@@ -4,6 +4,11 @@
 [![Angular CI](https://github.com/afonsoft/gamehub/actions/workflows/angular-ci.yml/badge.svg)](https://github.com/afonsoft/gamehub/actions/workflows/angular-ci.yml)
 [![Code Quality](https://github.com/afonsoft/gamehub/actions/workflows/code-quality.yml/badge.svg)](https://github.com/afonsoft/gamehub/actions/workflows/code-quality.yml)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![Angular 20](https://img.shields.io/badge/Angular-20.3-0F0F11?logo=angular&logoColor=white)](https://angular.io/)
+[![EAF 9.4.4](https://img.shields.io/badge/EAF-9.4.4-blue)](https://github.com/afonsoft/EAF)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20+-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL 16+](https://img.shields.io/badge/PostgreSQL-16+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
 > **GameHub** is an enterprise-grade web game distribution platform for HTML5/WebGL titles. It provides a public game catalog, an iframe-based player with a gameplay bridge, a developer portal for build submission, and an administration module for moderation and publishing.
 >
