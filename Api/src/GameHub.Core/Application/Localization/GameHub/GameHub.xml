@@ -51,5 +51,9 @@
     <text name="WaitingDayAfterExpire">Waiting days after expire</text>
     <text name="WelcomePlayerTenant">Welcome to the player tenant</text>
     <text name="SuccessfullyRegistered">Successfully registered.</text>
+    <text name="PaymentGatewayHelpStripe">Open your Stripe Dashboard under Developers &gt; API keys to get the Secret Key and Publishable Key. The Webhook Secret is generated when you set up an endpoint under Developers &gt; Webhooks.</text>
+    <text name="PaymentGatewayHelpPayPal">Create or select an app in the PayPal Developer Dashboard to get the Client ID and Client Secret. The Webhook ID is available in the app's Webhooks section.</text>
+    <text name="PaymentGatewayHelpMercadoPago">In the Mercado Pago dashboard, go to Credentials to copy the Access Token (production) and Public Key.</text>
+    <text name="PaymentGatewayHelpPagSeguro">In the PagSeguro dashboard, go to Integrações &gt; Token de Segurança to generate the Token and use your PagSeguro account e-mail.</text>
   </texts>
 </localizationDictionary>
