@@ -1,3 +1,27 @@
+## 2026-08-08 21:04 UTC
+
+### Tarefa
+Analisar as alterações do template Angular do EAF 9.4.3 → 9.4.4, replicar os ajustes no `angular-admin` do GameHub, revisar as telas de pagamentos e criar documentação de layout.
+
+### Implementado
+- Comparado `afonsoft/EAF` (`v9.4.3..v.9.4.4`) em `Templates/Angular/Eaf.ProjectName.UI`:
+  - `ngsw-config.json`: cache com bundles hash (`*.css`, `main*.js`, `lazy *.js`).
+  - `topbar.component.{html,ts}`: botões viraram `anchor`, remoção do toggle mobile e dos estados `languageDropdownExpanded`/`userDropdownExpanded`.
+  - `package.json`: bump de `@angular/common`, `@angular/compiler`, `@angular/core` e `@angular/platform-server` para `20.3.27`.
+  - `styles.css`: limpeza de regras de focus-visible e mobile tweaks.
+  - `test-helpers/mock-services.ts`: ordem dos parâmetros `getEditions` ajustada para `skipCount, maxResultCount`.
+- Verificado que o `angular-admin/GameHub.UI` já contém todos os ajustes acima; nenhuma alteração de código-fonte foi necessária.
+- Revisadas as telas de pagamentos (`payments.component`, `payment-gateway-settings-modal`): HTML e fluxo de dados estão alinhados com o template EAF 9.4.4; nenhuma alteração necessária.
+- Criada documentação de layout: `docs/angular-admin-layout.md`.
+
+### Validação
+- `diff` EAF 9.4.3 → 9.4.4 inspecionado e mapeado para arquivos do GameHub.
+- `ngsw-config.json`, `topbar.component.{html,ts}`, `package.json`, `styles.css`, `test-helpers/mock-services.ts` e payment screens validados como alinhados.
+- `npm install --package-lock-only --legacy-peer-deps` executado e revertido (não havia mudança funcional necessária; lockfile já está sincronizado).
+
+### Branch
+- `devin/eaf-9.4.4-angular-sync` criada a partir de `origin/main`.
+
 ## 2026-08-01 02:15 UTC
 
 ### Tarefa
