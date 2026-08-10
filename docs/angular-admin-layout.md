@@ -126,14 +126,13 @@ Modal `processModal` para preencher `externalPaymentId`, `gateway`, `gatewayResp
 
 ### 5.4 Configuração de gateways
 
-Modal `payment-gateway-settings-modal` permite editar credenciais dos gateways suportados:
+Modal `payment-gateway-settings-modal` permite editar credenciais dos gateways suportados (Stripe, PayPal, Mercado Pago, PagSeguro) organizadas em abas do **ngx-bootstrap** com estilo Metronic (`tabset`/`tabbable-line` e `m-tabs__item`):
 
-- Stripe
-- PayPal
-- MercadoPago
-- PagSeguro
+- Aba **General**: seletor de `DefaultGateway`.
+- Aba por provider: alerta informativo (`alert alert-info`) com texto de ajuda localizado (`PaymentGatewayHelp*`) e campos de credenciais.
+- Campos sensíveis (`SecretKey`, `WebhookSecret`, `ClientSecret`, `AccessToken`, `Token`) usam `type="password"`.
 
-O componente utiliza `IPaymentGatewaySettingsDto` e reinstancia `PaymentGatewaySettingsDto` antes de enviar para `updateGatewaySettings`, garantindo que a serialização `toJSON()` seja respeitada para DTOs aninhados.
+O componente tipa `settings` como `PaymentGatewaySettingsDto` e, ao abrir (`show()`), chama `ensureGatewaySettings()` para inicializar instâncias concretas de `StripePaymentGatewaySettingsDto`, `PayPalPaymentGatewaySettingsDto`, `MercadoPagoPaymentGatewaySettingsDto` e `PagSeguroPaymentGatewaySettingsDto` quando os sub-objetos vierem ausentes da API. O objeto já é uma instância de DTO com `toJSON()`, então é enviado diretamente para `PaymentServiceProxy.updateGatewaySettings`.
 
 ## 6. Responsividade e acessibilidade
 
@@ -166,7 +165,7 @@ O `angular-admin/GameHub.UI` já reflete as alterações do template EAF 9.4.4:
 | `package.json` | Bump de `@angular/common`, `@angular/compiler`, `@angular/core`, `@angular/platform-server` para `20.3.27` | Aplicado |
 | `styles.css` | Limpeza de regras de focus-visible e mobile tweaks removidas do template | Aplicado (as regras removidas não existiam no GameHub) |
 | `test-helpers/mock-services.ts` | Ordem dos parâmetros `getEditions` ajustada para `skipCount, maxResultCount` | Aplicado |
-| Telas de pagamentos | Sem alterações estruturais no template 9.4.4; HTML e TS mantêm paridade funcional | Alinhado |
+| `payment-gateway-settings-modal.component.{html,ts}` | Modal refatorado com abas Metronic, alertas de ajuda por provider, campos `password` e inicialização de sub-DTOs tipados | Aplicado |
 
 ## 8. Convenções para manutenção
 

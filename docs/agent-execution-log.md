@@ -1,3 +1,26 @@
+## 2026-08-08 (continuação) — Sincronização do novo PR na main do EAF
+
+### Tarefa
+Analisar o novo PR mergeado na `main` do `afonsoft/EAF` e refletir as alterações do template Angular no `angular-admin` do GameHub.
+
+### Implementado
+- `git fetch origin main` no EAF identificou dois novos commits em `Templates/Angular/Eaf.ProjectName.UI`:
+  - `aedb72f`: melhoria do modal `payment-gateway-settings-modal` com abas Metronic e criação do doc `UI-LIBRARIES-AND-LAYOUT.md`.
+  - `2c3ef83`: adição de textos de ajuda por provider no modal (`PaymentGatewayHelp*`).
+- Replicado no `angular-admin/GameHub.UI`:
+  - `payment-gateway-settings-modal.component.html`: abas `General`, `Stripe`, `PayPal`, `Mercado Pago` e `PagSeguro`; alertas `alert alert-info` com `PaymentGatewayHelp*`; campos sensíveis como `type="password"`; classes `m-form__group` e `m--margin-top-20`.
+  - `payment-gateway-settings-modal.component.ts`: tipagem `PaymentGatewaySettingsDto`, importação dos sub-DTOs tipados (`StripePaymentGatewaySettingsDto`, `PayPalPaymentGatewaySettingsDto`, `MercadoPagoPaymentGatewaySettingsDto`, `PagSeguroPaymentGatewaySettingsDto`) e método `ensureGatewaySettings()`.
+- Adicionadas chaves de localização `PaymentGatewayHelp*` nos arquivos `GameHub.xml` e `GameHub-pt-BR.xml`.
+- Criado `docs/ui-libraries-and-layout.md` como referência de bibliotecas e padrões de UI.
+- Atualizado `docs/angular-admin-layout.md` para refletir a nova estrutura do modal de gateways.
+
+### Validação
+- `npm run build` no `angular-admin/GameHub.UI` concluído com sucesso.
+- `dotnet build Api/GameHub.sln -c Release --no-restore` e `dotnet test Api/GameHub.sln -c Release --no-build` passaram (368 passed, 2 skipped).
+
+### Branch
+- `devin/eaf-main-angular-sync` criada a partir de `origin/main` e fast-forwarded com `devin/eaf-9.4.4-angular-sync`.
+
 ## 2026-08-08 21:04 UTC
 
 ### Tarefa
