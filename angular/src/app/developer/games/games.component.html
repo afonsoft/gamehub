@@ -1,6 +1,5 @@
-<div class="dev-page">
+<main class="dev-main" aria-labelledby="developer-games-title">
   <app-confirm-dialog #submitConfirm></app-confirm-dialog>
-  <main class="dev-main" aria-labelledby="developer-games-title">
     <div class="dev-header">
       <div>
         <h1 id="developer-games-title">{{ 'dev.myGamesTitle' | translate }}</h1>
@@ -82,5 +81,4 @@
 
     <p class="empty" *ngIf="!state().loading && !state().error && state().games.length && !filteredGames().length">No games match this status.</p>
     <p class="empty" *ngIf="!state().loading && !state().error && state().empty">No games yet. <a routerLink="/developer/games/create">{{ 'dev.createGame' | translate }}</a>.</p>
-  </main>
-</div>
+</main>

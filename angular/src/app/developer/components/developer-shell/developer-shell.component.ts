@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { TokenService } from '../../../core/auth/token.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-developer-shell',
@@ -13,6 +14,7 @@ import { TokenService } from '../../../core/auth/token.service';
 export class DeveloperShellComponent {
   isMobileNavOpen = signal(false);
   readonly isAuthenticated = signal(false);
+  readonly adminUrl = environment.adminUrl;
 
   private readonly token = inject(TokenService);
   private readonly router = inject(Router);

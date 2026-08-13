@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { DeveloperService, DeveloperDashboard, DeveloperGameVersion, DeveloperDashboardAction, DashboardDailyPlays } from '../../core/services/developer.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { BadgeComponent } from '../../shared/ui/badge/badge.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-developer-dashboard',
@@ -15,6 +16,7 @@ import { BadgeComponent } from '../../shared/ui/badge/badge.component';
 })
 export class DeveloperDashboardComponent implements OnInit {
   dashboard$!: Observable<DeveloperDashboard>;
+  readonly adminUrl = environment.adminUrl;
 
   private readonly developerService = inject(DeveloperService);
 

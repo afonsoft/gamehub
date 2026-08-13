@@ -38,6 +38,7 @@
       </a>
     </nav>
     <div class="dev-sidebar-footer">
+      <a [href]="adminUrl" target="_blank" rel="noopener" class="dev-admin-link" (click)="closeMobileNav()">GameHub Admin</a>
       <a routerLink="/" (click)="closeMobileNav()">Back to GameHub</a>
       <button type="button" class="dev-logout" (click)="logout()" *ngIf="isAuthenticated()">Logout</button>
     </div>
