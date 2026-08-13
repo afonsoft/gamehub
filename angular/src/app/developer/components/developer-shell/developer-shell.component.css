@@ -148,15 +148,21 @@
 }
 
 .dev-sidebar-footer a:hover,
-.dev-logout:hover {
+.dev-logout:hover,
+.dev-sidebar-footer a.dev-admin-link:hover {
   color: var(--gh-text, #f8fafc);
   background: rgba(255, 255, 255, 0.05);
+}
+
+.dev-sidebar-footer a.dev-admin-link {
+  color: var(--gh-primary, #38bdf8);
+  font-weight: 600;
 }
 
 .dev-content {
   flex: 1;
   min-width: 0;
-  padding: 1.5rem;
+  padding: 0;
   overflow-x: hidden;
 }
 

@@ -1,35 +1,41 @@
-<div class="dashboard" *ngIf="dashboard$ | async as dashboard">
-  <header class="dashboard-header">
-    <h1>{{ 'dashboard.title' | translate }}</h1>
-    <a routerLink="/developer/games" class="btn">{{ 'dashboard.myGames' | translate }}</a>
-    <a routerLink="/developer/earnings" class="btn">Earnings</a>
+<main class="dev-main dashboard" *ngIf="dashboard$ | async as dashboard" aria-labelledby="dashboard-title">
+  <header class="dev-header dashboard-header">
+    <div>
+      <h1 id="dashboard-title">{{ 'dashboard.title' | translate }}</h1>
+      <p>{{ 'dashboard.subtitle' | translate }}</p>
+    </div>
+    <div class="dashboard-actions">
+      <a [href]="adminUrl" target="_blank" rel="noopener" class="btn btn-admin">{{ 'dashboard.openAdmin' | translate }}</a>
+      <a routerLink="/developer/games" class="btn">{{ 'dashboard.myGames' | translate }}</a>
+      <a routerLink="/developer/earnings" class="btn">{{ 'dashboard.earnings' | translate }}</a>
+    </div>
   </header>
 
-  <section class="cards">
-    <div class="card">
+  <section class="cards" aria-label="{{ 'dashboard.summary' | translate }}">
+    <article class="card">
       <span class="card-value">{{ dashboard.totalGames }}</span>
       <span class="card-label">{{ 'dashboard.totalGames' | translate }}</span>
-    </div>
-    <div class="card">
+    </article>
+    <article class="card">
       <span class="card-value">{{ dashboard.publishedGames }}</span>
       <span class="card-label">{{ 'dashboard.published' | translate }}</span>
-    </div>
-    <div class="card">
+    </article>
+    <article class="card">
       <span class="card-value">{{ dashboard.pendingReviewGames }}</span>
       <span class="card-label">{{ 'dashboard.inReview' | translate }}</span>
-    </div>
-    <div class="card">
+    </article>
+    <article class="card">
       <span class="card-value">{{ dashboard.draftGames }}</span>
       <span class="card-label">{{ 'dashboard.drafts' | translate }}</span>
-    </div>
-    <div class="card">
+    </article>
+    <article class="card">
       <span class="card-value">{{ dashboard.rejectedGames }}</span>
       <span class="card-label">{{ 'dashboard.rejected' | translate }}</span>
-    </div>
-    <div class="card">
+    </article>
+    <article class="card">
       <span class="card-value">{{ dashboard.totalPlays | number }}</span>
       <span class="card-label">{{ 'dashboard.totalPlays' | translate }}</span>
-    </div>
+    </article>
   </section>
 
   <section class="panel" *ngIf="dashboard.playsOverTime?.length">
@@ -57,23 +63,25 @@
 
   <section class="panel" *ngIf="dashboard.recentVersions?.length">
     <h2>{{ 'dashboard.recentVersions' | translate }}</h2>
-    <table class="version-table">
-      <thead>
-        <tr>
-          <th>{{ 'common.game' | translate }}</th>
-          <th>{{ 'common.version' | translate }}</th>
-          <th>{{ 'common.status' | translate }}</th>
-          <th>{{ 'common.uploaded' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let version of dashboard.recentVersions; trackBy: trackByVersion">
-          <td>{{ version.gameTitle }}</td>
-          <td>{{ version.version }}</td>
-          <td><app-badge [label]="version.status"></app-badge></td>
-          <td>{{ version.createdAt | date:'short' }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-scroll">
+      <table class="version-table">
+        <thead>
+          <tr>
+            <th>{{ 'common.game' | translate }}</th>
+            <th>{{ 'common.version' | translate }}</th>
+            <th>{{ 'common.status' | translate }}</th>
+            <th>{{ 'common.uploaded' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let version of dashboard.recentVersions; trackBy: trackByVersion">
+            <td>{{ version.gameTitle }}</td>
+            <td>{{ version.version }}</td>
+            <td><app-badge [label]="version.status"></app-badge></td>
+            <td>{{ version.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
-</div>
+</main>

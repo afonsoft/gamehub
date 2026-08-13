@@ -1,44 +1,46 @@
 .earnings-empty {
-  color: #5f6368;
-  padding: 24px 0;
+  color: var(--gh-text-secondary, #666666);
+  padding: 1.5rem 0;
 }
 
 .earnings-intro {
-  margin: 8px 0 0;
-  color: #69707d;
+  margin: 0.5rem 0 0;
+  color: var(--gh-text-secondary, #666666);
 }
 
 .earnings-filters {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   flex-wrap: wrap;
-  gap: 12px;
-  margin: 20px 0;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
 }
 
 .earnings-filters label {
   display: grid;
-  gap: 5px;
-  color: #69707d;
-  font-size: 0.8rem;
-  font-weight: 700;
+  gap: 0.35rem;
+  color: var(--gh-text-secondary, #666666);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .earnings-filters input {
-  min-height: 38px;
-  padding: 6px 10px;
-  border: 1px solid #d8dce5;
-  border-radius: 8px;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gh-border, #dddddd);
+  border-radius: var(--gh-radius, 0.5rem);
+  font-size: 0.875rem;
 }
 
 .btn-secondary {
-  min-height: 38px;
-  padding: 8px 12px;
-  border: 1px solid #d8dce5;
-  border-radius: 8px;
-  background: #fff;
-  color: #34384a;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gh-border, #dddddd);
+  border-radius: var(--gh-radius, 0.5rem);
+  background: var(--gh-surface, #ffffff);
+  color: var(--gh-text, #111111);
   cursor: pointer;
+  font-weight: 600;
 }
 
 .btn-secondary:disabled,
@@ -51,11 +53,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--gh-radius, 0.5rem);
   background: #fff0f0;
   color: #a50e0e;
+  flex-wrap: wrap;
 }
 
 .sr-only {
@@ -73,45 +76,48 @@
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 3px solid #1a73e8;
+  outline: 3px solid var(--gh-info, #3498db);
   outline-offset: 2px;
 }
 
 .earnings-notice {
-  margin: 0 0 18px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--gh-radius, 0.5rem);
   background: #fff8e1;
   color: #66510b;
-  font-size: 0.88rem;
+  font-size: 0.875rem;
 }
 
 .earnings-cards {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .earnings-card {
-  min-height: 132px;
-  padding: 20px;
-  border: 1px solid #e7e9ef;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(26, 27, 46, 0.06);
+  min-height: 7rem;
+  padding: 1.25rem;
+  border: 1px solid var(--gh-border, #e5e7eb);
+  border-radius: var(--gh-radius-lg, 0.75rem);
+  background: var(--gh-surface, #ffffff);
+  box-shadow: var(--gh-shadow, 0 1px 3px rgba(0, 0, 0, 0.1));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .earnings-card.primary {
   border-color: transparent;
-  background: #1a1b2e;
+  background: var(--gh-surface-elevated, #1e1e2f);
   color: #fff;
 }
 
 .earnings-card-label {
   display: block;
-  color: #69707d;
-  font-size: 0.78rem;
+  color: var(--gh-text-secondary, #666666);
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.35;
   text-transform: uppercase;
@@ -124,11 +130,12 @@ input:focus-visible {
 
 .earnings-card-value {
   display: block;
-  margin-top: 12px;
-  color: #1a1b2e;
-  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  margin-top: 0.75rem;
+  color: var(--gh-text, #111111);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
+  word-break: break-word;
 }
 
 .earnings-card.primary .earnings-card-value {
@@ -136,51 +143,52 @@ input:focus-visible {
 }
 
 .earnings-panel {
-  margin-bottom: 20px;
-  padding: 22px;
-  border: 1px solid #e7e9ef;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(26, 27, 46, 0.06);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--gh-border, #e5e7eb);
+  border-radius: var(--gh-radius-lg, 0.75rem);
+  background: var(--gh-surface, #ffffff);
+  box-shadow: var(--gh-shadow, 0 1px 3px rgba(0, 0, 0, 0.1));
 }
 
 .earnings-panel-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .earnings-panel h2 {
   margin: 0;
-  color: #1a1b2e;
-  font-size: 1.1rem;
+  color: var(--gh-text, #111111);
+  font-size: 1.125rem;
 }
 
 .earnings-panel-header p {
-  margin: 4px 0 0;
-  color: #69707d;
-  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+  color: var(--gh-text-secondary, #666666);
+  font-size: 0.875rem;
 }
 
 .earnings-table {
   width: 100%;
-  min-width: 760px;
+  min-width: 44rem;
   border-collapse: collapse;
 }
 
 .earnings-table th,
 .earnings-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #eef0f2;
+  padding: 0.875rem;
+  border-bottom: 1px solid var(--gh-border, #eef0f2);
   text-align: left;
   vertical-align: middle;
 }
 
 .earnings-table th {
-  color: #69707d;
-  font-size: 0.78rem;
+  color: var(--gh-text-secondary, #666666);
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   white-space: nowrap;
@@ -195,42 +203,50 @@ input:focus-visible {
 }
 
 .earnings-game {
-  color: #1a1b2e;
+  color: var(--gh-text, #111111);
   font-weight: 700;
 }
 
 .earnings-number {
-  color: #34384a;
+  color: var(--gh-text, #111111);
   white-space: nowrap;
 }
 
-@media (max-width: 1180px) {
-  .earnings-cards {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.empty {
+  margin: 0;
+  padding: 2rem;
+  border: 1px dashed var(--gh-border, #d8dce6);
+  border-radius: var(--gh-radius-lg, 0.75rem);
+  color: var(--gh-text-secondary, #666666);
+  text-align: center;
 }
 
 @media (max-width: 640px) {
-  .earnings-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .earnings-filters {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .earnings-card {
-    min-height: 116px;
-    padding: 16px;
+  .earnings-filters label,
+  .earnings-filters input,
+  .earnings-filters app-button {
+    width: 100%;
+  }
+
+  .earnings-cards {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   }
 
   .earnings-panel {
-    padding: 16px;
+    padding: 1rem;
   }
 
   .earnings-panel-header {
-    display: grid;
+    flex-direction: column;
+    gap: 0.75rem;
   }
-}
 
-@media (max-width: 400px) {
-  .earnings-cards {
-    grid-template-columns: 1fr;
+  .earnings-table {
+    min-width: 36rem;
   }
 }
