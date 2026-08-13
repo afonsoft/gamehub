@@ -12,7 +12,7 @@
 		<EmbeddedResource Include="Application\Localization\GameHub\GameHub.xml" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Eaf.Middleware.Core" Version="9.4.4" />
+		<PackageReference Include="Eaf.Middleware.Core" Version="9.4.5" />
 		<PackageReference Include="Hangfire.Console" Version="1.4.3" />
 		<PackageReference Include="Abp" Version="10.5.0" />
 		<PackageReference Include="Abp.ZeroCore" Version="10.5.0" />

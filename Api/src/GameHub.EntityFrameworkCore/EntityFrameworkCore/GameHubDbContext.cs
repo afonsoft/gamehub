@@ -132,6 +132,7 @@ namespace GameHub.EntityFrameworkCore
         public virtual DbSet<Eaf.Middleware.MultiTenancy.UserTenantMembership> UserTenantMemberships { get; set; }
         public virtual DbSet<Eaf.Middleware.MultiTenancy.TenantJoinRequest> TenantJoinRequests { get; set; }
         public virtual DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
+        public virtual DbSet<SubscriptionPaymentProduct> SubscriptionPaymentProducts { get; set; }
         public virtual DbSet<MassNotification> MassNotifications { get; set; }
         public virtual DbSet<UserDelegation> UserDelegations { get; set; }
         public virtual DbSet<SubscribableEdition> SubscribableEditions { get; set; }
@@ -229,6 +230,14 @@ namespace GameHub.EntityFrameworkCore
                 b.HasIndex(e => new { e.TenantId, e.Status });
                 b.HasIndex(e => e.CreationTime);
                 b.Property(e => e.Amount).HasPrecision(18, 2);
+                b.HasMany(e => e.Products).WithOne(e => e.SubscriptionPayment).HasForeignKey(e => e.SubscriptionPaymentId);
+            });
+
+            modelBuilder.Entity<SubscriptionPaymentProduct>(b =>
+            {
+                b.HasIndex(e => new { e.TenantId, e.SubscriptionPaymentId });
+                b.Property(e => e.Amount).HasPrecision(18, 2);
+                b.Property(e => e.TotalAmount).HasPrecision(18, 2);
             });
 
             if (Database.IsSqlServer())
