@@ -13,9 +13,16 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { BsDatepickerConfig, BsDatepickerModule, BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { TreeDragDropService } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { DragDropModule } from 'primeng/dragdrop';
+import { DropdownModule } from 'primeng/dropdown';
 import { EditorModule } from 'primeng/editor';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { TabViewModule } from 'primeng/tabview';
+import { TooltipModule as PrimeNgTooltipModule } from 'primeng/tooltip';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { FileUploadModule as PrimeNgFileUploadModule } from 'primeng/fileupload';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -87,9 +94,16 @@ import { UsersComponent } from './users/users.component';
     PaginatorModule,
     PrimeNgFileUploadModule,
     AutoCompleteModule,
+    ButtonModule,
+    CalendarModule,
+    DropdownModule,
     EditorModule,
     InputMaskModule,
+    InputNumberModule,
+    InputTextModule,
     NgxChartsModule,
+    TabViewModule,
+    PrimeNgTooltipModule,
   ],
   declarations: [
     UsersComponent,

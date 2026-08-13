@@ -9,47 +9,80 @@
           {{ 'AuditLogsHeaderInfo' | localize }}
         </span>
       </div>
-      <div class="col text-right mt-3 mt-md-0">
-        <button type="button" class="btn btn-success" (click)="exportToExcel()">
-          <i class="far fa-file-excel"></i> {{ 'ExportToExcel' | localize }}
-        </button>
-      </div>
     </div>
   </div>
 
   <div class="m-content">
     <div class="m-portlet m-portlet--mobile">
       <div class="m-portlet__body">
-        <tabset class="tab-container tabbable-line">
-          <tab heading="{{ 'OperationLogs' | localize }}" customClass="m-tabs__item">
+        <p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange($event.index)">
+          <p-tabPanel header="{{ 'OperationLogs' | localize }}">
             <div class="m-form m-form--label-align-right">
-              <form autocomplete="off" class="horizontal-form" #auditFilterForm="ngForm">
-                <div class="row align-items-center m--margin-bottom-10">
-                  <div class="col-md-12">
-                    <label for="StartEndRange" class="control-label">{{ 'DateRange' | localize }}</label>
-                    <div class="input-group">
-                      <input
-                        class="form-control"
-                        id="StartEndRange"
-                        name="StartEndRange"
-                        #drp="bsDaterangepicker"
-                        readonly="readonly"
-                        sty
-                        bsDaterangepicker
-                        style="background-color: white !important"
-                        dateRangePickerInitialValue
-                        [(ngModel)]="dateRange"
-                      />
-                      <span class="input-group-btn">
-                        <button class="btn btn-primary" type="button" (click)="getAuditLogs()">
-                          <i class="flaticon-search-1" [attr.aria-label]="l('Search')"></i>
-                        </button>
-                      </span>
+              <form autocomplete="off" class="horizontal-form">
+                <div class="row align-items-end m--margin-bottom-10">
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="AuditLogDateRange" class="control-label">{{ 'DateRange' | localize }}</label>
+                    <p-calendar
+                      id="AuditLogDateRange"
+                      [(ngModel)]="dateRange"
+                      name="AuditLogDateRange"
+                      selectionMode="range"
+                      [showIcon]="true"
+                      [readonlyInput]="true"
+                      [style]="{ width: '100%' }"
+                      [inputStyle]="{ width: '100%' }"
+                      placeholder="{{ 'DateRange' | localize }}">
+                    </p-calendar>
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="UsernameAuditLog" class="control-label">{{ 'UserName' | localize }}</label>
+                    <input id="UsernameAuditLog" name="UsernameAuditLog" type="text" pInputText [(ngModel)]="usernameAuditLog" class="w-100" placeholder="{{ 'UserName' | localize }}" />
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="ServiceName" class="control-label">{{ 'Service' | localize }}</label>
+                    <input id="ServiceName" name="ServiceName" type="text" pInputText [(ngModel)]="serviceName" class="w-100" placeholder="{{ 'Service' | localize }}" />
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="MethodName" class="control-label">{{ 'Action' | localize }}</label>
+                    <input id="MethodName" name="MethodName" type="text" pInputText [(ngModel)]="methodName" class="w-100" placeholder="{{ 'Action' | localize }}" />
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="BrowserInfo" class="control-label">{{ 'Browser' | localize }}</label>
+                    <input id="BrowserInfo" name="BrowserInfo" type="text" pInputText [(ngModel)]="browserInfo" class="w-100" placeholder="{{ 'Browser' | localize }}" />
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="HasException" class="control-label">{{ 'ErrorState' | localize }}</label>
+                    <p-dropdown
+                      id="HasException"
+                      name="HasException"
+                      [options]="hasExceptionOptions"
+                      [(ngModel)]="hasException"
+                      optionLabel="label"
+                      optionValue="value"
+                      [showClear]="false"
+                      [style]="{ width: '100%' }"
+                      placeholder="{{ 'ErrorState' | localize }}">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="MinExecutionDuration" class="control-label">{{ 'MinExecutionDuration' | localize }}</label>
+                    <p-inputNumber id="MinExecutionDuration" name="MinExecutionDuration" [(ngModel)]="minExecutionDuration" mode="decimal" [min]="0" placeholder="{{ 'MinExecutionDuration' | localize }}" [style]="{ width: '100%' }"></p-inputNumber>
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <label for="MaxExecutionDuration" class="control-label">{{ 'MaxExecutionDuration' | localize }}</label>
+                    <p-inputNumber id="MaxExecutionDuration" name="MaxExecutionDuration" [(ngModel)]="maxExecutionDuration" mode="decimal" [min]="0" placeholder="{{ 'MaxExecutionDuration' | localize }}" [style]="{ width: '100%' }"></p-inputNumber>
+                  </div>
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <div class="d-flex gap-2">
+                      <button type="button" pButton icon="pi pi-search" label="{{ 'Search' | localize }}" (click)="searchAuditLogs()"></button>
+                      <button type="button" pButton icon="pi pi-refresh" label="{{ 'Reset' | localize }}" (click)="resetAuditLogFilters()" class="p-button-secondary"></button>
+                      <button type="button" pButton icon="pi pi-file-excel" label="{{ 'ExportToExcel' | localize }}" (click)="exportAuditLogsToExcel()" class="p-button-success"></button>
                     </div>
                   </div>
                 </div>
               </form>
             </div>
+
             <div class="align-items-center">
               <div class="primeng-datatable-container" [busyIf]="dataTableHelperAuditLogs.isLoading">
                 <p-table
@@ -92,36 +125,27 @@
                   <ng-template pTemplate="body" let-record="$implicit">
                     <tr>
                       <td style="width: 80px">
-                        <div class="btn-group dropdown" dropdown container="body">
-                          <button dropdownToggle class="dropdown-toggle btn btn-primary btn-sm dropdown-toggle">
-                            <i class="fa fa-cog"></i><span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu" *dropdownMenu>
-                            <li>
-                              <a href="javascript:;" (click)="showAuditLogDetails(record)">{{ 'Details' | localize }}</a>
-                            </li>
-                          </ul>
-                        </div>
+                        <button type="button" pButton icon="pi pi-eye" class="p-button-sm" (click)="showAuditLogDetails(record)" [pTooltip]="'Details' | localize"></button>
                       </td>
                       <td style="width: 200px">
-                                                <i *ngIf="record.exception" class="fa fa-exclamation-triangle m--font-warning"></i>
+                        <i *ngIf="record.exception" class="fa fa-exclamation-triangle m--font-warning"></i>
                         <i *ngIf="!record.exception" class="fa fa-check-circle m--font-success"></i>
                         {{ record.executionTime | momentFormat: 'YYYY-MM-DD HH:mm:ss' }}
                       </td>
                       <td style="width: 150px">
-                                                {{ record.userName }}
+                        {{ record.userName }}
                       </td>
                       <td style="width: 250px">
-                                                {{ record.serviceName }}
+                        {{ record.serviceName }}
                       </td>
                       <td style="width: 250px">
-                                                {{ record.methodName }}
+                        {{ record.methodName }}
                       </td>
                       <td style="width: 150px">
-                                                {{ record.clientIpAddress }}
+                        {{ record.clientIpAddress }}
                       </td>
                       <td style="width: 150px">
-                                                <span title="{{ record.browserInfo }}">{{ truncateStringWithPostfix(record.browserInfo, 20) }}</span>
+                        <span title="{{ record.browserInfo }}">{{ truncateStringWithPostfix(record.browserInfo, 20) }}</span>
                       </td>
                     </tr>
                   </ng-template>
@@ -144,31 +168,47 @@
                 </div>
               </div>
             </div>
-          </tab>
-          <tab heading="{{ 'ChangeLogs' | localize }}" customClass="m-tabs__item">
-            <form autocomplete="off" class="horizontal-form" #auditFilterForm="ngForm">
-              <div class="row align-items-center m--margin-bottom-10">
-                <div class="col-md-12">
-                  <label for="StartEndRangeChangeLogs" class="control-label">{{ 'DateRange' | localize }}</label>
-                  <div class="input-group">
-                    <input
-                      class="form-control"
-                      id="StartEndRangeChangeLogs"
-                      name="StartEndRangeChangeLogs"
-                      #drp="bsDaterangepicker"
-                      readonly="readonly"
-                      sty
-                      bsDaterangepicker
-                      style="background-color: white !important"
-                      dateRangePickerInitialValue
-                      [(ngModel)]="dateRange"
-                    />
-                    <span class="input-group-btn">
-                      <button class="btn btn-primary" type="button" (click)="getEntityChanges()">
-                        <i class="flaticon-search-1" [attr.aria-label]="l('Search')"></i>
-                      </button>
-                    </span>
-                  </div>
+          </p-tabPanel>
+
+          <p-tabPanel header="{{ 'ChangeLogs' | localize }}">
+            <form autocomplete="off" class="horizontal-form">
+              <div class="row align-items-end m--margin-bottom-10">
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                  <label for="EntityChangesDateRange" class="control-label">{{ 'DateRange' | localize }}</label>
+                  <p-calendar
+                    id="EntityChangesDateRange"
+                    [(ngModel)]="dateRangeEntityChanges"
+                    name="EntityChangesDateRange"
+                    selectionMode="range"
+                    [showIcon]="true"
+                    [readonlyInput]="true"
+                    [style]="{ width: '100%' }"
+                    [inputStyle]="{ width: '100%' }"
+                    placeholder="{{ 'DateRange' | localize }}">
+                  </p-calendar>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                  <label for="UsernameEntityChange" class="control-label">{{ 'UserName' | localize }}</label>
+                  <input id="UsernameEntityChange" name="UsernameEntityChange" type="text" pInputText [(ngModel)]="usernameEntityChange" class="w-100" placeholder="{{ 'UserName' | localize }}" />
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                  <label for="EntityTypeFullName" class="control-label">{{ 'Object' | localize }}</label>
+                  <p-dropdown
+                    id="EntityTypeFullName"
+                    name="EntityTypeFullName"
+                    [options]="objectTypes"
+                    [(ngModel)]="entityTypeFullName"
+                    optionLabel="name"
+                    optionValue="value"
+                    [showClear]="true"
+                    [style]="{ width: '100%' }"
+                    placeholder="{{ 'Object' | localize }}">
+                  </p-dropdown>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2 d-flex gap-2">
+                  <button type="button" pButton icon="pi pi-search" label="{{ 'Search' | localize }}" (click)="searchEntityChanges()"></button>
+                  <button type="button" pButton icon="pi pi-refresh" label="{{ 'Reset' | localize }}" (click)="resetEntityChangeFilters()" class="p-button-secondary"></button>
+                  <button type="button" pButton icon="pi pi-file-excel" label="{{ 'ExportToExcel' | localize }}" (click)="exportEntityChangesToExcel()" class="p-button-success"></button>
                 </div>
               </div>
             </form>
@@ -195,6 +235,7 @@
                       </th>
                       <th scope="col" pSortableColumn="entityTypeFullName">
                         {{ 'Object' | localize }}
+                        <p-sortIcon field="entityTypeFullName"></p-sortIcon>
                       </th>
                       <th scope="col" style="width: 250px" pSortableColumn="userName">
                         {{ 'UserName' | localize }}
@@ -209,16 +250,7 @@
                   <ng-template pTemplate="body" let-record="$implicit">
                     <tr>
                       <td style="width: 80px">
-                        <div class="btn-group dropdown" dropdown container="body">
-                          <button dropdownToggle class="dropdown-toggle btn btn-primary btn-sm dropdown-toggle">
-                            <i class="fa fa-cog"></i><span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu" *dropdownMenu>
-                            <li>
-                              <a href="javascript:;" (click)="showEntityChangeDetails(record)">{{ 'Details' | localize }}</a>
-                            </li>
-                          </ul>
-                        </div>
+                        <button type="button" pButton icon="pi pi-eye" class="p-button-sm" (click)="showEntityChangeDetails(record)" [pTooltip]="'Details' | localize"></button>
                       </td>
                       <td style="width: 150px">
                         {{ l(record.changeTypeName) }}
@@ -227,7 +259,7 @@
                         {{ record.entityTypeFullName }}
                       </td>
                       <td style="width: 250px">
-                                                {{ record.userName }}
+                        {{ record.userName }}
                       </td>
                       <td style="width: 150px">
                         {{ record.changeTime | momentFormat: 'YYYY-MM-DD HH:mm' }}
@@ -253,8 +285,8 @@
                 </div>
               </div>
             </div>
-          </tab>
-        </tabset>
+          </p-tabPanel>
+        </p-tabView>
       </div>
     </div>
   </div>

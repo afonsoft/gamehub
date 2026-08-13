@@ -11,6 +11,11 @@ import { Paginator } from 'primeng/paginator';
 import { Table } from 'primeng/table';
 import { DataTableHelper } from '@shared/helpers/DataTableHelper';
 
+interface HasExceptionOption {
+  label: string;
+  value: boolean | null;
+}
+
 @Component({
   standalone: false,
   templateUrl: './audit-logs.component.html',
@@ -25,19 +30,29 @@ export class AuditLogsComponent extends AppComponentBase {
   @ViewChild('paginatorAuditLogs', { static: true }) paginatorAuditLogs: Paginator;
   @ViewChild('paginatorEntityChanges', { static: true }) paginatorEntityChanges: Paginator;
 
-  //Filters
+  // Audit log filters
   public dateRange: Date[] = [moment().startOf('day').toDate(), moment().endOf('day').toDate()];
-
   public usernameAuditLog: string;
-  public usernameEntityChange: string;
   public serviceName: string;
   public methodName: string;
   public browserInfo: string;
-  public hasException: boolean = undefined;
+  public hasException: boolean | null = null;
   public minExecutionDuration: number;
   public maxExecutionDuration: number;
+
+  // Entity change filters
+  public dateRangeEntityChanges: Date[] = [moment().startOf('day').toDate(), moment().endOf('day').toDate()];
+  public usernameEntityChange: string;
   public entityTypeFullName: string;
-  public objectTypes: NameValueDto[];
+  public objectTypes: NameValueDto[] = [];
+
+  hasExceptionOptions: HasExceptionOption[] = [
+    { label: 'All', value: null },
+    { label: 'Error', value: true },
+    { label: 'Success', value: false },
+  ];
+
+  activeTabIndex = 0;
 
   dataTableHelperAuditLogs = new DataTableHelper();
   dataTableHelperEntityChanges = new DataTableHelper();
@@ -58,6 +73,22 @@ export class AuditLogsComponent extends AppComponentBase {
     this.entityChangeDetailModal.show(record);
   }
 
+  searchAuditLogs(): void {
+    if (this.dataTableHelperAuditLogs.shouldResetPaging(undefined)) {
+      this.paginatorAuditLogs.changePage(0);
+      return;
+    }
+    this.getAuditLogs();
+  }
+
+  searchEntityChanges(): void {
+    if (this.dataTableHelperEntityChanges.shouldResetPaging(undefined)) {
+      this.paginatorEntityChanges.changePage(0);
+      return;
+    }
+    this.getEntityChanges();
+  }
+
   getAuditLogs(event?: LazyLoadEvent) {
     if (this.dataTableHelperAuditLogs.shouldResetPaging(event)) {
       this.paginatorAuditLogs.changePage(0);
@@ -70,13 +101,13 @@ export class AuditLogsComponent extends AppComponentBase {
     this._auditLogService
       .getAuditLogs(
         this.browserInfo,
-        moment(this.dateRange[1]),
+        this.dateRange && this.dateRange[1] ? moment(this.dateRange[1]) : undefined,
         this.hasException,
         this.maxExecutionDuration,
         this.methodName,
         this.minExecutionDuration,
         this.serviceName,
-        moment(this.dateRange[0]),
+        this.dateRange && this.dateRange[0] ? moment(this.dateRange[0]) : undefined,
         this.usernameAuditLog,
         this.dataTableHelperAuditLogs.getSorting(this.dataTableAuditLogs),
         this.dataTableHelperAuditLogs.getMaxResultCount(this.paginatorAuditLogs, event),
@@ -104,9 +135,9 @@ export class AuditLogsComponent extends AppComponentBase {
 
     this._auditLogService
       .getEntityChanges(
-        moment(this.dateRange[1]),
+        this.dateRangeEntityChanges && this.dateRangeEntityChanges[1] ? moment(this.dateRangeEntityChanges[1]) : undefined,
         this.entityTypeFullName,
-        moment(this.dateRange[0]),
+        this.dateRangeEntityChanges && this.dateRangeEntityChanges[0] ? moment(this.dateRangeEntityChanges[0]) : undefined,
         this.usernameEntityChange,
         this.dataTableHelperEntityChanges.getSorting(this.dataTableEntityChanges),
         this.dataTableHelperEntityChanges.getMaxResultCount(this.paginatorEntityChanges, event),
@@ -119,17 +150,17 @@ export class AuditLogsComponent extends AppComponentBase {
       });
   }
 
-  exportToExcel(): void {
+  exportAuditLogsToExcel(): void {
     this._auditLogService
       .getAuditLogsToExcel(
         this.browserInfo,
-        moment(this.dateRange[1]),
+        this.dateRange && this.dateRange[1] ? moment(this.dateRange[1]) : undefined,
         this.hasException,
         this.maxExecutionDuration,
         this.methodName,
         this.minExecutionDuration,
         this.serviceName,
-        moment(this.dateRange[0]),
+        this.dateRange && this.dateRange[0] ? moment(this.dateRange[0]) : undefined,
         this.usernameAuditLog,
         undefined,
         1,
@@ -138,12 +169,14 @@ export class AuditLogsComponent extends AppComponentBase {
       .subscribe(result => {
         this._fileDownloadService.downloadTempFile(result);
       });
+  }
 
+  exportEntityChangesToExcel(): void {
     this._auditLogService
       .getEntityChangesToExcel(
-        moment(this.dateRange[1]),
+        this.dateRangeEntityChanges && this.dateRangeEntityChanges[1] ? moment(this.dateRangeEntityChanges[1]) : undefined,
         this.entityTypeFullName,
-        moment(this.dateRange[0]),
+        this.dateRangeEntityChanges && this.dateRangeEntityChanges[0] ? moment(this.dateRangeEntityChanges[0]) : undefined,
         this.usernameEntityChange,
         undefined,
         1,
@@ -152,6 +185,34 @@ export class AuditLogsComponent extends AppComponentBase {
       .subscribe(result => {
         this._fileDownloadService.downloadTempFile(result);
       });
+  }
+
+  onTabChange(index: number): void {
+    this.activeTabIndex = index;
+    if (index === 0) {
+      this.searchAuditLogs();
+    } else {
+      this.searchEntityChanges();
+    }
+  }
+
+  resetAuditLogFilters(): void {
+    this.dateRange = [moment().startOf('day').toDate(), moment().endOf('day').toDate()];
+    this.usernameAuditLog = undefined;
+    this.serviceName = undefined;
+    this.methodName = undefined;
+    this.browserInfo = undefined;
+    this.hasException = null;
+    this.minExecutionDuration = undefined;
+    this.maxExecutionDuration = undefined;
+    this.searchAuditLogs();
+  }
+
+  resetEntityChangeFilters(): void {
+    this.dateRangeEntityChanges = [moment().startOf('day').toDate(), moment().endOf('day').toDate()];
+    this.usernameEntityChange = undefined;
+    this.entityTypeFullName = undefined;
+    this.searchEntityChanges();
   }
 
   truncateStringWithPostfix(text: string, length: number): string {
