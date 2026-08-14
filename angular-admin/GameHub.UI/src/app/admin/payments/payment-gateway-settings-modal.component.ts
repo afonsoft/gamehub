@@ -62,12 +62,48 @@ export class PaymentGatewaySettingsModalComponent extends AppComponentBase {
         }
     }
 
+    isGatewayConfigured(name: string): boolean {
+        if (!this.settings) {
+            return false;
+        }
+
+        switch (name) {
+            case 'Stripe':
+                return !!this.settings.stripe?.secretKey;
+            case 'PayPal':
+                return !!this.settings.payPal?.clientId;
+            case 'MercadoPago':
+                return !!this.settings.mercadoPago?.accessToken;
+            case 'PagSeguro':
+                return !!this.settings.pagSeguro?.token && !!this.settings.pagSeguro?.email;
+            default:
+                return false;
+        }
+    }
+
+    isSettingsValid(): boolean {
+        if (!this.settings) {
+            return false;
+        }
+
+        if (!this.settings.defaultGateway) {
+            return true;
+        }
+
+        return this.isGatewayConfigured(this.settings.defaultGateway);
+    }
+
     close(): void {
         this.active = false;
         this.modal.hide();
     }
 
     save(): void {
+        if (!this.isSettingsValid()) {
+            this.notify.warn(this.l('DefaultGatewayMustBeConfigured'));
+            return;
+        }
+
         this.saving = true;
         this._paymentService
             .updateGatewaySettings(this.settings)

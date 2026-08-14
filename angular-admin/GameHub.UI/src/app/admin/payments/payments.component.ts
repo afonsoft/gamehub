@@ -38,12 +38,13 @@ export class PaymentsComponent extends AppComponentBase implements OnInit {
   gateways: IPaymentGatewayDto[] = [];
   saving = false;
 
-  newPayment: ICreateSubscriptionPaymentInput = {
+  newPayment: ICreateSubscriptionPaymentInput & { isRecurring: boolean } = {
     editionId: 0,
     editionPaymentType: 1,
     paymentPeriodType: 30,
     gateway: '',
     description: undefined,
+    isRecurring: false,
   };
 
   processInput: IProcessPaymentInput & { paymentId: number } = {
@@ -123,8 +124,43 @@ export class PaymentsComponent extends AppComponentBase implements OnInit {
       paymentPeriodType: 30,
       gateway: this.gateways.find(g => g.isDefault)?.name ?? (this.gateways.length > 0 ? this.gateways[0].name : ''),
       description: undefined,
+      isRecurring: false,
     };
     this.createModal.show();
+  }
+
+  getSelectedEdition(): IEditionDto | undefined {
+    return this.editions.find(e => e.id === this.newPayment.editionId);
+  }
+
+  getAmountPreview(): number | undefined {
+    const edition = this.getSelectedEdition();
+    if (!edition) {
+      return undefined;
+    }
+
+    switch (this.newPayment.paymentPeriodType) {
+      case 1:
+        return undefined;
+      case 7:
+        return undefined;
+      case 30:
+        return edition.monthlyPrice;
+      case 90:
+        return edition.quarterlyPrice;
+      case 180:
+        return edition.biannualPrice;
+      case 365:
+        return edition.annualPrice;
+      case 99999:
+        return edition.permanentPrice;
+      default:
+        return undefined;
+    }
+  }
+
+  isRecurringSupported(gatewayName: string): boolean {
+    return gatewayName === 'Stripe';
   }
 
   closeCreateModal(): void {
@@ -137,9 +173,20 @@ export class PaymentsComponent extends AppComponentBase implements OnInit {
       return;
     }
 
+    if (!this.newPayment.gateway) {
+      this.notify.warn(this.l('GatewayIsRequired'));
+      return;
+    }
+
+    if (this.newPayment.isRecurring && !this.isRecurringSupported(this.newPayment.gateway)) {
+      this.notify.warn(this.l('GatewayDoesNotSupportRecurring'));
+      return;
+    }
+
     this.saving = true;
+    const input = { ...this.newPayment };
     this._paymentService
-      .createPayment(new CreateSubscriptionPaymentInput(this.newPayment as any))
+      .createPayment(input as any)
       .pipe(finalize(() => (this.saving = false)))
       .subscribe(() => {
         this.notify.success(this.l('SavedSuccessfully'));

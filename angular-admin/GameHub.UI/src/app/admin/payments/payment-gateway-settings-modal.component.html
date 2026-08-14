@@ -25,7 +25,12 @@
               </div>
             </tab>
 
-            <tab heading="Stripe" customClass="m-tabs__item">
+            <tab customClass="m-tabs__item">
+              <ng-template tabHeading>
+                Stripe
+                <span *ngIf="isGatewayConfigured('Stripe')" class="badge badge-success ml-1">{{ 'Configured' | localize }}</span>
+                <span *ngIf="!isGatewayConfigured('Stripe')" class="badge badge-secondary ml-1">{{ 'NotConfigured' | localize }}</span>
+              </ng-template>
               <div class="m--margin-top-20">
                 <div class="alert alert-info" role="alert">
                   <i class="fa fa-info-circle mr-2"></i>
@@ -66,7 +71,12 @@
               </div>
             </tab>
 
-            <tab heading="PayPal" customClass="m-tabs__item">
+            <tab customClass="m-tabs__item">
+              <ng-template tabHeading>
+                PayPal
+                <span *ngIf="isGatewayConfigured('PayPal')" class="badge badge-success ml-1">{{ 'Configured' | localize }}</span>
+                <span *ngIf="!isGatewayConfigured('PayPal')" class="badge badge-secondary ml-1">{{ 'NotConfigured' | localize }}</span>
+              </ng-template>
               <div class="m--margin-top-20">
                 <div class="alert alert-info" role="alert">
                   <i class="fa fa-info-circle mr-2"></i>
@@ -107,7 +117,12 @@
               </div>
             </tab>
 
-            <tab heading="Mercado Pago" customClass="m-tabs__item">
+            <tab customClass="m-tabs__item">
+              <ng-template tabHeading>
+                Mercado Pago
+                <span *ngIf="isGatewayConfigured('MercadoPago')" class="badge badge-success ml-1">{{ 'Configured' | localize }}</span>
+                <span *ngIf="!isGatewayConfigured('MercadoPago')" class="badge badge-secondary ml-1">{{ 'NotConfigured' | localize }}</span>
+              </ng-template>
               <div class="m--margin-top-20">
                 <div class="alert alert-info" role="alert">
                   <i class="fa fa-info-circle mr-2"></i>
@@ -138,7 +153,12 @@
               </div>
             </tab>
 
-            <tab heading="PagSeguro" customClass="m-tabs__item">
+            <tab customClass="m-tabs__item">
+              <ng-template tabHeading>
+                PagSeguro
+                <span *ngIf="isGatewayConfigured('PagSeguro')" class="badge badge-success ml-1">{{ 'Configured' | localize }}</span>
+                <span *ngIf="!isGatewayConfigured('PagSeguro')" class="badge badge-secondary ml-1">{{ 'NotConfigured' | localize }}</span>
+              </ng-template>
               <div class="m--margin-top-20">
                 <div class="alert alert-info" role="alert">
                   <i class="fa fa-info-circle mr-2"></i>
@@ -173,7 +193,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="close()">{{ 'Cancel' | localize }}</button>
-        <button type="button" class="btn btn-primary" [disabled]="saving || !settings" (click)="save()">
+        <button type="button" class="btn btn-primary" [disabled]="saving || !settings || !isSettingsValid()" (click)="save()">
           <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
           {{ 'Save' | localize }}
         </button>

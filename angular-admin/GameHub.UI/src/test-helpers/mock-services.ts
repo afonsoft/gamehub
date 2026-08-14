@@ -303,8 +303,14 @@ export class MockPaymentServiceProxy {
   processPayment(id: number, input: any): Observable<any> {
     return of({});
   }
-  getGatewayList(): Observable<any> {
-    return of([]);
+  getGatewayList(): Observable<any[]> {
+    return of([
+      { name: 'Null', displayName: 'Null', isConfigured: true, isDefault: true },
+      { name: 'Stripe', displayName: 'Stripe', isConfigured: true, isDefault: false },
+      { name: 'PayPal', displayName: 'PayPal', isConfigured: true, isDefault: false },
+      { name: 'MercadoPago', displayName: 'Mercado Pago', isConfigured: true, isDefault: false },
+      { name: 'PagSeguro', displayName: 'PagSeguro', isConfigured: true, isDefault: false },
+    ]);
   }
   getGatewaySettings(): Observable<any> {
     return of({});
