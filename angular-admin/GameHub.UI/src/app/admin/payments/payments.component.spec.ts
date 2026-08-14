@@ -86,4 +86,18 @@ describe('PaymentsComponent', () => {
     expect(component.filters.filterText).toBe('');
     expect(component.filters.status).toBe('');
   });
+
+  it('should identify Stripe as the only recurring gateway', () => {
+    expect(component.isRecurringSupported('Stripe')).toBe(true);
+    expect(component.isRecurringSupported('PayPal')).toBe(false);
+  });
+
+  it('should preview amount based on edition and payment period', () => {
+    component.editions = [{ id: 1, monthlyPrice: 10, quarterlyPrice: 25, annualPrice: 100 } as any];
+    component.newPayment.editionId = 1;
+    component.newPayment.paymentPeriodType = 30;
+    expect(component.getAmountPreview()).toBe(10);
+    component.newPayment.paymentPeriodType = 365;
+    expect(component.getAmountPreview()).toBe(100);
+  });
 });
