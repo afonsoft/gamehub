@@ -1,0 +1,68 @@
+<div [@routerTransition] [busyIf]="saving" class="m-login__signup">
+    <div class="m-login__head">
+        <h3 class="m-login__title">{{ 'GatewaySelection' | localize }}</h3>
+    </div>
+    <form autocomplete="off" class="m-login__form m-form" novalidate>
+        <div *ngIf="resultMessage" class="alert" [ngClass]="{ 'alert-success': resultType === 'success', 'alert-danger': resultType === 'error', 'alert-info': resultType === 'created' }">
+            {{ resultMessage }}
+        </div>
+
+        <div *ngIf="payment && !saving" class="alert alert-info">
+            <p>{{ 'PaymentStatus' | localize }}: <span class="font-weight-bold">{{ l(payment.status) }}</span></p>
+            <p *ngIf="payment.subscriptionStartDate">{{ 'SubscriptionStartDate' | localize }}: {{ payment.subscriptionStartDate | momentFormat: 'L' }}</p>
+            <p *ngIf="payment.subscriptionEndDate">{{ 'SubscriptionEndDate' | localize }}: {{ payment.subscriptionEndDate | momentFormat: 'L' }}</p>
+        </div>
+
+        <div class="form-group m-form__group">
+            <label for="GatewayEdition">{{ 'Edition' | localize }}</label>
+            <select id="GatewayEdition" class="form-control m-input" [(ngModel)]="model.editionId" name="editionId">
+                <option *ngFor="let edition of editions" [ngValue]="edition.id">{{ edition.displayName }}</option>
+            </select>
+        </div>
+
+        <div class="form-group m-form__group">
+            <label for="GatewayPaymentPeriod">{{ 'PaymentPeriod' | localize }}</label>
+            <select id="GatewayPaymentPeriod" class="form-control m-input" [(ngModel)]="model.paymentPeriodType" name="paymentPeriodType">
+                <option [ngValue]="1">{{ 'Daily' | localize }}</option>
+                <option [ngValue]="7">{{ 'Weekly' | localize }}</option>
+                <option [ngValue]="30">{{ 'Monthly' | localize }}</option>
+                <option [ngValue]="90">{{ 'Quarterly' | localize }}</option>
+                <option [ngValue]="180">{{ 'Biannual' | localize }}</option>
+                <option [ngValue]="365">{{ 'Annual' | localize }}</option>
+                <option [ngValue]="99999">{{ 'Permanent' | localize }}</option>
+            </select>
+        </div>
+
+        <div class="form-group m-form__group">
+            <label for="GatewayName">{{ 'Gateway' | localize }}</label>
+            <select id="GatewayName" class="form-control m-input" [(ngModel)]="model.gateway" name="gateway">
+                <option *ngFor="let gateway of gateways" [ngValue]="gateway.name">{{ gateway.displayName }}</option>
+            </select>
+        </div>
+
+        <div class="form-group m-form__group">
+            <div class="form-check">
+                <input id="GatewayIsRecurring" class="form-check-input" type="checkbox" [(ngModel)]="model.isRecurring" name="isRecurring" [disabled]="!isRecurringSupported()" />
+                <label class="form-check-label" for="GatewayIsRecurring">{{ 'IsRecurring' | localize }}</label>
+            </div>
+            <small *ngIf="model.gateway && !isRecurringSupported()" class="form-text text-muted">{{ 'GatewayDoesNotSupportRecurring' | localize }}</small>
+        </div>
+
+        <div class="form-group m-form__group" *ngIf="getAmountPreview() !== undefined">
+            <label>{{ 'AmountPreview' | localize }}</label>
+            <p class="form-control-static font-weight-bold">{{ getAmountPreview() | number: '1.2-2' }}</p>
+        </div>
+
+        <div class="form-group m-form__group">
+            <label for="GatewayDescription">{{ 'Description' | localize }}</label>
+            <textarea id="GatewayDescription" class="form-control m-input" [(ngModel)]="model.description" name="description" rows="2"></textarea>
+        </div>
+
+        <div class="m-login__form-action">
+            <button type="button" class="btn btn-primary m-btn m-btn--pill m-btn--custom m-btn--air" [disabled]="saving" (click)="createPayment()">
+                <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
+                {{ 'CreatePayment' | localize }}
+            </button>
+        </div>
+    </form>
+</div>

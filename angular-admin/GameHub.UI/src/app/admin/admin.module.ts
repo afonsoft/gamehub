@@ -16,9 +16,9 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { DialogModule } from 'primeng/dialog';
 import { DragDropModule } from 'primeng/dragdrop';
 import { DropdownModule } from 'primeng/dropdown';
-import { EditorModule } from 'primeng/editor';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TabViewModule } from 'primeng/tabview';
@@ -33,6 +33,9 @@ import { TreeModule } from 'primeng/tree';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AuditLogDetailModalComponent } from './audit-logs/audit-log-detail-modal.component';
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
+import { DynamicPropertiesComponent } from './dynamic-properties/dynamic-properties.component';
+import { DynamicEntityPropertyManagerComponent } from './dynamic-properties/dynamic-entity-property-manager.component';
+import { SubscriptionsComponent } from './subscriptions/subscriptions.component';
 import { EditionsComponent } from './editions/editions.component';
 import { CreateOrEditEditionModalComponent } from './editions/create-or-edit-edition-modal.component';
 import { EditionFeaturesModalComponent } from './editions/edition-features-modal.component';
@@ -91,13 +94,13 @@ import { UsersComponent } from './users/users.component';
     TreeModule,
     DragDropModule,
     ContextMenuModule,
+    DialogModule,
     PaginatorModule,
     PrimeNgFileUploadModule,
     AutoCompleteModule,
     ButtonModule,
     CalendarModule,
     DropdownModule,
-    EditorModule,
     InputMaskModule,
     InputNumberModule,
     InputTextModule,
@@ -117,6 +120,9 @@ import { UsersComponent } from './users/users.component';
     CreateOrEditRoleModalComponent,
     AuditLogsComponent,
     AuditLogDetailModalComponent,
+    DynamicPropertiesComponent,
+    DynamicEntityPropertyManagerComponent,
+    SubscriptionsComponent,
     EditionsComponent,
     CreateOrEditEditionModalComponent,
     EditionFeaturesModalComponent,

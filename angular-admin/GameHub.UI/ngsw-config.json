@@ -42,16 +42,33 @@
   "dataGroups": [
     {
       "cacheConfig": {
-        "maxAge": "0u",
-        "maxSize": 512,
-        "timeout": "600s",
+        "maxAge": "1d",
+        "maxSize": 256,
+        "timeout": "30s",
         "strategy": "performance"
       },
-      "name": "api",
+      "name": "api-read",
       "urls": [
-        "/api"
-          ]
-      }
+        "/AbpUserConfiguration/GetAll",
+        "/api/AbpUserConfiguration/GetAll",
+        "/api/services/app/**/Get*",
+        "/api/services/app/**/GetAll*"
+      ]
+    },
+    {
+      "cacheConfig": {
+        "maxAge": "0u",
+        "maxSize": 0,
+        "timeout": "30s",
+        "strategy": "freshness"
+      },
+      "name": "api-write",
+      "urls": [
+        "/api/services/app/**/Create*",
+        "/api/services/app/**/Update*",
+        "/api/services/app/**/Delete*"
+      ]
+    }
   ],
   "index": "/index.html"
 }

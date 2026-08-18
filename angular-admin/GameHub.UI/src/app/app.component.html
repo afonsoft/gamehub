@@ -1,8 +1,22 @@
 ﻿<div class="m-grid m-grid--hor m-grid--root m-page">
-  <default-layout *ngIf="theme == 'default'"></default-layout>
-  <theme4-layout *ngIf="theme == 'theme4'"></theme4-layout>
-  <theme2-layout *ngIf="theme == 'theme2'"></theme2-layout>
-  <theme3-layout *ngIf="theme == 'theme3'"></theme3-layout>
+  <output *ngIf="!isOnline" class="alert alert-warning m-0 rounded-0 text-center d-block">
+    <i class="fa fa-wifi" aria-hidden="true"></i> {{ 'YouAreOffline' | localize }}
+  </output>
+  <output *ngIf="isOnline && pendingCount > 0" class="alert alert-info m-0 rounded-0 text-center d-block">
+    <i class="fa fa-refresh fa-spin" aria-hidden="true"></i> {{ 'SyncingPendingActions' | localize }} ({{ pendingCount }})
+  </output>
+  <output *ngIf="updateAvailable" class="alert alert-info m-0 rounded-0 text-center d-block">
+    <span>{{ 'NewVersionAvailable' | localize }}</span>
+    <button (click)="applyUpdate()" class="btn btn-sm btn-primary ml-2" type="button">{{ 'UpdateNow' | localize }}</button>
+  </output>
+  <output *ngIf="showInstallButton" class="alert alert-success m-0 rounded-0 text-center d-block">
+    <span>{{ 'InstallAppPrompt' | localize }}</span>
+    <button (click)="installApp()" class="btn btn-sm btn-primary ml-2" type="button">{{ 'InstallNow' | localize }}</button>
+  </output>
+  <default-layout *ngIf="theme === 'default'"></default-layout>
+  <theme4-layout *ngIf="theme === 'theme4'"></theme4-layout>
+  <theme2-layout *ngIf="theme === 'theme2'"></theme2-layout>
+  <theme3-layout *ngIf="theme === 'theme3'"></theme3-layout>
 </div>
 
 <loginAttemptsModal #loginAttemptsModal></loginAttemptsModal>

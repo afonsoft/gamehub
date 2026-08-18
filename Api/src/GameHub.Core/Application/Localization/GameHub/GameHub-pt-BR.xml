@@ -55,5 +55,31 @@
     <text name="PaymentGatewayHelpPayPal">Crie ou selecione um app no PayPal Developer Dashboard para obter o Client ID e o Client Secret. O Webhook ID fica disponível na seção Webhooks do app.</text>
     <text name="PaymentGatewayHelpMercadoPago">No painel do Mercado Pago, vá em Credenciais para copiar o Access Token (produção) e a Public Key.</text>
     <text name="PaymentGatewayHelpPagSeguro">No painel do PagSeguro, acesse Integrações &gt; Token de Segurança para gerar o Token e use o e-mail da conta PagSeguro.</text>
+    <text name="SyncingPendingActions">Sincronizando ações pendentes</text>
+    <text name="InstallAppPrompt">Instale o aplicativo para acesso rápido</text>
+    <text name="InstallNow">Instalar agora</text>
+    <text name="YouAreOnline">Você está online</text>
+    <text name="YouAreOffline">Você está offline</text>
+    <text name="NewVersionAvailable">Uma nova versão está disponível</text>
+    <text name="UpdateNow">Atualizar agora</text>
+    <text name="GatewaySelection">Selecionar gateway</text>
+    <text name="Subscriptions">Assinaturas</text>
+    <text name="SubscriptionsHeaderInfo">Gerenciar pagamentos de assinatura</text>
+    <text name="PaymentPeriod">Período de pagamento</text>
+    <text name="AmountPreview">Prévia do valor</text>
+    <text name="Gateway">Gateway</text>
+    <text name="GatewayDoesNotSupportRecurring">Este gateway não suporta pagamentos recorrentes</text>
+    <text name="IsRecurring">Pagamento recorrente</text>
+    <text name="PaymentSuccessful">Pagamento realizado com sucesso</text>
+    <text name="PaymentFailed">Falha no pagamento</text>
+    <text name="PaymentReturnMissingPaymentId">Identificador do pagamento ausente na URL de retorno</text>
+    <text name="PaymentCreationFailed">Falha ao criar pagamento</text>
+    <text name="CreatePayment">Criar pagamento</text>
+    <text name="UpgradeSubscription">Fazer upgrade da assinatura</text>
+    <text name="CancelRecurring">Cancelar recorrência</text>
+    <text name="CancelRecurringWarning">Tem certeza de que deseja cancelar o pagamento recorrente {0}?</text>
+    <text name="EditionIsRequired">A edição é obrigatória</text>
+    <text name="GatewayIsRequired">O gateway é obrigatório</text>
+    <text name="PaymentStatus">Status do pagamento</text>
   </texts>
 </localizationDictionary>

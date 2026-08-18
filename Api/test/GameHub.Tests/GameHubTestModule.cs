@@ -17,6 +17,8 @@ using GameHub.Tests.DependencyInjection;
 using GameHub.Multiplayer;
 using GameHub.Web.Multiplayer;
 using Microsoft.EntityFrameworkCore;
+using Eaf.Middleware.Chat;
+using Abp.RealTime;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System;
@@ -62,6 +64,11 @@ namespace GameHub.Tests
             Clock.Provider = ClockProviders.Utc;
 
             RegisterFakeService<AbpZeroDbMigrator<GameHubDbContext>>();
+            IocManager.IocContainer.Register(
+                Component.For<IOnlineClientManager<ChatChannel>>()
+                    .Instance(Substitute.For<IOnlineClientManager<ChatChannel>>())
+                    .LifestyleSingleton()
+                    .IsDefault());
             IocManager.RegisterIfNot<IGameAssetStorage, FakeGameAssetStorage>(DependencyLifeStyle.Transient);
             IocManager.RegisterIfNot<IGameTokenProvider, FakeGameTokenProvider>(DependencyLifeStyle.Transient);
             IocManager.RegisterIfNot<ITokenAuthenticationService, FakeTokenAuthenticationService>(DependencyLifeStyle.Transient);
