@@ -28,11 +28,6 @@
                 "input": "src/assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs",
                 "output": "/assets/eaf"
               },
-              {
-                "glob": "**/*",
-                "input": "node_modules/primeng/resources/themes/lara-dark-blue",
-                "output": "/assets/primeng/themes/lara-dark-blue"
-              },
               "src/manifest.json"
             ],
             "styles": [
@@ -42,7 +37,6 @@
               "node_modules/@ng-select/ng-select/themes/default.theme.css",
               "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
               "node_modules/primeicons/primeicons.css",
-              "src/assets/common/styles/design-tokens.css",
               "node_modules/sweetalert2/dist/sweetalert2.css",
               "node_modules/cookieconsent/build/cookieconsent.min.css",
               "src/assets/lib/freezeUI/freeze-ui.min.css",
@@ -164,11 +158,6 @@
                 "input": "src/assets/lib/eaf-web-resources/Eaf/Framework/scripts/libs",
                 "output": "/assets/eaf"
               },
-              {
-                "glob": "**/*",
-                "input": "node_modules/primeng/resources/themes/lara-dark-blue",
-                "output": "/assets/primeng/themes/lara-dark-blue"
-              },
               "src/manifest.json"
             ],
             "styles": [
@@ -178,7 +167,6 @@
               "node_modules/@ng-select/ng-select/themes/default.theme.css",
               "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
               "node_modules/primeicons/primeicons.css",
-              "src/assets/common/styles/design-tokens.css",
               "node_modules/sweetalert2/dist/sweetalert2.css",
               "node_modules/cookieconsent/build/cookieconsent.min.css",
               "src/assets/lib/freezeUI/freeze-ui.min.css",

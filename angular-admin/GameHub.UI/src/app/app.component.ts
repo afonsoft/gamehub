@@ -14,7 +14,6 @@ import { NameValueDto } from '@shared/service-proxies/service-proxies';
 import { ChatSignalrService } from 'app/shared/layout/chat/chat-signalr.service';
 import { OfflineService } from '@shared/common/offline.service';
 import { PwaInstallService } from '@shared/common/pwa-install.service';
-import { ThemeService } from '@shared/common/theme.service';
 import { filter } from 'rxjs/operators';
 import { AppComponentBase } from 'shared/common/app-component-base';
 import { SignalRHelper } from 'shared/helpers/SignalRHelper';
@@ -53,7 +52,6 @@ export class AppComponent extends AppComponentBase implements OnInit, AfterViewI
     private readonly _tokenService: TokenService,
     private readonly router: Router,
     private readonly _swUpdate: SwUpdate,
-    private readonly _themeService: ThemeService,
     private readonly _offlineService: OfflineService,
     private readonly _pwaInstallService: PwaInstallService,
       ) {
@@ -61,7 +59,6 @@ export class AppComponent extends AppComponentBase implements OnInit, AfterViewI
   }
 
   ngOnInit(): void {
-    this._themeService.initialize();
     this._userNotificationHelper.settingsModal = this.notificationSettingsModal;
     this.theme = eaf.setting.get('App.UiManagement.Theme').toLocaleLowerCase();
 

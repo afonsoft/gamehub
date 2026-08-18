@@ -63,17 +63,6 @@
         id="header_notification_bar"
       ></li>
 
-      <li class="m-nav__item m-topbar__theme-toggle">
-        <a href="javascript:;" class="m-nav__link m-dropdown__toggle" (click)="toggleTheme()" [attr.aria-label]="l('ToggleTheme')">
-          <span class="m-nav__link-icon">
-            <span class="m-nav__link-icon-wrapper">
-              <i class="pi pi-sun" *ngIf="(themeService.theme$ | async) === 'light'"></i>
-              <i class="pi pi-moon" *ngIf="(themeService.theme$ | async) === 'dark'"></i>
-            </span>
-          </span>
-        </a>
-      </li>
-
       <li
         id="chat_is_connecting_icon"
         class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"

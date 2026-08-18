@@ -6,7 +6,6 @@ import { EafSessionService } from '@eaf/session/eaf-session.service';
 import { StorageService } from '@eaf/utils/storage.service';
 import { AppConsts } from '@shared/AppConsts';
 import { AppComponentBase } from '@shared/common/app-component-base';
-import { ThemeService } from '@shared/common/theme.service';
 import { ChangeUserLanguageDto, ProfileServiceProxy } from '@shared/service-proxies/service-proxies';
 
 
@@ -35,7 +34,6 @@ export class TopBarComponent extends AppComponentBase implements OnInit {
 
   constructor(
     injector: Injector,
-    public themeService: ThemeService,
     private readonly _eafSessionService: EafSessionService,
     private readonly _eafMultiTenancyService: EafMultiTenancyService,
     private readonly _profileServiceProxy: ProfileServiceProxy,
@@ -146,10 +144,6 @@ export class TopBarComponent extends AppComponentBase implements OnInit {
 
   onMySettingsModalSaved(): void {
     this.shownLoginName = this.appSession.getShownLoginName();
-  }
-
-  toggleTheme(): void {
-    this.themeService.toggle();
   }
 
   backToMyAccount(): void {
