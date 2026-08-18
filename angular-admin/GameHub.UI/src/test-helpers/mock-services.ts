@@ -601,7 +601,7 @@ export function setupEafGlobals(): void {
     },
     appPath: '/',
     setting: {
-      get: (key: string) => null,
+      get: (key: string) => (key === 'App.UiManagement.Theme' ? 'default' : null),
     },
     localization: {
       languages: [{ name: 'en', displayName: 'English', isDisabled: false }],

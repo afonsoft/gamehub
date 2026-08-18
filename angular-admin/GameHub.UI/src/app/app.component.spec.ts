@@ -2,6 +2,8 @@ import { MockLocalizePipe, setupEafGlobals } from '../test-helpers/mock-services
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { SwUpdate } from '@angular/service-worker';
+import { of, Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
 import { ChatSignalrService } from '@app/shared/layout/chat/chat-signalr.service';
@@ -19,6 +21,8 @@ import { NotifyService } from '@eaf/notify/notify.service';
 import { SettingService } from '@eaf/settings/setting.service';
 import { EafMultiTenancyService } from '@eaf/multi-tenancy/eaf-multi-tenancy.service';
 import { AppUrlService } from '@shared/common/nav/app-url.service';
+import { OfflineService } from '@shared/common/offline.service';
+import { PwaInstallService } from '@shared/common/pwa-install.service';
 
 // Mock do ChatSignalrService
 class MockChatSignalrService {
@@ -117,8 +121,34 @@ class MockAppUrlService {
   }
 }
 
+class MockSwUpdate {
+  isEnabled = true;
+  versionUpdates = new Subject<any>();
+  activateUpdate(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+class MockOfflineService {
+  online$ = of(true);
+  pending$ = of(0);
+  syncActive$ = of(false);
+  initialize(): void {}
+  queueAction(): Promise<void> { return Promise.resolve(); }
+  syncQueue(): Promise<void> { return Promise.resolve(); }
+  getQueue(): Promise<any[]> { return Promise.resolve([]); }
+  clearQueue(): Promise<void> { return Promise.resolve(); }
+}
+
+class MockPwaInstallService {
+  installPrompt$ = of(null);
+  initialize(): void {}
+  promptInstall(): Promise<void> { return Promise.resolve(); }
+}
+
 describe('AppComponent', () => {
   beforeEach(async () => {
+    setupEafGlobals();
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule],
       declarations: [AppComponent, MockLocalizePipe],
@@ -137,7 +167,10 @@ describe('AppComponent', () => {
         { provide: NotifyService, useClass: MockNotifyService },
         { provide: SettingService, useClass: MockSettingService },
         { provide: EafMultiTenancyService, useClass: MockEafMultiTenancyService },
-        { provide: AppUrlService, useClass: MockAppUrlService }
+        { provide: AppUrlService, useClass: MockAppUrlService },
+        { provide: SwUpdate, useClass: MockSwUpdate },
+        { provide: OfflineService, useClass: MockOfflineService },
+        { provide: PwaInstallService, useClass: MockPwaInstallService },
       ],
     }).compileComponents();
   });
@@ -146,5 +179,22 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
+  });
+
+  it('should set isOnline based on navigator.onLine', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    app.setUpPwa();
+    expect(app.isOnline).toBe(navigator.onLine);
+  });
+
+  it('should show update banner when version update is ready', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    app.setUpPwa();
+    const swUpdate = TestBed.inject(SwUpdate) as unknown as MockSwUpdate;
+    swUpdate.versionUpdates.next({ type: 'VERSION_READY', latestVersion: { hash: 'abc123' }, currentVersion: { hash: 'old' } });
+    expect(app.updateAvailable).toBeTrue();
+    expect(app.updateVersion).toBe('abc123');
   });
 });

@@ -2,7 +2,7 @@ using Abp.AspNetCore;
 using Abp.AspNetCore.Configuration;
 using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.Mvc.Extensions;
-using Abp.AspNetCore.SignalR.Hubs;
+using Eaf.SignalR.Hubs;
 using Abp.Extensions;
 using Abp.PlugIns;
 using Abp.Timing;
@@ -271,7 +271,7 @@ namespace GameHub.Web.Startup
             app.UseMiddleware<RateLimitingMiddleware>();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<AbpCommonHub>("/signalr");
+                endpoints.MapHub<EafCommonHub>("/signalr");
                 endpoints.MapHub<ChatHub>("/signalr-chat");
                 endpoints.MapHub<GameHub.Web.Hubs.GameHubMatchHub>("/signalr-match");
                 endpoints.MapHub<NetworkSignalRHub>("/signalr-network");

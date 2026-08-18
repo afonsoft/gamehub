@@ -55,5 +55,31 @@
     <text name="PaymentGatewayHelpPayPal">Create or select an app in the PayPal Developer Dashboard to get the Client ID and Client Secret. The Webhook ID is available in the app's Webhooks section.</text>
     <text name="PaymentGatewayHelpMercadoPago">In the Mercado Pago dashboard, go to Credentials to copy the Access Token (production) and Public Key.</text>
     <text name="PaymentGatewayHelpPagSeguro">In the PagSeguro dashboard, go to Integrações &gt; Token de Segurança to generate the Token and use your PagSeguro account e-mail.</text>
+    <text name="SyncingPendingActions">Syncing pending actions</text>
+    <text name="InstallAppPrompt">Install the app for quick access</text>
+    <text name="InstallNow">Install now</text>
+    <text name="YouAreOnline">You are online</text>
+    <text name="YouAreOffline">You are offline</text>
+    <text name="NewVersionAvailable">A new version is available</text>
+    <text name="UpdateNow">Update now</text>
+    <text name="GatewaySelection">Gateway selection</text>
+    <text name="Subscriptions">Subscriptions</text>
+    <text name="SubscriptionsHeaderInfo">Manage subscription payments</text>
+    <text name="PaymentPeriod">Payment period</text>
+    <text name="AmountPreview">Amount preview</text>
+    <text name="Gateway">Gateway</text>
+    <text name="GatewayDoesNotSupportRecurring">This gateway does not support recurring payments</text>
+    <text name="IsRecurring">Recurring payment</text>
+    <text name="PaymentSuccessful">Payment successful</text>
+    <text name="PaymentFailed">Payment failed</text>
+    <text name="PaymentReturnMissingPaymentId">Payment identifier missing in return URL</text>
+    <text name="PaymentCreationFailed">Failed to create payment</text>
+    <text name="CreatePayment">Create payment</text>
+    <text name="UpgradeSubscription">Upgrade subscription</text>
+    <text name="CancelRecurring">Cancel recurring</text>
+    <text name="CancelRecurringWarning">Are you sure you want to cancel recurring payment {0}?</text>
+    <text name="EditionIsRequired">Edition is required</text>
+    <text name="GatewayIsRequired">Gateway is required</text>
+    <text name="PaymentStatus">Payment status</text>
   </texts>
 </localizationDictionary>

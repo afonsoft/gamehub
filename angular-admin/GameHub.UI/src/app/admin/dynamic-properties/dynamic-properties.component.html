@@ -1,0 +1,112 @@
+<div [@routerTransition]>
+  <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+    <div class="subheader py-2 py-lg-4 subheader-solid" id="kt_subheader">
+      <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
+        <div class="d-flex align-items-center flex-wrap mr-1">
+          <h5 class="text-dark font-weight-bold mt-2 mb-2 mr-5">{{ l('DynamicProperties') }}</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="card card-custom gutter-b">
+        <div class="card-body">
+          <div class="d-flex justify-content-end mb-3">
+            <button
+              type="button"
+              class="btn btn-primary"
+              *ngIf="isGranted('Pages.Administration.DynamicProperties.Create')"
+              (click)="openNew()"
+            >
+              <i class="flaticon2-plus"></i> {{ l('CreateNewDynamicProperty') }}
+            </button>
+          </div>
+
+          <p-table [value]="properties" [loading]="loading" [rows]="10" [paginator]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th scope="col">{{ l('PropertyName') }}</th>
+                <th scope="col">{{ l('DisplayName') }}</th>
+                <th scope="col">{{ l('InputType') }}</th>
+                <th scope="col">{{ l('Actions') }}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
+                <td>{{ item.propertyName }}</td>
+                <td>{{ item.displayName }}</td>
+                <td>{{ item.inputType }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-clean btn-icon btn-icon-md"
+                    *ngIf="isGranted('Pages.Administration.DynamicProperties.Edit')"
+                    (click)="edit(item)"
+                    [attr.aria-label]="l('Edit')"
+                  >
+                    <i class="flaticon-edit"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-clean btn-icon btn-icon-md"
+                    *ngIf="isGranted('Pages.Administration.DynamicProperties.Delete')"
+                    (click)="remove(item)"
+                    [attr.aria-label]="l('Delete')"
+                  >
+                    <i class="flaticon-delete"></i>
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog
+    [(visible)]="displayDialog"
+    [header]="property.id ? l('EditDynamicProperty') : l('CreateNewDynamicProperty')"
+    [modal]="true"
+    [style]="{ width: '50vw' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <div class="form-group">
+      <label for="propertyName">{{ l('PropertyName') }}</label>
+      <input id="propertyName" type="text" class="form-control" [(ngModel)]="property.propertyName" />
+    </div>
+
+    <div class="form-group">
+      <label for="displayName">{{ l('DisplayName') }}</label>
+      <input id="displayName" type="text" class="form-control" [(ngModel)]="property.displayName" />
+    </div>
+
+    <div class="form-group">
+      <label for="inputType">{{ l('InputType') }}</label>
+      <select id="inputType" class="form-control" [(ngModel)]="property.inputType">
+        <option *ngFor="let type of inputTypes" [value]="type">{{ type }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="permission">{{ l('Permission') }}</label>
+      <input id="permission" type="text" class="form-control" [(ngModel)]="property.permission" />
+    </div>
+
+    <div class="form-group">
+      <label for="values">{{ l('Values') }}</label>
+      <textarea id="values" class="form-control" rows="3" [(ngModel)]="valuesText"></textarea>
+      <small class="form-text text-muted">{{ l('DynamicPropertyValuesHint') }}</small>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button type="button" class="btn btn-light-primary font-weight-bold" (click)="displayDialog = false">
+        {{ l('Cancel') }}
+      </button>
+      <button type="button" class="btn btn-primary font-weight-bold" (click)="save()" [disabled]="saving">
+        {{ l('Save') }}
+      </button>
+    </ng-template>
+  </p-dialog>
+</div>

@@ -1,0 +1,22 @@
+<div class="dynamic-entity-property-manager p-3" *ngIf="dynamicPropertyId">
+  <div class="d-flex align-items-center mb-3">
+    <h5 class="mb-0">{{ l('DynamicEntityPropertyManager') }}</h5>
+    <span class="text-muted ms-2">{{ entityFullName }} #{{ entityId }}</span>
+  </div>
+
+  <div class="form-group" *ngIf="dynamicEntityProperty">
+    <label [attr.for]="'dynamicEntityPropertyValue-' + dynamicPropertyId">
+      {{ dynamicEntityProperty.dynamicProperty?.displayName || dynamicEntityProperty.dynamicProperty?.propertyName }}
+    </label>
+    <input [id]="'dynamicEntityPropertyValue-' + dynamicPropertyId" type="text" class="form-control" [(ngModel)]="valueInput" [disabled]="loading" />
+    <small class="form-text text-muted">{{ dynamicEntityProperty.dynamicProperty?.inputType }}</small>
+  </div>
+
+  <div *ngIf="!dynamicEntityProperty" class="alert alert-info">
+    {{ l('Loading') }}
+  </div>
+
+  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="loading || !dynamicEntityProperty">
+    <i class="flaticon2-check-mark"></i> {{ l('Save') }}
+  </button>
+</div>

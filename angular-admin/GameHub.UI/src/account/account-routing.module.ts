@@ -10,6 +10,7 @@ import { SelectTenantComponent } from './login/select-tenant/select-tenant.compo
 import { ForgotPasswordComponent } from './password/forgot-password.component';
 import { ResetPasswordComponent } from './password/reset-password.component';
 import { SsoComponent } from './login/sso.component';
+import { GatewaySelectionComponent } from './gateway-selection/gateway-selection.component';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import { SsoComponent } from './login/sso.component';
           { path: 'reset-password', component: ResetPasswordComponent, canActivate: [AccountRouteGuard] },
           { path: 'email-activation', component: EmailActivationComponent, canActivate: [AccountRouteGuard] },
           { path: 'confirm-email', component: ConfirmEmailComponent, canActivate: [AccountRouteGuard] },
+          { path: 'gateway-selection', component: GatewaySelectionComponent, canActivate: [AccountRouteGuard] },
         ],
       },
     ]),
