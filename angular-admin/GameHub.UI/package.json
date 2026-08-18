@@ -110,7 +110,7 @@
     "@angular-eslint/eslint-plugin-template": "^19.8.1",
     "@angular-eslint/schematics": "^19.8.1",
     "@angular-eslint/template-parser": "^19.8.1",
-    "@angular/cli": "^20.3.32",
+    "@angular/cli": "^20.3.34",
     "@angular/compiler-cli": "^20.3.26",
     "@html-eslint/eslint-plugin": "^0.15.0",
     "@html-eslint/parser": "^0.15.0",
