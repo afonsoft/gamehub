@@ -3,7 +3,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . /app
 ENV NODE_OPTIONS=--max_old_space_size=8192
-RUN npm ci
+RUN npm install --legacy-peer-deps
 RUN npx ng build --configuration=production --output-hashing=all --output-path /app/dist/publish/ --base-href=/
 
 FROM nginx
