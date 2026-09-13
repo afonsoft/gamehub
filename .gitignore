@@ -67,3 +67,9 @@ coverage-report/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Cloned skill repos
+repos/
+
+# Lock files (root)
+package-lock.json
