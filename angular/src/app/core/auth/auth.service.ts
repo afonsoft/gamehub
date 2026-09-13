@@ -167,6 +167,10 @@ export class AuthService {
     return this.tokenService.isInRole('Developer') || this.tokenService.isInRole('Admin');
   }
 
+  hasPermission(permission: string): boolean {
+    return this.tokenService.isInRole(permission);
+  }
+
   private unwrap<T>(response: T | { result?: T }): T | null {
     if (response && typeof response === 'object' && 'result' in response) {
       return (response as { result?: T }).result ?? null;
