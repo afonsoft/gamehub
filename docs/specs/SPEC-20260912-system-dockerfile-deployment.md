@@ -10,7 +10,7 @@
 | Repository | `/home/ubuntu/project/gamehub` |
 | Branch | `feature/devin-20260912-system-dockerfile-deployment` |
 | Ticket | `GH-INFRA-001` |
-| Status | `Approved` |
+| Status | `Completed` |
 
 ## 1. User Story
 
@@ -83,6 +83,12 @@ docker-compose.all.yml
 
 ## 9. Definition of Done
 
-- [ ] Configuration files updated.
-- [ ] Containers built and deployed successfully.
-- [ ] `gamehub-backend` running stably without restarts.
+- [x] Configuration files updated.
+- [x] Containers built and deployed successfully.
+- [x] `gamehub-backend` running stably without restarts.
+
+## 10. Delivered
+
+- **Commit**: `2dab3dd` (fix(infra): update docker-compose.yml defaults to use postgres/redis service names)
+- **Branch**: `main`
+- **Date**: 2026-09-13

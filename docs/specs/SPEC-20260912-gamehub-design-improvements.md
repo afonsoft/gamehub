@@ -10,7 +10,7 @@
 | Repository | `/home/ubuntu/project/gamehub` |
 | Branch | `feature/devin-20260912-gamehub-design-improvements` |
 | Ticket | `GH-DES-001` |
-| Status | `Approved` |
+| Status | `Completed` |
 
 ## 1. User Story
 
@@ -100,7 +100,13 @@ angular-admin/GameHub.UI/src/app/
 
 ## 9. Definition of Done
 
-- [ ] All requirements implemented.
-- [ ] Acceptance criteria verified.
-- [ ] Angular builds successfully (`ng build` for both projects).
-- [ ] Guardrails respected.
+- [x] All requirements implemented.
+- [x] Acceptance criteria verified.
+- [x] Angular builds successfully (`ng build` for both projects).
+- [x] Guardrails respected.
+
+## 10. Delivered
+
+- **Commit**: `08d3cc1` (feat(design): implement mobile-first design improvements for public portal, game cards, and iframe toolbar)
+- **Branch**: `main`
+- **Date**: 2026-09-12
