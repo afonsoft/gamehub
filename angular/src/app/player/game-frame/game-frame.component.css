@@ -153,38 +153,45 @@ iframe {
 .skip-btn {
   position: absolute;
   z-index: 20;
-  border: none;
-  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   min-width: 48px;
   min-height: 44px;
   touch-action: manipulation;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
 }
 
 .fullscreen-btn {
   top: 1rem;
   right: 1rem;
-  padding: 0.65rem 1rem;
-  border-radius: 0.5rem;
-  opacity: 0.7;
-  transition: opacity 0.15s;
+  padding: 0.65rem 1.15rem;
+  border-radius: 0.75rem;
+  opacity: 0.85;
 }
 
 .fullscreen-btn:hover {
   opacity: 1;
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 94, 87, 0.4);
+  transform: translateY(-1px);
 }
 
 .skip-btn {
   bottom: 1rem;
   right: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 0.75rem;
 }
 
 .skip-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 94, 87, 0.4);
 }
 
 .toast {
