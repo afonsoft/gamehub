@@ -10,9 +10,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       Database__Provider: ${Database__Provider:-PostgreSQL}
-      ConnectionStrings__Default: Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-A PREENCHER};Username=${POSTGRES_USER:-A PREENCHER};Password=${POSTGRES_PASSWORD:-A PREENCHER}
+      ConnectionStrings__Default: Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-gamehub_db};Username=${POSTGRES_USER:-gamehub_user};Password=${POSTGRES_PASSWORD:-fkFrLD6cPdixKwFTa}
       RedisCache__IsEnabled: "true"
-      RedisCache__ConnectionString: ${REDIS_CONNECTION:-host.docker.internal:6379,abortConnect=false}
+      RedisCache__ConnectionString: ${REDIS_CONNECTION:-redis:6379,abortConnect=false}
       RedisCache__DatabaseId: "0"
       Hangfire__IsEnabled: "false"
       Storage__Provider: ${STORAGE_PROVIDER:-MinIO}
