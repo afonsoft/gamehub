@@ -1,6 +1,6 @@
 # 37 — User Guide: documentação operacional do desenvolvedor
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** `angular/src/app/public/docs/user-guide` e PR #61
 > **Objetivo:** transformar o User Guide em documentação operacional suficiente para um desenvolvedor publicar, validar, revisar e acompanhar um jogo.
 

@@ -1,6 +1,6 @@
 # 36 — Analytics e Earnings para desenvolvedores
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** `.specs/26-poki-proxima-fase.md` seção 26.12 e PR #61
 > **Objetivo:** tornar os dados de desempenho e receita úteis para decisões de publicação, sem apresentar estimativas como valores pagos.
 

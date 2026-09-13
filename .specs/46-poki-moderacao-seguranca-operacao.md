@@ -1,6 +1,6 @@
 # 46 — Moderação, segurança e operação sem alteração do EAF
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** Specs 39–45 e PRs 67–68
 > **Prioridade:** P0
 > **Dependências:** nenhuma alteração no EAF

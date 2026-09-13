@@ -1,6 +1,6 @@
 # 48 — Portal do desenvolvedor, publicação e acessibilidade
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** Specs 34–37 e PRs 61, 65 e 67
 > **Prioridade:** P1
 > **Dependências:** Specs 46 e 47 recomendadas

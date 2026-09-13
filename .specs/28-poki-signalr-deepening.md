@@ -1,6 +1,6 @@
 # 28 — Aprofundamento SignalR / Netlib e limpeza
 
-> **Status:** pendente
+> **Status:** Approved
 > **Base:** análise de `https://github.com/poki/netlib`, `https://sdk.poki.com/sdk-documentation` e estado do spec 27
 > **Objetivo:** evoluir a base multiplayer e AUDS com foco em SignalR/WebRTC signaling, resiliência, observabilidade e manutenção.
 

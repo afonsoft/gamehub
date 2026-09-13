@@ -1,6 +1,6 @@
 # 12 — RBAC Permissions
 
-> **Status:** Draft  
+> **Status:** Approved  
 > **Stack:** .NET 10 LTS · ASP.NET Boilerplate/EAF · PostgreSQL 16+ · Redis 7+  
 > **Domains:** gamehub.afonsoft.dev · gamehub-admin.afonsoft.dev · gamehub-api.afonsoft.dev
 

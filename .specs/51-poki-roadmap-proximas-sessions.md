@@ -1,6 +1,6 @@
 # 51 — Roadmap de execução das próximas sessions
 
-> **Status:** Índice de execução (atualizado em 2026-07-27)
+> **Status:** Approved
 > **Objetivo:** ordenar as entregas por dependência, risco e valor
 
 ---

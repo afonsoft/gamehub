@@ -1,6 +1,6 @@
 # 13 — Frontend Routing
 
-> **Status:** Draft  
+> **Status:** Approved  
 > **Stack:** Angular 20+ · Two SPAs · Angular Router  
 > **DNS:** gamehub.afonsoft.dev (hub) · gamehub-admin.afonsoft.dev (admin)
 

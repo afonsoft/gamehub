@@ -1,6 +1,6 @@
 # 23 — Próxima Sessão: Poki Thumbnails, P4D v2 e Inspector v3
 
-> **Status:** em andamento (23.1, 23.3 e 23.4 entregues; 23.2 equipes/billing/playtests pendentes)
+> **Status:** Approved
 > **Base:** análise de `https://sdk.poki.com/new-requirements.html`, `https://sdk.poki.com/what-is-p4d.html`, `https://sdk.poki.com/poki-inspector.html` e `https://github.com/poki/poki-cli`
 > **Objetivo:** fechar os itens remanescentes do spec 22 e incorporar requisitos de qualidade/publicação da Poki.
 

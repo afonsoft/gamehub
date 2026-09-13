@@ -1,6 +1,6 @@
 # 34 — Portal do Desenvolvedor v3: próximos ajustes de UX e operação
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** PR #61 e `.specs/19.4-poki-developer-portal.md`
 > **Objetivo:** transformar as telas atuais do portal em um fluxo operacional consistente, acessível e previsível em desktop e mobile.
 

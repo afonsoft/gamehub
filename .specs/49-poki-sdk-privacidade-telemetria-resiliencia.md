@@ -1,6 +1,6 @@
 # 49 — SDK: privacidade, telemetria e resiliência
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** Specs 39, 40 e 68
 > **Prioridade:** P1
 > **Dependências:** contratos atuais do GameHub; evolução do EAF não obrigatória

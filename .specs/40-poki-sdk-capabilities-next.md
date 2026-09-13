@@ -1,6 +1,6 @@
 # 40 — SDK: capacidades complementares para jogos
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** Specs 22, 28, 35 e 39
 > **Objetivo:** organizar funcionalidades do SDK que devem compartilhar autenticação, permissões, resiliência e observabilidade com o chat.
 

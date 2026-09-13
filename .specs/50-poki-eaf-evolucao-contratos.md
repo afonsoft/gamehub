@@ -1,6 +1,6 @@
 # 50 — Evoluções necessárias no EAF
 
-> **Status:** Especificação para execução em repositório separado
+> **Status:** Approved
 > **Base:** `docs/eaf/gamehub-eaf-improvements.md` e Specs 39–40
 > **Prioridade:** P0/P1
 > **Dependência:** aprovação e implementação no `afonsoft/EAF`

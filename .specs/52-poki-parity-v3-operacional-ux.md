@@ -1,6 +1,6 @@
 # 52 — Poki Parity v3: Hardening Operacional, UX do Portal e Documentação
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** `.specs/34-40`, `.specs/46-51`, `docs/superpowers/plans/2026-07-27-gamehub-next-steps.md` e análise das docs do Poki (`https://sdk.poki.com/*`)
 > **Prioridade:** P0/P1
 > **Dependências:** nenhuma alteração no EAF (EAF já em 9.3.1 com contratos contextuais)

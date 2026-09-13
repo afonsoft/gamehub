@@ -1,6 +1,6 @@
 # 35 — Fluxo de publicação, versões, preview e Inspector
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** `.specs/22-poki-proxima-fase.md`, `.specs/24-poki-proxima-fase.md` e `.specs/26-poki-proxima-fase.md`
 > **Objetivo:** conectar o ciclo `draft → build → validation → preview → review → publish` em um fluxo único para o desenvolvedor.
 

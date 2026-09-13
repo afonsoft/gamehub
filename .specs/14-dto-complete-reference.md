@@ -1,6 +1,6 @@
 # 14 — DTO Complete Reference
 
-> **Status:** Draft  
+> **Status:** Approved  
 > **Stack:** .NET 10 LTS · ASP.NET Boilerplate/EAF · ABP DTOs  
 > **Conventions:** XML docs · DataAnnotations where needed · No FluentValidation
 

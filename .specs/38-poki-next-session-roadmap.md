@@ -1,6 +1,6 @@
 # 38 — Roadmap da próxima sessão
 
-> **Status:** Planejamento
+> **Status:** Approved
 > **Base:** Specs 34–37
 
 ## Prioridade recomendada

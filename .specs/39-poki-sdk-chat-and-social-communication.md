@@ -1,6 +1,6 @@
 # 39 — SDK: chat e comunicação social
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** EAF Chat (`Eaf.Middleware.Web.Core.SignalR.Chat.ChatHub`), `/signalr-chat` e `GameplayBridgeService`
 > **Objetivo:** permitir que jogos usem chat autenticado e moderado sem duplicar a infraestrutura de mensagens já fornecida pelo EAF.
 

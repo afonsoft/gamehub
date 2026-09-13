@@ -1,6 +1,6 @@
 # 47 — Analytics completo, exportação e operação
 
-> **Status:** Especificação para execução
+> **Status:** Approved
 > **Base:** Specs 36, 41, 44 e 68
 > **Prioridade:** P0
 > **Dependências:** nenhuma alteração no EAF

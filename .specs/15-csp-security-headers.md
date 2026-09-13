@@ -1,6 +1,6 @@
 # 15 — CSP & Security Headers
 
-> **Status:** Draft  
+> **Status:** Approved  
 > **Stack:** .NET 10 LTS · ASP.NET Core · Angular 20+ · PostgreSQL 16+ · Redis 7+  
 > **DNS:** gamehub.afonsoft.dev · gamehub-admin.afonsoft.dev · gamehub-api.afonsoft.dev  
 > **CDN:** gamehub.afonsoft.dev (static assets)

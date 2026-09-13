@@ -1,6 +1,6 @@
 # 16 - Plano de Implementação dos Gaps
 
-> Status: Draft
+> Status: Approved
 > Gerado a partir da análise comparativa entre `.specs/` e implementação atual do repositório `afonsoft/gamehub`.
 
 ---
