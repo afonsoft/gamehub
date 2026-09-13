@@ -20,15 +20,18 @@
 2. [Repository Structure](#repository-structure)
 3. [Technology Stack](#technology-stack)
 4. [Architecture](#architecture)
-5. [System Flow](#system-flow)
-6. [How to Run](#how-to-run)
-7. [Tests and Coverage](#tests-and-coverage)
-8. [Business Vision](#business-vision)
-9. [Technical Vision](#technical-vision)
-10. [Contributors](#contributors)
-11. [License](#license)
-12. [Project Status](#project-status)
-13. [Links](#links)
+   - [Layers](#layers)
+   - [Bounded Contexts](#bounded-contexts)
+   - [System Flow](#system-flow)
+   - [Architecture Diagrams](#architecture-diagrams)
+5. [How to Run](#how-to-run)
+6. [Tests and Coverage](#tests-and-coverage)
+7. [Business Vision](#business-vision)
+8. [Technical Vision](#technical-vision)
+9. [Contributors](#contributors)
+10. [License](#license)
+11. [Project Status](#project-status)
+12. [Links](#links)
 
 ---
 
@@ -168,7 +171,8 @@ gamehub/
 ├── docker-compose.all.yml                 # Full stack (infra + API + Angular Hub + Angular Admin)
 ├── .env.example                           # Example environment variables
 ├── scripts/                               # Local build, test, and run scripts
-├── docs/                                  # Execution log and known issues
+├── docs/                                  # Execution log, known issues, and architecture diagrams
+│   └── architecture/                      # Mermaid + draw.io architecture diagrams
 ├── .github/workflows/                     # CI/CD pipelines
 ├── .specs/                                # Detailed platform specifications
 ├── README.md                              # This file (en-US)
@@ -247,6 +251,136 @@ graph LR
     E --> H[MinIO / S3]
     B -->|iframe| I[Game Build CDN]
     I -->|Gameplay Events| E
+```
+
+### Architecture Diagrams
+
+Detailed architecture diagrams are available in [`docs/architecture/`](docs/architecture/):
+
+| Diagram | File | Description |
+|---------|------|-------------|
+| **System Architecture** | [`gamehub_system_architecture.mmd`](docs/architecture/gamehub_system_architecture.mmd) | C4 container-level view: Frontend → API → Domain → Data Layer |
+| **Deployment** | [`gamehub_deployment.mmd`](docs/architecture/gamehub_deployment.mmd) | Docker Compose topology with 6 containers, volumes, and health checks |
+| **Auth Sequence** | [`gamehub_sequence_auth.mmd`](docs/architecture/gamehub_sequence_auth.mmd) | JWT authentication flow, authenticated requests, game upload/execution |
+| **Data Flow** | [`gamehub_data_flow.mmd`](docs/architecture/gamehub_data_flow.mmd) | Data paths between Frontend, API, Application, and Data layers |
+| **Editable (.drawio)** | [`gamehub_system_architecture.drawio`](docs/architecture/gamehub_system_architecture.drawio) | Editable draw.io diagram with color-coded layers and legend |
+
+#### System Architecture Overview
+
+```mermaid
+graph TB
+    classDef user fill:#E6E6FA,stroke:#333,stroke-width:2px,color:darkblue
+    classDef frontend fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:darkblue
+    classDef api fill:#ffe6cc,stroke:#d79b00,stroke-width:2px,color:black
+    classDef domain fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:darkgreen
+    classDef infra fill:#f5f5f5,stroke:#666666,stroke-width:2px,color:black
+    classDef security fill:#e1d5e5,stroke:#9673a6,stroke-width:2px,color:darkpurple
+    classDef storage fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:black
+
+    U1["👤 Player"]:::user
+    U2["👨‍💼 Developer"]:::user
+    U3["🔧 Admin"]:::user
+
+    subgraph FRONTENDS["🌐 Frontend Layer"]
+        direction LR
+        F1["angular-hub<br/>Public Portal<br/>Angular 20 | Port: 4600"]:::frontend
+        F2["angular-admin<br/>Admin Panel<br/>EAF Angular | Port: 4602"]:::frontend
+    end
+
+    subgraph API_LAYER["🔐 API Layer"]
+        direction LR
+        A1["ASP.NET Core<br/>Web.Host<br/>Port: 4601 → 80"]:::api
+        A2["🔐 JWT Auth<br/>+ CORS + Rate Limiting"]:::security
+        A3["🛡️ CSP Headers<br/>SecurityHeaders"]:::security
+    end
+
+    subgraph APP_LAYER["⚙️ Application Layer"]
+        direction TB
+        S1["GameAppService"]:::domain
+        S2["PlayerAccountAppService"]:::domain
+        S3["RevenueAppService"]:::domain
+        S4["AnalyticsAppService"]:::domain
+        S5["ModerationAppService"]:::domain
+        S6["PrivacyAppService"]:::domain
+    end
+
+    subgraph INFRA_LAYER["💾 Infrastructure Layer"]
+        direction LR
+        I1[("🐘 PostgreSQL 16")]:::infra
+        I2[("⚡ Redis 7")]:::infra
+        I3["📦 MinIO<br/>(Object Storage)"]:::storage
+    end
+
+    U1 -->|"HTTPS"| F1
+    U2 -->|"HTTPS"| F1
+    U3 -->|"HTTPS"| F2
+    F1 -->|"REST API"| A1
+    F2 -->|"REST API"| A1
+    A1 --> S1 & S2 & S3 & S4 & S5 & S6
+    S1 & S2 & S3 & S4 & S5 & S6 --> I1
+    S1 & S2 & S4 --> I2
+    S1 & S2 --> I3
+```
+
+#### Deployment Topology
+
+```mermaid
+graph TB
+    classDef container fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:darkblue
+    classDef db fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:darkgreen
+    classDef storage fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:black
+
+    subgraph DOCKER["🐳 Docker Compose — gamehub (bridge)"]
+        direction TB
+        C1["angular-hub<br/>nginx:alpine<br/>Port: 4600"]:::container
+        C2["angular-admin<br/>nginx:alpine<br/>Port: 4602"]:::container
+        C3["backend<br/>.NET 10 Runtime<br/>Port: 4601"]:::container
+        C4["postgres<br/>PostgreSQL 16<br/>:5432"]:::db
+        C5["redis<br/>Redis 7<br/>:6379"]:::db
+        C6["minio<br/>MinIO<br/>:9000/:9001"]:::storage
+    end
+
+    C1 -->|"HTTP"| C3
+    C2 -->|"HTTP"| C3
+    C3 -->|"TCP"| C4
+    C3 -->|"TCP"| C5
+    C3 -->|"TCP"| C6
+```
+
+#### API Request Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 👤 User
+    participant FE as 🌐 Angular
+    participant API as 🔐 .NET API
+    participant DB as 🐘 PostgreSQL
+    participant Cache as ⚡ Redis
+    participant MinIO as 📦 MinIO
+
+    U->>FE: Enter credentials
+    FE->>API: POST /api/account/login
+    API->>DB: Query user
+    API-->>FE: JWT tokens
+    FE->>FE: Store in localStorage
+
+    U->>FE: Browse games
+    FE->>API: GET /api/app/game
+    API->>Cache: Check cache
+    alt Cache Hit
+        Cache-->>API: Cached response
+    else Cache Miss
+        API->>DB: Query games
+        API->>Cache: Store in Redis
+    end
+    API-->>FE: Game catalog
+
+    U->>FE: Click Play
+    FE->>API: GET /game/{id}/play-url
+    API->>MinIO: Generate presigned URL
+    API-->>FE: Signed URL
+    FE->>FE: Load game in iframe
 ```
 
 ---
