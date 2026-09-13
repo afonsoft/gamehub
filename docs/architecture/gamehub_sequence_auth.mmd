@@ -1,0 +1,65 @@
+sequenceDiagram
+    autonumber
+    participant U as 👤 User (Browser)
+    participant FE as 🌐 Angular Frontend
+    participant API as 🔐 ASP.NET Core API
+    participant JWT as 🎫 JWT Service
+    participant DB as 🐘 PostgreSQL
+    participant Cache as ⚡ Redis
+    participant MinIO as 📦 MinIO
+
+    Note over U,MinIO: === Authentication Flow ===
+
+    U->>FE: Enter credentials
+    FE->>API: POST /api/account/login {email, password}
+    API->>DB: Query user by email
+    DB-->>API: User record
+    API->>JWT: Generate JWT + Refresh Token
+    JWT-->>API: Tokens
+    API-->>FE: 200 OK {accessToken, refreshToken}
+    FE->>FE: Store tokens in localStorage
+    FE->>FE: Set Authorization header
+
+    Note over U,MinIO: === Authenticated API Request ===
+
+    U->>FE: Browse games
+    FE->>API: GET /api/app/game [Authorization: Bearer jwt]
+    API->>API: Validate JWT signature
+    API->>API: Check Claims (UserId, Roles, Tenant)
+    API->>Cache: Check Redis cache
+    alt Cache Hit
+        Cache-->>API: Cached response
+    else Cache Miss
+        API->>DB: Query games with EF Core
+        DB-->>API: Game entities
+        API->>Cache: Store in Redis (TTL)
+    end
+    API-->>FE: 200 OK {items, totalCount}
+    FE-->>U: Display game catalog
+
+    Note over U,MinIO: === Game Upload (Developer) ===
+
+    U->>FE: Upload game build (.zip)
+    FE->>API: POST /api/developer/build {file}
+    API->>API: Validate permissions (GameDeveloper)
+    API->>MinIO: PutObject (game-builds bucket)
+    MinIO-->>API: Object key
+    API->>DB: Save Build entity
+    DB-->>API: Build record
+    API-->>FE: 201 Created {buildId}
+
+    Note over U,MinIO: === Game Execution (Player) ===
+
+    U->>FE: Click "Play" on game
+    FE->>API: GET /api/app/game/{id}/play-url
+    API->>Cache: Get signed URL (cached)
+    alt URL Valid
+        Cache-->>API: Signed MinIO URL
+    else URL Expired
+        API->>MinIO: Generate presigned URL
+        MinIO-->>API: Signed URL (1h TTL)
+        API->>Cache: Cache signed URL
+    end
+    API-->>FE: 200 OK {playUrl}
+    FE->>FE: Load game in iframe
+    FE->>FE: Initialize GameplayBridge (postMessage)

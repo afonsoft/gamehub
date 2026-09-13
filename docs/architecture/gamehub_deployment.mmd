@@ -1,0 +1,74 @@
+graph TB
+    classDef host fill:#f5f5f5,stroke:#333,stroke-width:2px,color:black
+    classDef container fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:darkblue
+    classDef db fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:darkgreen
+    classDef storage fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:black
+    classDef network fill:#e1d5e5,stroke:#9673a6,stroke-width:2px,color:darkpurple
+    classDef volume fill:#ffe6cc,stroke:#d79b00,stroke-width:2px,color:black
+
+    subgraph HOST["🖥️ VPS Ubuntu - /home/ubuntu/project/gamehub"]
+        direction TB
+
+        subgraph DOCKER_NETWORK["🌐 Docker Network: gamehub (bridge)"]
+            direction TB
+
+            %% Frontend containers
+            subgraph FE_CONTAINERS["Frontend Containers"]
+                direction LR
+                C1["angular-hub\nnginx:alpine\nPort: 4600 → 80"]:::container
+                C2["angular-admin\nnginx:alpine\nPort: 4602 → 80"]:::container
+            end
+
+            %% Backend
+            C3["backend\n.NET 10 Runtime\nPort: 4601 → 80\nASPNETCORE_ENVIRONMENT: Production"]:::container
+
+            %% Data stores
+            subgraph DATA_CONTAINERS["Data Store Containers"]
+                direction LR
+                C4["postgres\nPostgreSQL 16\nInternal: 5432"]:::db
+                C5["redis\nRedis 7\nInternal: 6379"]:::db
+                C6["minio\nMinIO Server\nPorts: 9000, 9001"]:::storage
+            end
+        end
+
+        %% Volumes
+        subgraph VOLUMES["📁 Persistent Volumes"]
+            direction LR
+            V1["pgdata\n(postgres data)"]:::volume
+            V2["minio-data\n(./minio-data)"]:::volume
+        end
+
+        %% Network connections
+        C1 -->|"HTTP"| C3
+        C2 -->|"HTTP"| C3
+        C3 -->|"TCP 5432"| C4
+        C3 -->|"TCP 6379"| C5
+        C3 -->|"TCP 9000"| C6
+    end
+
+    %% External
+    subgraph EXTERNAL["🌍 External"]
+        direction LR
+        E1["🌐 HTTPS\napi.afonsoft.dev\n(gamehub-api)"]:::network
+        E2["🌐 HTTPS\ngamehub.afonsoft.dev\n(hub portal)"]:::network
+        E3["🌐 HTTPS\ngamehub-admin.afonsoft.dev\n(admin portal)"]:::network
+        E4["📊 OpenTelemetry\nOTLP Endpoint\n(New Relic)"]:::network
+    end
+
+    C1 -.->|"HTTPS via Reverse Proxy"| E2
+    C2 -.->|"HTTPS via Reverse Proxy"| E3
+    C3 -.->|"HTTPS via Reverse Proxy"| E1
+    C3 -.->|"OTLP Export"| E4
+
+    %% Health checks
+    C3 -.->|"pg_isready"| C4
+    C3 -.->|"redis-cli ping"| C5
+    C3 -.->|"curl /minio/health/live"| C6
+
+    %% Environment variables
+    subgraph ENV["🔑 Environment (.env)"]
+        direction TB
+        ENV1["POSTGRES_PASSWORD\nJWT_SECRET\nMINIO_ACCESS_KEY\nMINIO_SECRET_KEY"]:::network
+    end
+
+    C3 -.->|"reads"| ENV

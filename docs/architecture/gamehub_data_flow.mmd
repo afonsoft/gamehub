@@ -1,0 +1,57 @@
+flowchart LR
+    classDef frontend fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:darkblue
+    classDef api fill:#ffe6cc,stroke:#d79b00,stroke-width:2px,color:black
+    classDef domain fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:darkgreen
+    classDef db fill:#E6E6FA,stroke:#9673a6,stroke-width:2px,color:darkpurple
+    classDef storage fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:black
+    classDef cache fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:black
+
+    subgraph CLIENT["🌐 Client Layer"]
+        direction TB
+        C1["angular-hub\n(Public + Developer Portal)"]:::frontend
+        C2["angular-admin\n(Admin Panel)"]:::frontend
+        C3["🎮 iframe Game Player\n(GameplayBridge)"]:::frontend
+    end
+
+    subgraph API["⚙️ Backend API (.NET 10)"]
+        direction TB
+        A1["Web.Host\nControllers + Middleware"]:::api
+        A2["Application Layer\nAppServices + DTOs"]:::domain
+        A3["Domain Layer\nEntities + Value Objects"]:::domain
+        A4["EF Core Layer\nDbContext + Migrations"]:::domain
+    end
+
+    subgraph DATA["💾 Data Layer"]
+        direction TB
+        D1[("PostgreSQL 16\nPrimary Database\nGames, Players,\nRevenue, Analytics")]:::db
+        D2[("Redis 7\nCache Layer\nSessions, Game URLs,\nRate Limiting")]:::cache
+        D3["MinIO\nObject Storage\nGame Builds (.zip)\nScreenshots, Assets"]:::storage
+    end
+
+    %% Client → API
+    C1 -->|"REST API\n(JSON)"| A1
+    C2 -->|"REST API\n(JSON)"| A1
+    C3 -->|"GameplayBridge\n(postMessage)"| A1
+
+    %% API layers
+    A1 -->|"Request/Response"| A2
+    A2 -->|"Domain Logic"| A3
+    A3 -->|"Data Access"| A4
+
+    %% API → Data
+    A4 -->|"SQL Queries\n(Npgsql)"| D1
+    A2 -->|"IDistributedCache\n(Redis)"| D2
+    A2 -->|"IStorageService\n(MinIO SDK)"| D3
+
+    %% Data flows
+    D1 -.->|"Entity Framework\nMigrations"| D1
+    D2 -.->|"Cache Invalidation\n(TTL-based)"| D2
+
+    subgraph KEY_FLOWS["📊 Key Data Flows"]
+        direction TB
+        F1["🎮 Game Catalog\nAPI → Cache → Response"]
+        F2["👤 Player Stats\nDB → AppService → Analytics"]
+        F3["💰 Revenue Splits\nAnalytics → Revenue Splitter\n→ Developer Earnings"]
+        F4["🛡️ Moderation\nUpload → Audit → Approve\n→ Build Pipeline"]
+        F5["📊 Telemetry\nGameplayBridge → API\n→ OpenTelemetry Export"]
+    end

@@ -1,0 +1,85 @@
+graph TB
+    classDef user fill:#E6E6FA,stroke:#333,stroke-width:2px,color:darkblue
+    classDef frontend fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:darkblue
+    classDef api fill:#ffe6cc,stroke:#d79b00,stroke-width:2px,color:black
+    classDef domain fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:darkgreen
+    classDef infra fill:#f5f5f5,stroke:#666666,stroke-width:2px,color:black
+    classDef security fill:#e1d5e5,stroke:#9673a6,stroke-width:2px,color:darkpurple
+    classDef storage fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:black
+
+    %% Users
+    U1["👤 Player"]:::user
+    U2["👨‍💼 Developer"]:::user
+    U3["🔧 Admin"]:::user
+
+    %% Frontends
+    subgraph FRONTENDS["🌐 Frontend Layer"]
+        direction LR
+        F1["angular-hub\n(Public Portal)\nAngular 20\nPort: 4600"]:::frontend
+        F2["angular-admin\n(Admin Panel)\nEAF Angular\nPort: 4602"]:::frontend
+    end
+
+    %% API Gateway
+    subgraph API_LAYER["🔐 API Layer"]
+        direction LR
+        A1["ASP.NET Core\nWeb.Host\nPort: 4601 → 80"]:::api
+        A2["🔐 JWT Auth\n+ CORS\n+ Rate Limiting"]:::security
+        A3["🛡️ CSP Headers\nSecurityHeaders\nMiddleware"]:::security
+    end
+
+    %% Application Layer
+    subgraph APP_LAYER["⚙️ Application Layer (Clean Architecture)"]
+        direction TB
+        subgraph DOMAIN["Domain (Core)"]
+            D1["🎮 Game\nAggregate"]:::domain
+            D2["👤 Player\nAccounts"]:::domain
+            D3["💰 Revenue\nSplits"]:::domain
+            D4["📊 Analytics\nMetrics"]:::domain
+            D5["🛡️ Moderation\nAudit"]:::domain
+            D6["🔐 Privacy\nConsent"]:::domain
+        end
+        subgraph SERVICES["Application Services"]
+            S1["GameAppService"]:::domain
+            S2["PlayerAccountAppService"]:::domain
+            S3["RevenueAppService"]:::domain
+            S4["AnalyticsAppService"]:::domain
+            S5["ModerationAppService"]:::domain
+            S6["PrivacyAppService"]:::domain
+        end
+    end
+
+    %% Infrastructure
+    subgraph INFRA_LAYER["💾 Infrastructure Layer"]
+        direction LR
+        I1[("🐘 PostgreSQL 16\n(Primary DB)")]:::infra
+        I2[("⚡ Redis 7\n(Cache + Sessions)")]:::infra
+        I3["📦 MinIO\n(Object Storage)\nGame Builds + Assets"]:::storage
+    end
+
+    %% Observability
+    subgraph OBS["📊 Observability"]
+        direction LR
+        O1["📝 Serilog\nStructured Logs"]:::infra
+        O2["📈 OpenTelemetry\nTraces + Metrics"]:::infra
+    end
+
+    %% Connections
+    U1 -->|"HTTPS"| F1
+    U2 -->|"HTTPS"| F1
+    U3 -->|"HTTPS"| F2
+
+    F1 -->|"REST API"| A1
+    F2 -->|"REST API"| A1
+
+    A1 --> A2
+    A1 --> A3
+    A2 --> A1
+
+    A1 --> S1 & S2 & S3 & S4 & S5 & S6
+
+    S1 & S2 & S3 & S4 & S5 & S6 --> I1
+    S1 & S2 & S4 --> I2
+    S1 & S2 --> I3
+
+    A1 --> O1
+    A1 --> O2

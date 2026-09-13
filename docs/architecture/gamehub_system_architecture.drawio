@@ -1,0 +1,215 @@
+<mxfile host="app.diagrams.net" modified="2026-09-12T00:00:00" agent="opencode" version="24.0.0" type="device">
+  <diagram name="GameHub System Architecture" id="page1">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;GameHub Platform — System Architecture&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="500" y="10" width="600" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ USERS ============ -->
+        <mxCell id="user_player" value="👤&lt;br&gt;Player" style="shape=mxgraph.basic.smiley;fillColor=#E6E6FA;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;fontSize=12;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="user_dev" value="👨‍💻&lt;br&gt;Developer" style="shape=mxgraph.basic.smiley;fillColor=#E6E6FA;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;fontSize=12;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="80" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="user_admin" value="🔧&lt;br&gt;Admin" style="shape=mxgraph.basic.smiley;fillColor=#E6E6FA;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;fontSize=12;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="60" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ FRONTEND LAYER ============ -->
+        <mxCell id="fe_layer" value="🌐 Frontend Layer" style="swimlane;startSize=24;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;html=1;fontColor=#333;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="420" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="angular_hub" value="&lt;b&gt;angular-hub&lt;/b&gt;&lt;br&gt;Public Portal + Developer&lt;br&gt;Angular 20 | Port: 4600" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="fe_layer">
+          <mxGeometry x="20" y="36" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="angular_admin" value="&lt;b&gt;angular-admin&lt;/b&gt;&lt;br&gt;Admin Panel&lt;br&gt;EAF Angular | Port: 4602" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="fe_layer">
+          <mxGeometry x="220" y="36" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="iframe_game" value="&lt;b&gt;🎮 iframe Player&lt;/b&gt;&lt;br&gt;GameplayBridge&lt;br&gt;(postMessage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="fe_layer">
+          <mxGeometry x="100" y="110" width="200" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ API LAYER ============ -->
+        <mxCell id="api_layer" value="🔐 API Layer" style="swimlane;startSize=24;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;html=1;fontColor=#333;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="260" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="web_host" value="&lt;b&gt;ASP.NET Core&lt;/b&gt;&lt;br&gt;Web.Host&lt;br&gt;Port: 4601 → 80" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="api_layer">
+          <mxGeometry x="20" y="36" width="220" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="jwt_auth" value="🎫 JWT Auth&lt;br&gt;+ CORS + Rate Limiting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e5;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="api_layer">
+          <mxGeometry x="20" y="100" width="220" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="csp_headers" value="🛡️ Security Headers&lt;br&gt;CSP + HSTS + XSS Protection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e5;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="api_layer">
+          <mxGeometry x="20" y="150" width="220" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="middleware" value="⚙️ Middleware Pipeline&lt;br&gt;→ SecurityHeaders → CORS → JWT → Controllers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;fontColor=#333;align=center;fontSize=10;" vertex="1" parent="api_layer">
+          <mxGeometry x="20" y="200" width="220" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ APPLICATION LAYER ============ -->
+        <mxCell id="app_layer" value="⚙️ Application Layer (Clean Architecture)" style="swimlane;startSize=24;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;html=1;fontColor=#333;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="840" y="80" width="380" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="game_svc" value="🎮 GameAppService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="20" y="36" width="170" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="player_svc" value="👤 PlayerAccountAppService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="20" y="74" width="170" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="revenue_svc" value="💰 RevenueAppService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="20" y="112" width="170" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="analytics_svc" value="📊 AnalyticsAppService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="20" y="150" width="170" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="moderation_svc" value="🛡️ ModerationAppService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="20" y="188" width="170" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="privacy_svc" value="🔐 PrivacyAppService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="20" y="226" width="170" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="core_entities" value="&lt;b&gt;Domain (Core)&lt;/b&gt;&lt;br&gt;Game · PlayerAccount · Revenue&lt;br&gt;Analytics · Moderation · Privacy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="200" y="36" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="efcore" value="&lt;b&gt;EF Core Layer&lt;/b&gt;&lt;br&gt;DbContext + Migrations&lt;br&gt;Npgsql (PostgreSQL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="200" y="130" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="dto_layer" value="&lt;b&gt;DTOs + Contracts&lt;/b&gt;&lt;br&gt;Application.Contracts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="app_layer">
+          <mxGeometry x="200" y="216" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ DATA LAYER ============ -->
+        <mxCell id="data_layer" value="💾 Data Layer" style="swimlane;startSize=24;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;html=1;fontColor=#333;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="740" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="postgres" value="🐘 PostgreSQL 16&lt;br&gt;&lt;b&gt;Primary Database&lt;/b&gt;&lt;br&gt;Games · Players · Revenue&lt;br&gt;Analytics · Moderation" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#E6E6FA;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;align=center;size=12;" vertex="1" parent="data_layer">
+          <mxGeometry x="40" y="40" width="160" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="redis" value="⚡ Redis 7&lt;br&gt;&lt;b&gt;Cache Layer&lt;/b&gt;&lt;br&gt;Sessions · Game URLs&lt;br&gt;Rate Limiting" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontColor=#333;align=center;size=12;" vertex="1" parent="data_layer">
+          <mxGeometry x="240" y="40" width="160" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="minio" value="📦 MinIO&lt;br&gt;&lt;b&gt;Object Storage&lt;/b&gt;&lt;br&gt;Game Builds (.zip)&lt;br&gt;Screenshots · Assets" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontColor=#333;align=center;size=12;" vertex="1" parent="data_layer">
+          <mxGeometry x="440" y="40" width="160" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="otel" value="📊 OpenTelemetry&lt;br&gt;Traces + Metrics&lt;br&gt;→ New Relic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;fontColor=#333;align=center;" vertex="1" parent="data_layer">
+          <mxGeometry x="640" y="60" width="80" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ SECURITY BOUNDARY ============ -->
+        <mxCell id="sec_boundary" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#9673a6;strokeWidth=2;strokeDashPattern=8 4;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="1210" height="620" as="geometry"/>
+        </mxCell>
+        <mxCell id="sec_label" value="🔐 Security Boundary: JWT Auth + CSP + Rate Limiting + CORS" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#9673a6;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="50" y="62" width="300" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ EDGES ============ -->
+        <!-- Users to Frontend -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#9673a6;strokeWidth=1;" edge="1" parent="1" source="user_player" target="angular_hub">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#9673a6;strokeWidth=1;" edge="1" parent="1" source="user_dev" target="angular_hub">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#9673a6;strokeWidth=1;" edge="1" parent="1" source="user_admin" target="angular_admin">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Frontend to API -->
+        <mxCell id="e4" value="REST API (JSON)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#6c8ebf;strokeWidth=2;fontColor=#333;fontSize=10;" edge="1" parent="1" source="angular_hub" target="web_host">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="REST API (JSON)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#6c8ebf;strokeWidth=2;fontColor=#333;fontSize=10;" edge="1" parent="1" source="angular_admin" target="web_host">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="postMessage" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#82b366;strokeWidth=1;fontColor=#333;fontSize=10;" edge="1" parent="1" source="iframe_game" target="web_host">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- API to Application -->
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d79b00;strokeWidth=2;" edge="1" parent="1" source="web_host" target="game_svc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="web_host" target="player_svc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d79b00;strokeWidth=1;" edge="1" parent="1" source="web_host" target="revenue_svc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Application to Data -->
+        <mxCell id="e10" value="SQL (Npgsql)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#9673a6;strokeWidth=2;fontColor=#333;fontSize=10;" edge="1" parent="1" source="efcore" target="postgres">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="IDistributedCache" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1;fontColor=#333;fontSize=10;" edge="1" parent="1" source="game_svc" target="redis">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="MinIO SDK" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d6b656;strokeWidth=1;fontColor=#333;fontSize=10;" edge="1" parent="1" source="game_svc" target="minio">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ============ LEGEND ============ -->
+        <mxCell id="legend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="420" width="380" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="860" y="430" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1" value="" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="460" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1t" value="Frontend (Angular)" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="455" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="485" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2t" value="API Layer (.NET)" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="480" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3" value="" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="510" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3t" value="Application/Domain (Clean Arch)" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="505" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg4" value="" style="rounded=1;fillColor=#E6E6FA;strokeColor=#9673a6;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="535" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg4t" value="PostgreSQL / Database" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="530" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg5" value="" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="560" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg5t" value="Redis Cache" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="555" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg6" value="" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="585" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg6t" value="MinIO / Object Storage" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="580" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg7" value="" style="rounded=1;fillColor=#e1d5e5;strokeColor=#9673a6;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="610" width="20" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg7t" value="Security / Auth" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="890" y="605" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Footer -->
+        <mxCell id="footer" value="GameHub Platform — Clean Architecture (.NET 10 + ABP/EAF) | Angular 20 | PostgreSQL 16 | Redis 7 | MinIO | Docker Compose" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontColor=#999999;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="400" y="650" width="500" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
