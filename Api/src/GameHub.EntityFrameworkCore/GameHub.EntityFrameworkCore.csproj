@@ -20,7 +20,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Eaf.Notifications.Push" Version="9.5.0" />
-		<PackageReference Include="Abp.ZeroCore.EntityFrameworkCore" Version="10.5.0" />
+		<PackageReference Include="Abp.ZeroCore.EntityFrameworkCore" Version="10.5.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\GameHub.Core\GameHub.Core.csproj" />

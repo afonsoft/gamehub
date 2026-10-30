@@ -14,11 +14,12 @@
 	<ItemGroup>
 		<PackageReference Include="Eaf.Middleware.Core" Version="9.5.0" />
 		<PackageReference Include="Hangfire.Console" Version="1.4.3" />
-		<PackageReference Include="Abp" Version="10.5.0" />
-		<PackageReference Include="Abp.ZeroCore" Version="10.5.0" />
-		<PackageReference Include="Abp.AutoMapper" Version="10.5.0" />
+		<PackageReference Include="Abp" Version="10.5.1" />
+		<PackageReference Include="Abp.ZeroCore" Version="10.5.1" />
+		<PackageReference Include="Abp.AutoMapper" Version="10.5.1" />
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
-		<PackageReference Include="Abp.AspNetCore" Version="10.5.0" />
+		<PackageReference Include="Abp.AspNetCore" Version="10.5.1" />
+		<PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.14" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
 	</ItemGroup>
 </Project>
