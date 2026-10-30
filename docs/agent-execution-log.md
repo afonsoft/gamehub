@@ -1,4 +1,25 @@
-## 2026-08-08 (continuação) — Sincronização do novo PR na main do EAF
+## 2026-10-26 — PR Audit, Merge & CI/CD Pipeline Enhancements
+
+### Tarefa
+Analisar todos os PRs abertos, aprovar e mesclar os PRs com checks verdes (`SUCCESS` / `SKIPPED`) para a `main`, e aprimorar os workflows de CI/CD inspirados no repositório `afonsoft/OpenWebUiCode`.
+
+### Implementado
+- Auditoria de PRs abertos no repositório `afonsoft/gamehub`.
+- Aprovação e *merge* automático para a `main` de todos os PRs de dependências (Dependabot) com checks de CI bem-sucedidos (`SUCCESS` / `SKIPPED`) e sem conflitos de merge.
+- Aprimoramento dos workflows de GitHub Actions (`ci-build-test.yml` e `angular-ci.yml`) com:
+  - Configuração de `concurrency` com `cancel-in-progress: true` para cancelar execuções obsoletas ao enviar novos commits.
+  - Variáveis de ambiente otimizadas (`DOTNET_NOLOGO`, `DOTNET_CLI_TELEMETRY_OPTOUT`).
+  - Definição explícita de `permissions: { contents: read }`.
+- Criação do novo workflow de limpeza automática de artefatos (`cleanup-artifacts.yml`) para retenção de 3 dias, inspirado nas boas práticas de `afonsoft/OpenWebUiCode`.
+- Criação e aprovação da SPEC `.specs/SPEC-20261026-pr-merge-and-cicd-enhancements.md`.
+
+### Validação
+- Validação de status de PRs e *merges* bem-sucedidos via GitHub CLI (`gh`).
+- Configuração de workflows validada.
+
+---
+
+
 
 ### Tarefa
 Analisar o novo PR mergeado na `main` do `afonsoft/EAF` e refletir as alterações do template Angular no `angular-admin` do GameHub.

@@ -1,5 +1,8 @@
 name: 🅰️ Angular CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -10,11 +13,15 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened, closed, ready_for_review]
   workflow_dispatch:
 
 env:
   NODE_VERSION: "20"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-angular-hub:
