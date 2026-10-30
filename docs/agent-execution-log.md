@@ -1,3 +1,20 @@
+## 2026-10-26 — EAF 9.5.0 Upgrade, Layout Improvements & Test Suite Enhancement
+
+### Tarefa
+Atualizar a plataforma para a nova versão do framework EAF 9.5.0, aprimorar os componentes de layout no Hub e no Admin, expandir a suíte de testes unitários e documentar via SPEC SDD.
+
+### Implementado
+- Atualização das referências de pacotes EAF de `9.4.6` para `9.5.0` em `Api/common.props`, `GameHub.Core`, `GameHub.Application`, `GameHub.EntityFrameworkCore` e `GameHub.Web.Host`.
+- Aprimoramento visual e de design system em `angular/src/styles.css` (tokens de transição, cartões com efeito elevatório e glassmorphism).
+- Criação de novos testes unitários para verificação de compatibilidade com EAF 9.5.0 (`Api/test/GameHub.Tests/GameHub/Application/EafUpgrade95_Tests.cs`).
+- Criação e finalização da SPEC `.specs/SPEC-20261026-eaf-9.5.0-upgrade-and-layout.md` e arquivamento em `docs/specs/`.
+
+### Validação
+- Verificação estática de pacotes e consistência de compilação.
+- Testes estruturados em xUnit seguindo o padrão BDD (`Dado_Quando_Entao`).
+
+---
+
 ## 2026-10-26 — PR Audit, Merge & CI/CD Pipeline Enhancements
 
 ### Tarefa

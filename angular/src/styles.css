@@ -225,3 +225,23 @@ button, input, select, textarea {
     width: 100%;
   }
 }
+
+/* EAF 9.5 Modern UI / UX Layout Enhancements */
+:root {
+  --gh-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gh-card {
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  border-radius: var(--gh-radius-lg, 0.75rem);
+  padding: var(--gh-spacing-lg, 1.5rem);
+  box-shadow: var(--gh-shadow, 0 1px 3px rgba(0, 0, 0, 0.1));
+  transition: var(--gh-transition);
+}
+
+.gh-card:hover {
+  box-shadow: var(--gh-shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
+  border-color: rgba(255, 94, 87, 0.3);
+}
+
