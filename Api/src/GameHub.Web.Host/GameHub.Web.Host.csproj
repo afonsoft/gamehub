@@ -53,7 +53,7 @@
 		<PackageReference Include="Eaf.Middleware.Web.Core" Version="9.5.0" />
 		<PackageReference Include="Eaf.OpenTelemetry" Version="9.5.0" />
 		<PackageReference Include="Eaf.KeyVault.AspNetCore" Version="9.5.0" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="10.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="10.0.15" />
 		<PackageReference Include="Microsoft.Build" Version="18.3.3" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
